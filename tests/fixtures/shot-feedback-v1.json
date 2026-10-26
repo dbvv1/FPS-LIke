@@ -1,0 +1,312 @@
+{
+  "sourceCommit": "130d8ec7d8f86794e6d7f8bfee2d6496ef6da9bb",
+  "seed": 3,
+  "cases": [
+    {
+      "name": "world-and-range",
+      "specs": [
+        {
+          "id": "a",
+          "team": "amber",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -14
+          }
+        },
+        {
+          "id": "d",
+          "team": "blue",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 14
+          }
+        }
+      ],
+      "commands": {
+        "0": [
+          {
+            "actorId": "a",
+            "type": "shoot",
+            "yaw": 0,
+            "pitch": 0,
+            "at": 250
+          }
+        ],
+        "8": [
+          {
+            "actorId": "a",
+            "type": "shoot",
+            "yaw": 0,
+            "pitch": 1.4,
+            "at": 900
+          }
+        ],
+        "10": [
+          {
+            "actorId": "a",
+            "type": "reload"
+          }
+        ],
+        "14": [
+          {
+            "actorId": "a",
+            "type": "switch",
+            "weapon": "pistol"
+          }
+        ],
+        "30": [
+          {
+            "actorId": "a",
+            "type": "shoot",
+            "yaw": 0.8,
+            "pitch": 0,
+            "at": 123
+          }
+        ]
+      },
+      "hashes": [
+        "4d34f655",
+        "18f25fdb",
+        "c0aeae49",
+        "6f637293",
+        "b5210b0d",
+        "8d1a6a73",
+        "7ada82c9",
+        "92588ddb",
+        "d2e7a468",
+        "bb99e2d0",
+        "c011dc3e",
+        "9ed0b6aa",
+        "9085d456",
+        "b1463632",
+        "5bdef8b4",
+        "483d41f0",
+        "b946288c",
+        "d381a5c8",
+        "a364c61c",
+        "32a52d98",
+        "69e23c4c",
+        "706f8554",
+        "bb276500",
+        "9abdb1b8",
+        "84356874",
+        "d7d7334c",
+        "d62fa900",
+        "cc57f2e8",
+        "0764738c",
+        "884d9420",
+        "8f87cc70",
+        "1560e878",
+        "a521bec8",
+        "22d9bd58",
+        "51387eb0",
+        "875ee638",
+        "e6116748",
+        "f97845b8",
+        "d926cab0",
+        "ab850e70"
+      ]
+    },
+    {
+      "name": "crouched-moving-subtick",
+      "specs": [
+        {
+          "id": "a",
+          "team": "amber",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "d",
+          "team": "blue",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 5
+          }
+        }
+      ],
+      "commands": {
+        "0": [
+          {
+            "actorId": "a",
+            "type": "move",
+            "x": 1,
+            "z": 0
+          }
+        ],
+        "1": [
+          {
+            "actorId": "a",
+            "type": "shoot",
+            "yaw": 0,
+            "pitch": -0.15,
+            "at": 320
+          },
+          {
+            "actorId": "a",
+            "type": "move",
+            "x": 0,
+            "z": 0,
+            "crouch": true,
+            "at": 700
+          }
+        ],
+        "20": [
+          {
+            "actorId": "a",
+            "type": "shoot",
+            "yaw": -0.03,
+            "pitch": -0.04,
+            "at": 500
+          }
+        ],
+        "22": [
+          {
+            "actorId": "a",
+            "type": "reload"
+          }
+        ],
+        "24": [
+          {
+            "actorId": "a",
+            "type": "switch",
+            "weapon": "pistol"
+          }
+        ]
+      },
+      "hashes": [
+        "83b5a9fe",
+        "399fe979",
+        "1cb738ab",
+        "e23e87c1",
+        "c5dc25bf",
+        "24adb4e1",
+        "7388b22b",
+        "47ce8379",
+        "1746a167",
+        "925ea20b",
+        "a9b2b5bf",
+        "9c3551f3",
+        "ce13c7b7",
+        "3a949053",
+        "bfe50d3f",
+        "12144e6b",
+        "d59291f7",
+        "7d36c7cb",
+        "cf151d9f",
+        "d15dbb5b",
+        "8db218da",
+        "ebb6eba2",
+        "0de14567",
+        "82f5bf4f",
+        "a805efca",
+        "82052f72",
+        "2261862e",
+        "493f3d26",
+        "2e2d9232",
+        "69c83a0e",
+        "b7293926",
+        "f8cb1cc6",
+        "0279ce96",
+        "c4a96e8e",
+        "ed749fd6",
+        "875c0326",
+        "c2350036",
+        "75a3464e",
+        "5ca97496",
+        "032ea5a6"
+      ]
+    },
+    {
+      "name": "authoritative-death",
+      "specs": [
+        {
+          "id": "a",
+          "team": "amber",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "d",
+          "team": "blue",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 5
+          }
+        }
+      ],
+      "commands": {
+        "0": [
+          {
+            "actorId": "a",
+            "type": "shoot",
+            "yaw": 0,
+            "pitch": 0,
+            "at": 500
+          }
+        ],
+        "20": [
+          {
+            "actorId": "a",
+            "type": "shoot",
+            "yaw": 0,
+            "pitch": 0,
+            "at": 999
+          }
+        ]
+      },
+      "hashes": [
+        "2c7b31db",
+        "c8301a45",
+        "50d5bf37",
+        "0ba91d8d",
+        "5675f0e3",
+        "4bcf73ed",
+        "b96a57b7",
+        "ccff3845",
+        "cd71c7ab",
+        "ebc5fed7",
+        "8e9220e3",
+        "c1a1613f",
+        "192a66db",
+        "c63feddf",
+        "c23fc363",
+        "0096edf7",
+        "509f491b",
+        "05354b97",
+        "58c94183",
+        "a122a287",
+        "ca239419",
+        "ca239419",
+        "ca239419",
+        "ca239419",
+        "ca239419",
+        "ca239419",
+        "ca239419",
+        "ca239419",
+        "ca239419",
+        "ca239419",
+        "ca239419",
+        "ca239419",
+        "ca239419",
+        "ca239419",
+        "ca239419",
+        "ca239419",
+        "ca239419",
+        "ca239419",
+        "ca239419",
+        "ca239419"
+      ]
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-node_modules/
+node_modules
 dist/
 outputs/
 coverage/
@@ -6,3 +6,10 @@ playwright-report/
 test-results/
 .env
 .env.*
+
+web-dist/
+
+/tests/client/browser-smoke/reports/
+
+# Hosting account metadata stays outside the product repository.
+/.openai/

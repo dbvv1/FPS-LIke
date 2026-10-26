@@ -1,0 +1,37 @@
+{
+  "name": "fps-like",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --import tsx --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit && npm run build:sim && vite build",
+    "sim": "node --import tsx tools/sim.ts",
+    "bake-nav": "node --import tsx tools/bake-nav.ts",
+    "smoke:headless": "node tools/smoke-headless.mjs",
+    "dev": "vite",
+    "build:sim": "vite build --config vite.sim.config.ts",
+    "preview": "vite preview --host 127.0.0.1",
+    "smoke": "npm run build && node tools/smoke.mjs",
+    "build:sites": "node tools/build-sites.mjs"
+  },
+  "dependencies": {
+    "@dimforge/rapier3d-compat": "0.21.0",
+    "recast-navigation": "0.43.1",
+    "three": "0.186.1"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "@types/pngjs": "6.0.5",
+    "@types/three": "0.186.0",
+    "playwright": "1.64.1",
+    "pngjs": "7.0.0",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vite": "8.3.5"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

@@ -1,0 +1,10 @@
+Source: Low Poly Soldier with weapons, by Casti_131
+https://opengameart.org/content/low-poly-soldier-with-weapons
+Author release: 2017-01-11. Retrieved: 2026-10-26.
+The author's page dedicates the source to CC0 1.0 Universal:
+https://creativecommons.org/publicdomain/zero/1.0/
+
+The derived Relay Guard posed mesh and face-color data retain that CC0 dedication.
+Derivation: source aiming/visor controls, uniform scale and origin, removal of
+back-mounted accessories, sampled face colors and an editable posed-mesh export.
+Runtime sampling and renderer code follow this repository's code license.

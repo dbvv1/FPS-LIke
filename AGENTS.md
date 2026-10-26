@@ -2,7 +2,7 @@
 
 本仓库是 [a1dbv](https://github.com/dbvv1/a1dbv) 游戏方向的作品案例：一款原创网页第一人称射击游戏的纵切片，用来把 a1dbv 已写的瞄准、镜头、武器动画、射击 AI 等模块跑成可玩结果。方向与优先级以 a1dbv 的[方向锚点](https://github.com/dbvv1/a1dbv/blob/main/AGENTS.md)、[作品案例约定](https://github.com/dbvv1/a1dbv/blob/main/docs/collaboration/game-taskbook.md#6-作品案例)和 [TASKS](https://github.com/dbvv1/a1dbv/blob/main/docs/collaboration/TASKS.md) 为准；本文件只管在本仓库怎么干活。要做什么见 [docs/brief.md](docs/brief.md)。
 
-**状态：排队。** MOBA-Like 完成第二次需求修改前，本仓库只修订 brief，不建工程。
+**启动顺序：** MOBA-Like main 可玩后开工，先做模拟层和无画面验收，再接第一人称客户端；与 a1dbv 最新 TASKS 一致。
 
 ## 负责与发布
 
@@ -34,7 +34,7 @@
 ## 验收
 
 1. **自动**：`npm test` 通过；改动涉及武器、数值或 AI 时，跑 `npm run sim` 并对照 brief 的目标区间。
-2. **浏览器**：`npm run smoke` 通过：开一局后无控制台错误，画布内有非背景像素，页面暴露的调试状态显示对局在推进。云端没有 GPU 时，Playwright Chromium 加启动参数 `--use-angle=swiftshader --enable-unsafe-swiftshader` 走软件 WebGL；首次建脚本时确认它在云端真能创建 WebGL 上下文。
+2. **浏览器**：`npm run smoke` 通过：开一局后无控制台错误，画布内有非背景像素，页面暴露的调试状态显示对局在推进。云端没有 GPU 时保留 sandbox，仅以 `--use-angle=swiftshader` 走软件 WebGL；用 `ignoreDefaultArgs` 精确移除 Playwright 默认注入的 `--enable-unsafe-swiftshader`，不能只检查显式 `args`。报告启动配置与浏览器版本，实际 argv 通过 `DEBUG=pw:browser` 核对，仍断言真实 WebGL2 上下文。不可关闭 sandbox 或启用 unsafe 标志绕过阻断；失败保留具体原因，CPU 回退另验。
 3. **人工**：手感、画面、声音需要人判断的，记入 a1dbv TASKS“待人工验收”，然后继续做其他工作。
 
 汇报只写实际跑过的结果；没跑的写“未验证”，一句即可。
