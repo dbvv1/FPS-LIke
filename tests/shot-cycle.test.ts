@@ -77,7 +77,7 @@ test('actual visible CPU viewmodel vertices match Three projection and front-fac
       drawWeapon(c as unknown as CanvasRenderingContext2D,640,360,s,a);const pose=weaponPose(s,a);
       const expected:number[][]=[];
       for(const part of weaponParts(a.weapon)){
-        const mesh=weaponMesh(part),vertices=mesh.vertices.map(vertex=>new THREE.Vector3(...vertex).applyAxisAngle(new THREE.Vector3(1,0,0),part.tilt??0).add(new THREE.Vector3(...weaponPartPosition(part,pose))).applyEuler(new THREE.Euler(pose.pitch,0,pose.roll,'ZYX')).add(new THREE.Vector3(pose.x,pose.y,pose.z)));
+        const mesh=weaponMesh(part,pose),vertices=mesh.vertices.map(vertex=>new THREE.Vector3(...vertex).applyAxisAngle(new THREE.Vector3(1,0,0),part.tilt??0).add(new THREE.Vector3(...weaponPartPosition(part,pose))).applyEuler(new THREE.Euler(pose.pitch,0,pose.roll,'ZYX')).add(new THREE.Vector3(pose.x,pose.y,pose.z)));
         for(const face of mesh.faces){
           if(part.mesh){const normal=new THREE.Vector3();let area=0;for(let i=1;i<face.length-1&&area<5e-11;i++){const triangle=new THREE.Triangle(vertices[face[0]!]!,vertices[face[i]!]!,vertices[face[i+1]!]!);area=triangle.getArea();triangle.getNormal(normal);}if(area<5e-11||normal.dot(vertices[face[0]!]!)>=0)continue;}
           for(const index of face){const v=vertices[index]!.clone().project(camera);expected.push([(v.x+1)*320,(1-v.y)*180]);}

@@ -92,7 +92,13 @@ export class View {
     this.weapon.visible = player.hp > 0;
     this.rifle.visible = player.weapon === 'rifle'; this.pistol.visible = player.weapon === 'pistol';
     for (const group of [this.rifle, this.pistol]) for (const part of group.children) {
-      part.position.set(...weaponPartPosition(part.userData.part,pose));
+      const source=part.userData.part;
+      part.position.set(...weaponPartPosition(source,pose));
+      if(source.arm){
+        const mesh=part as THREE.Mesh, data=weaponMesh(source,pose), positions=mesh.geometry.getAttribute('position');let n=0;
+        for(const face of data.faces)for(let i=1;i<face.length-1;i++)for(const index of [face[0]!,face[i]!,face[i+1]!])positions.setXYZ(n++,...data.vertices[index]!);
+        positions.needsUpdate=true;mesh.geometry.computeVertexNormals();mesh.geometry.computeBoundingSphere();
+      }
     }
     this.flash.position.set(...weaponMuzzle(player.weapon));
     this.flash.visible = pose.flash > 0; this.flash.scale.setScalar(.6 + pose.flash * .7);

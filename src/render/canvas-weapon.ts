@@ -11,7 +11,7 @@ export function drawWeapon(c: CanvasRenderingContext2D, w: number, h: number, st
   const project = ([x, y, z]: Point) => [w / 2 + x * focal / -z, h / 2 - y * focal / -z];
   const faces: { points: Point[]; depth: number; color: string; outline:boolean }[] = [];
   for (const part of weaponParts(actor.weapon)) {
-    const [px,py,pz]=weaponPartPosition(part,pose), mesh=weaponMesh(part), tilt=part.tilt??0;
+    const [px,py,pz]=weaponPartPosition(part,pose), mesh=weaponMesh(part,pose), tilt=part.tilt??0;
     const vertices: Point[]=mesh.vertices.map(([x,y,z])=>rotate([px+x,py+y*Math.cos(tilt)-z*Math.sin(tilt),pz+y*Math.sin(tilt)+z*Math.cos(tilt)]));
     for (const [index,indices] of mesh.faces.entries()) {
       const points = indices.map(i => vertices[i]!);

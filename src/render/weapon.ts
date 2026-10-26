@@ -1,9 +1,10 @@
 import { freeze } from '../content/freeze.js';
 import { WEAPONS } from '../content/weapons.js';
 import { SECOND, SUBTICKS, type Actor, type GameState, type Shot, type WeaponId } from '../sim/types.js';
+import { sleeveVertices, type ArmRig } from './arm.js';
 import { rifleParts, rifleMuzzle } from './rifle.js';
 
-export type WeaponPart = { id?:string; position: readonly [number, number, number]; size: readonly [number, number, number]; color: number; bevel?: number; tilt?: number; role?: 'magazine' | 'support' | 'bolt'; gripOffset?: readonly [number,number,number]; mesh?: {vertices: readonly (readonly [number,number,number])[];faces: readonly (readonly number[])[]} };
+export type WeaponPart = { id?:string; arm?: ArmRig; position: readonly [number, number, number]; size: readonly [number, number, number]; color: number; bevel?: number; tilt?: number; role?: 'magazine' | 'support' | 'bolt'; gripOffset?: readonly [number,number,number]; mesh?: {vertices: readonly (readonly [number,number,number])[];faces: readonly (readonly number[])[]} };
 // Existing original pistol is unchanged; the rifle is a separately sourced
 // editable master with original hands, sharing these pose and mesh contracts.
 function makePistolParts(): WeaponPart[] {
@@ -29,8 +30,11 @@ function makePistolParts(): WeaponPart[] {
     for(let i=0;i<3;i++)kit.push({position:[-.014,-.065-i*.019,-.20],size:[.08,.016,.025],color:glove,bevel:.006,role:'support'});
   return kit;
 }
-export function weaponMesh(part: Readonly<WeaponPart>) {
-  if(part.mesh)return part.mesh;
+export function weaponMesh(part: Readonly<WeaponPart>, pose?: ReturnType<typeof weaponPose>) {
+  if(part.mesh){
+    if(part.arm&&pose){const position=weaponPartPosition(part,pose),shift=position.map((n,i)=>n-part.position[i]!) as [number,number,number];return {vertices:sleeveVertices(part.arm,pose,shift,position),faces:part.mesh.faces};}
+    return part.mesh;
+  }
   const [sx,sy,sz]=part.size,x=sx/2,y=sy/2,z=sz/2,b=Math.min(part.bevel??0,sx*.45,sy*.45);
   const ring=b>0?[[-x+b,-y],[x-b,-y],[x,-y+b],[x,y-b],[x-b,y],[-x+b,y],[-x,y-b],[-x,-y+b]]:[[-x,-y],[x,-y],[x,y],[-x,y]];
   const vertices=([-z,z] as const).flatMap(depth=>ring.map(([vx,vy])=>[vx!,vy!,depth] as [number,number,number]));

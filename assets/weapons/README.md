@@ -12,7 +12,7 @@ The RX-24 rifle uses one **CC0 Quaternius Ultimate Guns Pack** source, `AssaultR
 
 ## Hands and consumers
 
-`src/render/rifle.ts` is the original editable palm/finger/wrist/sleeve and small charging-handle recipe; it uses tapered curved sections. This original recipe and the existing pistol recipe in `weapon.ts` may be reused under CC0-1.0. Both Three and Canvas consume the same mesh vertices, part positions and existing reload pose. Canvas shades mesh normals without outlining every source polygon; it does not substitute a flat weapon screenshot.
+`src/render/rifle.ts` is the original editable palm/finger/wrist/sleeve and small charging-handle recipe; it uses tapered curved sections. This original recipe and the existing pistol recipe in `weapon.ts` may be reused under CC0-1.0. Both Three and Canvas consume the same mesh vertices, part positions and existing reload pose. `src/render/arm.ts` is part of the original CC0 recipe: the existing hand pose drives the cuff, two fixed-length segments resolve an outward elbow from a camera-space shoulder anchor, and a curved sleeve follows those joints. The sleeve cuff shares the unchanged wrist tube's full axis, polygon orientation and rim vertices; coincident centres alone do not close a seam. This is procedural sleeve articulation, not a new character skin or an imported animation clip. Canvas shades mesh normals without outlining every source polygon; it does not substitute a flat weapon screenshot.
 
 The support hand reaches the same magazine and follows its out/in path. Contact, finger placement and screen coverage must be judged in actual idle, recoil and reload views; geometry/projection tests are only regression gates. Rifle source intake is not a claim of CS2-level quality.
 

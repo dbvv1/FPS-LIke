@@ -1,4 +1,5 @@
 import source from '../../assets/weapons/rx24-rifle.json';
+import { sleevePath } from './arm.js';
 import type { WeaponPart } from './weapon.js';
 type Point = [number, number, number];
 // Original gloved hands: tapered, curved sections rather than large box palms.
@@ -33,13 +34,14 @@ function palm(id:string,center:Point,radii:Point,color:number,support=false):Wea
 }
 function hands():WeaponPart[] {
   const glove=0x7d725f,edge=0x665d50,sleeve=0x3e514e;
+  const supportRadii=[.052,.049,.047,.047,.046,.045,.043,.036,.027],triggerRadii=[.056,.053,.050,.050,.049,.048,.046,.037,.029];
   // Palm first: the contact/projection contract checks its grip against the mag.
   const parts:WeaponPart[]=[
     palm('support-palm',[-.033,-.069,-.446],[.027,.026,.050],glove,true),
-    tube('support-sleeve',[[-.17,-.38,.02],[-.105,-.19,-.27],[-.05,-.09,-.41]],[.052,.043,.030],sleeve,true),
+    tube('support-sleeve',sleevePath([-.17,-.38,.02],[-.105,-.19,-.27],[-.05,-.09,-.41]),supportRadii,sleeve,true),
     tube('support-wrist',[[-.05,-.09,-.41],[-.036,-.071,-.442]],[.027,.025],edge,true),
     palm('trigger-palm',[.036,-.099,-.19],[.025,.042,.033],glove),
-    tube('trigger-sleeve',[[.18,-.35,.16],[.11,-.20,-.075],[.047,-.14,-.17]],[.056,.047,.031],sleeve),
+    tube('trigger-sleeve',sleevePath([.18,-.35,.16],[.11,-.20,-.075],[.047,-.14,-.17]),triggerRadii,sleeve),
     tube('trigger-wrist',[[.047,-.14,-.17],[.036,-.11,-.19]],[.029,.026],edge),
   ];
   for(let i=0;i<4;i++){
@@ -57,6 +59,8 @@ function hands():WeaponPart[] {
   const rest=parts.find(p=>p.id==='support-palm')!.position;
   const grip=source.grip.surface.map((n,axis)=>n+source.grip.palmOffset[axis]!-rest[axis]!) as Point;
   for(const part of parts)if(part.role==='support')part.gripOffset=grip;
+  parts.find(p=>p.id==='support-sleeve')!.arm={shoulder:[-.08,-.58,-.40],hint:[-.30,-.80,-.62],lengths:[.30,.28],cuff:[-.05,-.065,-.41],wrist:[-.036,-.046,-.442],radii:supportRadii};
+  parts.find(p=>p.id==='trigger-sleeve')!.arm={shoulder:[.46,-.61,-.36],hint:[.68,-.80,-.59],lengths:[.30,.28],cuff:[.047,-.14,-.17],wrist:[.036,-.11,-.19],radii:triggerRadii};
   return parts;
 }
 export const rifleParts:WeaponPart[]=[...(source.parts as unknown as WeaponPart[]),...hands(),
