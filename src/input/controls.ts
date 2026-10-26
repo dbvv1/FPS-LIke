@@ -9,7 +9,7 @@ export class Controls {
   private requestPending = false;
   private lockGeneration = 0;
   private abort = new AbortController();
-  constructor(private canvas: HTMLCanvasElement, private changed: (locked: boolean) => void, private error: (message: string) => void) {
+  constructor(private canvas: HTMLCanvasElement, private changed: (locked: boolean) => void, private error: (message: string) => void, private sensitivity: () => number = () => 1) {
     const signal = this.abort.signal;
     document.addEventListener('pointerlockchange', () => {
       // A lock can arrive after blur/Escape canceled its asynchronous request.
@@ -22,7 +22,8 @@ export class Controls {
     document.addEventListener('pointerlockerror', () => { if (this.requestPending && !this.locked) this.error('未能锁定鼠标。请再点一次“进入靶场”；若浏览器不支持，请使用桌面 Chromium。'); }, { signal });
     document.addEventListener('mousemove', e => {
       if (!this.locked) return;
-      this.yaw += e.movementX * 0.002; this.pitch = Math.max(-1.45, Math.min(1.45, this.pitch - e.movementY * 0.002));
+      const scale = 0.002 * this.sensitivity();
+      this.yaw += e.movementX * scale; this.pitch = Math.max(-1.45, Math.min(1.45, this.pitch - e.movementY * scale));
       this.add({ type: 'aim', yaw: this.yaw, pitch: this.pitch });
       if (this.moving) this.move();
     }, { signal });

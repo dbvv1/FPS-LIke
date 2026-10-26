@@ -105,3 +105,14 @@ test('pointer-lock failure keeps the exact browser cause without bypass or retry
   try { await controls.lock(); assert.equal(canvas.calls,1); assert.equal(controls.locked,false); assert.match(message,/WrongDocumentError: document not active/); }
   finally { controls.dispose(); env.restore(); }
 });
+test('saved sensitivity scales yaw/pitch once, preserves shot sampling, and UI input never reaches gameplay',async t=>{
+ const env=environment(),canvas=new FakeCanvas(env.document),actor=actorFixture();let gain=.5,now=0;t.mock.method(performance,'now',()=>now);
+ const controls=new Controls(canvas as unknown as HTMLCanvasElement,()=>{},()=>{},()=>gain);
+ try{
+  // Slider arrows/clicks/mouse motion while unlocked do not aim, shoot or move.
+  env.document.dispatchEvent(event('mousemove',{movementX:100,movementY:50}));env.document.dispatchEvent(event('keydown',{code:'ArrowRight',repeat:false}));canvas.dispatchEvent(event('mousedown',{button:0}));assert.equal(controls.yaw,0);assert.equal(controls.shooting,false);
+  await controls.lock();now=4;env.document.dispatchEvent(event('mousemove',{movementX:100,movementY:50}));now=7;canvas.dispatchEvent(event('mousedown',{button:0}));now=12;env.document.dispatchEvent(event('mousemove',{movementX:50,movementY:0}));
+  const shot=controls.commands(actor,0,16,0).find(c=>c.type==='shoot')!;assert.equal(shot.type,'shoot');if(shot.type!=='shoot')return;assert.equal(shot.yaw,.1);assert.equal(shot.pitch,-.05);assert.equal(shot.at,437);assert.ok(Math.abs(controls.yaw-.15)<1e-12);
+  controls.pause();gain=2;env.document.dispatchEvent(event('mousemove',{movementX:100,movementY:50}));assert.ok(Math.abs(controls.yaw-.15)<1e-12);await controls.lock();now=20;env.document.dispatchEvent(event('mousemove',{movementX:100,movementY:50}));assert.ok(Math.abs(controls.yaw-.55)<1e-12);assert.equal(controls.pitch,-.25);assert.equal(controls.shooting,false);
+ }finally{controls.dispose();env.restore();}
+});

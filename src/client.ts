@@ -2,6 +2,7 @@ import { Game } from './sim/game.js';
 import { Bot } from './sim/bot.js';
 import { initNavigation, Navigation } from './sim/navigation.js';
 import { Controls } from './input/controls.js';
+import { MouseSensitivity } from './input/sensitivity.js';
 import { View } from './render/scene.js';
 import { CanvasView } from './render/canvas.js';
 import { Soundscape } from './render/audio.js';
@@ -13,7 +14,8 @@ let game: Game, nav: Navigation, bot: Bot, view: View | CanvasView, controls: Co
 let ready = false, running = false, restarting = false, frameId = 0, simStart = 0, lastFrame = performance.now();
 let resultRevealAt: number | null = null;
 const sound = new Soundscape();
-const hud = new Hud(() => void resume(), () => next(), () => void restart(), enabled => { sound.enabled = enabled; if (enabled) void sound.unlock().catch(() => hud.message('当前浏览器未启用音频，画面与操作仍可继续。')); });
+const sensitivity = new MouseSensitivity(() => window.localStorage);
+const hud = new Hud(() => void resume(), () => next(), () => void restart(), enabled => { sound.enabled = enabled; if (enabled) void sound.unlock().catch(() => hud.message('当前浏览器未启用音频，画面与操作仍可继续。')); }, sensitivity);
 hud.setBusy(true);
 function player(state = game.state) { return state.actors.find(a => a.id === 'player')!; }
 function fail(error: unknown) {
@@ -81,9 +83,11 @@ try {
   game = await Game.create(1, [{ id: 'player', team: 'amber' }, { id: 'bot', team: 'blue', bot: hud.difficulty }]);
   bot = new Bot('bot', hud.difficulty, 0x85ebca6a, nav);
   controls = new Controls(canvas, locked => {
+    // A delayed pointer-lock acquisition must not resume behind a new settings draft.
+    if (locked && sensitivity.dirty) { controls.pause(); hud.message('灵敏度尚未应用，请先保存或取消修改。'); return; }
     running = locked && game.state.phase === 'live'; simStart = performance.now();
     hud.menu(!running && resultRevealAt === null, game.state, player());
-  }, text => hud.message(text));
+  }, text => hud.message(text), () => sensitivity.value);
   controls.reset(player());
   document.getElementById('pause-button')!.onclick = () => { resultRevealAt = null; controls.pause(); hud.menu(true, game.state, player()); };
   window.addEventListener('resize', () => view.resize());
