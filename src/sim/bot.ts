@@ -1,6 +1,6 @@
 import { DIFFICULTIES } from '../content/difficulty.js';
 import { MAP } from '../content/map.js';
-import { WEAPONS } from '../content/weapons.js';
+import { shootingState } from './shooting.js';
 import { angles, flatDistance, nextRandom } from './math.js';
 import { eye } from './physics.js';
 import type { Navigation } from './navigation.js';
@@ -55,11 +55,9 @@ export class Bot {
       }
       const target = { ...visible.position, y: visible.position.y + ((config.headAim || !o.bodyVisibleIds.includes(visible.id)) ? visible.crouch ? 1.02 : 1.62 : visible.crouch ? 0.53 : 0.82) };
       const view = angles(eye(self), target);
-      const weapon = WEAPONS[self.weapon], mag = self.weapons[self.weapon];
-      const index = o.time - mag.lastShot > 0.3 * SECOND ? 0 : mag.shots % weapon.recoil.length;
-      const recoil = weapon.recoil[index]!;
-      const yaw = view.yaw + this.aim.yaw - recoil[0] * config.recoilControl;
-      const pitch = view.pitch + this.aim.pitch - recoil[1] * config.recoilControl;
+      const mag = self.weapons[self.weapon], accuracy = shootingState(self, o.time);
+      const yaw = view.yaw + this.aim.yaw - accuracy.recoilYaw * config.recoilControl;
+      const pitch = view.pitch + this.aim.pitch - accuracy.recoilPitch * config.recoilControl;
       emit({ type: 'move', x: 0, z: 0 });
       emit({ type: 'interact', held: false });
       emit({ type: 'aim', yaw, pitch });

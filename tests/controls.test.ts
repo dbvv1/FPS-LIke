@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Controls } from '../src/input/controls.js';
 import type { Actor } from '../src/sim/types.js';
-function actorFixture(): Actor { return { id: 'player', team: 'amber', side: 'attack', hp: 100, position: { x: 0, y: 0, z: 0 }, yaw: 0, pitch: 0, weapon: 'rifle', weapons: { rifle: { ammo: 24, reserve: 72, shots: 0, lastShot: -60000 }, pistol: { ammo: 10, reserve: 30, shots: 0, lastShot: -60000 } }, input: { x: 0, z: 0, crouch: false, walk: false, interact: false }, reload: null, nextShot: 0, nextFootstep: 0, bot: null }; }
+function actorFixture(): Actor { return { id: 'player', team: 'amber', side: 'attack', hp: 100, position: { x: 0, y: 0, z: 0 }, velocity: { x: 0, z: 0 }, yaw: 0, pitch: 0, weapon: 'rifle', weapons: { rifle: { ammo: 24, reserve: 72, shots: 0, lastShot: -60000, recoil: 0 }, pistol: { ammo: 10, reserve: 30, shots: 0, lastShot: -60000, recoil: 0 } }, input: { x: 0, z: 0, crouch: false, walk: false, interact: false }, reload: null, nextShot: 0, nextFootstep: 0, bot: null }; }
 function event(type: string, properties: Record<string, unknown> = {}) { return Object.assign(new Event(type, { cancelable: true }), properties); }
 class FakeDocument extends EventTarget {
   pointerLockElement: unknown = null; hidden = false;

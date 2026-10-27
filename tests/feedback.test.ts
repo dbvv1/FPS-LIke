@@ -1,15 +1,30 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {hash} from '../src/sim/math.js';
 import {Game} from '../src/sim/game.js';
 import {type Command,type PlayerSpec} from '../src/sim/types.js';
 import {Feedback,RESULT_HOLD_MS} from '../src/render/feedback.js';
 import {localShotResult,weaponParts,weaponPose,weaponPartPosition,weaponMesh} from '../src/render/weapon.js';
 import {Soundscape} from '../src/render/audio.js';
 const duel:PlayerSpec[]=[{id:'a',team:'amber',position:{x:0,y:0,z:0}},{id:'d',team:'blue',position:{x:0,y:0,z:5}}];
-test('v1 command-tape hashes remain byte-compatible after adding presentation facts',async()=>{
- const fixture=JSON.parse(readFileSync(new URL('./fixtures/shot-feedback-v1.json',import.meta.url),'utf8'));
- for(const c of fixture.cases){const game=await Game.create(fixture.seed,c.specs);try{for(let frame=0;frame<c.hashes.length;frame++){if(game.state.phase==='live')game.step(c.commands[frame]??[]);assert.equal(game.stateHash,c.hashes[frame],`${c.name} frame${frame}`);}}finally{game.dispose();}}
+test('v2 freezes the original command tapes under new rules; presentation impact facts stay outside gameplay hashes',async()=>{
+ const old=JSON.parse(readFileSync(new URL('./fixtures/shot-feedback-v1.json',import.meta.url),'utf8'));
+ const fixture=JSON.parse(readFileSync(new URL('./fixtures/shot-feedback-v2.json',import.meta.url),'utf8'));
+ assert.equal(fixture.gameplayVersion,2);assert.equal(fixture.seed,old.seed);
+ for(let i=0;i<fixture.cases.length;i++){
+  const c=fixture.cases[i],previous=old.cases[i];
+  assert.deepEqual(c.commands,previous.commands);assert.deepEqual(c.specs,previous.specs);
+  assert.notDeepEqual(c.hashes,previous.hashes,'v1 hash compatibility is intentionally versioned, never silently relabelled');
+  const game=await Game.create(fixture.seed,c.specs);
+  try{for(let frame=0;frame<c.hashes.length;frame++){
+   if(game.state.phase==='live')game.step(c.commands[frame]??[]);
+   assert.equal(game.stateHash,c.hashes[frame],`${c.name} frame${frame}`);
+   const state=game.state;assert.equal(state.gameplayVersion,2);
+   const gameplay={...state,shots:state.shots.map(({impact,...shot})=>shot)};
+   assert.equal(game.stateHash,hash({state:gameplay,rules:game.rules}));
+  }}finally{game.dispose();}
+ }
 });
 test('one authoritative trace records exact shooting eye, world/range endpoint, and death at settlement',async()=>{
  const world=await Game.create(1),game=await Game.create(1,duel);

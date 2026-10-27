@@ -1,3 +1,5 @@
+import { integrateMovement } from './movement.js';
+import { shootingState } from './shooting.js';
 import { MAP } from '../content/map.js';
 import { WEAPONS } from '../content/weapons.js';
 import { distance, flatDistance, hash, nextRandom } from './math.js';
@@ -14,6 +16,8 @@ export class Game {
   private current: GameState;
   private physics: Physics;
   private disposed = false;
+  private motionTime = 0;
+  private motionCheckpoint: ReturnType<Physics['captureMotion']> = [];
   private readonly ruleSet: Readonly<Rules>;
   get rules(): Readonly<Rules> { return this.ruleSet; }
   private readonly specs: PlayerSpec[];
@@ -33,7 +37,7 @@ export class Game {
     if (Object.values(this.rules).some(v => !Number.isSafeInteger(v) || v <= 0)) throw new Error('Rules must be positive integer tick counts');
     this.specs = structuredClone(specs).sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
     this.current = {
-      seed, random: seed || 0x6d2b79f5, tick: 0, time: 0, round: 1, roundEndsAt: this.rules.roundTicks * SUBTICKS, phase: 'live', score: { amber: 0, blue: 0 }, actors: [],
+      gameplayVersion: 2, seed, random: seed || 0x6d2b79f5, tick: 0, time: 0, round: 1, roundEndsAt: this.rules.roundTicks * SUBTICKS, phase: 'live', score: { amber: 0, blue: 0 }, actors: [],
       bomb: { carrier: null, position: { ...MAP.spawns.attack }, planted: false, explodeAt: null },
       interaction: null, result: null, shots: [], sounds: [], soundSequence: 0,
     };
@@ -42,7 +46,7 @@ export class Game {
   }
   get state(): GameState { return structuredClone(this.current); }
   get stateHash() {
-    // Preserve the v1 gameplay replay hash. Presentation facts are derived from the
+    // Version 2 includes velocity/recoil gameplay state. Presentation facts are derived from the
     // same trace, not input/state used by future gameplay, and are excluded.
     const state = { ...this.current, shots: this.current.shots.map(({ impact: _impact, ...shot }) => shot) };
     return hash({ state, rules: this.rules });
@@ -54,8 +58,8 @@ export class Game {
       const side: Side = (spec.team === 'amber') !== swapped ? 'attack' : 'defend';
       const position = this.current.round === 1 && spec.position ? { ...spec.position } : { ...MAP.spawns[side], x: MAP.spawns[side].x + counts[side] * 1.1 };
       counts[side]++;
-      const weapons = Object.fromEntries((['rifle', 'pistol'] as const).map(id => [id, { ammo: WEAPONS[id].magazine, reserve: WEAPONS[id].reserve, shots: 0, lastShot: -SECOND }])) as Actor['weapons'];
-      return { id: spec.id, team: spec.team, side, hp: 100, position, yaw: side === 'attack' ? 0 : Math.PI, pitch: 0, input: { x: 0, z: 0, walk: false, crouch: false, interact: false }, weapon: 'rifle', weapons, reload: null, nextShot: 0, nextFootstep: 0, bot: spec.bot ?? null };
+      const weapons = Object.fromEntries((['rifle', 'pistol'] as const).map(id => [id, { ammo: WEAPONS[id].magazine, reserve: WEAPONS[id].reserve, shots: 0, lastShot: -SECOND, recoil: 0 }])) as Actor['weapons'];
+      return { id: spec.id, team: spec.team, side, hp: 100, position, velocity: { x: 0, z: 0 }, yaw: side === 'attack' ? 0 : Math.PI, pitch: 0, input: { x: 0, z: 0, walk: false, crouch: false, interact: false }, weapon: 'rifle', weapons, reload: null, nextShot: 0, nextFootstep: 0, bot: spec.bot ?? null };
     });
     const carrier = this.current.actors.find(a => a.side === 'attack')!;
     this.current.bomb = { carrier: carrier.id, position: { ...carrier.position }, planted: false, explodeAt: null };
@@ -71,20 +75,32 @@ export class Game {
     this.resetActors();
     this.physics = new Physics(this.current.actors);
   }
+  private checkpointMotion() {
+    this.motionTime = this.current.time;
+    this.motionCheckpoint = this.physics.captureMotion(this.current.actors);
+  }
   private assertAlive() { if (this.disposed) throw new Error('Game has been disposed'); }
   step(commands: readonly Command[] = []) {
     this.assertAlive();
     for (const c of commands) this.validate(c);
     if (this.current.phase === 'over') return;
     const start = this.current.tick * SUBTICKS;
+    this.checkpointMotion();
+    const tickPositions = this.current.actors.map(actor => ({ ...actor.position }));
     const sorted = commands.map((c, i) => ({ c, i })).sort((a, b) => (a.c.at ?? 0) - (b.c.at ?? 0) || a.i - b.i);
     for (const { c } of sorted) {
       this.advance(start + (c.at ?? 0));
       if (this.current.phase !== 'live') break;
       this.command(c);
-      this.settle();
+      this.settle(c.type === 'interact' && c.held ? c.actorId : false);
     }
     this.advance(start + SUBTICKS);
+    // Footstep events are consumed once per fixed tick, never during a motion query.
+    for (const [i, actor] of this.current.actors.entries()) {
+      if (actor.hp > 0 && !actor.input.walk && !actor.input.crouch && flatDistance(tickPositions[i]!, actor.position) > 0.001 && this.current.time >= actor.nextFootstep) {
+        this.sound(actor, 'step', 13); actor.nextFootstep = this.current.time + 0.35 * SECOND;
+      }
+    }
     this.current.tick++;
     // Ended rounds stop on the exact decisive sub-tick, not on a later rendered frame.
     if (this.current.phase === 'live') this.current.time = this.current.tick * SUBTICKS;
@@ -107,11 +123,13 @@ export class Game {
     const actor = this.current.actors.find(a => a.id === c.actorId)!;
     if (actor.hp <= 0) return;
     if (c.type === 'move') {
+      const previous = { ...actor.input };
       const scale = Math.max(1, Math.hypot(c.x, c.z));
       actor.input.x = c.x / scale; actor.input.z = c.z / scale;
       actor.input.walk = c.walk ?? false;
       actor.input.crouch = (c.crouch ?? false) || (actor.input.crouch && !this.physics.canStand(actor));
       this.physics.sync(actor);
+      if (previous.x !== actor.input.x || previous.z !== actor.input.z || previous.walk !== actor.input.walk || previous.crouch !== actor.input.crouch) this.checkpointMotion();
     } else if (c.type === 'aim') { actor.yaw = c.yaw; actor.pitch = c.pitch; }
     else if (c.type === 'switch') { if (c.weapon !== actor.weapon) { actor.weapon = c.weapon; actor.reload = null; actor.input.interact = false; actor.nextShot = Math.max(actor.nextShot, this.current.time + 12 * SUBTICKS); } }
     else if (c.type === 'reload') {
@@ -131,13 +149,12 @@ export class Game {
     // Revalidate a bot's queued target after earlier same-frame actions; players can still shoot blind.
     if ((actor.bot || targetId !== undefined) && (!target || target.hp <= 0 || !this.physics.visible(actor, target))) return;
     actor.input.interact = false;
-    if (now - mag.lastShot > 0.3 * SECOND) mag.shots = 0;
-    const recoil = weapon.recoil[mag.shots % weapon.recoil.length]!;
-    const moving = Math.hypot(actor.input.x, actor.input.z) > 0.1;
-    const spread = weapon.spread + (moving ? weapon.movingSpread * (actor.input.walk ? 0.5 : 1) : 0);
-    const shotYaw = yaw + recoil[0] + (nextRandom(this.current) * 2 - 1) * spread;
-    const shotPitch = pitch + recoil[1] + (nextRandom(this.current) * 2 - 1) * spread;
-    mag.ammo--; mag.shots++; mag.lastShot = now; actor.nextShot = now + weapon.interval * SUBTICKS;
+    const accuracy = shootingState(actor, now);
+    const shotYaw = yaw + accuracy.recoilYaw + (nextRandom(this.current) * 2 - 1) * accuracy.spread;
+    const shotPitch = pitch + accuracy.recoilPitch + (nextRandom(this.current) * 2 - 1) * accuracy.spread;
+    mag.ammo--; mag.shots = accuracy.recoilIndex > 0 ? mag.shots + 1 : 1;
+    mag.recoil = Math.min(weapon.recoil.length - 1, accuracy.recoilIndex + 1);
+    mag.lastShot = now; actor.nextShot = now + weapon.interval * SUBTICKS;
     const trace = this.physics.traceDetailed(actor, this.current.actors, shotYaw, shotPitch), hit = trace.hit;
     const damage = hit ? weapon.damage * (hit.part === 'head' ? weapon.headMultiplier : 1) : 0;
     const targetVisible = target ? this.physics.visible(actor, target) : false;
@@ -146,8 +163,11 @@ export class Game {
       hit.actor.hp = Math.max(0, hit.actor.hp - damage);
       if (hit.actor.hp === 0) {
         hit.actor.reload = null; hit.actor.input.interact = false;
+        hit.actor.velocity = { x: 0, z: 0 };
+        for (const mag of Object.values(hit.actor.weapons)) { mag.recoil = 0; mag.shots = 0; }
         if (this.current.bomb.carrier === hit.actor.id) { this.current.bomb.carrier = null; this.current.bomb.position = { ...hit.actor.position }; }
         this.physics.sync(hit.actor);
+        this.checkpointMotion();
       }
     }
     this.current.shots.push({ actorId: actor.id, weapon: actor.weapon, time: now, yaw: shotYaw, pitch: shotPitch, hit: hit?.actor.id ?? null, part: hit?.part ?? null, damage, visible, targetId: targetId ?? null, targetVisible, impact: { origin: trace.origin, end: trace.end, kind: trace.kind, killed: !!hit && hit.actor.hp === 0 } });
@@ -165,40 +185,45 @@ export class Game {
       const interaction = this.current.interaction;
       if (interaction) end = Math.min(end, interaction.since + this.rules[interaction.kind === 'plant' ? 'plantTicks' : 'defuseTicks'] * SUBTICKS);
       end = Math.min(end, this.current.bomb.explodeAt ?? this.current.roundEndsAt);
-      const elapsed = (end - this.current.time) / SECOND;
-      if (elapsed <= 0) throw new Error('Timer failed to advance');
+      if (end <= this.current.time) throw new Error('Timer failed to advance');
+      // Re-query from the fixed tick/real input-change checkpoint. A subtick aim,
+      // shot or timer sample must not become another acceleration/collision step.
+      // Otherwise even an unrelated actor's aim events can change which side of
+      // a cover corner this actor slides around.
+      const elapsed = (end - this.motionTime) / SECOND;
+      this.physics.restoreMotion(this.current.actors, this.motionCheckpoint);
       for (const actor of this.current.actors) {
         if (actor.hp <= 0) continue;
-        const moving = Math.hypot(actor.input.x, actor.input.z) > 0.001;
-        if (moving) {
-          const speed = actor.input.crouch ? 1.7 : actor.input.walk ? 2.3 : 4.5;
-          const before = { ...actor.position };
-          this.physics.move(actor, { x: actor.input.x * speed * elapsed, y: -0.12 * elapsed, z: actor.input.z * speed * elapsed });
-          if (!actor.input.walk && !actor.input.crouch && flatDistance(before, actor.position) > 0.001 && this.current.time >= actor.nextFootstep) {
-            this.sound(actor, 'step', 13); actor.nextFootstep = this.current.time + 0.35 * SECOND;
-          }
-        }
+        const motion = integrateMovement(actor.velocity, actor.input, elapsed);
+        actor.velocity = motion.velocity;
+        if (Math.hypot(motion.translation.x, motion.translation.z) > 1e-12) this.physics.move(actor, motion.translation);
       }
       this.current.time = end;
-      this.settle();
+      this.settle(end % SUBTICKS === 0);
     }
   }
-  private settle() {
+  // An explicit interact command may start at its exact timestamp. Automatic
+  // eligibility (coasting to rest / pickup) is sampled once per fixed tick;
+  // otherwise an unrelated aim query could start a plant or fuse earlier.
+  private settle(startInteraction: boolean | string = false) {
     const s = this.current;
     for (const a of s.actors) if (a.reload && a.reload.end <= s.time) {
       const mag = a.weapons[a.reload.weapon];
       const load = Math.min(WEAPONS[a.reload.weapon].magazine - mag.ammo, mag.reserve);
       mag.ammo += load; mag.reserve -= load; a.reload = null;
     }
-    if (!s.bomb.planted && !s.bomb.carrier) {
+    if (startInteraction === true && !s.bomb.planted && !s.bomb.carrier) {
       const pickup = s.actors.find(a => a.hp > 0 && a.side === 'attack' && flatDistance(a.position, s.bomb.position) <= 1);
       if (pickup) s.bomb.carrier = pickup.id;
     }
     if (s.bomb.carrier) s.bomb.position = { ...s.actors.find(a => a.id === s.bomb.carrier)!.position };
-    const eligible = s.actors.filter(a => a.hp > 0 && a.input.interact && !a.reload && Math.hypot(a.input.x, a.input.z) < 0.01 && (
+    const eligible = s.actors.filter(a => a.hp > 0 && a.input.interact && !a.reload && Math.hypot(a.input.x, a.input.z) < 0.01 && Math.hypot(a.velocity.x, a.velocity.z) < 0.01 && (
       s.bomb.planted ? a.side === 'defend' && flatDistance(a.position, s.bomb.position) <= 1.6 : a.id === s.bomb.carrier && flatDistance(a.position, MAP.site) <= MAP.siteRadius
     ));
-    const candidate = eligible.find(a => a.id === s.interaction?.actorId) ?? eligible[0];
+    // A real interruption (release, death, movement) still hands a held teammate
+    // a fresh timer immediately; only newly gained passive eligibility waits.
+    const interrupted = !!s.interaction && !eligible.some(a => a.id === s.interaction!.actorId);
+    const candidate = eligible.find(a => a.id === s.interaction?.actorId) ?? eligible.find(a => interrupted || startInteraction === true || a.id === startInteraction);
     if (!candidate) s.interaction = null;
     else {
       const kind = s.bomb.planted ? 'defuse' : 'plant';

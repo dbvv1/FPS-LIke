@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Game } from '../src/sim/game.js';
+import { MOVEMENT } from '../src/content/movement.js';
 import { WEAPONS } from '../src/content/weapons.js';
 import { SECOND, SUBTICKS, type Command, type PlayerSpec, type Vec3 } from '../src/sim/types.js';
 import { angles } from '../src/sim/math.js';
@@ -36,8 +37,8 @@ test('frame-internal shooting captures supplied view before later aim input', as
 });
 
 test('movement is integrated to the shot timestamp, not to the end of the tick', async () => {
-  const a = await Game.create(1, players({ x: 0, y: 0, z: 0 }, { x: 0.23, y: 0, z: 5 }));
-  const b = await Game.create(1, players({ x: 0, y: 0, z: 0 }, { x: 0.23, y: 0, z: 5 }));
+  const a = await Game.create(1, players({ x: 0, y: 0, z: 0 }, { x: 0.215, y: 0, z: 5 }));
+  const b = await Game.create(1, players({ x: 0, y: 0, z: 0 }, { x: 0.215, y: 0, z: 5 }));
   try {
     const moving: Command = { actorId: 'd', type: 'move', x: -1, z: 0 };
     a.step([moving, shoot(0, 0)]); b.step([moving, shoot(0, 999)]);
@@ -89,7 +90,7 @@ test('different seed changes spread; movement increases spread', async () => {
   const traces: number[] = [];
   for (const [seed, moving] of [[1, false], [2, false], [1, true]] as const) {
     const g = await Game.create(seed, players());
-    try { g.step([...(moving ? [{ actorId: 'a', type: 'move', x: 1, z: 0 } as Command] : []), shoot()]); traces.push(g.state.shots[0]!.yaw); }
+    try { g.step(moving ? [{ actorId: 'a', type: 'move', x: 1, z: 0 }] : []); step(g, 8); g.step([shoot()]); traces.push(g.state.shots[0]!.yaw); }
     finally { g.dispose(); }
   }
   assert.notEqual(traces[0], traces[1]); assert.ok(Math.abs(traces[2]!) > Math.abs(traces[0]!));
@@ -102,7 +103,7 @@ test('Rapier character controller stops at walls; diagonal speed is normalized',
     assert.ok(g.state.actors[0]!.position.x < 3.1); assert.ok(g.state.actors[0]!.position.x > 2.9);
   } finally { g.dispose(); }
   const d = await Game.create(1, players());
-  try { d.step([{ actorId: 'a', type: 'move', x: 1, z: 1 }]); const p = d.state.actors[0]!.position; assert.ok(Math.abs(Math.hypot(p.x, p.z) - 4.5 / 60) < 0.001); }
+  try { d.step([{ actorId: 'a', type: 'move', x: 1, z: 1 }]); const p = d.state.actors[0]!.position; assert.ok(Math.abs(Math.hypot(p.x, p.z) - 0.5 * MOVEMENT.acceleration / (60 * 60)) < 0.001); }
   finally { d.dispose(); }
 });
 
@@ -171,7 +172,11 @@ test('movement cancels plant progress rather than pausing it', async () => {
     g.step([{ actorId: 'a', type: 'interact', held: true }]); step(g, 1);
     g.step([{ actorId: 'a', type: 'move', x: 1, z: 0 }]);
     g.step([{ actorId: 'a', type: 'move', x: 0, z: 0 }]); step(g, 1);
-    assert.equal(g.state.bomb.planted, false); step(g, 2); assert.equal(g.state.bomb.planted, true);
+    assert.equal(g.state.bomb.planted, false);
+    assert.equal(g.state.interaction, null, 'coasting cannot resume planting');
+    step(g, 1); assert.equal(g.state.actors[0]!.velocity.x, 0);
+    step(g, 3); assert.equal(g.state.bomb.planted, false, 'old interaction progress was discarded');
+    step(g, 1); assert.equal(g.state.bomb.planted, true);
   } finally { g.dispose(); }
 });
 

@@ -1,3 +1,4 @@
+import { MOVEMENT } from '../content/movement.js';
 import { freeze } from '../content/freeze.js';
 import { WEAPONS } from '../content/weapons.js';
 import { SECOND, SUBTICKS, type Actor, type GameState, type Shot, type WeaponId } from '../sim/types.js';
@@ -63,7 +64,7 @@ export function weaponPose(state: GameState, actor: Actor) {
   const magazine = actor.reload ? smooth((progress - .22) / .13) * (1 - smooth((progress - .55) / .20)) : 0;
   const grasp = actor.reload ? smooth(progress / .18) * (1 - smooth((progress - .78) / .18)) : 0;
   const bolt = actor.reload ? Math.sin(Math.max(0, Math.min(1, (progress - .77) / .12)) * Math.PI) : 0;
-  const moving = Math.min(1, Math.hypot(actor.input.x, actor.input.z));
+  const moving = Math.min(1, Math.hypot(actor.velocity.x, actor.velocity.z) / MOVEMENT.runSpeed);
   const sway = Math.sin(state.time / SECOND * 9) * .004 * moving;
   return { kick, flash, progress, lower, magazine, bolt, grasp, supportTravel:actor.weapon==='pistol'?.04:.10,
     x: .29 + sway - lower*.08, y: -.28 + lower*.16 - kick*.018, z: -.32 - lower*.22 + kick*.075,

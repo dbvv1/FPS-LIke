@@ -1,0 +1,314 @@
+{
+  "gameplayVersion": 2,
+  "baselineCommit": "a97d57281dd6c6d941c6a6bef732dadf2953f2f4",
+  "explanation": "v1 commands preserved; v2 velocity/recoil rules intentionally change state hashes. Presentation impact facts remain excluded.",
+  "seed": 3,
+  "cases": [
+    {
+      "name": "world-and-range",
+      "specs": [
+        {
+          "id": "a",
+          "team": "amber",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -14
+          }
+        },
+        {
+          "id": "d",
+          "team": "blue",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 14
+          }
+        }
+      ],
+      "commands": {
+        "0": [
+          {
+            "actorId": "a",
+            "type": "shoot",
+            "yaw": 0,
+            "pitch": 0,
+            "at": 250
+          }
+        ],
+        "8": [
+          {
+            "actorId": "a",
+            "type": "shoot",
+            "yaw": 0,
+            "pitch": 1.4,
+            "at": 900
+          }
+        ],
+        "10": [
+          {
+            "actorId": "a",
+            "type": "reload"
+          }
+        ],
+        "14": [
+          {
+            "actorId": "a",
+            "type": "switch",
+            "weapon": "pistol"
+          }
+        ],
+        "30": [
+          {
+            "actorId": "a",
+            "type": "shoot",
+            "yaw": 0.8,
+            "pitch": 0,
+            "at": 123
+          }
+        ]
+      },
+      "hashes": [
+        "2befad8a",
+        "a04e8f60",
+        "4c7a983e",
+        "e85f9638",
+        "eb57aea2",
+        "3cb69898",
+        "caa6727e",
+        "d1672840",
+        "ee98d12e",
+        "96408a16",
+        "19421c00",
+        "a834ec54",
+        "213572b8",
+        "2972d11c",
+        "047107da",
+        "6422b37e",
+        "34de9712",
+        "2d88d316",
+        "62903222",
+        "73c543c6",
+        "7e9edcd2",
+        "3d400dba",
+        "d7318e4e",
+        "cef08f06",
+        "ab3b93ba",
+        "66cee9d2",
+        "04839d8e",
+        "f91d3ef6",
+        "d3d6fb92",
+        "bb5f3dee",
+        "818d779b",
+        "f205d5c3",
+        "7dd92d33",
+        "fec54f03",
+        "6f637e9b",
+        "45ea7823",
+        "27ba6653",
+        "666480c3",
+        "2fdbf15b",
+        "ebdcdd9b"
+      ]
+    },
+    {
+      "name": "crouched-moving-subtick",
+      "specs": [
+        {
+          "id": "a",
+          "team": "amber",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "d",
+          "team": "blue",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 5
+          }
+        }
+      ],
+      "commands": {
+        "0": [
+          {
+            "actorId": "a",
+            "type": "move",
+            "x": 1,
+            "z": 0
+          }
+        ],
+        "1": [
+          {
+            "actorId": "a",
+            "type": "shoot",
+            "yaw": 0,
+            "pitch": -0.15,
+            "at": 320
+          },
+          {
+            "actorId": "a",
+            "type": "move",
+            "x": 0,
+            "z": 0,
+            "crouch": true,
+            "at": 700
+          }
+        ],
+        "20": [
+          {
+            "actorId": "a",
+            "type": "shoot",
+            "yaw": -0.03,
+            "pitch": -0.04,
+            "at": 500
+          }
+        ],
+        "22": [
+          {
+            "actorId": "a",
+            "type": "reload"
+          }
+        ],
+        "24": [
+          {
+            "actorId": "a",
+            "type": "switch",
+            "weapon": "pistol"
+          }
+        ]
+      },
+      "hashes": [
+        "9868654d",
+        "35b0de10",
+        "c995627a",
+        "ff376e6f",
+        "271c67a8",
+        "fd4bb2fe",
+        "8ecf04b8",
+        "7f3d5df6",
+        "121cc08c",
+        "d834d698",
+        "824f0e24",
+        "01624500",
+        "8fff43bc",
+        "4ca9eb00",
+        "3b27d704",
+        "6e849df8",
+        "bda6383c",
+        "c500d3d8",
+        "fcfff444",
+        "34dcfce8",
+        "2d554a68",
+        "ce889070",
+        "d173bff2",
+        "5e070b1a",
+        "c53485f7",
+        "d023a85f",
+        "22dc39f3",
+        "224543cb",
+        "7d3c2a1f",
+        "3d58d213",
+        "efb9664b",
+        "310495ab",
+        "037e573b",
+        "6d3bf953",
+        "8e6e74db",
+        "a706fe2b",
+        "77a3cbfb",
+        "a343f053",
+        "fc7b0efb",
+        "b176144b"
+      ]
+    },
+    {
+      "name": "authoritative-death",
+      "specs": [
+        {
+          "id": "a",
+          "team": "amber",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "id": "d",
+          "team": "blue",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 5
+          }
+        }
+      ],
+      "commands": {
+        "0": [
+          {
+            "actorId": "a",
+            "type": "shoot",
+            "yaw": 0,
+            "pitch": 0,
+            "at": 500
+          }
+        ],
+        "20": [
+          {
+            "actorId": "a",
+            "type": "shoot",
+            "yaw": 0,
+            "pitch": 0,
+            "at": 999
+          }
+        ]
+      },
+      "hashes": [
+        "dd39f2ac",
+        "1faa3bae",
+        "654f6228",
+        "d88d62b6",
+        "ac5facf4",
+        "ea9adf16",
+        "3d41f9e8",
+        "79ebd70e",
+        "e5e7695c",
+        "8883b688",
+        "4956c0b4",
+        "74efc4f0",
+        "f398f68c",
+        "3957c6f0",
+        "720c90d4",
+        "8f2e20a8",
+        "e025e00c",
+        "7d085848",
+        "bed52f94",
+        "c75eaa58",
+        "ea91f3d0",
+        "ea91f3d0",
+        "ea91f3d0",
+        "ea91f3d0",
+        "ea91f3d0",
+        "ea91f3d0",
+        "ea91f3d0",
+        "ea91f3d0",
+        "ea91f3d0",
+        "ea91f3d0",
+        "ea91f3d0",
+        "ea91f3d0",
+        "ea91f3d0",
+        "ea91f3d0",
+        "ea91f3d0",
+        "ea91f3d0",
+        "ea91f3d0",
+        "ea91f3d0",
+        "ea91f3d0",
+        "ea91f3d0"
+      ]
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import { accuracyReticle } from './accuracy.js';
 import { MouseSensitivity } from '../input/sensitivity.js';
 import { SensitivityMenu } from './sensitivity-menu.js';
 import { WEAPONS } from '../content/weapons.js';
@@ -63,8 +64,8 @@ export class Hud {
     element('hitmarker').dataset.kind = result?.kind ?? '';
     element('shot-result').textContent = resultVisible ? result!.kind === 'kill' ? '击倒确认' : result!.kind === 'head' ? '要害命中' : result!.kind === 'friendly' ? '友军命中' : '' : '';
     element('shot-result').dataset.kind = result?.kind ?? '';
-    const moving = Math.hypot(player.input.x, player.input.z) > .01;
-    element('crosshair').style.setProperty('--spread', `${5 + pose.kick * 9 + (moving ? 10 : 0)}px`);
+    const accuracy = accuracyReticle(player, state.time, element('stage').clientHeight);
+    element('crosshair').style.setProperty('--spread', `${accuracy.gap}px`);
     element('crosshair').classList.toggle('reloading', !!player.reload);
     if (player.hp < this.lastHp) { element('hurt').classList.remove('flash'); void element('hurt').offsetWidth; element('hurt').classList.add('flash'); }
     this.lastHp = player.hp;
