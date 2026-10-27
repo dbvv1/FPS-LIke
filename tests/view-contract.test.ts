@@ -40,7 +40,7 @@ test('Three center ray and actor facing match the simulation after the coordinat
 test('actual Canvas actor columns and actual Three projection agree on horizontal location', async () => {
   const columns: number[] = [];
   const context = { fillStyle: '', strokeStyle: '', lineWidth: 1, font: '',
-    createLinearGradient: () => ({ addColorStop() {} }),
+    createImageData:(width:number,height:number)=>({width,height,data:new Uint8ClampedArray(width*height*4)}),putImageData(){},createLinearGradient: () => ({ addColorStop() {} }),
     fillRect(x: number) { if (this.fillStyle === '#c46d4e') columns.push(x + 1); },
     beginPath() {}, moveTo() {}, lineTo() {}, stroke() {}, fill() {}, closePath() {}, save() {}, restore() {}, translate() {}, scale() {}, rotate() {}, fillText() {}, clearRect() {},
   };

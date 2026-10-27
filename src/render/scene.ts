@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { groundLevels, groundUV } from './ground.js';
 import { YARD, wallStrip } from './yard.js';
 import { Feedback } from './feedback.js';
 import { targetTriangles, targetVertices, targetColor } from './target.js';
@@ -32,7 +33,14 @@ export class View {
     this.scene.fog = new THREE.Fog(YARD.sky, 32, 80);
     this.scene.add(new THREE.HemisphereLight(0xb9e7ff, 0x32413b, 2.1));
     const sun = new THREE.DirectionalLight(0xffdba8, 2.6); sun.position.set(-8, 18, -4); this.scene.add(sun);
-    this.box(this.scene, [0, -0.15, 0], [27, 0.3, 37], YARD.ground);
+    const floor=this.box(this.scene, [0, -0.15, 0], [27, 0.3, 37], 0xffffff);
+    const base=groundLevels[0]!,texture=new THREE.DataTexture(base.rgba,base.size,base.size);
+    texture.mipmaps=groundLevels.map(mip=>({data:mip.rgba,width:mip.size,height:mip.size}));
+    texture.colorSpace=THREE.SRGBColorSpace;texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
+    texture.minFilter=THREE.LinearMipmapLinearFilter;texture.magFilter=THREE.LinearFilter;texture.anisotropy=1;texture.needsUpdate=true;this.textures.add(texture);
+    const positions=floor.geometry.getAttribute('position'),uv=floor.geometry.getAttribute('uv');
+    for(let i=0;i<positions.count;i++)uv.setXY(i,...groundUV(positions.getX(i),-positions.getZ(i)));uv.needsUpdate=true;
+    const material=floor.material as THREE.MeshStandardMaterial;material.map=texture;material.roughness=.95;material.metalness=0;
     for (const wall of MAP.walls) {
       const texture=new THREE.DataTexture(wallStrip(wall),1,128);texture.colorSpace=THREE.SRGBColorSpace;texture.needsUpdate=true;this.textures.add(texture);
       const side=new THREE.MeshStandardMaterial({map:texture,roughness:.95,metalness:0}),top=new THREE.MeshStandardMaterial({color:YARD.cap,roughness:.9});
@@ -42,7 +50,6 @@ export class View {
       const mesh=new THREE.Mesh(geometry,[side,top]);
       mesh.position.set(...toThree(wall.center));this.scene.add(mesh);this.geometries.add(geometry);this.materials.add(side);this.materials.add(top);
     }
-    const grid = new THREE.GridHelper(36, 36, YARD.grid, YARD.grid); grid.position.y = 0.006; this.scene.add(grid);
     for (const [i, route] of MAP.routes.entries()) {
       const x = route[0]!.x;
       for (let z = -15; z < 8; z += 2.7) this.box(this.scene, toThree({ x, y: 0.015, z }), [0.12, 0.02, 1], i === 1 ? 0xf8b44c : 0x55bab2, true);

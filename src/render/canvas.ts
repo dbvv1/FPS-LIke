@@ -1,3 +1,4 @@
+import { drawGround } from './ground.js';
 import { Feedback } from './feedback.js';
 import { targetTriangles, targetVertices, targetColor } from './target.js';
 import { YARD, wallPaint, rgb, css } from './yard.js';
@@ -13,6 +14,7 @@ export class CanvasView {
   private feedback=new Feedback();
   private context: CanvasRenderingContext2D;
   private width = 640; private height = 360;
+  private ground: ImageData | null = null;
   constructor(private canvas: HTMLCanvasElement) {
     const context = canvas.getContext('2d', { alpha: false });
     if (!context) throw new Error('Canvas2D is unavailable');
@@ -23,6 +25,7 @@ export class CanvasView {
     this.width = Math.min(800, this.canvas.clientWidth);
     this.height = Math.max(240, Math.round(this.width * this.canvas.clientHeight / this.canvas.clientWidth));
     this.canvas.width = this.width; this.canvas.height = this.height;
+    this.ground=this.context.createImageData(this.width,this.height);
   }
   reset() {this.feedback.reset();}
   render(state: GameState, player: Actor, yaw: number, pitch: number, now: number, _dt: number) {
@@ -32,17 +35,11 @@ export class CanvasView {
     const horizon = h / 2 + Math.tan(pitch) * focal;
     const sin = Math.sin(yaw), cos = Math.cos(yaw);
     const sky = c.createLinearGradient(0, 0, 0, h); sky.addColorStop(0, css(YARD.sky)); sky.addColorStop(1, '#b3c1bb'); c.fillStyle = sky; c.fillRect(0, 0, w, h);
-    const ground = c.createLinearGradient(0, Math.max(0, horizon), 0, h); ground.addColorStop(0, '#85948b'); ground.addColorStop(1, '#637975'); c.fillStyle = ground; c.fillRect(0, Math.max(0, horizon), w, Math.max(0, h - horizon));
+    drawGround(c,this.ground!,e,yaw,horizon,focal);
     const project = (x: number, y: number, z: number) => {
       const dx = x - e.x, dz = z - e.z, depth = dx * sin + dz * cos;
       return { x: w / 2 + (dx * cos - dz * sin) * focal / depth, y: horizon - (y - e.y) * focal / depth, depth };
     };
-    // Ground cues make motion legible while remaining presentation-only.
-    c.strokeStyle = css(YARD.grid); c.lineWidth = 1;
-    for (let z = -18; z <= 18; z += 2) for (let x = -12; x <= 12; x += 2) {
-      const a = project(x, 0.01, z), b = project(x + 1.6, 0.01, z);
-      if (a.depth > 0.5 && b.depth > 0.5) { c.beginPath(); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); c.stroke(); }
-    }
     c.strokeStyle = '#edb76b'; c.lineWidth = 3;
     let drawing = false; c.beginPath();
     for (let i = 0; i <= 48; i++) {
@@ -128,5 +125,5 @@ export class CanvasView {
     drawWeapon(c, w, h, state, player);
     c.fillStyle = '#b5d3d0'; c.font = '9px monospace'; c.fillText('CPU / CANVAS2D', 10, h - 8);
   }
-  dispose() { this.context.clearRect(0, 0, this.width, this.height); }
+  dispose() { this.ground=null; this.context.clearRect(0, 0, this.width, this.height); }
 }
