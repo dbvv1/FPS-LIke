@@ -1,0 +1,150 @@
+{
+  "label": "palette-b + 0.95 scale",
+  "revision": 1,
+  "scale": 0.95,
+  "roleTargets": {
+    "concrete-pale": "#a8a293",
+    "concrete-mid": "#747f78",
+    "faction-warm": "#a95a3c",
+    "faction-cool": "#4aa89f",
+    "signal": "#d9c58f",
+    "signal-hot": "#e8a63f"
+  },
+  "command": "node asset-pipeline/content-set/build.mjs --variant",
+  "note": "Regenerated every standard piece with the variant palette role deltas and a uniform 0.95 scale. Variant files are not shipped; the report records the rebuild.",
+  "pieces": [
+    {
+      "id": "fp-arms-rx24",
+      "baseSha256": "5d8c4d4e4fdff9b7a095d7b1ce30cd41ae8709a74e810ffdd7f368c5e1a3f9fc",
+      "variantSha256": "124235cd2acd0b18314d7ed35a8aab1b2e3005ac4c13d1989fc752dd5c10f277",
+      "baseBytes": 169816,
+      "variantBytes": 169860,
+      "triangles": 3006,
+      "changed": true,
+      "boundsBefore": {
+        "min": [
+          -0.2207,
+          -0.3988,
+          -0.7775
+        ],
+        "max": [
+          0.2337,
+          0.0715,
+          0.1911
+        ]
+      },
+      "boundsAfter": {
+        "min": [
+          -0.2098,
+          -0.3789,
+          -0.7386
+        ],
+        "max": [
+          0.222,
+          0.0679,
+          0.1816
+        ]
+      }
+    },
+    {
+      "id": "enemy-relay-guard",
+      "baseSha256": "1b39bd28bbb60328e27bff6ef4e03c79956afe9d443e640b66b78daf2c7df2cd",
+      "variantSha256": "1e43a77c64fc6ba9a24706b4057328d8a96d7110599bcdf5e5d7eb134851a78c",
+      "baseBytes": 37068,
+      "variantBytes": 37064,
+      "triangles": 515,
+      "changed": true,
+      "boundsBefore": {
+        "min": [
+          -0.2379,
+          0,
+          -0.5778
+        ],
+        "max": [
+          0.3889,
+          1.7651,
+          0.4713
+        ]
+      },
+      "boundsAfter": {
+        "min": [
+          -0.2261,
+          0,
+          -0.5489
+        ],
+        "max": [
+          0.3694,
+          1.6769,
+          0.4477
+        ]
+      }
+    },
+    {
+      "id": "passage-cover",
+      "baseSha256": "367e552854e20f7e520cdc1595609e51b4b47edc2fa29e363faa42e36ef513d2",
+      "variantSha256": "5a3a4a2db40ef6283f1ad98f22d80316525ad6fa46467e84abfb1c9a2227bd15",
+      "baseBytes": 56120,
+      "variantBytes": 56248,
+      "triangles": 768,
+      "changed": true,
+      "boundsBefore": {
+        "min": [
+          -2.2,
+          0,
+          -6
+        ],
+        "max": [
+          2.2,
+          3,
+          6.2
+        ]
+      },
+      "boundsAfter": {
+        "min": [
+          -2.09,
+          0,
+          -5.7
+        ],
+        "max": [
+          2.09,
+          2.85,
+          5.89
+        ]
+      }
+    },
+    {
+      "id": "hit-feedback",
+      "baseSha256": "aa229568af46a911a52c1961cdda2de5573bacf8890af4c35889debe75e1162d",
+      "variantSha256": "d274a6332df9a5637198b3f5aca77d5e5085062c9f9c9f842296e7281b2384cd",
+      "baseBytes": 6436,
+      "variantBytes": 6456,
+      "triangles": 24,
+      "changed": true,
+      "boundsBefore": {
+        "min": [
+          -0.035,
+          -0.035,
+          -0.035
+        ],
+        "max": [
+          0.035,
+          0.035,
+          0.035
+        ]
+      },
+      "boundsAfter": {
+        "min": [
+          -0.0333,
+          -0.0333,
+          -0.0333
+        ],
+        "max": [
+          0.0333,
+          0.0333,
+          0.0333
+        ]
+      }
+    }
+  ],
+  "allPiecesRebuilt": true
+}

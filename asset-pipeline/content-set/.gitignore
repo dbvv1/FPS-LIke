@@ -1,0 +1,5 @@
+# The root .gitignore excludes dist/; the four built GLBs are deliverables, so
+# re-include this directory, keep other build output ignored, and admit only *.glb.
+!dist/
+dist/*
+!dist/*.glb

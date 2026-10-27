@@ -1,0 +1,301 @@
+{
+  "revision": 1,
+  "source": "Locked from src/render/yard.ts, src/render/target.ts and the adopted courtyard concrete source.",
+  "measuredConcreteAverage": "#788982",
+  "tileMetres": 2,
+  "colors": [
+    {
+      "role": "ink",
+      "hex": "#171c1e",
+      "use": "deepest weapon and cover shadow",
+      "srgb": [
+        23,
+        28,
+        30
+      ],
+      "linear": [
+        0.00857,
+        0.01161,
+        0.01298
+      ]
+    },
+    {
+      "role": "charcoal",
+      "hex": "#202c32",
+      "use": "weapon dark furniture, visor surround",
+      "srgb": [
+        32,
+        44,
+        50
+      ],
+      "linear": [
+        0.01444,
+        0.02519,
+        0.0319
+      ]
+    },
+    {
+      "role": "gunmetal",
+      "hex": "#34444a",
+      "use": "weapon body and metal trim",
+      "srgb": [
+        52,
+        68,
+        74
+      ],
+      "linear": [
+        0.03434,
+        0.05781,
+        0.06848
+      ]
+    },
+    {
+      "role": "steel",
+      "hex": "#596a70",
+      "use": "worn metal highlights",
+      "srgb": [
+        89,
+        106,
+        112
+      ],
+      "linear": [
+        0.0999,
+        0.14413,
+        0.16203
+      ]
+    },
+    {
+      "role": "concrete-dark",
+      "hex": "#4c6669",
+      "use": "plinth and ground contact",
+      "srgb": [
+        76,
+        102,
+        105
+      ],
+      "linear": [
+        0.07227,
+        0.13287,
+        0.14126
+      ]
+    },
+    {
+      "role": "concrete-mid",
+      "hex": "#788982",
+      "use": "measured courtyard ground average",
+      "srgb": [
+        120,
+        137,
+        130
+      ],
+      "linear": [
+        0.18782,
+        0.25016,
+        0.22323
+      ]
+    },
+    {
+      "role": "concrete-pale",
+      "hex": "#b3b8a9",
+      "use": "wall panels, caps and corner catches",
+      "srgb": [
+        179,
+        184,
+        169
+      ],
+      "linear": [
+        0.45079,
+        0.47932,
+        0.39676
+      ]
+    },
+    {
+      "role": "faction-warm",
+      "hex": "#c76844",
+      "use": "attack-side cloth and carrier panels",
+      "srgb": [
+        199,
+        104,
+        68
+      ],
+      "linear": [
+        0.57112,
+        0.13843,
+        0.05781
+      ]
+    },
+    {
+      "role": "faction-cool",
+      "hex": "#54c9c0",
+      "use": "defend-side cloth, friendly hit confirm",
+      "srgb": [
+        84,
+        201,
+        192
+      ],
+      "linear": [
+        0.08866,
+        0.58408,
+        0.52712
+      ]
+    },
+    {
+      "role": "fabric",
+      "hex": "#6b624b",
+      "use": "source cloth and glove midtone",
+      "srgb": [
+        107,
+        98,
+        75
+      ],
+      "linear": [
+        0.14703,
+        0.12214,
+        0.07036
+      ]
+    },
+    {
+      "role": "signal",
+      "hex": "#e1ba75",
+      "use": "visor, marker and objective light",
+      "srgb": [
+        225,
+        186,
+        117
+      ],
+      "linear": [
+        0.75294,
+        0.49102,
+        0.17789
+      ]
+    },
+    {
+      "role": "signal-hot",
+      "hex": "#f6a738",
+      "use": "hazard paint and bomb emphasis",
+      "srgb": [
+        246,
+        167,
+        56
+      ],
+      "linear": [
+        0.92158,
+        0.38643,
+        0.03955
+      ]
+    },
+    {
+      "role": "marker-white",
+      "hex": "#f4f1e8",
+      "use": "hit marker body ticks and core",
+      "srgb": [
+        244,
+        241,
+        232
+      ],
+      "linear": [
+        0.90466,
+        0.87962,
+        0.80695
+      ]
+    },
+    {
+      "role": "sky",
+      "hex": "#94afb7",
+      "use": "sky and fog base",
+      "srgb": [
+        148,
+        175,
+        183
+      ],
+      "linear": [
+        0.29614,
+        0.42869,
+        0.47353
+      ]
+    }
+  ],
+  "materialFamilies": [
+    {
+      "id": "painted-concrete",
+      "roughness": 0.95,
+      "metalness": 0,
+      "texture": "courtyard-concrete-2m",
+      "texelDensityPxPerM": 128,
+      "paletteRoles": [
+        "concrete-dark",
+        "concrete-mid",
+        "concrete-pale"
+      ]
+    },
+    {
+      "id": "gunmetal",
+      "roughness": 0.65,
+      "metalness": 0.25,
+      "texture": null,
+      "texelDensityPxPerM": 0,
+      "paletteRoles": [
+        "charcoal",
+        "gunmetal",
+        "steel"
+      ]
+    },
+    {
+      "id": "actor-cloth",
+      "roughness": 0.9,
+      "metalness": 0.05,
+      "texture": null,
+      "texelDensityPxPerM": 0,
+      "paletteRoles": [
+        "fabric",
+        "faction-warm",
+        "faction-cool",
+        "concrete-pale"
+      ]
+    },
+    {
+      "id": "glove-fabric",
+      "roughness": 0.9,
+      "metalness": 0,
+      "texture": null,
+      "texelDensityPxPerM": 0,
+      "paletteRoles": [
+        "fabric",
+        "ink"
+      ]
+    },
+    {
+      "id": "signal-paint",
+      "roughness": 0.7,
+      "metalness": 0.05,
+      "texture": null,
+      "texelDensityPxPerM": 0,
+      "emissive": true,
+      "paletteRoles": [
+        "signal",
+        "signal-hot"
+      ]
+    },
+    {
+      "id": "ui-marker",
+      "roughness": 0.6,
+      "metalness": 0,
+      "texture": null,
+      "texelDensityPxPerM": 0,
+      "emissive": true,
+      "paletteRoles": [
+        "marker-white",
+        "signal",
+        "signal-hot"
+      ]
+    }
+  ],
+  "variantRoleTargets": {
+    "concrete-pale": "#a8a293",
+    "concrete-mid": "#747f78",
+    "faction-warm": "#a95a3c",
+    "faction-cool": "#4aa89f",
+    "signal": "#d9c58f",
+    "signal-hot": "#e8a63f"
+  }
+}

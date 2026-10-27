@@ -1,0 +1,79 @@
+{
+  "piece": "hit-feedback",
+  "revision": 1,
+  "space": {
+    "units": "metres",
+    "up": "+Y",
+    "forward": "-Z",
+    "origin": "marker centre on a billboard plane 0.5 m in front of the camera",
+    "screenSize": "14 px outer tick span at 1080p; runtime may scale in pixels instead of metres"
+  },
+  "nodes": {
+    "hit-marker": "four-tick marker root; marker-core and marker-accent are child meshes",
+    "marker-core": "white body and kill ticks",
+    "marker-accent": "headshot ring and friendly tint slot",
+    "impact-burst": "low-poly impact burst placed at the ray endpoint"
+  },
+  "clips": [
+    { "name": "hit-body", "durationMs": 120, "loop": false, "nodes": ["hit-marker"], "source": "src/ui/hud.ts shows the body marker for 320 ms; this clip owns the 120 ms pop" },
+    { "name": "hit-head", "durationMs": 180, "loop": false, "nodes": ["hit-marker"], "source": "src/render/feedback.ts flinch is 180 ms; the head marker matches it" },
+    { "name": "hit-kill", "durationMs": 700, "loop": false, "nodes": ["hit-marker"], "source": "RESULT_HOLD_MS = 700 in src/render/feedback.ts" },
+    { "name": "impact", "durationMs": 180, "loop": false, "nodes": ["impact-burst"], "source": "src/render/scene.ts hides impact spheres after 180 ms" }
+  ],
+  "actions": [
+    {
+      "name": "hit-body",
+      "applies": true,
+      "status": "exported",
+      "clip": "hit-body",
+      "colorRole": "marker white, no accent ring",
+      "sound": "existing synth 'hit' cue, no new recording"
+    },
+    {
+      "name": "hit-head",
+      "applies": true,
+      "status": "exported",
+      "clip": "hit-head",
+      "colorRole": "signal amber ring plus white ticks",
+      "sound": "existing synth 'head' cue"
+    },
+    {
+      "name": "hit-kill",
+      "applies": true,
+      "status": "exported",
+      "clip": "hit-kill",
+      "colorRole": "signal-hot ticks plus amber ring, 700 ms hold",
+      "sound": "existing synth 'kill' cue"
+    },
+    {
+      "name": "friendly",
+      "applies": true,
+      "status": "contract-only",
+      "clip": null,
+      "colorRole": "faction-cool; same geometry as hit-body",
+      "notes": "src/ui/hud.ts already distinguishes friendly hits by dataset kind; do not show a kill accent for friendlies."
+    },
+    {
+      "name": "miss",
+      "applies": true,
+      "status": "not-applicable",
+      "clip": null,
+      "colorRole": "none",
+      "notes": "A miss must not create a hit marker or a hit sound."
+    },
+    {
+      "name": "impact",
+      "applies": true,
+      "status": "exported",
+      "clip": "impact",
+      "colorRole": "impact spark warm; actor hits use a smaller 1.2x burst, world hits 1.8x",
+      "notes": "src/render/scene.ts currently uses a 0.035 m sphere; this piece replaces it with a faceted burst."
+    }
+  ],
+  "gaps": [
+    "The GLB is not loaded by src; the current CSS marker and impact sphere remain until the case line wires them.",
+    "No new sound is authored: the existing synth hit/head/kill cues are the sound role contract, and audio-visual frame sync is not measured.",
+    "The friendly state is a colour contract, not a separately exported mesh.",
+    "The 14 px screen size is a target; it is not measured on a real GPU window yet."
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "piece": "enemy-relay-guard",
+  "revision": 1,
+  "space": {
+    "units": "metres",
+    "up": "+Y",
+    "forward": "-Z",
+    "origin": "feet centre, y = 0, same actor origin used by src/render/target.ts",
+    "heightM": 1.765,
+    "axisNote": "Vertices are exported as (x, y, -z), matching src/render/scene.ts target drawing."
+  },
+  "regions": {
+    "head": { "minY": 1.42, "maxY": 1.765, "hitPart": "head" },
+    "torso": { "minY": 0.86, "maxY": 1.42, "hitPart": "body" },
+    "legs": { "minY": 0.0, "maxY": 0.86, "hitPart": "body" },
+    "weapon": { "detachedMesh": true, "hitPart": "body" }
+  },
+  "nodes": {
+    "enemy-root": "fall pivot at the feet; death rotates this node",
+    "spine": "waist pivot; breathing, hit flinch and fire reaction",
+    "head": "neck pivot; look and hit flinch",
+    "leg-l": "left hip pivot; walk swing",
+    "leg-r": "right hip pivot; walk swing",
+    "weapon": "rifle group; fire kick; no magazine node"
+  },
+  "clips": [
+    { "name": "idle", "durationMs": 4000, "loop": true, "nodes": ["spine", "head"], "source": "original rigid-group motion; amplitude 0.01-0.02 rad" },
+    { "name": "walk", "durationMs": 900, "loop": true, "nodes": ["leg-l", "leg-r", "spine"], "source": "original two-step loop; hip swing 0.38 rad forward / 0.30 rad back" },
+    { "name": "fire", "durationMs": 120, "loop": false, "nodes": ["weapon", "spine"], "source": "original 120 ms reaction performance; the runtime muzzle flash is 65 ms in src/render/weapon.ts, not this clip's length" },
+    { "name": "hit", "durationMs": 180, "loop": false, "nodes": ["spine", "head"], "source": "src/render/feedback.ts flinch sine, 180 ms" },
+    { "name": "death", "durationMs": 600, "loop": false, "nodes": ["enemy-root"], "source": "src/render/feedback.ts fall ramp to 0.47 pi in 600 ms" }
+  ],
+  "actions": [
+    { "name": "idle", "applies": true, "status": "exported", "clip": "idle" },
+    { "name": "move", "applies": true, "status": "exported", "clip": "walk" },
+    { "name": "fire", "applies": true, "status": "exported", "clip": "fire", "notes": "Presentation only; bot accuracy and fire cadence stay in src/sim/bot.ts." },
+    { "name": "hit", "applies": true, "status": "exported", "clip": "hit" },
+    { "name": "death", "applies": true, "status": "exported", "clip": "death" },
+    {
+      "name": "reload",
+      "applies": true,
+      "status": "contract-only",
+      "clip": null,
+      "phases": [
+        { "name": "withdraw", "from": 0.22, "to": 0.55 },
+        { "name": "insert", "from": 0.55, "to": 0.77 },
+        { "name": "bolt-close", "from": 0.77, "to": 0.89 }
+      ],
+      "movingNodes": ["weapon"],
+      "notes": "Bots emit reload at src/sim/bot.ts:66 and :75. The enemy mesh has no separate magazine node, so no reload clip is claimed; adding one requires splitting the weapon mesh first."
+    },
+    {
+      "name": "crouch",
+      "applies": true,
+      "status": "procedural-only",
+      "clip": null,
+      "notes": "src/render/target.ts squashes height to 0.65; the exported mesh keeps the standing pose."
+    }
+  ],
+  "gaps": [
+    "Rigid groups are not a skin: elbows, knees and the rifle grip do not deform, and the arms keep the source aiming pose.",
+    "Walk and death are node-level approximations; foot contact and silhouette need the real game view with the courtyard lighting.",
+    "The source weapon geometry is inside the body mesh; a real reload needs the rifle and magazine split into their own nodes.",
+    "No in-game GPU roster or side-by-side comparison exists yet; this file does not claim final quality."
+  ]
+}

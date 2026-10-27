@@ -1,0 +1,168 @@
+{
+  "id": "fps-like-content-set-v1",
+  "title": "Relay Yard content set v1",
+  "baseRef": "a97d57281dd6c6d941c6a6bef732dadf2953f2f4",
+  "units": "metres",
+  "axes": { "up": "+Y", "forward": "-Z", "handedness": "right-handed glTF" },
+  "palette": [
+    { "role": "ink", "hex": "#171c1e", "use": "deepest weapon and cover shadow" },
+    { "role": "charcoal", "hex": "#202c32", "use": "weapon dark furniture, visor surround" },
+    { "role": "gunmetal", "hex": "#34444a", "use": "weapon body and metal trim" },
+    { "role": "steel", "hex": "#596a70", "use": "worn metal highlights" },
+    { "role": "concrete-dark", "hex": "#4c6669", "use": "plinth and ground contact" },
+    { "role": "concrete-mid", "hex": "#788982", "use": "measured courtyard ground average" },
+    { "role": "concrete-pale", "hex": "#b3b8a9", "use": "wall panels, caps and corner catches" },
+    { "role": "faction-warm", "hex": "#c76844", "use": "attack-side cloth and carrier panels" },
+    { "role": "faction-cool", "hex": "#54c9c0", "use": "defend-side cloth, friendly hit confirm" },
+    { "role": "fabric", "hex": "#6b624b", "use": "source cloth and glove midtone" },
+    { "role": "signal", "hex": "#e1ba75", "use": "visor, marker and objective light" },
+    { "role": "signal-hot", "hex": "#f6a738", "use": "hazard paint and bomb emphasis" },
+    { "role": "marker-white", "hex": "#f4f1e8", "use": "hit marker body ticks and core" },
+    { "role": "sky", "hex": "#94afb7", "use": "sky and fog base" }
+  ],
+  "materialFamilies": [
+    { "id": "painted-concrete", "roughness": 0.95, "metalness": 0.0, "texture": "courtyard-concrete-2m", "texelDensityPxPerM": 128, "paletteRoles": ["concrete-dark", "concrete-mid", "concrete-pale"] },
+    { "id": "gunmetal", "roughness": 0.65, "metalness": 0.25, "texture": null, "texelDensityPxPerM": 0, "paletteRoles": ["charcoal", "gunmetal", "steel"] },
+    { "id": "actor-cloth", "roughness": 0.9, "metalness": 0.05, "texture": null, "texelDensityPxPerM": 0, "paletteRoles": ["fabric", "faction-warm", "faction-cool", "concrete-pale"] },
+    { "id": "glove-fabric", "roughness": 0.9, "metalness": 0.0, "texture": null, "texelDensityPxPerM": 0, "paletteRoles": ["fabric", "ink"] },
+    { "id": "signal-paint", "roughness": 0.7, "metalness": 0.05, "texture": null, "texelDensityPxPerM": 0, "emissive": true, "paletteRoles": ["signal", "signal-hot"] },
+    { "id": "ui-marker", "roughness": 0.6, "metalness": 0.0, "texture": null, "texelDensityPxPerM": 0, "emissive": true, "paletteRoles": ["marker-white", "signal", "signal-hot"] }
+  ],
+  "budgets": {
+    "set": { "maxBytes": 409600, "maxTriangles": 12000, "maxNewTextureBytes": 0 },
+    "pieces": {
+      "fp-arms-rx24": { "maxBytes": 204800, "maxTriangles": 6000, "maxMaterials": 2, "maxDrawCalls": 5 },
+      "enemy-relay-guard": { "maxBytes": 81920, "maxTriangles": 2000, "maxMaterials": 1, "maxDrawCalls": 6 },
+      "passage-cover": { "maxBytes": 61440, "maxTriangles": 1500, "maxMaterials": 3, "maxDrawCalls": 3 },
+      "hit-feedback": { "maxBytes": 24576, "maxTriangles": 400, "maxMaterials": 3, "maxDrawCalls": 3 }
+    }
+  },
+  "pieces": [
+    {
+      "id": "fp-arms-rx24",
+      "label": "第一人称手臂＋武器组合",
+      "file": "fp-arms-rx24.glb",
+      "kind": "view-model",
+      "license": "CC0-1.0",
+      "sources": [
+        {
+          "path": "assets/weapons/rx24-rifle.json",
+          "sha256": "baf53bd69d83a9885b960d0023633683a674e61836d054913d7867f37f4f981e",
+          "author": "Quaternius (rifle geometry), original hands/arms/sleeves recipe in this repository",
+          "url": "https://quaternius.com/packs/ultimategun.html",
+          "license": "CC0-1.0",
+          "identity": "Derived, not the source OBJ: RX-24 parts already normalized to camera-local -Z and split into 24 named parts."
+        },
+        {
+          "path": "assets/weapons/quaternius/AssaultRifle2_1.obj",
+          "sha256": "bddb03e49ea71517865028b1f06cdc8b1c6ffbc854b15369db66599f973a4d2f",
+          "author": "Quaternius",
+          "url": "https://quaternius.com/packs/ultimategun.html",
+          "license": "CC0-1.0",
+          "identity": "Original editable source mesh; build.mjs does not re-export it, it consumes the reviewed derived JSON."
+        }
+      ],
+      "derivation": [
+        "Merge the 24 reviewed rifle parts into static receiver and magazine nodes; the charging handle is an original bevelled box node, not source geometry. Keep source part colours as linear vertex colours.",
+        "Rebuild the original palm/finger/wrist/sleeve recipe from src/render/rifle.ts at the rest pose and attach it to support-hand and trigger-hand nodes.",
+        "Reorient every source triangle outward against its part centre; bake flat normals and 8-sided tube facets.",
+        "Re-anchor node origins at magazine, bolt, support palm and trigger palm so runtime reload can translate those nodes without touching the static receiver."
+      ],
+      "requiredNodes": ["rx24-root", "rifle-static", "rifle-magazine", "rifle-bolt", "support-hand", "trigger-hand", "muzzle", "grip"],
+      "requiredActions": ["idle", "move", "fire", "reload"],
+      "actionFile": "contracts/fp-arms-rx24.actions.json",
+      "status": "Visual, palette and budget standard. Runtime keeps its procedural view-model for now; GLB is not wired into src."
+    },
+    {
+      "id": "enemy-relay-guard",
+      "label": "敌方全身角色",
+      "file": "enemy-relay-guard.glb",
+      "kind": "character",
+      "license": "CC0-1.0",
+      "sources": [
+        {
+          "path": "assets/characters/relay-guard/guard.json",
+          "sha256": "c98491a7f98932f0c2d53464e1990f1ca2d10eadde9347b7245d4551630ffea9",
+          "author": "Casti_131, Low Poly Soldier with weapons",
+          "url": "https://opengameart.org/content/low-poly-soldier-with-weapons",
+          "license": "CC0-1.0",
+          "identity": "Derived posed mesh, 309 vertices / 515 triangles, metres, feet at y=0; source ZIP and Blend hashes are recorded in assets/characters/relay-guard/README.md."
+        }
+      ],
+      "derivation": [
+        "Split the posed mesh into head, spine, left leg, right leg and weapon rigid groups with pivots at head base, waist, hips and rifle grip.",
+        "Recolour helmet, carrier and cloth as the enemy warm family using the existing targetColor recipe; keep the visor, belt and weapon source values.",
+        "Bake per-face vertex colours, flat normals and the runtime axis flip (x, y, -z) used by src/render/scene.ts.",
+        "Author five rigid-group clips (idle, walk, fire, hit, death) as glTF node TRS animation; no skin is claimed."
+      ],
+      "requiredNodes": ["enemy-root", "spine", "head", "leg-l", "leg-r", "weapon"],
+      "requiredActions": ["idle", "move", "fire", "hit", "death"],
+      "actionFile": "contracts/enemy-relay-guard.actions.json",
+      "status": "Full-body standard with rigid action groups. Gait and arm poses are approximations; in-game comparison is not done."
+    },
+    {
+      "id": "passage-cover",
+      "label": "可读的通路／掩体建筑",
+      "file": "passage-cover.glb",
+      "kind": "environment",
+      "license": "CC0-1.0",
+      "sources": [
+        {
+          "path": "assets/materials/courtyard-concrete/source/concrete_floor_01_diff_1k.jpg",
+          "sha256": "db7c800f1464359b5f359fc743e82ac51b34e014fdfd53844f4af34bb1949229",
+          "author": "Rob Tuytel / Poly Haven",
+          "url": "https://polyhaven.com/a/concrete_floor_01",
+          "license": "CC0-1.0",
+          "identity": "Unchanged 1K colour source. This piece reuses the already adopted 2 m courtyard texture slot; it does not embed or re-derive the image."
+        }
+      ],
+      "derivation": [
+        "Original procedural assembly: 12 m corridor, 3.0 m walls, two 1.2 m x 2.2 m doorways at z=0 and z=4, one half-wall and one crate cover.",
+        "Object-space UVs are metres / 2 so the existing courtyard concrete slot tiles without a new texture.",
+        "Dimensions, module instances and collision boxes are recorded in the GLB scene extras (three.js gltf.scene.userData), the same source as contracts/passage-cover.actions.json; they do not change src/content/map.ts."
+      ],
+      "requiredNodes": ["passage-cover"],
+      "requiredActions": [],
+      "actionFile": "contracts/passage-cover.actions.json",
+      "status": "Readable assembled passage, not yet placed into src/content/map.ts or src/render/scene.ts."
+    },
+    {
+      "id": "hit-feedback",
+      "label": "命中反馈标准件",
+      "file": "hit-feedback.glb",
+      "kind": "feedback",
+      "license": "CC0-1.0",
+      "sources": [
+        {
+          "origin": "original procedural recipe in build.mjs",
+          "author": "Original repository recipe",
+          "url": "https://github.com/dbvv1/FPS-Like",
+          "license": "CC0-1.0",
+          "identity": "Marker geometry, burst, colour roles and timeline are original. Timing is cross-checked against src/render/feedback.ts, but no source art or code file is copied into the artifact."
+        }
+      ],
+      "derivation": [
+        "Original four-tick marker with a headshot ring and a separate low-poly impact burst; no copied HUD art.",
+        "Marker units are metres at a 0.5 m billboard plane; runtime may also scale it in pixels.",
+        "Colour roles: body white, head signal, kill signal-hot, friendly faction-cool; impact spark warm."
+      ],
+      "requiredNodes": ["hit-marker", "impact-burst", "marker-core", "marker-accent"],
+      "requiredActions": ["hit-body", "hit-head", "hit-kill", "impact"],
+      "actionFile": "contracts/hit-feedback.actions.json",
+      "status": "Geometry and timeline standard. Current runtime still uses the CSS hit marker and impact sphere; not wired."
+    }
+  ],
+  "variant": {
+    "label": "palette-b + 0.95 scale",
+    "scale": 0.95,
+    "roleTargets": {
+      "concrete-pale": "#a8a293",
+      "concrete-mid": "#747f78",
+      "faction-warm": "#a95a3c",
+      "faction-cool": "#4aa89f",
+      "signal": "#d9c58f",
+      "signal-hot": "#e8a63f"
+    },
+    "note": "Second-pass test only. Each target is applied as a per-channel delta to the role's shades, so source shading survives; geometry is scaled 0.95 uniformly. Not an adopted art direction."
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "piece": "passage-cover",
+  "revision": 1,
+  "space": {
+    "units": "metres",
+    "up": "+Y",
+    "forward": "-Z",
+    "origin": "assembly centre at ground level, y = 0",
+    "axisNote": "The corridor runs along Z from z=-6 to z=+6. Side walls stand at x=-2.0 and x=+2.0; the open entrance is z=-6 and the end wall is z=+6."
+  },
+  "dimensions": {
+    "corridorLengthM": 12,
+    "corridorClearWidthM": 3.7,
+    "wallHeightM": 3.0,
+    "wallThicknessM": 0.3,
+    "doorwayClearWidthM": 1.2,
+    "doorwayClearHeightM": 2.2,
+    "halfWallCoverM": [2.4, 1.0, 0.45],
+    "crateCoverM": [1.2, 1.2, 1.2]
+  },
+  "modules": [
+    { "id": "wall-panel-4m", "instances": [{ "center": [-2.0, 1.5, -4.0], "rotationY": 90 }, { "center": [2.0, 1.5, -4.0], "rotationY": 90 }, { "center": [-2.0, 1.5, 4.0], "rotationY": 90 }, { "center": [2.0, 1.5, 0.0], "rotationY": 90 }] },
+    { "id": "wall-doorway-4m", "instances": [{ "center": [-2.0, 1.5, 0.0], "rotationY": 90 }, { "center": [2.0, 1.5, 4.0], "rotationY": 90 }] },
+    { "id": "end-wall-4m", "instances": [{ "center": [0.0, 1.5, 6.0], "rotationY": 0 }] },
+    { "id": "cover-halfwall", "instances": [{ "center": [0.9, 0.5, -1.6], "rotationY": 0 }] },
+    { "id": "cover-crate", "instances": [{ "center": [-0.8, 0.6, 2.2], "rotationY": 0 }] }
+  ],
+  "collision": [
+    { "module": "wall-panel-4m", "center": [-2.0, 1.5, -4.0], "half": [0.15, 1.5, 2.0] },
+    { "module": "wall-panel-4m", "center": [2.0, 1.5, -4.0], "half": [0.15, 1.5, 2.0] },
+    { "module": "wall-panel-4m", "center": [-2.0, 1.5, 4.0], "half": [0.15, 1.5, 2.0] },
+    { "module": "wall-panel-4m", "center": [2.0, 1.5, 0.0], "half": [0.15, 1.5, 2.0] },
+    { "module": "wall-doorway-4m", "center": [-2.0, 1.5, -1.3], "half": [0.15, 1.5, 0.7] },
+    { "module": "wall-doorway-4m", "center": [-2.0, 1.5, 1.3], "half": [0.15, 1.5, 0.7] },
+    { "module": "wall-doorway-4m", "center": [-2.0, 2.6, 0.0], "half": [0.15, 0.4, 0.6] },
+    { "module": "wall-doorway-4m", "center": [2.0, 1.5, 2.7], "half": [0.15, 1.5, 0.7] },
+    { "module": "wall-doorway-4m", "center": [2.0, 1.5, 5.3], "half": [0.15, 1.5, 0.7] },
+    { "module": "wall-doorway-4m", "center": [2.0, 2.6, 4.0], "half": [0.15, 0.4, 0.6] },
+    { "module": "end-wall-4m", "center": [0.0, 1.5, 6.0], "half": [2.0, 1.5, 0.15] },
+    { "module": "cover-halfwall", "center": [0.9, 0.5, -1.6], "half": [1.2, 0.5, 0.225] },
+    { "module": "cover-crate", "center": [-0.8, 0.6, 2.2], "half": [0.6, 0.6, 0.6] }
+  ],
+  "clips": [],
+  "actions": [
+    { "name": "static", "applies": true, "status": "exported", "clip": null, "notes": "The standard is static architecture; it owns no door, hinge or destruction animation." },
+    { "name": "door", "applies": false, "status": "not-applicable", "clip": null, "notes": "Each doorway is an open pass-through, not a moving door." }
+  ],
+  "materialBinding": {
+    "slot": "courtyard-concrete-2m",
+    "uv": "object-space metres / 2; the existing 256 px tile is 128 px per metre",
+    "runtimeSource": "assets/materials/courtyard-concrete/ground.json"
+  },
+  "gaps": [
+    "The assembly is not placed in src/content/map.ts; the collision boxes here are design data until the case line wires them.",
+    "Visible join covers and corner trims are geometric, but no normal/AO map is added; the existing lighting still has to prove readability.",
+    "The corridor is one assembled reference. A modular runtime kit would need each wall cut into its own node; this piece does not claim modular streaming."
+  ]
+}

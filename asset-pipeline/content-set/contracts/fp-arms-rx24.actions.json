@@ -1,0 +1,89 @@
+{
+  "piece": "fp-arms-rx24",
+  "revision": 1,
+  "space": {
+    "units": "metres",
+    "up": "+Y",
+    "forward": "-Z",
+    "origin": "weapon-group origin, the same transform src/render/scene.ts applies to this.weapon",
+    "restMount": { "translation": [0.29, -0.28, -0.32], "pitch": 0, "roll": 0, "verticalFovDeg": 80 },
+    "muzzle": [0.000266, 0.002095, -0.777468],
+    "gripSurface": [-0.03443, -0.175014, -0.345572],
+    "gripSourceSurface": [-0.00943, -0.175014, -0.345572],
+    "gripPalmOffset": [-0.025, 0, 0],
+    "gripNote": "gripSurface is the delivered support-palm contact point: gripSourceSurface + gripPalmOffset, identical to the GLB grip node. Use gripSurface for wiring; gripSourceSurface only records the rifle JSON surface it derives from."
+  },
+  "nodes": {
+    "rx24-root": "animated root; children keep their own pivots",
+    "rifle-static": "receiver, barrel, stock and sights; does not move during reload",
+    "rifle-magazine": "pivot at the magazine; translate down 0.18 m and back during reload",
+    "rifle-bolt": "charging handle; translate +Z 0.065 m at bolt-close",
+    "support-hand": "support palm/fingers/wrist and sleeve; runtime gripOffset drives it",
+    "trigger-hand": "trigger palm/fingers/wrist and sleeve",
+    "muzzle": "empty anchor for flash and tracer origin",
+    "grip": "empty anchor at the support palm contact surface (space.gripSurface); not the raw rifle surface"
+  },
+  "clips": [
+    { "name": "idle", "durationMs": 4000, "loop": true, "nodes": ["rx24-root"], "source": "original recipe; breathing sway, no ballistic effect" },
+    { "name": "fire", "durationMs": 120, "loop": false, "nodes": ["rx24-root"], "source": "src/render/weapon.ts weaponPose kick envelope, sampled at 20 ms" },
+    { "name": "reload-magazine", "durationMs": 1900, "loop": false, "nodes": ["rifle-magazine"], "source": "WEAPONS.rifle.reload = 114 ticks at 60 Hz; withdraw 0.22-0.55, insert 0.55-0.77" },
+    { "name": "reload-bolt", "durationMs": 1900, "loop": false, "nodes": ["rifle-bolt"], "source": "bolt-close phase 0.77-0.89 of the same reload clock" }
+  ],
+  "actions": [
+    {
+      "name": "idle",
+      "applies": true,
+      "status": "exported",
+      "clip": "idle",
+      "notes": "Feet and aim are owned by the player controller; the view model only breathes."
+    },
+    {
+      "name": "move",
+      "applies": true,
+      "status": "procedural-only",
+      "clip": null,
+      "notes": "src/render/weapon.ts sways at 9 rad/s by 4 mm and widens the crosshair; no baked move clip, because sway must track current speed."
+    },
+    {
+      "name": "fire",
+      "applies": true,
+      "status": "exported",
+      "clip": "fire",
+      "notes": "Root kick is presentation only. Ray direction and recoil remain src/sim values and are not changed by this clip."
+    },
+    {
+      "name": "reload",
+      "applies": true,
+      "status": "contract-only",
+      "clip": "reload-magazine",
+      "phases": [
+        { "name": "lower", "from": 0.0, "to": 0.18 },
+        { "name": "withdraw", "from": 0.22, "to": 0.55 },
+        { "name": "insert", "from": 0.55, "to": 0.77 },
+        { "name": "bolt-close", "from": 0.77, "to": 0.89 },
+        { "name": "settle", "from": 0.82, "to": 1.0 }
+      ],
+      "movingNodes": ["rifle-magazine", "rifle-bolt", "support-hand"],
+      "notes": "The whole-gun lowering and the support-hand path stay procedural in src/render/weapon.ts and src/render/arm.ts. The GLB supplies the magazine and bolt nodes so a future segmented view model can play the same phases; do not replace the reload with a single rifle tilt."
+    },
+    {
+      "name": "hit",
+      "applies": false,
+      "status": "not-applicable",
+      "clip": null,
+      "notes": "First-person arms do not receive the enemy hit reaction; the hit-feedback piece owns hit confirmation."
+    },
+    {
+      "name": "death",
+      "applies": false,
+      "status": "not-applicable",
+      "clip": null,
+      "notes": "The player view is hidden on death by src/render/scene.ts; no death clip is exported."
+    }
+  ],
+  "gaps": [
+    "No skinned hand rig: the support hand and sleeve remain a rest-pose recipe, so runtime keeps rebuilding the sleeve from two arm segments.",
+    "The GLB is not loaded by src. Wiring needs a GLTFLoader path plus per-node pose application that preserves the existing simulation clock.",
+    "Finger contact and screen coverage in idle, fire and reload must be judged in the real game view; geometry checks are only regression gates."
+  ]
+}

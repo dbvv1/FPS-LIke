@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "piece": "content-set-v1",
+  "note": "Machine-readable wiring entry points for the case line. This unit does not modify src; these entries name the existing consumer seams and the data each standard piece expects.",
+  "pieces": [
+    {
+      "id": "fp-arms-rx24",
+      "loader": "GLTFLoader; MeshoptDecoder/KTX2Loader are not required (no compressed buffers or textures)",
+      "rootNode": "rx24-root",
+      "restMount": { "translation": [0.29, -0.28, -0.32], "verticalFovDeg": 80 },
+      "restMountSource": "GLB scene extras (gltf.scene.userData.restMount); the rx24-root node extras carry only name",
+      "consumer": ["src/render/weapon.ts weaponParts/weaponPose", "src/render/scene.ts makeWeapon", "src/render/arm.ts sleeve"],
+      "nodeContract": {
+        "rifle-static": "receiver remains fixed in the group",
+        "rifle-magazine": "translate by source reload phase withdraw 0.22-0.55 and insert 0.55-0.77",
+        "rifle-bolt": "translate +Z by 0.065 at phase 0.77-0.89",
+        "support-hand": "runtime gripOffset drives the support palm; sleeve remains procedural until a hand rig exists",
+        "muzzle": "flash and tracer anchor",
+        "grip": "support palm contact anchor"
+      },
+      "preserves": "Simulation damage, cadence, spread, recoil input and reload timing are unchanged; the GLB is presentation only."
+    },
+    {
+      "id": "enemy-relay-guard",
+      "loader": "GLTFLoader",
+      "rootNode": "enemy-root",
+      "consumer": ["src/render/target.ts targetVertices/targetTriangles", "src/render/scene.ts actor mesh update"],
+      "nodeContract": {
+        "enemy-root": "fall pivot; death rotates around X",
+        "spine": "idle, walk bob, fire and hit flinch",
+        "head": "idle and hit flinch",
+        "leg-l": "walk swing",
+        "leg-r": "walk swing",
+        "weapon": "fire kick; no magazine node yet"
+      },
+      "preserves": "src/sim hit volumes, damage and AI remain authoritative; animation is presentation only."
+    },
+    {
+      "id": "passage-cover",
+      "loader": "GLTFLoader",
+      "rootNode": "passage-cover-root",
+      "consumer": ["src/content/map.ts MAP.walls", "src/render/scene.ts wall meshes", "src/render/yard.ts paint recipe", "tools/bake-nav.ts offline navigation"],
+      "nodeContract": {
+        "collision": "13 boxes in the GLB scene extras (three.js gltf.scene.userData), the same data as contracts/passage-cover.actions.json; convert to map Box records without changing the simulation",
+        "dimensions": "corridor/doorway dimensions in the same scene extras; the root node passage-cover-root and mesh node passage-cover carry no duplicate copies",
+        "modules": "module instances in the same scene extras",
+        "materialBinding": "object-space UV metres / 2 bound to the existing courtyard concrete colour chain"
+      },
+      "preserves": "Collision and navigation must be authored from the boxes and re-baked offline; never generate navigation from render geometry at runtime."
+    },
+    {
+      "id": "hit-feedback",
+      "loader": "GLTFLoader",
+      "rootNode": "hit-feedback",
+      "consumer": ["src/render/feedback.ts hit events", "src/render/scene.ts impact mesh", "src/ui/hud.ts hitmarker", "src/render/synth.ts hit/head/kill cues"],
+      "nodeContract": {
+        "hit-marker": "camera-space billboard at 0.5 m; select hit-body/head/kill clip",
+        "marker-core": "body ticks, white",
+        "marker-accent": "head and kill accent, signal/signal-hot",
+        "impact-burst": "world-space burst at the ray endpoint, radius 0.035 m"
+      },
+      "preserves": "A miss must not show a marker or play a hit cue; friendly fire uses faction-cool and no kill accent."
+    }
+  ]
+}
