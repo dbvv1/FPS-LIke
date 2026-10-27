@@ -8,7 +8,7 @@
       "loader": "GLTFLoader; MeshoptDecoder/KTX2Loader are not required (no compressed buffers or textures)",
       "rootNode": "rx24-root",
       "restMount": { "translation": [0.29, -0.28, -0.32], "verticalFovDeg": 80 },
-      "restMountSource": "GLB scene extras (gltf.scene.userData.restMount); the rx24-root node extras carry only name",
+      "restMountSource": "GLB scene extras (gltf.scene.userData.restMount); this entry mirrors restMount.translation and verticalFovDeg; the rx24-root node itself has no extras",
       "consumer": ["src/render/weapon.ts weaponParts/weaponPose", "src/render/scene.ts makeWeapon", "src/render/arm.ts sleeve"],
       "nodeContract": {
         "rifle-static": "receiver remains fixed in the group",

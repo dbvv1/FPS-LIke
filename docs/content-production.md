@@ -108,7 +108,7 @@ node asset-pipeline/content-set/build.mjs --variant
 
 本单元只交标准件和契约，不改运行时代码。机器可读的入口见 [`wiring.json`](../asset-pipeline/content-set/wiring.json)；后续案例线接线位置：
 
-- 第一人称：`src/render/rifle.ts`、`arm.ts`、`weapon.ts`、`scene.ts` 的 `makeWeapon`／`weaponPose`。加载 `fp-arms-rx24.glb` 后按 GLB scene extras（`gltf.scene.userData.restMount`）或 `wiring.json` 的 `restMount` 与 `weaponPose` 数值驱动；`rx24-root` 节点本身不带该字段（其 extras 只有 name），弹匣、拉机柄按 reload 阶段平移，手掌和袖子的程序化路径保留到有手骨为止。
+- 第一人称：`src/render/rifle.ts`、`arm.ts`、`weapon.ts`、`scene.ts` 的 `makeWeapon`／`weaponPose`。加载 `fp-arms-rx24.glb` 后，静止挂点取 GLB scene extras 的 `gltf.scene.userData.restMount`（或 `wiring.json` 镜像的 `restMount.translation`／`verticalFovDeg`），运行时姿态由 `src/render/weapon.ts` 的 `weaponPose(state, actor)` 按对局状态计算，`weaponPose` 不是 `wiring.json` 里的数值；`rx24-root` 节点本身没有任何 extras。弹匣、拉机柄按 reload 阶段平移，手掌和袖子的程序化路径保留到有手骨为止。
 - 敌方：`src/render/target.ts`、`scene.ts` 的 target 几何；保持 `src/sim` 命中体与伤害不变，用五个刚性组替换整块顶点，idle／walk／fire／hit／death 由动画状态机选择；死亡仍归表现层。
 - 通路：`src/content/map.ts` 的 `walls` 与 `src/render/scene.ts`、`yard.ts`；从 GLB scene extras（`gltf.scene.userData`）读取 13 个碰撞盒并转成 `Box`，混凝土材质绑定既有 `ground.json` 颜色链。寻路需重新烘焙，不能从渲染几何现场生成。
 - 命中：`src/render/feedback.ts`、`src/render/scene.ts` 的 impact、`src/ui/hud.ts` 的 hitmarker；命中标记按 kind 选 core/accent 与颜色，冲击球换成 GLB burst，声音仍走 `synth` 的 hit/head/kill。
