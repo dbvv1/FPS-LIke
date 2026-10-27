@@ -73,13 +73,15 @@ DEBUG=pw:browser node --import tsx tools/capture.mjs \
 # 连续射击片段；每帧等消费者截取后再推进，输出 00000.png 起的序列。
 node --import tsx tools/capture.mjs --shot gameplay --seed 1 \
   --input advance-fire --t 3 --frames 240 --repeat 2 --headed --require-gpu
-ffmpeg -framerate 60 -i 'outputs/capture/<本次序列目录>/%05d.png' \
+ffmpeg -framerate 60 -i 'outputs/capture/<本次run目录>/<本次序列目录>/%05d.png' \
   -c:v libx264 -pix_fmt yuv420p capture.mp4
 ```
 
-Windows shell 可直接执行 `node --import tsx …` 并按该 shell 语法设置 DEBUG。可用 `FPS_CAPTURE_CHROMIUM` 指定已安装的 Chromium；不填则使用 Playwright `channel: chromium`。`--out` 改输出目录；`--base` 可连已有服务，但报告会明确标为**外部服务源 SHA 未证实**，不能用本地 SHA 冒充服务器版本。不要把私有服务地址、完整本机路径或浏览器启动日志提交公开仓库。
+Windows shell 可直接执行 `node --import tsx …` 并按该 shell 语法设置 DEBUG。本地构建在 Windows 通过显式 `cmd.exe /d /s /c` 调固定的 `npm.cmd run build`（`/d` 禁用 AutoRun），不把输出路径或用户参数拼进命令；其它平台仍直接执行 npm。依据 [Node 官方 .cmd 契约](https://nodejs.org/api/child_process.html#spawning-bat-and-cmd-files-on-windows)，不能直接用无 shell 的 execFile 启动 npm.cmd。Windows 分派已有 mock 回归，真实 Windows 构建仍待本机验证。可用 `FPS_CAPTURE_CHROMIUM` 指定已安装的 Chromium；不填则使用 Playwright `channel: chromium`。`--out` 改输出目录；`--base` 可连已有服务，但报告会明确标为**外部服务源 SHA 未证实**，不能用本地 SHA 冒充服务器版本。不要把私有服务地址、完整本机路径或浏览器启动日志提交公开仓库。
 
-每次输出 `report.json`、逐帧 JSON/PNG，包含本地源码 SHA、工作树 dirty 标志、构建绑定、浏览器版本、请求的 launch 配置、原 renderer/vendor/version、完整相机和仿真哈希。文件目录带 `gpu` / `software` / `unknown`、renderer 安全短名及原串哈希，原串仍原样留在 JSON，不靠文件名替代证据。默认每机位两次全新页面拍摄，逐帧比较**RGBA 字节哈希、stateHash、相机、时刻与 renderer**；不是只比较 PNG 压缩字节。帧 0 先等待真实 150ms，再确认状态完全不变。截图前同时等待 boot 遮罩消失。
+`--out` 是输出根；每次调用用原子 `mkdtemp` 新建独占的 `run-<commit短SHA>-<input>-<随机后缀>` 子目录，即便同时跑相同参数也不复用。该 run 的 `report.json` 和全部逐帧 JSON/PNG 一起保存在其中，stdout 的 `outputDirectory` 给出确切位置。文件按排他写入，不能覆盖前次 report 或留下旧序列尾帧；短片段不会混入之前长片段。逐帧 JSON 同样记录 runId／sourceCommit／input。
+
+每个 run 的报告包含本地源码 SHA、工作树 dirty 标志、构建绑定、浏览器版本、请求的 launch 配置、原 renderer/vendor/version、完整相机和仿真哈希。文件目录带 `gpu` / `software` / `unknown`、renderer 安全短名及原串哈希，原串仍原样留在 JSON，不靠文件名替代证据。默认每机位两次全新页面拍摄，逐帧比较**RGBA 字节哈希、stateHash、相机、时刻与 renderer**；不是只比较 PNG 压缩字节。帧 0 先等待真实 150ms，再确认状态完全不变。截图前同时等待 boot 遮罩消失。
 
 renderer 分类先识别 SwiftShader、llvmpipe、softpipe、swrast、lavapipe、software、Basic Render 等软件报告，再对 NVIDIA／AMD/Radeon／Intel／Apple GPU 等硬件家族做正向识别；空串、泛化 ANGLE／WebKit／Mesa、虚拟适配器等保持 `unknown`。`--require-gpu` 还要求 debug 扩展实际可读。**这仍是驱动自报身份，不是独立硬件证明**；不得仅用“不是 SwiftShader”推断 GPU。CPU Canvas 回退在拍摄路径明确失败，不能混入灯光证据。
 
@@ -87,8 +89,8 @@ renderer 分类先识别 SwiftShader、llvmpipe、softpipe、swrast、lavapipe�
 
 ## 本候选实际验证与未完成项
 
-- 类型检查、生产构建通过。完整 106 项测试串行、并行均通过；首次默认并行运行有 3 个测试子进程非断言退出，随后同范围 TAP 重跑全过，原因未确定，不把它说成已定位。
-- 其中 13 项新增测试覆盖缺参数／非法参数、渲染器分类、机位不改模拟、固定带与原 Game/Bot 同状态、调度快慢无关、预热不加 tick、逐帧终止／重复确认、进入／离页／晚到资源／失败释放；这不是浏览器图片验收。
+- 类型检查、生产构建通过。当前完整 109 项测试串行通过；初版 106 项串行、并行及独审重跑通过。初次默认并行有 3 个测试子进程非断言退出，独审初次另有 1 个非断言退出，后续重跑全过；原因未确定，不把它说成已定位。
+- 其中 16 项新增测试覆盖缺参数／非法参数、渲染器分类、机位不改模拟、固定带与原 Game/Bot 同状态、调度快慢无关、预热不加 tick、逐帧终止／重复确认、进入／离页／晚到资源／失败释放；另以实际截图脚本配 mock browser 覆盖同输出根不同版本／输入的长短序列，以及并发目录分配和 Windows 构建分派。这不是浏览器图片或 Windows 实机验收。
 - 200 局 seed 1 无画面模拟运行完成；进攻胜率 63.5%，属于既有平衡差距，本候选没有改玩法。
 - 软件 Chromium 尝试保留 `chromiumSandbox: true`、精确忽略 Playwright 默认 `--enable-unsafe-swiftshader`；实际启动在 `socket() failed: Operation not permitted` 处失败（同时有 crashpad 目录错误），**0 帧**。未关闭 sandbox、未加 unsafe 标志，未占用其它 GUI 浏览器。
 - **未验证：实际浏览器每机位两拍一致、正常浏览器启动／退出、真 GPU 基线、命名机位实际构图、参照配准与品质独立复评。** 下一步只需在有权限的接收环境 checkout 本候选固定 SHA，用上述有窗口 `--require-gpu` 命令取证；同一时间仅跑一个 GPU 任务。本单元不另下任务卡、不推 main、不发布网站。

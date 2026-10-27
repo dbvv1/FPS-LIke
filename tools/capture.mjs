@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import { parseArgs } from 'node:util';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { resolve, join } from 'node:path';
+import { resolve, join, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
@@ -12,6 +12,7 @@ import { preview } from 'vite';
 import { PNG } from 'pngjs';
 import { CAMERAS, CAPTURE_SIZE } from '../src/capture/cameras.ts';
 import { parseCaptureConfig } from '../src/capture/config.ts';
+import { createCaptureRun, captureBuildInvocation } from './capture-support.ts';
 
 const { values } = parseArgs({ options: {
   base: { type: 'string' }, out: { type: 'string', default: 'outputs/capture' },
@@ -26,18 +27,23 @@ const repeat = Number(values.repeat);
 assert.ok(Number.isInteger(repeat) && repeat >= 1 && repeat <= 5, '--repeat must be 1–5');
 assert.ok(!(values.software && values['require-gpu']), '--software and --require-gpu are contradictory');
 for (const shot of names) parseCaptureConfig(new URLSearchParams({ shot, seed: values.seed, t: values.t, input: values.input, frames: values.frames }).toString());
-const output = resolve(values.out); await mkdir(output, { recursive: true });
+const outputRoot = resolve(values.out);
 const root = fileURLToPath(new URL('..', import.meta.url));
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const report = { passed: false, sourceCommit: execFileSync('git', ['rev-parse', 'HEAD'], { cwd: root, encoding: 'utf8' }).trim(),
   sourceDirty: !!execFileSync('git', ['status', '--porcelain'], { cwd: root, encoding: 'utf8' }).trim(),
   shots: [], errors: [], warnings: [], checks: [], qualityAcceptance: 'not-performed; this is capture infrastructure, not a lighting/material quality approval' };
+const output = await createCaptureRun(outputRoot, report.sourceCommit, values.input);
+report.runId = basename(output);
+report.outputDirectory = output;
+report.parameters = { input: values.input, shots: names, seed: values.seed, t: values.t, frames: values.frames, repeat };
 let browser, server;
 try {
   let base = values.base;
   if (!base) {
     // Bind the tested artifact to this checkout rather than a stale web-dist.
-    execFileSync(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['run', 'build'], { cwd: root, stdio: 'inherit' });
+    const build = captureBuildInvocation(process.platform, process.env.ComSpec);
+    execFileSync(build.file, build.args, { cwd: root, stdio: 'inherit', shell: false, windowsHide: true });
     report.sourceBinding = 'local build produced in this capture invocation';
     server = await preview({ configFile: false, root, build: { outDir: 'web-dist' }, preview: { host: '127.0.0.1', port: 0, open: false } });
     const address = server.httpServer.address(); assert.ok(address && typeof address !== 'string'); base = `http://127.0.0.1:${address.port}/`;
@@ -81,9 +87,9 @@ try {
         const directory = `${shot}-${meta.rendererClass}-${rendererSlug}-${rawHash}-seed${meta.seed}-tick${meta.virtualTick - frame}-r${run}`;
         await mkdir(join(output, directory), { recursive: true });
         const file = join(directory, `${String(frame).padStart(5, '0')}.png`);
-        await writeFile(join(output, file), png);
-        const entry = { file, run, rgbaSha256: hash(pixels.data), pngSha256: hash(png), ...meta };
-        await writeFile(join(output, directory, `${String(frame).padStart(5, '0')}.json`), JSON.stringify(entry, null, 2) + '\n');
+        await writeFile(join(output, file), png, { flag: 'wx' });
+        const entry = { file, run, runId: report.runId, sourceCommit: report.sourceCommit, sourceDirty: report.sourceDirty, rgbaSha256: hash(pixels.data), pngSha256: hash(png), ...meta };
+        await writeFile(join(output, directory, `${String(frame).padStart(5, '0')}.json`), JSON.stringify(entry, null, 2) + '\n', { flag: 'wx' });
         report.shots.push(entry);
         const comparable = { hash: entry.rgbaSha256, stateHash: meta.stateHash, camera: meta.camera, renderer: meta.renderer, t: meta.t };
         if (run === 1) baseline.push(comparable); else assert.deepEqual(comparable, baseline[frame], `${shot} frame ${frame} must repeat pixel-identically on the same renderer`);
@@ -109,6 +115,6 @@ try {
 finally {
   await browser?.close();
   if (server) { server.httpServer.closeAllConnections(); await new Promise(resolve => server.httpServer.close(resolve)); }
-  await writeFile(join(output, 'report.json'), JSON.stringify(report, null, 2) + '\n');
+  await writeFile(join(output, 'report.json'), JSON.stringify(report, null, 2) + '\n', { flag: 'wx' });
   console.log(JSON.stringify(report, null, 2));
 }
