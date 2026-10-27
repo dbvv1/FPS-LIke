@@ -1,11 +1,12 @@
 import type { Actor, Command } from '../sim/types.js';
 type Action = Command extends infer C ? C extends Command ? Omit<C, 'actorId' | 'at'> : never : never;
-type Queued = { time: number; action: Action };
+type Trigger = { type: 'trigger'; held: boolean };
+type Queued = { time: number; action: Action | Trigger };
 export class Controls {
   yaw = 0; pitch = 0; locked = false; shooting = false;
   private held = new Set<string>();
   private queue: Queued[] = [];
-  private downAt = Infinity;
+  private triggerHeld = false;
   private requestPending = false;
   private lockGeneration = 0;
   private abort = new AbortController();
@@ -43,16 +44,20 @@ export class Controls {
     }, { signal });
     canvas.addEventListener('mousedown', e => {
       if (!this.locked || e.button !== 0) return;
-      this.shooting = true; this.downAt = performance.now();
+      this.shooting = true;
+      this.add({ type: 'trigger', held: true });
       this.add({ type: 'shoot', yaw: this.yaw, pitch: this.pitch });
     }, { signal });
-    document.addEventListener('mouseup', e => { if (e.button === 0) this.shooting = false; }, { signal });
+    document.addEventListener('mouseup', e => {
+      if (e.button !== 0 || !this.shooting) return;
+      this.shooting = false; this.add({ type: 'trigger', held: false });
+    }, { signal });
     canvas.addEventListener('contextmenu', e => e.preventDefault(), { signal });
     window.addEventListener('blur', () => this.pause(), { signal });
     document.addEventListener('visibilitychange', () => { if (document.hidden) this.pause(); }, { signal });
   }
   private get moving() { return ['KeyW', 'KeyA', 'KeyS', 'KeyD'].some(k => this.held.has(k)); }
-  private add(action: Action) { this.queue.push({ time: performance.now(), action }); }
+  private add(action: Action | Trigger) { this.queue.push({ time: performance.now(), action }); }
   private move() {
     const forward = Number(this.held.has('KeyW')) - Number(this.held.has('KeyS'));
     const right = Number(this.held.has('KeyD')) - Number(this.held.has('KeyA'));
@@ -72,23 +77,33 @@ export class Controls {
   }
   commands(actor: Actor, start: number, end: number, simTime: number): Command[] {
     const result: Command[] = [];
+    const at = (time: number) => Math.max(0, Math.min(999, Math.floor((time - start) / (end - start) * 1000)));
     const due = Math.max(0, actor.nextShot - simTime);
-    if (this.locked && this.shooting && this.downAt <= start && actor.weapon === 'rifle' && due < 1000) {
+    if (this.locked && actor.weapon === 'rifle' && due < 1000) {
       const shotTime = start + (end - start) * due / 1000;
-      let yaw = actor.yaw, pitch = actor.pitch;
-      for (const q of this.queue) if (q.time <= shotTime && q.action.type === 'aim') { yaw = q.action.yaw; pitch = q.action.pitch; }
-      result.push({ actorId: actor.id, type: 'shoot', yaw, pitch, at: due });
+      let held = this.triggerHeld, yaw = actor.yaw, pitch = actor.pitch, pressedAtDue = false;
+      // Replay trigger edges at the shot's time, not the latest DOM state. A
+      // release received before a catch-up tick must not erase an earlier shot.
+      for (const q of this.queue) {
+        if (q.time > shotTime) break;
+        if (q.action.type === 'trigger') held = q.action.held;
+        else if (q.action.type === 'aim') { yaw = q.action.yaw; pitch = q.action.pitch; }
+        else if (q.action.type === 'shoot' && at(q.time) === due) pressedAtDue = true;
+      }
+      if (held && !pressedAtDue) result.push({ actorId: actor.id, type: 'shoot', yaw, pitch, at: due });
     }
     let consumed = 0;
     for (const q of this.queue) {
       if (q.time > end) break;
-      result.push({ ...q.action, actorId: actor.id, at: Math.max(0, Math.min(999, Math.floor((q.time - start) / (end - start) * 1000))) }); consumed++;
+      if (q.action.type === 'trigger') this.triggerHeld = q.action.held;
+      else result.push({ ...q.action, actorId: actor.id, at: at(q.time) });
+      consumed++;
     }
     this.queue.splice(0, consumed);
     return result;
   }
   clear() {
-    this.held.clear(); this.shooting = false; this.downAt = Infinity; this.queue = [];
+    this.held.clear(); this.shooting = false; this.triggerHeld = false; this.queue = [];
     this.add({ type: 'move', x: 0, z: 0 }); this.add({ type: 'interact', held: false });
   }
   reset(actor: Actor) { this.yaw = actor.yaw; this.pitch = actor.pitch; this.clear(); }

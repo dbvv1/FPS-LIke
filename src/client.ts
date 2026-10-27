@@ -20,6 +20,7 @@ hud.setBusy(true);
 function player(state = game.state) { return state.actors.find(a => a.id === 'player')!; }
 function fail(error: unknown) {
   running = false; controls?.pause();
+  hud.menu(false); // Release the modal so the existing fatal message remains accessible.
   const target = document.getElementById('fatal')!;
   target.hidden = false; target.textContent = `场景运行失败：${error instanceof Error ? error.message : String(error)}。请重新加载，或使用支持 Canvas2D / WebGL2 的桌面浏览器。`;
   console.error(error);

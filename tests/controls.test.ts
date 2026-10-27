@@ -116,3 +116,79 @@ test('saved sensitivity scales yaw/pitch once, preserves shot sampling, and UI i
   controls.pause();gain=2;env.document.dispatchEvent(event('mousemove',{movementX:100,movementY:50}));assert.ok(Math.abs(controls.yaw-.15)<1e-12);await controls.lock();now=20;env.document.dispatchEvent(event('mousemove',{movementX:100,movementY:50}));assert.ok(Math.abs(controls.yaw-.55)<1e-12);assert.equal(controls.pitch,-.25);assert.equal(controls.shooting,false);
  }finally{controls.dispose();env.restore();}
 });
+
+type TimedInput = { time: number; type: string; fields?: Record<string, unknown> };
+async function runTimedInput(frameMs: number, inputs: TimedInput[], setNow: (time: number) => void, until = 260) {
+  // Initialize Rapier before exposing the fake DOM; this is the real simulation,
+  // not an ammunition counter copied into the controls fixture.
+  const { Game } = await import('../src/sim/game.js');
+  const game = await Game.create(1), env = environment(), canvas = new FakeCanvas(env.document);
+  setNow(0);
+  const controls = new Controls(canvas as unknown as HTMLCanvasElement, () => {}, () => {});
+  try {
+    await controls.lock();
+    let next = 0, start = 0;
+    for (let frame = frameMs; frame <= until + frameMs; frame += frameMs) {
+      while (next < inputs.length && inputs[next]!.time <= frame) {
+        const input = inputs[next++]!; setNow(input.time);
+        if (input.type === 'resume') await controls.lock();
+        else (input.type === 'mousedown' ? canvas : env.document).dispatchEvent(event(input.type, input.fields));
+      }
+      setNow(frame);
+      while (frame >= start + 1000 / 60) {
+        const state = game.state;
+        game.step(controls.commands(state.actors[0]!, start, start + 1000 / 60, state.time)); start += 1000 / 60;
+      }
+    }
+    return game.state;
+  } finally { controls.dispose(); env.restore(); game.dispose(); }
+}
+const press = (time: number): TimedInput => ({ time, type: 'mousedown', fields: { button: 0 } });
+const release = (time: number): TimedInput => ({ time, type: 'mouseup', fields: { button: 0 } });
+const key = (time: number, code: string): TimedInput => ({ time, type: 'keydown', fields: { code, repeat: false } });
+
+test('a held rifle keeps its legal tail shot across render rates without firing after an early release', async t => {
+  let now = 0; t.mock.method(performance, 'now', () => now);
+  for (const releasedAt of [109, 110, 120, 130]) {
+    let expected;
+    for (const frameMs of [1000 / 60, 1000 / 30, 50]) {
+      const state = await runTimedInput(frameMs, [press(10), release(releasedAt)], value => { now = value; });
+      const shots = state.shots.map(shot => ({ time: shot.time, yaw: shot.yaw, pitch: shot.pitch, weapon: shot.weapon }));
+      assert.deepEqual(shots.map(shot => shot.time), releasedAt <= 110 ? [600] : [600, 6600]);
+      expected ??= shots;
+      assert.deepEqual(shots, expected, `same input at ${1000 / frameMs} fps`);
+      assert.equal(state.actors[0]!.weapons.rifle.ammo, 24 - shots.length);
+    }
+  }
+});
+
+test('release then re-press in one catch-up frame preserves the previous burst and the new aim', async t => {
+  let now = 0; t.mock.method(performance, 'now', () => now);
+  const inputs = [press(10), { time: 106, type: 'mousemove', fields: { movementX: 20, movementY: 0 } }, release(120), press(125), { time: 190, type: 'mousemove', fields: { movementX: 30, movementY: 0 } }, release(225)];
+  let expected;
+  for (const frameMs of [1000 / 60, 1000 / 30, 50]) {
+    const state = await runTimedInput(frameMs, inputs, value => { now = value; });
+    assert.deepEqual(state.shots.map(shot => shot.time), [600, 6600, 12600]);
+    expected ??= state.shots;
+    assert.deepEqual(state.shots, expected);
+  }
+});
+
+test('trigger history obeys reload, switch lock and semi-automatic fire at every render rate', async t => {
+  let now = 0; t.mock.method(performance, 'now', () => now);
+  const inputs = [press(10), key(70, 'KeyR'), release(120), key(130, 'Digit2'), press(140), release(145), press(340), key(480, 'Digit1'), release(800)];
+  let expected;
+  for (const frameMs of [1000 / 60, 1000 / 30, 50]) {
+    const state = await runTimedInput(frameMs, inputs, value => { now = value; }, 850);
+    assert.deepEqual(state.shots.map(shot => shot.weapon), ['rifle', 'pistol', 'rifle', 'rifle']);
+    assert.equal(state.actors[0]!.reload, null);
+    expected ??= state.shots;
+    assert.deepEqual(state.shots, expected);
+  }
+});
+
+test('pause drops historical trigger edges rather than replaying them after resume', async t => {
+  let now = 0; t.mock.method(performance, 'now', () => now);
+  const state = await runTimedInput(50, [press(10), release(120), key(125, 'Escape'), { time: 160, type: 'resume' }], value => { now = value; });
+  assert.deepEqual(state.shots.map(shot => shot.time), [600]);
+});

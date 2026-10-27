@@ -45,3 +45,14 @@ npm run smoke
 - 拆除后点击下一回合，生命／弹匣恢复 100／24，回到防守出生点、交互键清空，比分保留。CPU 高对比标识在该轮截图中清楚可见。
 
 这只证明目标路径可由正常客户端输入完成，不代表路线平衡或新手可读性已达标。直接跑动或在长视线中静步的几次尝试仍被淘汰。攻守平衡的 63.5% / 61% 进攻胜率仍超目标，详见 [模拟层结果](simulation.md#首轮结果与下一步)。
+
+
+### 暂停菜单的键盘路径
+
+菜单沿原 DOM 改为原生 `dialog.showModal()`，借浏览器模态隔离背景；不另写 Tab 循环。打开时聚焦进入／继续或下一回合，反复显示时保有效焦点；下一回合替换主按钮或忙碌结束使原焦点失效时，才回有效主按钮。设置内 Esc 取消未提交草稿、折叠并回到原 summary；主菜单 Esc 不隐式开局。沿 [HTML dialog](https://html.spec.whatwg.org/multipage/interactive-elements.html#the-dialog-element) 的 `closedby` 关闭政策配合局部键盘处理，不能只依赖 `cancel.preventDefault()`：连续关闭请求不保证一直可取消。原锁权限及草稿检查仍由输入／设置层承担。
+
+构建后运行 `DEBUG=pw:browser node tools/smoke-menu-focus.mjs`（默认 `/usr/bin/chromium`，可用 `FPS_SMOKE_CHROMIUM` 指定已有 Chromium）。它保沙箱、明确关闭 WebGL，用真实键盘／点击走 Tab 与反向导航、修改／取消／保存、Enter 获取指针锁、Esc 暂停和再次进入；报告与截图在 `outputs/menu-focus/candidate/`。另外检查真实菜单的 390px 窄屏和 200% CSS zoom；后者不是 OS 字号或读屏器验收。末尾合成 context-lost 事件只验错误提示不会被模态盖住，不代表 GPU 真丢失。
+
+2026-10-26 Chromium 155 CPU 路径通过；宽屏和窄屏实图已检查，窄屏诊断入口进入正常文档流，避免压住设置脚注。键盘基线曾实际到背景画布／暂停按钮，修后不再到达；这不代表基线曾发出游戏移动／射击，也不升级为 Unity 原生 UI 证据。
+
+`DEBUG=pw:browser node tools/smoke-menu-transition.mjs` 单独加载真实 Hud 组件，以合成回合结果和受控锁失败验证“下一回合隐藏原按钮后仍能聚焦继续”、有效设置焦点不被抢、忙碌解除后的回焦；它不是实际打完一局或 OS 拒权测试。
