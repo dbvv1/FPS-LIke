@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { ContentSetAssets, contentSetEnabled } from './content-set-assets.js';
 import { groundLevels, groundUV } from './ground.js';
 import { YARD, wallStrip } from './yard.js';
 import { Feedback } from './feedback.js';
@@ -10,9 +11,11 @@ import { weaponParts, weaponPose, weaponMesh, weaponPartPosition, weaponMuzzle }
 import { cameraPose, toThree } from './coordinates.js';
 export class View {
   readonly backend = 'three-webgl2';
-  get info() { return { memory: { ...this.renderer.info.memory }, calls: this.renderer.info.render.calls }; }
+  get info() { return { ...(this.content.status === 'off' ? {} : { contentSet: { status: this.content.status, error: this.content.error, active: this.content.status === 'ready' && this.contentPresented } }), memory: { ...this.renderer.info.memory }, calls: this.renderer.info.render.calls }; }
   readonly renderer: THREE.WebGLRenderer;
   private scene = new THREE.Scene();
+  private content = new ContentSetAssets();
+  private contentPresented = false;
   private camera = new THREE.PerspectiveCamera(80, 1, 0.05, 100);
   private feedback = new Feedback();
   private impacts: THREE.Mesh[] = [];
@@ -25,7 +28,7 @@ export class View {
   private geometries = new Set<THREE.BufferGeometry>();
   private materials = new Set<THREE.Material>();
   private textures = new Set<THREE.Texture>();
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(canvas: HTMLCanvasElement, candidate = contentSetEnabled(globalThis.location?.search ?? '')) {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -67,6 +70,7 @@ export class View {
     this.makeWeapon(this.rifle, false); this.makeWeapon(this.pistol, true);
     this.weapon.add(this.rifle, this.pistol, this.flash); this.flash.position.set(0.01, 0.03, -0.7); this.flash.visible = false;
     this.camera.add(this.weapon); this.scene.add(this.camera);
+    if (candidate) void this.content.start();
     this.resize();
     this.scene.traverse(o => { if (o instanceof THREE.Mesh || o instanceof THREE.LineSegments) { this.geometries.add(o.geometry); for (const m of Array.isArray(o.material) ? o.material : [o.material]) this.materials.add(m); } });
   }
@@ -92,14 +96,21 @@ export class View {
     this.renderer.setSize(w, h, false); this.camera.aspect = w / Math.max(1, h); this.camera.updateProjectionMatrix();
   }
   render(state: GameState, player: Actor, yaw: number, pitch: number, now: number, dt: number) {
+    this.contentPresented = false;
     const pose = weaponPose(state, player), effects=this.feedback.update(state,now);
     cameraPose(this.camera, eye(player), yaw, pitch);
     this.weapon.position.set(pose.x, pose.y, pose.z);
     this.weapon.rotation.set(pose.pitch, 0, pose.roll, 'ZYX');
     this.weapon.visible = player.hp > 0;
     this.rifle.visible = player.weapon === 'rifle'; this.pistol.visible = player.weapon === 'pistol';
+    const contentRifle = this.content.rifle;
+    if (contentRifle) {
+      if (contentRifle.scene.parent !== this.weapon) this.weapon.add(contentRifle.scene);
+      contentRifle.scene.visible = player.weapon === 'rifle'; contentRifle.pose(pose);
+    }
     for (const group of [this.rifle, this.pistol]) for (const part of group.children) {
       const source=part.userData.part;
+      part.visible = group !== this.rifle || !contentRifle || !!source.arm;
       part.position.set(...weaponPartPosition(source,pose));
       if(source.arm){
         const mesh=part as THREE.Mesh, data=weaponMesh(source,pose), positions=mesh.geometry.getAttribute('position');let n=0;
@@ -109,8 +120,16 @@ export class View {
     }
     this.flash.position.set(...weaponMuzzle(player.weapon));
     this.flash.visible = pose.flash > 0; this.flash.scale.setScalar(.6 + pose.flash * .7);
+    this.content.retainActors(new Set(state.actors.filter(actor => actor.id !== player.id && actor.team !== player.team).map(actor => actor.id)));
     for (const actor of state.actors) {
       if (actor.id === player.id) continue;
+      const contentActor = actor.team !== player.team ? this.content.actor(actor.id) : null;
+      if (contentActor) {
+        if (contentActor.mount.parent !== this.scene) this.scene.add(contentActor.mount);
+        contentActor.pose(state, actor, effects, this.feedback.actor(actor).visible);
+        const fallback = this.actors.get(actor.id); if (fallback) fallback.visible = false;
+        continue;
+      }
       let model = this.actors.get(actor.id);
       if (!model) {
         const geometry=new THREE.BufferGeometry(),colors:number[]=[];
@@ -143,7 +162,8 @@ export class View {
     this.bomb.visible = state.bomb.planted || !state.bomb.carrier;
     this.bomb.position.set(...toThree(state.bomb.position));
     this.renderer.render(this.scene, this.camera);
+    this.contentPresented = this.content.status === 'ready';
   }
-  reset() {this.feedback.reset();for(const mesh of this.impacts)mesh.visible=false;}
-  dispose() { for (const g of this.geometries) g.dispose(); for (const m of this.materials) m.dispose(); for(const t of this.textures)t.dispose(); this.renderer.dispose(); }
+  reset() {this.contentPresented=false;this.content.reset();this.feedback.reset();for(const mesh of this.impacts)mesh.visible=false;}
+  dispose() { this.contentPresented=false;this.content.dispose();for (const g of this.geometries) g.dispose(); for (const m of this.materials) m.dispose(); for(const t of this.textures)t.dispose(); this.renderer.dispose(); }
 }
