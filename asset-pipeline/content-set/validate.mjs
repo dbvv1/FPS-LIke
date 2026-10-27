@@ -42,11 +42,40 @@ function accessorFits(json, bin, accessorIndex) {
   if (!acc) return `accessor ${accessorIndex} is missing`;
   const view = json.bufferViews[acc.bufferView];
   if (!view) return `accessor ${accessorIndex} references a missing bufferView`;
-  const stride = WIDTH[acc.componentType] * COMPONENTS[acc.type];
-  const end = view.byteOffset + (acc.count - 1) * stride + stride;
+  const element = WIDTH[acc.componentType] * COMPONENTS[acc.type];
+  const stride = view.byteStride ?? element;
+  const start = view.byteOffset + (acc.byteOffset ?? 0);
+  const end = start + (acc.count - 1) * stride + element;
   if (end > view.byteOffset + view.byteLength) return `accessor ${accessorIndex} overruns its bufferView`;
   if (end > bin.length) return `accessor ${accessorIndex} overruns the binary chunk`;
   return null;
+}
+
+function checkVertexAttributes(json, piece, attrs, failures) {
+  const used = new Set(json.extensionsUsed ?? []);
+  const required = new Set(json.extensionsRequired ?? []);
+  for (const [name, index] of Object.entries(attrs)) {
+    const acc = json.accessors[index];
+    if (!acc) continue;
+    const view = json.bufferViews[acc.bufferView];
+    if (!view) continue;
+    const element = WIDTH[acc.componentType] * COMPONENTS[acc.type];
+    const stride = view.byteStride ?? element;
+    // glTF 2.0 requires vertex attribute offsets and strides on 4-byte
+    // boundaries. That is why NORMAL/COLOR_0 VEC3 elements carry a pad byte
+    // even though their component size is one byte.
+    const offset = (view.byteOffset ?? 0) + (acc.byteOffset ?? 0);
+    if (offset % 4 !== 0) failures.push(`${piece}: ${name} vertex data offset ${offset} is not 4-byte aligned`);
+    if (stride % 4 !== 0) failures.push(`${piece}: ${name} vertex stride ${stride} is not 4-byte aligned`);
+    if (name === 'NORMAL' && acc.componentType !== 5126) {
+      // Quantised normals are only legal through KHR_mesh_quantization, and a
+      // client that lacks it cannot render the mesh correctly, so it must be
+      // required as well as used.
+      if (!used.has('KHR_mesh_quantization') || !required.has('KHR_mesh_quantization')) {
+        failures.push(`${piece}: quantised NORMAL requires KHR_mesh_quantization in extensionsUsed and extensionsRequired`);
+      }
+    }
+  }
 }
 
 function checkNodeGraph(json, failures, piece) {
@@ -196,6 +225,7 @@ export function validateContentSet() {
       for (const prim of mesh.primitives) {
         primitives++;
         const attrs = prim.attributes;
+        checkVertexAttributes(json, pieceSpec.id, attrs, failures);
         for (const [name, index] of Object.entries(attrs)) {
           const error = accessorFits(json, bin, index);
           if (error) failures.push(`${pieceSpec.id}: ${name} ${error}`);

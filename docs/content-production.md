@@ -2,7 +2,7 @@
 
 本页是一页风格说明加四件标准件和一条可重跑的归一链。范围是让案例从占位大方块走向能完整玩一局时，角色、场景、材质、动作、特效、声音和界面先有一套能对得上、能被解析和接线的标准；不是完整地图、武器库或最终品质。基线提交 `a97d57281dd6c6d941c6a6bef732dadf2953f2f4`；本单元不改 `src/`、相机、主循环、既有资产或 `docs/quality.md`。
 
-产物在 [`asset-pipeline/content-set/`](../asset-pipeline/content-set/)：四件 GLB、调色板、动作与材质契约、归一构建脚本、校验脚本和测试。阵容图必须接入本作光照后由真 GPU 拍；本单元没有取得该图，标准件保持“待接入”状态，离线解析不作为品质定稿。
+产物在 [`asset-pipeline/content-set/`](../asset-pipeline/content-set/)：四件 GLB、调色板、动作与材质契约、归一构建脚本、校验脚本、测试和官方 glTF 规范回归。阵容图必须接入本作光照后由真 GPU 拍；本单元没有取得该图，标准件保持“待接入”状态，离线解析不作为品质定稿。
 
 ## 一、完整一局的内容类别与实际缺口
 
@@ -37,11 +37,11 @@
 
 | 件 | 预算 B／三角形／材质／draw | 实际 |
 |---|---|---|
-| fp-arms-rx24 | 204,800／6,000／2／5 | 169,816／3,006／2／5 |
-| enemy-relay-guard | 81,920／2,000／1／6 | 37,068／515／1／5 |
-| passage-cover | 61,440／1,500／3／3 | 56,120／768／3／3 |
-| hit-feedback | 24,576／400／3／3 | 6,436／24／3／3 |
-| 合计 | 409,600／12,000／0 新贴图 | 269,440／4,313／0 |
+| fp-arms-rx24 | 204,800／6,000／2／5 | 188,088／3,006／2／5 |
+| enemy-relay-guard | 81,920／2,000／1／6 | 40,388／515／1／5 |
+| passage-cover | 61,440／1,500／3／3 | 60,908／768／3／3 |
+| hit-feedback | 24,576／400／3／3 | 6,760／24／3／3 |
+| 合计 | 409,600／12,000／0 新贴图 | 296,144／4,313／0 |
 
 ## 三、四件标准件
 
@@ -60,7 +60,7 @@
 
 - 来源／许可：RX-24 来自 [Quaternius Ultimate Guns Pack](https://quaternius.com/packs/ultimategun.html)，CC0-1.0；手掌、手指、腕、袖和拉机柄是原创配方，CC0-1.0。不是无手臂的裸枪。
 - 处理前后：源派生 JSON 的 24 个零件 → 静态机匣、弹匣两个节点；拉机柄是原创 bevelBox 节点；程序化手部 → support-hand／trigger-hand 两个节点。全件重定向到武器组局部空间，弹匣、拉机柄和手掌各有独立轴心，供运行时按既有换弹时钟平移。
-- 实际：169,816B，3,006 三角形，2 材质（gunmetal／glove-fabric），5 draw，节点 `rx24-root／rifle-static／rifle-magazine／rifle-bolt／support-hand／trigger-hand／muzzle／grip`。
+- 实际：188,088B，3,006 三角形，2 材质（gunmetal／glove-fabric），5 draw，节点 `rx24-root／rifle-static／rifle-magazine／rifle-bolt／support-hand／trigger-hand／muzzle／grip`。
 - 动作：idle、fire、reload-magazine、reload-bolt 剪辑；待机、移动、开火、换弹的适用性与 `src/render/weapon.ts` 的 kick／lower／magazine／bolt 阶段对齐。移动与整体换弹仍归运行时程序化，不用整枪倾斜冒充换弹。
 - 材质契约：顶点色线性，平面法线；枪口锚点 `[0.000266, 0.002095, −0.777468]`，握点 `[−0.03443, −0.175014, −0.345572]`。
 
@@ -68,7 +68,7 @@
 
 - 来源／许可：Casti_131 [Low Poly Soldier with weapons](https://opengameart.org/content/low-poly-soldier-with-weapons)，作者 2017-01-11 释为 CC0-1.0；源 ZIP 与 Blend 哈希见 `assets/characters/relay-guard/README.md`。
 - 处理前后：515 面静态姿态 → 头、脊柱、左右腿、武器五个刚性组，轴心分别在颈、腰、左右髋和步枪重心；沿用 `targetColor` 的敌方暖色系，保留蓝面罩、深色布料、腰带和武器；按 `src/render/scene.ts` 的 `(x, y, −z)` 轴导出。脚底 y=0、feet centre actor 原点、高 1.765m。
-- 实际：37,068B，515 三角形，1 材质，5 draw。
+- 实际：40,388B，515 三角形，1 材质，5 draw。
 - 动作：idle、walk、fire、hit、death 五段节点 TRS 剪辑；适用项含待机、移动、射击、受击、死亡。换弹在 `contracts/enemy-relay-guard.actions.json` 标为 contract-only：机器人会换弹，但当前网格没有独立弹匣节点，因此不伪造整枪动作。
 - 边界：刚性组不是蒙皮，肘膝和握枪手不形变；须在游戏光照下判断，不能据离线解析称完成。
 
@@ -76,19 +76,19 @@
 
 - 来源／许可：几何与排布为原创程序化配方 CC0-1.0；混凝土颜色槽复用已采用的 [Poly Haven Concrete Floor 01](https://polyhaven.com/a/concrete_floor_01)（CC0，Rob Tuytel），不嵌入、不重导出该贴图。
 - 处理前后：无 → 由墙板、门洞、端墙、半墙、箱体五种模块组成的 12m 通路；两个门洞分别在 z=0 与 z=4；每件带踢脚、压顶、金属立柱/包边和 signal-hot 危险条，避免巨型素面方块。
-- 实际：56,120B，768 三角形，3 材质（混凝土／金属／信号漆），3 draw；节点 `passage-cover-root`（根）与 `passage-cover`（网格）；尺寸、模块清单与 13 个碰撞盒写在 GLB scene extras（three.js 的 `gltf.scene.userData`），与 `contracts/passage-cover.actions.json` 同源，两个节点本身不带这份副本。
+- 实际：60,908B，768 三角形，3 材质（混凝土／金属／信号漆），3 draw；节点 `passage-cover-root`（根）与 `passage-cover`（网格）；尺寸、模块清单与 13 个碰撞盒写在 GLB scene extras（three.js 的 `gltf.scene.userData`），与 `contracts/passage-cover.actions.json` 同源，两个节点本身不带这份副本。
 - 材质契约：UV 为米/2，直接绑定既有 2m 混凝土槽；无新贴图。碰撞盒 13 个，含两个门洞的侧墙与门楣、端墙、半墙和箱体。
 
 ### 4. `hit-feedback.glb` — 命中反馈标准件
 
 - 来源／许可：原创几何与时间线 CC0-1.0；时间取自 `src/render/feedback.ts`（受击 180ms、倒下 600ms、结算保持 700ms）与 `src/ui/hud.ts`。
 - 处理前后：无 → 四刻度身体标记、四刻度爆头/击杀强调环、独立低模冲击球；白色 body（marker-white）、signal 爆头、signal-hot 击杀、faction-cool 友军、miss 无标记。
-- 实际：6,436B，24 三角形，3 材质，3 draw；hit-body／hit-head／hit-kill／impact 四段缩放剪辑。
+- 实际：6,760B，24 三角形，3 材质，3 draw；hit-body／hit-head／hit-kill／impact 四段缩放剪辑。
 - 声音契约：复用既有 `hit`／`head`／`kill` 合成 cue，不新增录音；友军不显示击杀强调。当前运行仍是 CSS 命中标记与球体冲击，标准件未接入。
 
 ## 四、归一、重跑与第二次修改
 
-从仓库根运行。`build.mjs` 与 `validate.mjs` 只用 Node 内置模块，无浏览器、无 GPU、无网络；`node --test` 另需仓库已安装的 three 0.186.1，干净 checkout 先跑 `npm ci`：
+从仓库根运行。`build.mjs` 与 `validate.mjs` 只用 Node 内置模块，无浏览器、无 GPU、无网络；`node --test` 另需仓库已安装的 three 0.186.1，干净 checkout 先跑 `npm ci`。官方 validator 回归是独立小包，按自己的锁文件安装，不进入根依赖：
 
 ```sh
 node asset-pipeline/content-set/build.mjs
@@ -96,13 +96,18 @@ node asset-pipeline/content-set/build.mjs --check
 node asset-pipeline/content-set/validate.mjs
 node --test asset-pipeline/content-set/tests/content-set.test.mjs
 node asset-pipeline/content-set/build.mjs --variant
+
+npm --prefix asset-pipeline/content-set/validation ci --ignore-scripts --no-audit --no-fund
+node asset-pipeline/content-set/validation/validate.mjs
+npm --prefix asset-pipeline/content-set/validation test
 ```
 
-- `build.mjs` 读取 `spec.json`、既有 CC0 派生 JSON、`guard.json` 和已采用的混凝土哈希，按同一套轴心、比例、调色板和压缩（浮点位置、int8 归一法线、uint8 归一顶点色）重导四件 GLB，并写出 `content-set.json`、`palette.json`、`palette.svg`。
+- `build.mjs` 读取 `spec.json`、既有 CC0 派生 JSON、`guard.json` 和已采用的混凝土哈希，按同一套轴心、比例、调色板和量化布局（浮点位置；int8 归一法线，声明 `KHR_mesh_quantization` 为 used／required；uint8 归一顶点色；`NORMAL`／`COLOR_0` 每元素占 4 字节槽）重导四件 GLB，并写出 `content-set.json`、`palette.json`、`palette.svg`。
 - `--check` 在临时目录重建并逐件比对 SHA、字节和三角形；当前四件全部一致，重复构建确定。
-- `validate.mjs` 与 15 项测试检查：GLB 块结构、节点可达与唯一、动画通道、访问器边界、无外部 URI、无本机绝对路径、来源哈希、动作契约、预算、调色板，以及每个 GLB 材质的 `extras.family`、roughness、metalness 与 `spec.json` 材质族一致、通路的 13 个碰撞盒与模块在 scene extras 可读。`extras.pivot` 是 three `GLTFLoader` 为 `GLTFExporter` 容器保留的键：带 children 的节点不得用该键，本套改记 `pivotM`／`fallPivot`；测试另用仓库锁定的 three 0.186.1 `GLTFLoader` 实际解析四件，断言加载后包围盒与 manifest 一致、敌方 `head` 仍在颈高，避免“原始 accessor 正确、加载后错位”。2026-10-27 实跑 15 项通过，`269,440B / 4,313 三角形 / 0 新贴图`。
+- `validate.mjs` 与 15 项测试检查：GLB 块结构、节点可达与唯一、动画通道、访问器边界与顶点属性 4 字节对齐、量化法线的扩展声明、无外部 URI、无本机绝对路径、来源哈希、动作契约、预算、调色板，以及每个 GLB 材质的 `extras.family`、roughness、metalness 与 `spec.json` 材质族一致、通路的 13 个碰撞盒与模块在 scene extras 可读。`extras.pivot` 是 three `GLTFLoader` 为 `GLTFExporter` 容器保留的键：带 children 的节点不得用该键，本套改记 `pivotM`／`fallPivot`；测试另用仓库锁定的 three 0.186.1 `GLTFLoader` 实际解析四件，断言加载后包围盒与 manifest 一致、敌方 `head` 仍在颈高，避免“原始 accessor 正确、加载后错位”。2026-10-27 实跑 15 项通过，`296,144B / 4,313 三角形 / 0 新贴图`。
+- 官方回归：`validation/` 锁定 Khronos `gltf-validator 2.0.0-dev.3.10`，逐件读取 `dist/` 四件实际 GLB，error／warning 任一非零、报告截断、外部资源请求或文件缺失都返回非零；负例把一件截成 12 字节头，断言 GLB 长度错误被真实 CLI 拒收。实跑四件 **0 errors／0 warnings**，唯一 info 是通路混凝土材质的 `TEXCOORD_0` 留给运行时既有贴图槽。修复前的 int8 法线未声明扩展且 VEC3 元素按 3 字节紧排，官方 validator 报 48 errors，本轮已按 4 字节 stride 重导并加入上述回归。
 - 第二次修改：`--variant` 按角色色调偏移同时换 warm／cool／concrete／signal 四族并整体缩放 0.95，四件全部重建，SHA 全部改变、三角形不变、边界严格乘 0.95（±0.002m）。构建时断言每条 translation 剪辑第 0 帧等于缩放后的节点静止 translation（弹匣、拉机柄、敌方脊柱），保证变体不会出现首帧跳回未缩放位置。报告在 `variant-report.json`。结论：整批可重跑；断点在角色/环境角色标色必须显式传 role，否则变体只缩放不改色。0.95 缩放会让米制机位尺寸失效，因此只作重跑验证，不采用为美术方向。
-- 固定 SHA：基线 `a97d57281dd6c6d941c6a6bef732dadf2953f2f4`。四件 GLB 的 SHA-256：fp-arms-rx24 `5d8c4d4e4fdff9b7a095d7b1ce30cd41ae8709a74e810ffdd7f368c5e1a3f9fc`；enemy-relay-guard `1b39bd28bbb60328e27bff6ef4e03c79956afe9d443e640b66b78daf2c7df2cd`；passage-cover `367e552854e20f7e520cdc1595609e51b4b47edc2fa29e363faa42e36ef513d2`；hit-feedback `aa229568af46a911a52c1961cdda2de5573bacf8890af4c35889debe75e1162d`。来源哈希与处理步骤逐件在 `content-set.json`。
+- 固定 SHA：基线 `a97d57281dd6c6d941c6a6bef732dadf2953f2f4`。四件 GLB 的 SHA-256：fp-arms-rx24 `e672d06e30262f2575076f759645aa3d82d6734f0c26ef280a2a36870549b9e1`；enemy-relay-guard `5b316a139cf48b21a6d6b7328ac1c8b58a73c4f41ce1a0de24f2a8ca74afbd74`；passage-cover `96037ccc7fcc846bd86ff37d3b67433cd0c9ba63a638bd7d944b2610e6719c36`；hit-feedback `80155733647ffadb61cc7b1890ad1fc18818faa97448457b7ddc9ee2dfd56edd`。来源哈希与处理步骤逐件在 `content-set.json`。
 
 ## 五、接线入口与剩余缺口
 

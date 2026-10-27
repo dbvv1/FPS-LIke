@@ -15,10 +15,10 @@
   "pieces": [
     {
       "id": "fp-arms-rx24",
-      "baseSha256": "5d8c4d4e4fdff9b7a095d7b1ce30cd41ae8709a74e810ffdd7f368c5e1a3f9fc",
-      "variantSha256": "124235cd2acd0b18314d7ed35a8aab1b2e3005ac4c13d1989fc752dd5c10f277",
-      "baseBytes": 169816,
-      "variantBytes": 169860,
+      "baseSha256": "e672d06e30262f2575076f759645aa3d82d6734f0c26ef280a2a36870549b9e1",
+      "variantSha256": "09e151096235d2557a08baa89f212880a1c9b6dc46dfae216caa9b5a82f33879",
+      "baseBytes": 188088,
+      "variantBytes": 188132,
       "triangles": 3006,
       "changed": true,
       "boundsBefore": {
@@ -48,10 +48,10 @@
     },
     {
       "id": "enemy-relay-guard",
-      "baseSha256": "1b39bd28bbb60328e27bff6ef4e03c79956afe9d443e640b66b78daf2c7df2cd",
-      "variantSha256": "1e43a77c64fc6ba9a24706b4057328d8a96d7110599bcdf5e5d7eb134851a78c",
-      "baseBytes": 37068,
-      "variantBytes": 37064,
+      "baseSha256": "5b316a139cf48b21a6d6b7328ac1c8b58a73c4f41ce1a0de24f2a8ca74afbd74",
+      "variantSha256": "a270439c9934aba77d509d5b097e67ddbb6f95eaf4815053afd40cff33e2d897",
+      "baseBytes": 40388,
+      "variantBytes": 40384,
       "triangles": 515,
       "changed": true,
       "boundsBefore": {
@@ -81,10 +81,10 @@
     },
     {
       "id": "passage-cover",
-      "baseSha256": "367e552854e20f7e520cdc1595609e51b4b47edc2fa29e363faa42e36ef513d2",
-      "variantSha256": "5a3a4a2db40ef6283f1ad98f22d80316525ad6fa46467e84abfb1c9a2227bd15",
-      "baseBytes": 56120,
-      "variantBytes": 56248,
+      "baseSha256": "96037ccc7fcc846bd86ff37d3b67433cd0c9ba63a638bd7d944b2610e6719c36",
+      "variantSha256": "fc94eca89e10be601297fb768c9aabf67bab9e51aaa9af7a7ffc9304caea4de7",
+      "baseBytes": 60908,
+      "variantBytes": 61036,
       "triangles": 768,
       "changed": true,
       "boundsBefore": {
@@ -114,10 +114,10 @@
     },
     {
       "id": "hit-feedback",
-      "baseSha256": "aa229568af46a911a52c1961cdda2de5573bacf8890af4c35889debe75e1162d",
-      "variantSha256": "d274a6332df9a5637198b3f5aca77d5e5085062c9f9c9f842296e7281b2384cd",
-      "baseBytes": 6436,
-      "variantBytes": 6456,
+      "baseSha256": "80155733647ffadb61cc7b1890ad1fc18818faa97448457b7ddc9ee2dfd56edd",
+      "variantSha256": "d58511af42d5b565a05174092da4001719781bf0640cb071633bf4a8b3ecbe92",
+      "baseBytes": 6760,
+      "variantBytes": 6780,
       "triangles": 24,
       "changed": true,
       "boundsBefore": {

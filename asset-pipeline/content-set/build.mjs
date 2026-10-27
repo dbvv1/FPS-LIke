@@ -92,14 +92,21 @@ class Primitive {
     let a = point(a0);
     let b = point(b0);
     let c = point(c0);
-    let n = normalize(cross(sub(b, a), sub(c, a)));
-    if (center) {
-      const centroid = mul(add(add(a, b), c), 1 / 3);
-      if (dot(n, sub(centroid, point(center))) < 0) {
-        [b, c] = [c, b];
-        n = mul(n, -1);
-      }
+    let n = cross(sub(b, a), sub(c, a));
+    const centroid = center ? mul(add(add(a, b), c), 1 / 3) : null;
+    // Degenerate source triangles have no area and therefore no normal. Keep
+    // the vertex (so triangle counts stay stable) but give it a deterministic
+    // unit direction; int8 normal accessors must pass the validator's
+    // unit-length check.
+    if (length(n) < 1e-9) {
+      n = centroid ? sub(centroid, point(center)) : [0, 1, 0];
+      if (length(n) < 1e-9) n = [0, 1, 0];
     }
+    if (center && dot(n, sub(centroid, point(center))) < 0) {
+      [b, c] = [c, b];
+      n = mul(n, -1);
+    }
+    n = normalize(n);
     for (const v of [a, b, c]) {
       this.pos.push(v[0], v[1], v[2]);
       this.nor.push(n[0], n[1], n[2]);
@@ -204,7 +211,9 @@ class Gltf {
     const offset = this.bytes;
     this.chunks.push(buf);
     this.bytes += buf.length;
-    this.bufferViews.push({ buffer: 0, byteOffset: offset, byteLength: buf.length, ...(opts.target ? { target: opts.target } : {}) });
+    // Vertex attributes must start on and stride across 4-byte boundaries.
+    // Int8 normals and uint8 colours carry one zero pad byte per element.
+    this.bufferViews.push({ buffer: 0, byteOffset: offset, byteLength: buf.length, ...(opts.byteStride ? { byteStride: opts.byteStride } : {}), ...(opts.target ? { target: opts.target } : {}) });
     const acc = {
       bufferView: this.bufferViews.length - 1,
       componentType,
@@ -252,14 +261,26 @@ class Gltf {
       name: mesh.name,
       primitives: mesh.primitives.map((prim) => {
         const pos = Float32Array.from(prim.pos);
-        const nor = Int8Array.from(prim.nor.map((v) => Math.max(-127, Math.min(127, Math.round(v * 127)))));
-        const col = Uint8Array.from(prim.col.map((v) => Math.round(clamp01(v) * 255)));
-        const min = [0, 1, 2].map((axis) => Math.min(...Array.from({ length: prim.pos.length / 3 }, (_, i) => prim.pos[i * 3 + axis])));
-        const max = [0, 1, 2].map((axis) => Math.max(...Array.from({ length: prim.pos.length / 3 }, (_, i) => prim.pos[i * 3 + axis])));
+        const vertexCount = prim.pos.length / 3;
+        // NORMAL and COLOR_0 stay quantised, but each VEC3 element occupies a
+        // full 4-byte slot (XYZ + zero pad) as required for vertex attributes.
+        const nor = new Int8Array(vertexCount * 4);
+        const col = new Uint8Array(vertexCount * 4);
+        for (let v = 0; v < vertexCount; v++) {
+          for (let axis = 0; axis < 3; axis++) {
+            nor[v * 4 + axis] = Math.max(-127, Math.min(127, Math.round(prim.nor[v * 3 + axis] * 127)));
+            col[v * 4 + axis] = Math.round(clamp01(prim.col[v * 3 + axis]) * 255);
+          }
+        }
+        const min = [0, 1, 2].map((axis) => Math.min(...Array.from({ length: vertexCount }, (_, i) => prim.pos[i * 3 + axis])));
+        const max = [0, 1, 2].map((axis) => Math.max(...Array.from({ length: vertexCount }, (_, i) => prim.pos[i * 3 + axis])));
         const attributes = {
           POSITION: this.accessor(pos, 'VEC3', 5126, { target: 34962, min, max }),
-          NORMAL: this.accessor(nor, 'VEC3', 5120, { target: 34962, normalized: true }),
-          COLOR_0: this.accessor(col, 'VEC3', 5121, { target: 34962, normalized: true }),
+          // KHR_mesh_quantization is declared used+required below; int8 normals
+          // are only legal with that extension. The stride is 4 bytes so the
+          // validator accepts the quantised element alignment.
+          NORMAL: this.accessor(nor, 'VEC3', 5120, { count: vertexCount, target: 34962, normalized: true, byteStride: 4 }),
+          COLOR_0: this.accessor(col, 'VEC3', 5121, { count: vertexCount, target: 34962, normalized: true, byteStride: 4 }),
         };
         if (prim.uv.length) attributes.TEXCOORD_0 = this.accessor(Float32Array.from(prim.uv), 'VEC2', 5126, { target: 34962 });
         return { attributes, material: prim.material, mode: 4, extras: { triangles: prim.triangles } };
@@ -288,6 +309,8 @@ class Gltf {
       accessors: this.accessors,
       bufferViews: this.bufferViews,
       buffers: [{ byteLength: bin.length }],
+      extensionsUsed: ['KHR_mesh_quantization'],
+      extensionsRequired: ['KHR_mesh_quantization'],
       ...(this.animations.length ? { animations: this.animations } : {}),
     };
     let jsonBuf = Buffer.from(JSON.stringify(json), 'utf8');

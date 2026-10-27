@@ -2,6 +2,7 @@
   "schema": 1,
   "piece": "content-set-v1",
   "note": "Machine-readable wiring entry points for the case line. This unit does not modify src; these entries name the existing consumer seams and the data each standard piece expects.",
+  "quantization": "All four GLBs declare KHR_mesh_quantization in extensionsUsed and extensionsRequired for int8 normals; three 0.186.1 GLTFLoader supports that extension natively and needs no extra decoder. NORMAL and COLOR_0 elements use a 4-byte stride.",
   "pieces": [
     {
       "id": "fp-arms-rx24",
