@@ -12,6 +12,8 @@ import type { GameState } from './sim/types.js';
 const canvas = document.querySelector<HTMLCanvasElement>('#stage')!;
 let game: Game, nav: Navigation, bot: Bot, view: View | CanvasView, controls: Controls;
 let ready = false, running = false, restarting = false, frameId = 0, simStart = 0, lastFrame = performance.now();
+let startupCancelled = false;
+const startupCancellation = new Error('Scene startup cancelled by navigation');
 let resultRevealAt: number | null = null;
 const sound = new Soundscape();
 const sensitivity = new MouseSensitivity(() => window.localStorage);
@@ -42,10 +44,11 @@ async function restart() {
   restarting = true; running = false; resultRevealAt = null; controls.pause(); hud.setBusy(true);
   try {
     const replacement = await Game.create(1, [{ id: 'player', team: 'amber' }, { id: 'bot', team: 'blue', bot: hud.difficulty }]);
+    if (startupCancelled) { replacement.dispose(); return; }
     game.dispose(); game = replacement; bot = new Bot('bot', hud.difficulty, 0x85ebca6a, nav);
     controls.reset(player()); view.reset(); sound.reset(); hud.reset(); hud.menu(true, game.state, player());
-  } catch (error) { fail(error); }
-  finally { restarting = false; hud.setBusy(false); }
+  } catch (error) { if (!startupCancelled) fail(error); }
+  finally { restarting = false; if (!startupCancelled) hud.setBusy(false); }
 }
 function frame(now: number) {
   const dt = Math.min(0.1, Math.max(0, (now - lastFrame) / 1000)); lastFrame = now;
@@ -74,14 +77,28 @@ function frame(now: number) {
   } catch (error) { fail(error); return; }
   frameId = requestAnimationFrame(frame);
 }
+// Install teardown before asynchronous navigation/game initialization.
+// A departed page must not later create a world or resume the disposed client.
+window.addEventListener('pagehide', event => {
+  running = false; cancelAnimationFrame(frameId); controls?.pause();
+  if (!event.persisted) {
+    startupCancelled = true; ready = false;
+    controls?.dispose(); view?.dispose(); game?.dispose(); nav?.dispose(); sound.dispose();
+  }
+});
+window.addEventListener('pageshow', event => {
+  if (event.persisted && ready) { lastFrame = performance.now(); simStart = lastFrame; hud.menu(true, game.state, player()); frameId = requestAnimationFrame(frame); }
+});
 try {
   const probe = document.createElement('canvas');
   const webgl = probe.getContext('webgl2');
   if (webgl) { webgl.getExtension('WEBGL_lose_context')?.loseContext(); view = new View(canvas); }
   else view = new CanvasView(canvas);
   document.getElementById('render-mode')!.hidden = view.backend !== 'canvas2d-cpu';
-  await initNavigation(); nav = new Navigation();
+  await initNavigation(); if (startupCancelled) throw startupCancellation;
+  nav = new Navigation();
   game = await Game.create(1, [{ id: 'player', team: 'amber' }, { id: 'bot', team: 'blue', bot: hud.difficulty }]);
+  if (startupCancelled) { game.dispose(); throw startupCancellation; }
   bot = new Bot('bot', hud.difficulty, 0x85ebca6a, nav);
   controls = new Controls(canvas, locked => {
     // A delayed pointer-lock acquisition must not resume behind a new settings draft.
@@ -101,11 +118,4 @@ try {
     state: () => ({ ready, running, locked: controls.locked, backend: view.backend, yaw: controls.yaw, pitch: controls.pitch, ...view.info }),
   }) });
   frameId = requestAnimationFrame(frame);
-} catch (error) { fail(error); }
-window.addEventListener('pagehide', event => {
-  running = false; cancelAnimationFrame(frameId); controls?.pause();
-  if (!event.persisted) { controls?.dispose(); view?.dispose(); game?.dispose(); nav?.dispose(); sound.dispose(); }
-});
-window.addEventListener('pageshow', event => {
-  if (event.persisted && ready) { lastFrame = performance.now(); simStart = lastFrame; hud.menu(true, game.state, player()); frameId = requestAnimationFrame(frame); }
-});
+} catch (error) { if (!startupCancelled) fail(error); }
