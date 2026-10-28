@@ -95,3 +95,7 @@ CS2 对照必须逐项记录，而不是凭印象填数：移动与停步后的�
 联网对战、匹配排位、皮肤、反作弊；后续联机目标保留，不用网络框架前置阻塞离线玩法与美术。
 
 **依据**：[Rapier](https://github.com/dimforge/rapier.js)、[recast-navigation-js](https://github.com/isaac-mason/recast-navigation-js)（[一手]，2026-10-26 核仓库）；Pointer Lock 的 `unadjustedMovement` 选项见 MDN Element.requestPointerLock（[一手]，2026-10-26 读原文；页面未列各浏览器支持，开工时核）。验收区间是初始目标，首轮模拟后按实际数据校准。
+
+### 离线训练赛旁置子轮
+
+`gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1` 提供固定六回合的单点训练赛，1 名玩家与 9 名机器人，第三回合后换边，整场统计后重新部署。机器人经原命令边界执行分路、携弹/补位和拆弹职责；这是阶段 B 的已存在子轮，不代表双点、经济、投掷物、技能或联网已完成。该命名空间不组合 movement-v2 或 characters-v1，环境候选仅 Three 生效。默认玩法仍是原 1v1。

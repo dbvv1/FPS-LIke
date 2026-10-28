@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --import tsx --test tests/*.test.ts tests/movement-v2/*.test.ts",
+    "test": "node --import tsx --test tests/*.test.ts tests/movement-v2/*.test.ts tests/offline-training-v1/*.test.ts",
     "typecheck": "tsc --noEmit",
     "build": "tsc --noEmit && npm run build:sim && vite build",
     "sim": "node --import tsx tools/sim.ts",
@@ -15,7 +15,8 @@
     "preview": "vite preview --host 127.0.0.1",
     "smoke": "npm run build && node tools/smoke.mjs",
     "build:sites": "node tools/build-sites.mjs",
-    "smoke:backlog": "node tools/smoke-backlog.mjs"
+    "smoke:backlog": "node tools/smoke-backlog.mjs",
+    "sim:offline-training": "node --import tsx tools/offline-training-v1/squads-sim.ts"
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "0.21.0",

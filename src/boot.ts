@@ -1,11 +1,13 @@
 import './ui/style.css';
 import { loadClient } from './startup.js';
-import { movementCandidateEnabled } from './candidate-route.js';
+import { movementCandidateEnabled, offlineTrainingCandidateEnabled } from './candidate-route.js';
 import { isCaptureRequest } from './capture/route.js';
 
 const boot = document.getElementById('boot')!;
 const status = document.getElementById('boot-status')!;
-void loadClient(() => movementCandidateEnabled(location.search)
+void loadClient(() => offlineTrainingCandidateEnabled(location.search)
+  ? import('./candidates/offline-training-v1/entry.js')
+  : movementCandidateEnabled(location.search)
   ? (isCaptureRequest(location.search) ? import('./candidates/movement-v2/capture/client.js') : import('./candidates/movement-v2/client.js'))
   : (isCaptureRequest(location.search) ? import('./capture/client.js') : import('./client.js')), {
   slow() { status.textContent = '加载仍在进行，尚未开局。网络较慢时可继续等待；若一直没有进展，请重新载入页面。'; },

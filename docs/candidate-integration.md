@@ -15,3 +15,11 @@
 smoke 保留 sandbox、仅 headless，不允许可见窗口或操作桌面。页面内输入仅用于 smoke，不把它当真人操作或输入到显示延迟证据。云端 socket EPERM 已知时，将固定版本和完整命令交既有接收端，不靠关闭 sandbox 重试。
 
 实际浏览器通过之前不合 main、不更新网站；通过后旁置交付，不表示手感或画面胜出，也不切换默认。
+
+## 离线训练赛候选
+
+固定源 `101b85b7031fef7b9d718311603604b972bff6f7` 的完整模拟、客户端和环境放在 `src/candidates/offline-training-v1/`。除三个共享 JSON 素材的相对 import 重定位，其产品源码保持原样；增加独立 entry 懒加载原候选样式。基底为 `74fef20a23d156a9242ff633c966d94cfb95dd58`，默认、characters-v1、movement-v2 与原 capture 的源码、素材及依赖锁均按 hash 回归，不修改原入口。
+
+本地开发或预览地址后加 `?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1`：1 人＋9 机器人、六回合、第三回合后换边、整场结算和重开，以及原庭院表面材质候选。不包含技能、双点、经济或联网；也未合并 movement-v2 / characters-v1。`shot` 或 `contentSet` 组合明确报错，不冒称拍摄或角色内容生效；去掉全部参数返回默认。环境只在 Three 路径生效，CPU 回退不表示材质验证通过。
+
+`npm test` 包含原候选完整 CPU 回归（重定位测试 import）与路由/基底隔离测试。`npm run sim:offline-training -- --seed 1 --seeds 5 --replay` 跑五种子、每种子六回合及重放比较，输出职责、无视线射击和完成统计。模拟、构建不等于浏览器 smoke；该新整合入口的浏览器/GPU、实玩、画面与手感均未验证，原 v13 四入口 smoke 不替代新入口验收。此整合不重新制作或评价美术；环境原有差距见 [环境候选](quality/environment-candidate.md)。

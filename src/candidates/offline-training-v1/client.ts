@@ -1,0 +1,133 @@
+import { squadsRequested, squadSpecs, squadBots } from './session/squads.js';
+import { Game } from './sim/game.js';
+import { Bot } from './sim/bot.js';
+import { initNavigation, Navigation } from './sim/navigation.js';
+import { Controls } from './input/controls.js';
+import { MouseSensitivity } from './input/sensitivity.js';
+import { View } from './render/scene.js';
+import { CanvasView } from './render/canvas.js';
+import { Soundscape } from './render/audio.js';
+import { RESULT_HOLD_MS } from './render/feedback.js';
+import { Hud } from './ui/hud.js';
+import type { GameState } from './sim/types.js';
+import { TrainingMatch, completeMatchRequested } from './session/match.js';
+import { MatchPanel } from './ui/match-panel.js';
+const canvas = document.querySelector<HTMLCanvasElement>('#stage')!;
+let game: Game, nav: Navigation, bot: Bot, bots: Bot[] = [], view: View | CanvasView, controls: Controls;
+let ready = false, running = false, restarting = false, frameId = 0, simStart = 0, lastFrame = performance.now();
+let startupCancelled = false;
+const startupCancellation = new Error('Scene startup cancelled by navigation');
+let resultRevealAt: number | null = null;
+let squads = false;
+let match: TrainingMatch | null = null, matchPanel: MatchPanel | null = null;
+const sound = new Soundscape();
+const sensitivity = new MouseSensitivity(() => window.localStorage);
+const hud = new Hud(() => void resume(), () => next(), () => void restart(), enabled => { sound.enabled = enabled; if (enabled) void sound.unlock().catch(() => hud.message('当前浏览器未启用音频，画面与操作仍可继续。')); }, sensitivity);
+hud.setBusy(true);
+function player(state = game.state) { return state.actors.find(a => a.id === 'player')!; }
+function fail(error: unknown) {
+  running = false; controls?.pause();
+  hud.menu(false); // Release the modal so the existing fatal message remains accessible.
+  const target = document.getElementById('fatal')!;
+  target.hidden = false; target.textContent = `场景运行失败：${error instanceof Error ? error.message : String(error)}。请重新加载，或使用支持 Canvas2D / WebGL2 的桌面浏览器。`;
+  console.error(error);
+}
+async function resume() {
+  if (!ready || restarting || game.state.phase === 'over') return;
+  hud.message('');
+  // Keep pointer lock in the gesture; audio permission must not delay/revive a start.
+  void sound.unlock().catch(() => hud.message('音频未启用，画面与操作可以继续。'));
+  await controls.lock();
+}
+function next() {
+  if (!ready || restarting || game.state.phase !== 'over') return;
+  if (match?.summary.complete) { void restart(); return; }
+  if (match && !match.canAdvance(game.state)) return;
+  resultRevealAt = null; game.nextRound(); controls.reset(player()); sound.reset(); view.reset(); hud.reset();
+  hud.menu(true, game.state, player()); hud.update(game.state, player(), performance.now()); void resume();
+}
+async function restart() {
+  if (!ready || restarting) return;
+  restarting = true; running = false; resultRevealAt = null; controls.pause(); hud.setBusy(true);
+  try {
+    const replacement = await Game.create(1, squads ? squadSpecs(hud.difficulty) : [{ id: 'player', team: 'amber' }, { id: 'bot', team: 'blue', bot: hud.difficulty }], {}, squads ? { formation: 'squads-v1' } : {});
+    if (startupCancelled) { replacement.dispose(); return; }
+    game.dispose(); game = replacement; match?.reset(); if (squads) bots = squadBots(hud.difficulty, 1, nav); else bot = new Bot('bot', hud.difficulty, 0x85ebca6a, nav);
+    controls.reset(player()); view.reset(); sound.reset(); hud.reset(); hud.menu(true, game.state, player());
+  } catch (error) { if (!startupCancelled) fail(error); }
+  finally { restarting = false; if (!startupCancelled) hud.setBusy(false); }
+}
+function frame(now: number) {
+  const dt = Math.min(0.1, Math.max(0, (now - lastFrame) / 1000)); lastFrame = now;
+  try {
+    if (ready) {
+      const tickMs = 1000 / 60;
+      if (running) {
+        // A stalled tab pauses instead of skipping input timestamps or simulating hidden combat.
+        if (now - simStart > 250) { controls.pause(); running = false; }
+        let steps = 0;
+        while (running && now >= simStart + tickMs && steps++ < 15) {
+          const actor = player();
+          game.step([...controls.commands(actor, simStart, simStart + tickMs, game.state.time), ...(squads ? bots.flatMap(b => b.commands(game.observe(b.id))) : bot.commands(game.observe('bot')))]); simStart += tickMs;
+          if (game.state.phase === 'over') {
+            // The authoritative result is already settled. Leave its visible
+            // reaction unobscured briefly; no gameplay or collision is extended.
+            match?.observe(game.state, player());
+            running = false; resultRevealAt = now + RESULT_HOLD_MS; controls.pause(); hud.menu(false);
+          }
+        }
+      }
+      const state = game.state, actor = player(state);
+      if (resultRevealAt !== null && now >= resultRevealAt) { resultRevealAt = null; hud.menu(true, state, actor); }
+      view.render(state, actor, controls.yaw, controls.pitch, now, dt); hud.update(state, actor, now);
+      if (match) matchPanel!.update(state, actor, match.summary);
+      sound.update(state, actor, controls.yaw, game.observe(actor.id).sounds.map(s => s.id));
+      document.getElementById('debug-state')!.textContent = JSON.stringify({ backend: view.backend, running, locked: controls.locked, tick: state.tick, round: state.round, phase: state.phase, time: state.time, yaw: controls.yaw, pitch: controls.pitch, player: { position: actor.position, hp: actor.hp, weapon: actor.weapon, ammo: actor.weapons[actor.weapon].ammo, reload: actor.reload, input: actor.input }, score: state.score, result: state.result }, null, 2);
+    }
+  } catch (error) { fail(error); return; }
+  frameId = requestAnimationFrame(frame);
+}
+// Install teardown before asynchronous navigation/game initialization.
+// A departed page must not later create a world or resume the disposed client.
+window.addEventListener('pagehide', event => {
+  running = false; cancelAnimationFrame(frameId); controls?.pause();
+  if (!event.persisted) {
+    startupCancelled = true; ready = false;
+    controls?.dispose(); view?.dispose(); game?.dispose(); nav?.dispose(); sound.dispose();
+  }
+});
+window.addEventListener('pageshow', event => {
+  if (event.persisted && ready) { lastFrame = performance.now(); simStart = lastFrame; hud.menu(true, game.state, player()); frameId = requestAnimationFrame(frame); }
+});
+try {
+  squads = squadsRequested(window.location?.search ?? '');
+  if (completeMatchRequested(window.location?.search ?? '')) { match = new TrainingMatch(); matchPanel = new MatchPanel(); }
+  const probe = document.createElement('canvas');
+  const webgl = probe.getContext('webgl2');
+  if (webgl) { webgl.getExtension('WEBGL_lose_context')?.loseContext(); view = new View(canvas); }
+  else view = new CanvasView(canvas);
+  document.getElementById('render-mode')!.hidden = view.backend !== 'canvas2d-cpu';
+  await initNavigation(); if (startupCancelled) throw startupCancellation;
+  nav = new Navigation();
+  game = await Game.create(1, squads ? squadSpecs(hud.difficulty) : [{ id: 'player', team: 'amber' }, { id: 'bot', team: 'blue', bot: hud.difficulty }], {}, squads ? { formation: 'squads-v1' } : {});
+  if (startupCancelled) { game.dispose(); throw startupCancellation; }
+  if (squads) bots = squadBots(hud.difficulty, 1, nav); else bot = new Bot('bot', hud.difficulty, 0x85ebca6a, nav);
+  controls = new Controls(canvas, locked => {
+    // A delayed pointer-lock acquisition must not resume behind a new settings draft.
+    if (locked && sensitivity.dirty) { controls.pause(); hud.message('灵敏度尚未应用，请先保存或取消修改。'); return; }
+    running = locked && game.state.phase === 'live'; simStart = performance.now();
+    hud.menu(!running && resultRevealAt === null, game.state, player());
+  }, text => hud.message(text), () => sensitivity.value);
+  controls.reset(player());
+  document.getElementById('pause-button')!.onclick = () => { resultRevealAt = null; controls.pause(); hud.menu(true, game.state, player()); };
+  window.addEventListener('resize', () => view.resize());
+  canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); fail(new Error('WebGL context lost; reload the page to recover')); });
+  ready = true; hud.setBusy(false); hud.menu(true, game.state, player());
+  if (view.backend === 'canvas2d-cpu') hud.message('此浏览器未启用 WebGL2，已使用 CPU 场景。操作和对局规则相同，3D 画面仍需另验。');
+  // Read-only observability for smoke tests; no command injection or simulation mutation.
+  Object.defineProperty(window, 'fpsClient', { value: Object.freeze({
+    snapshot: (): GameState => game.state,
+    state: () => ({ ...(squads ? { squads: { version: 'offline-v1', formation: game.options.formation, botIds: bots.map(b=>b.id) } } : {}), ...(match ? { match: match.summary } : {}), ready, running, locked: controls.locked, backend: view.backend, yaw: controls.yaw, pitch: controls.pitch, ...view.info }),
+  }) });
+  frameId = requestAnimationFrame(frame);
+} catch (error) { if (!startupCancelled) fail(error); }
