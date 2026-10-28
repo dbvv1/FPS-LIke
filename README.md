@@ -12,9 +12,9 @@
 - [移动制动与连续射击](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=movement-v2)：加速、松键制动、反向急停和持续后坐力。
 - [组合试玩](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=movement-v2&contentSet=characters-v1)：同时开启以上两项。
 
-## 本地离线训练赛候选
+## 离线训练赛旁置试玩
 
-启动开发服务器后，在本地地址后加 `?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1`，可进入 1 人＋9 机器人的六回合训练赛，三回合后换边，整场结算后重开。去掉参数返回原 1v1；此入口不组合角色或 movement-v2 参数。
+[在线试玩离线训练赛](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1)已开放，可进入 1 人＋9 机器人的六回合训练赛，三回合后换边，整场结算后重开。去掉参数返回原 1v1；此入口不组合角色或 movement-v2 参数。
 
 ## 本地试玩
 

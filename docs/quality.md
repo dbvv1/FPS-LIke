@@ -1,4 +1,16 @@
-# 当前品质：旁置角色内容与移动候选
+# 当前品质：离线训练赛旁置入口
+
+2026-10-28，离线训练赛已随 `main` 的 `1125fc4` 发布到公开网站 v14，运行源 `19f718ebd5570ed1fb962b30d4ee607dc1ec9f6f`；默认入口与 v13 原四入口保持不变。
+
+- [离线训练赛试玩](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1)：1 人＋9 个机器人、十名角色、六回合 HUD；不包含 characters-v1 或 movement-v2，`contentSet`／`shot` 组合明确拒绝。
+- 复用已通过的 323 项 CPU 测试；新入口在保留 sandbox 的真实 GPU WebGL2 下完成移动、瞄准、射击、换弹中断、暂停恢复，首个自然回合结束后点下一回合，再用 UI 重开清空全场比分与记录。网站 19 个静态文件与被测构建逐 SHA-256 一致。
+- 未实玩完整六回合、半场换边、终局及终局“再打一场”；画面、手感与声音未完成人工验收。接收端使用 Node 22，未在要求的 Node 24+ 重跑。详见 [页面报告](quality/smoke/B-FPS-OFFLINE-SMOKE-20261028/19f718ebd557-E2mXmf/report.json)与[范围及构建清单](quality/smoke/B-FPS-OFFLINE-SMOKE-20261028/19f718ebd557-E2mXmf/manifest.json)。
+
+![离线训练赛真实 GPU 页面：六回合 HUD、第一人称武器与庭院；仅是功能 smoke 截图](quality/smoke/B-FPS-OFFLINE-SMOKE-20261028/19f718ebd557-E2mXmf/screenshots/playing.png)
+
+画面仍粗糙：大面积平直墙面、硬质低细节人物与袖臂仍明显；该截图不是同机位品质对照，不据此声称比原版本更好。
+
+## v13 已有旁置：角色内容与移动候选
 
 2026-10-28，旁置版本已合入 `main`（`777e830`），发布到公开网站 v13；运行源为 `4b99b59a6b111c61d4aebd6e659bfb851e9eb736`。默认入口仍使用原来的 1v1 操作与规则，不启用移动或角色内容开关。
 
@@ -7,7 +19,7 @@
 - 同一运行源的 197 项测试、类型检查和生产构建通过；默认、角色、移动、组合四入口的真实 GPU 无头 smoke，以及 capture 两次逐帧一致性检查通过。Site 的 14 个静态文件与被测构建逐 SHA-256 相同。
 - 画面、灯光与手感盲判尚未完成；功能 smoke 和截图不证明品质达标或优于旧版，不据此切换默认入口。
 
-详细结果与运行限制见 [本轮 smoke 报告](quality/smoke/B-FPS-BACKLOG-SMOKE-20261028/4b99b59a6b11-yP8eZD/report.md)（报告是发布前的固定回执，其中“未合 main、未部署”描述回执生成时刻；当前发布状态以上文为准）。该回执运行于 Node 22，要求的 Node 24+ 未在接收端重跑。
+v13 的结果与运行限制见 [当轮 smoke 报告](quality/smoke/B-FPS-BACKLOG-SMOKE-20261028/4b99b59a6b11-yP8eZD/report.md)（报告是发布前的固定回执，其中“未合 main、未部署”描述回执生成时刻；当前发布状态以上文为准）。该回执运行于 Node 22，要求的 Node 24+ 未在接收端重跑。
 
 ## 已有默认入口：暂停菜单与连续射击
 
