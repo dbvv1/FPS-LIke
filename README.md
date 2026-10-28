@@ -2,15 +2,15 @@
 
 原创网页第一人称射击：单个爆破点、三条进攻路线、步枪与手枪，1v1 回合制攻防，对手是机器人。
 
-**开发中的本地第一人称原型。** 在原创「中继场」与一名机器人交战；支持无画面批量模拟。
+**开发中的第一人称原型。** 在原创「中继场」与一名机器人交战；支持无画面批量模拟。
 
 ## 旁置试玩
 
-默认入口保留原来的 1v1 操作与规则。以下入口可单独打开，也可随时去掉参数返回默认版本：
+[在线试玩](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/)。默认入口保留原来的 1v1 操作与规则。以下入口可单独打开，也可随时去掉参数返回默认版本：
 
-- [角色与第一人称武器内容](?contentSet=characters-v1)：采用成套角色、武器与动作资源，需要 WebGL2。
-- [移动制动与连续射击](?gameplay=movement-v2)：加速、松键制动、反向急停和持续后坐力。
-- [组合试玩](?gameplay=movement-v2&contentSet=characters-v1)：同时开启以上两项。
+- [角色与第一人称武器内容](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?contentSet=characters-v1)：采用成套角色、武器与动作资源，需要 WebGL2。
+- [移动制动与连续射击](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=movement-v2)：加速、松键制动、反向急停和持续后坐力。
+- [组合试玩](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=movement-v2&contentSet=characters-v1)：同时开启以上两项。
 
 ## 本地试玩
 
