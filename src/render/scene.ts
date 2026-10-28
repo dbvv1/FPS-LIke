@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { KIT, environmentEnabled, makeKitWall, kitTexture, floorPixels, kitBudget } from './environment-kit.js';
 import { groundLevels, groundUV } from './ground.js';
 import { YARD, wallStrip } from './yard.js';
 import { Feedback } from './feedback.js';
@@ -10,7 +11,9 @@ import { weaponParts, weaponPose, weaponMesh, weaponPartPosition, weaponMuzzle }
 import { cameraPose, toThree } from './coordinates.js';
 export class View {
   readonly backend = 'three-webgl2';
-  get info() { return { memory: { ...this.renderer.info.memory }, calls: this.renderer.info.render.calls }; }
+  private environment = environmentEnabled(globalThis.location?.search ?? '');
+  private environmentPresented = false;
+  get info() { return { ...(this.environment ? { environment: { id: KIT.id, active: this.environmentPresented, budget: kitBudget(MAP.walls.length), evidence: 'offline-estimate' } } : {}), memory: { ...this.renderer.info.memory }, calls: this.renderer.info.render.calls }; }
   readonly renderer: THREE.WebGLRenderer;
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera(80, 1, 0.05, 100);
@@ -29,19 +32,27 @@ export class View {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-    this.scene.background = new THREE.Color(YARD.sky);
-    this.scene.fog = new THREE.Fog(YARD.sky, 32, 80);
+    this.scene.background = new THREE.Color(this.environment ? KIT.sky : YARD.sky);
+    this.scene.fog = new THREE.Fog(this.environment ? KIT.sky : YARD.sky, 32, 80);
     this.scene.add(new THREE.HemisphereLight(0xb9e7ff, 0x32413b, 2.1));
     const sun = new THREE.DirectionalLight(0xffdba8, 2.6); sun.position.set(-8, 18, -4); this.scene.add(sun);
     const floor=this.box(this.scene, [0, -0.15, 0], [27, 0.3, 37], 0xffffff);
-    const base=groundLevels[0]!,texture=new THREE.DataTexture(base.rgba,base.size,base.size);
-    texture.mipmaps=groundLevels.map(mip=>({data:mip.rgba,width:mip.size,height:mip.size}));
+    const base=groundLevels[0]!,texture=this.environment ? kitTexture(floorPixels(),256,256) : new THREE.DataTexture(base.rgba,base.size,base.size);
+    if (!this.environment) {
+      texture.mipmaps=groundLevels.map(mip=>({data:mip.rgba,width:mip.size,height:mip.size}));
+      texture.minFilter=THREE.LinearMipmapLinearFilter;
+    }
     texture.colorSpace=THREE.SRGBColorSpace;texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
-    texture.minFilter=THREE.LinearMipmapLinearFilter;texture.magFilter=THREE.LinearFilter;texture.anisotropy=1;texture.needsUpdate=true;this.textures.add(texture);
+    texture.magFilter=THREE.LinearFilter;texture.anisotropy=1;texture.needsUpdate=true;this.textures.add(texture);
     const positions=floor.geometry.getAttribute('position'),uv=floor.geometry.getAttribute('uv');
-    for(let i=0;i<positions.count;i++)uv.setXY(i,...groundUV(positions.getX(i),-positions.getZ(i)));uv.needsUpdate=true;
+    for(let i=0;i<positions.count;i++)uv.setXY(i,...(this.environment ? [positions.getX(i)/4,-positions.getZ(i)/4] as const : groundUV(positions.getX(i),-positions.getZ(i))));uv.needsUpdate=true;
     const material=floor.material as THREE.MeshStandardMaterial;material.map=texture;material.roughness=.95;material.metalness=0;
     for (const wall of MAP.walls) {
+      if (this.environment) {
+        const piece = makeKitWall(wall);
+        this.scene.add(piece.mesh); this.geometries.add(piece.geometry); this.materials.add(piece.material); this.textures.add(piece.texture);
+        continue;
+      }
       const texture=new THREE.DataTexture(wallStrip(wall),1,128);texture.colorSpace=THREE.SRGBColorSpace;texture.needsUpdate=true;this.textures.add(texture);
       const side=new THREE.MeshStandardMaterial({map:texture,roughness:.95,metalness:0}),top=new THREE.MeshStandardMaterial({color:YARD.cap,roughness:.9});
       const geometry=new THREE.BoxGeometry(wall.half.x*2,wall.half.y*2,wall.half.z*2);
@@ -92,6 +103,7 @@ export class View {
     this.renderer.setSize(w, h, false); this.camera.aspect = w / Math.max(1, h); this.camera.updateProjectionMatrix();
   }
   render(state: GameState, player: Actor, yaw: number, pitch: number, now: number, dt: number) {
+    this.environmentPresented = false;
     const pose = weaponPose(state, player), effects=this.feedback.update(state,now);
     cameraPose(this.camera, eye(player), yaw, pitch);
     this.weapon.position.set(pose.x, pose.y, pose.z);
@@ -143,7 +155,8 @@ export class View {
     this.bomb.visible = state.bomb.planted || !state.bomb.carrier;
     this.bomb.position.set(...toThree(state.bomb.position));
     this.renderer.render(this.scene, this.camera);
+    this.environmentPresented = this.environment;
   }
-  reset() {this.feedback.reset();for(const mesh of this.impacts)mesh.visible=false;}
-  dispose() { for (const g of this.geometries) g.dispose(); for (const m of this.materials) m.dispose(); for(const t of this.textures)t.dispose(); this.renderer.dispose(); }
+  reset() {this.environmentPresented=false;this.feedback.reset();for(const mesh of this.impacts)mesh.visible=false;}
+  dispose() { this.environmentPresented=false;for (const g of this.geometries) g.dispose(); for (const m of this.materials) m.dispose(); for(const t of this.textures)t.dispose(); this.renderer.dispose(); }
 }
