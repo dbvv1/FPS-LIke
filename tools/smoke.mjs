@@ -1,10 +1,13 @@
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { resolve, sep } from 'node:path';
 import { chromium } from 'playwright';
 import { preview } from 'vite';
 import { PNG } from 'pngjs';
-const output = new URL('../outputs/browser-smoke/', import.meta.url);
+const output = process.env.FPS_SMOKE_OUTPUT ? pathToFileURL(resolve(process.env.FPS_SMOKE_OUTPUT) + sep) : new URL('../outputs/browser-smoke/', import.meta.url);
+const query = process.env.FPS_SMOKE_QUERY ?? '';
+if (query && !query.startsWith('?')) throw new Error('Smoke query must start with ?');
 await mkdir(output, { recursive: true });
 const report = { passed: false, errors: [], warnings: [], stages: [] };
 let server, browser, page;
@@ -17,18 +20,26 @@ try {
   // Playwright 1.64 also inserts this switch in its defaults. Omitting it from
   // args alone is insufficient; preserve every other default and the sandbox.
   const ignoreDefaultArgs = ['--enable-unsafe-swiftshader'];
-  browser = await chromium.launch({ headless: true, chromiumSandbox: true, ignoreDefaultArgs, ...(executablePath ? { executablePath } : {}), args: ['--use-angle=swiftshader'] });
-  report.requestedLaunch = { headless: true, chromiumSandbox: true, executablePath, ignoreDefaultArgs, args: ['--use-angle=swiftshader'], browserVersion: browser.version() };
+  browser = await chromium.launch({ headless: true, chromiumSandbox: true, ignoreDefaultArgs, ...(executablePath ? { executablePath } : {}), args: process.env.FPS_SMOKE_RENDERER === 'native' ? [] : ['--use-angle=swiftshader'] });
+  report.requestedLaunch = { headless: true, chromiumSandbox: true, executablePath, ignoreDefaultArgs, args: process.env.FPS_SMOKE_RENDERER === 'native' ? [] : ['--use-angle=swiftshader'], browserVersion: browser.version() };
   report.launchEvidence = 'Requested options only; verify final argv in DEBUG=pw:browser output.';
   page = await browser.newPage({ viewport: { width: 1365, height: 900 } });
   page.on('pageerror', e => report.errors.push(String(e)));
   page.on('console', e => { if (e.type() === 'error') report.errors.push(e.text()); else if (e.type() === 'warning') report.warnings.push(e.text()); });
   page.on('requestfailed', r => report.errors.push(`Request failed: ${r.url()} ${r.failure()?.errorText}`));
   await page.route('**/*', route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort('blockedbyclient'));
-  await page.goto(origin, { waitUntil: 'networkidle' });
+  report.query = query;
+  await page.goto(origin + query, { waitUntil: 'networkidle' });
   await page.waitForFunction(() => window.fpsClient?.state().ready);
-  report.webgl = await page.locator('#stage').evaluate(canvas => { const gl = canvas.getContext('webgl2'); return gl && !gl.isContextLost() ? { version: gl.getParameter(gl.VERSION), renderer: gl.getParameter(gl.RENDERER) } : null; });
+  report.webgl = await page.locator('#stage').evaluate(canvas => { const gl = canvas.getContext('webgl2'); if (!gl || gl.isContextLost()) return null; const ext = gl.getExtension('WEBGL_debug_renderer_info'); return { version: gl.getParameter(gl.VERSION), renderer: gl.getParameter(gl.RENDERER), vendor: gl.getParameter(gl.VENDOR), unmaskedRenderer: ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : null, unmaskedVendor: ext ? gl.getParameter(ext.UNMASKED_VENDOR_WEBGL) : null }; });
   assert.ok(report.webgl, 'A real WebGL2 context is required');
+  const raw = report.webgl.unmaskedRenderer ?? report.webgl.renderer;
+  report.rendererClass = /(swiftshader|llvmpipe|softpipe|swrast|lavapipe|software|basic render|microsoft remote)/i.test(raw) ? 'software' : report.webgl.unmaskedRenderer && !/(virgl|virtual|vmware|parallels)/i.test(raw) && /(nvidia|geforce|quadro|radeon|\bAMD\b|\bIntel\b|Apple\s+(?:M\d|GPU)|adreno|mali)/i.test(raw) ? 'gpu' : 'unknown';
+  assert.equal(await page.evaluate(() => window.fpsClient.snapshot().gameplayVersion ?? 1), new URLSearchParams(query).get('gameplay') === 'movement-v2' ? 2 : 1);
+  if (new URLSearchParams(query).get('contentSet') === 'characters-v1') {
+    await page.waitForFunction(() => { const state = JSON.parse(document.getElementById('debug-state').textContent); return state.contentSet?.status === 'ready' && state.contentSet?.active === true; });
+    report.contentSet = await page.evaluate(() => JSON.parse(document.getElementById('debug-state').textContent).contentSet);
+  }
   await page.screenshot({ path: fileURLToPath(new URL('menu.png', output)) });
   const pixels = PNG.sync.read(await page.locator('#stage').screenshot());
   const colors = new Map();

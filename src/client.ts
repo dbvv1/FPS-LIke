@@ -4,6 +4,7 @@ import { initNavigation, Navigation } from './sim/navigation.js';
 import { Controls } from './input/controls.js';
 import { MouseSensitivity } from './input/sensitivity.js';
 import { View } from './render/scene.js';
+import { contentSetDiagnostics } from './render/content-set-assets.js';
 import { CanvasView } from './render/canvas.js';
 import { Soundscape } from './render/audio.js';
 import { RESULT_HOLD_MS } from './render/feedback.js';
@@ -72,7 +73,7 @@ function frame(now: number) {
       const state = game.state, actor = player(state);
       if (resultRevealAt !== null && now >= resultRevealAt) { resultRevealAt = null; hud.menu(true, state, actor); }
       view.render(state, actor, controls.yaw, controls.pitch, now, dt); hud.update(state, actor, now); sound.update(state, actor, controls.yaw, game.observe(actor.id).sounds.map(s => s.id));
-      document.getElementById('debug-state')!.textContent = JSON.stringify({ backend: view.backend, running, locked: controls.locked, tick: state.tick, round: state.round, phase: state.phase, time: state.time, yaw: controls.yaw, pitch: controls.pitch, player: { position: actor.position, hp: actor.hp, weapon: actor.weapon, ammo: actor.weapons[actor.weapon].ammo, reload: actor.reload, input: actor.input }, score: state.score, result: state.result }, null, 2);
+      document.getElementById('debug-state')!.textContent = JSON.stringify({ ...contentSetDiagnostics(window.location?.search ?? '', view.backend, view.info), backend: view.backend, running, locked: controls.locked, tick: state.tick, round: state.round, phase: state.phase, time: state.time, yaw: controls.yaw, pitch: controls.pitch, player: { position: actor.position, hp: actor.hp, weapon: actor.weapon, ammo: actor.weapons[actor.weapon].ammo, reload: actor.reload, input: actor.input }, score: state.score, result: state.result }, null, 2);
     }
   } catch (error) { fail(error); return; }
   frameId = requestAnimationFrame(frame);
@@ -115,7 +116,7 @@ try {
   // Read-only observability for smoke tests; no command injection or simulation mutation.
   Object.defineProperty(window, 'fpsClient', { value: Object.freeze({
     snapshot: (): GameState => game.state,
-    state: () => ({ ready, running, locked: controls.locked, backend: view.backend, yaw: controls.yaw, pitch: controls.pitch, ...view.info }),
+    state: () => ({ ready, running, locked: controls.locked, backend: view.backend, yaw: controls.yaw, pitch: controls.pitch, memory: view.info?.memory, calls: view.info?.calls, ...contentSetDiagnostics(window.location?.search ?? '', view.backend, view.info) }),
   }) });
   frameId = requestAnimationFrame(frame);
 } catch (error) { if (!startupCancelled) fail(error); }
