@@ -1,0 +1,1206 @@
+
+> fps-like@0.1.0 test
+> node --import tsx --test tests/*.test.ts tests/movement-v2/*.test.ts
+
+TAP version 13
+# Subtest: offline Recast paths reach all routes and are stable across consumers
+ok 1 - offline Recast paths reach all routes and are stable across consumers
+  ---
+  duration_ms: 5.7342
+  type: 'test'
+  ...
+# Subtest: bot controller does not fire from hearing-only clues
+ok 2 - bot controller does not fire from hearing-only clues
+  ---
+  duration_ms: 425.0854
+  type: 'test'
+  ...
+# Subtest: bot loses fire permission immediately when sight disappears; observation hides private fields
+ok 3 - bot loses fire permission immediately when sight disappears; observation hides private fields
+  ---
+  duration_ms: 4.0331
+  type: 'test'
+  ...
+# Subtest: seeded bot command tapes reproduce every simulation hash and round transitions reset memory
+ok 4 - seeded bot command tapes reproduce every simulation hash and round transitions reset memory
+  ---
+  duration_ms: 322.661
+  type: 'test'
+  ...
+# Subtest: batch CLI validates missing, invalid and unknown arguments
+ok 5 - batch CLI validates missing, invalid and unknown arguments
+  ---
+  duration_ms: 1.8217
+  type: 'test'
+  ...
+# Subtest: batch uses both weapons, reports timeouts separately and audits actual fired target visibility
+ok 6 - batch uses both weapons, reports timeouts separately and audits actual fired target visibility
+  ---
+  duration_ms: 2962.9319
+  type: 'test'
+  ...
+# Subtest: movement v2 requires one exact opt-in and combines with character/capture parameters
+ok 7 - movement v2 requires one exact opt-in and combines with character/capture parameters
+  ---
+  duration_ms: 3.3811
+  type: 'test'
+  ...
+# Subtest: default simulation/content/HUD/input/render modules retain their pre-movement bytes
+ok 8 - default simulation/content/HUD/input/render modules retain their pre-movement bytes
+  ---
+  duration_ms: 6.9264
+  type: 'test'
+  ...
+# Subtest: capture rejects asynchronous character content in both namespaces
+ok 9 - capture rejects asynchronous character content in both namespaces
+  ---
+  duration_ms: 0.7069
+  type: 'test'
+  ...
+# Subtest: CPU source silhouettes preserve the same facing view in four cardinal directions
+ok 10 - CPU source silhouettes preserve the same facing view in four cardinal directions
+  ---
+  duration_ms: 250.5418
+  type: 'test'
+  ...
+# Subtest: CPU presentation uses the shared snapshot, clips behind-wall actors and preserves it
+ok 11 - CPU presentation uses the shared snapshot, clips behind-wall actors and preserves it
+  ---
+  duration_ms: 107.466
+  type: 'test'
+  ...
+# Subtest: actual world impact is depth clipped behind cover, and appears only from an unobstructed view
+ok 12 - actual world impact is depth clipped behind cover, and appears only from an unobstructed view
+  ---
+  duration_ms: 36.0604
+  type: 'test'
+  ...
+# (node:109180) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: capture pagehide during game releases pending resources without publishing a stale ready state
+ok 13 - capture pagehide during game releases pending resources without publishing a stale ready state
+  ---
+  duration_ms: 6.9784
+  type: 'test'
+  ...
+# Subtest: capture pagehide during fonts releases pending resources without publishing a stale ready state
+ok 14 - capture pagehide during fonts releases pending resources without publishing a stale ready state
+  ---
+  duration_ms: 5.9792
+  type: 'test'
+  ...
+# Subtest: capture exit revokes stepping; persisted pagehide preserves the frozen frame without scheduling
+ok 15 - capture exit revokes stepping; persisted pagehide preserves the frozen frame without scheduling
+  ---
+  duration_ms: 0.9153
+  type: 'test'
+  ...
+# Subtest: initialization failure remains an error even when the resource scope already disposed itself
+ok 16 - initialization failure remains an error even when the resource scope already disposed itself
+  ---
+  duration_ms: 0.5978
+  type: 'test'
+  ...
+# Subtest: actual capture script isolates changed commits/inputs and long-to-short sequences in one output root
+ok 17 - actual capture script isolates changed commits/inputs and long-to-short sequences in one output root
+  ---
+  duration_ms: 730.1321
+  type: 'test'
+  ...
+# Subtest: atomic output allocation separates simultaneous runs with identical version and input
+ok 18 - atomic output allocation separates simultaneous runs with identical version and input
+  ---
+  duration_ms: 8.0196
+  type: 'test'
+  ...
+# Subtest: Windows build dispatch uses explicit cmd.exe and a fixed non-interpolated command, not execFile npm.cmd
+ok 19 - Windows build dispatch uses explicit cmd.exe and a fixed non-interpolated command, not execFile npm.cmd
+  ---
+  duration_ms: 126.0036
+  type: 'test'
+  ...
+# Subtest: capture is explicit; missing parameters have bounded defaults and normal URL stays normal
+ok 20 - capture is explicit; missing parameters have bounded defaults and normal URL stays normal
+  ---
+  duration_ms: 2.4098
+  type: 'test'
+  ...
+# Subtest: unknown/empty/prototype camera and malformed or duplicate capture parameters fail closed
+ok 21 - unknown/empty/prototype camera and malformed or duplicate capture parameters fail closed
+  ---
+  duration_ms: 0.8313
+  type: 'test'
+  ...
+# Subtest: clock uses integer steps and never consults real time
+ok 22 - clock uses integer steps and never consults real time
+  ---
+  duration_ms: 0.6441
+  type: 'test'
+  ...
+# Subtest: renderer raw string survives and software/unknown never becomes GPU by exclusion
+ok 23 - renderer raw string survives and software/unknown never becomes GPU by exclusion
+  ---
+  duration_ms: 1.0054
+  type: 'test'
+  ...
+# Subtest: lifetime releases in reverse order exactly once and disposes late asynchronous results
+ok 24 - lifetime releases in reverse order exactly once and disposes late asynchronous results
+  ---
+  duration_ms: 0.4096
+  type: 'test'
+  ...
+# Subtest: capture boot is lazy and player orchestration remains untouched by capture authority
+ok 25 - capture boot is lazy and player orchestration remains untouched by capture authority
+  ---
+  duration_ms: 22.473
+  type: 'test'
+  ...
+# Subtest: every named camera is presentation-only; player camera exactly follows actual eye and aim
+ok 26 - every named camera is presentation-only; player camera exactly follows actual eye and aim
+  ---
+  duration_ms: 501.0162
+  type: 'test'
+  ...
+# Subtest: fixed-step capture equals live rules/roster/bot given the same input tape and survives slow scheduling
+ok 27 - fixed-step capture equals live rules/roster/bot given the same input tape and survives slow scheduling
+  ---
+  duration_ms: 1552.2917
+  type: 'test'
+  ...
+# Subtest: cancel during capture pre-roll does not publish or continue stepping
+ok 28 - cancel during capture pre-roll does not publish or continue stepping
+  ---
+  duration_ms: 231.8764
+  type: 'test'
+  ...
+# (node:55280) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: actual client diagnostic shows candidate loading/ready/fallback with fixed source and real error, absent for default
+ok 29 - actual client diagnostic shows candidate loading/ready/fallback with fixed source and real error, absent for default
+  ---
+  duration_ms: 6.3101
+  type: 'test'
+  ...
+# (node:43724) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: leaving during navigation cannot revive initialization after its await
+ok 30 - leaving during navigation cannot revive initialization after its await
+  ---
+  duration_ms: 8.4833
+  type: 'test'
+  ...
+# Subtest: leaving during game cannot revive initialization after its await
+ok 31 - leaving during game cannot revive initialization after its await
+  ---
+  duration_ms: 2.352
+  type: 'test'
+  ...
+# Subtest: persisted pagehide during loading retains resources and permits original initialization
+ok 32 - persisted pagehide during loading retains resources and permits original initialization
+  ---
+  duration_ms: 2.5889
+  type: 'test'
+  ...
+# (node:18128) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: normal restart replaces once and ignores another request while pending
+ok 33 - normal restart replaces once and ignores another request while pending
+  ---
+  duration_ms: 15.4337
+  type: 'test'
+  ...
+# Subtest: non-persisted departure disposes a late replacement once without reviving disposed resources or HUD
+ok 34 - non-persisted departure disposes a late replacement once without reviving disposed resources or HUD
+  ---
+  duration_ms: 4.8851
+  type: 'test'
+  ...
+# Subtest: late restart rejection after departure stays silent without reopening HUD
+ok 35 - late restart rejection after departure stays silent without reopening HUD
+  ---
+  duration_ms: 1.9418
+  type: 'test'
+  ...
+# Subtest: active-page restart failure remains visible and releases busy state without destroying the old game
+ok 36 - active-page restart failure remains visible and releases busy state without destroying the old game
+  ---
+  duration_ms: 1.4946
+  type: 'test'
+  ...
+# Subtest: persisted departure retains original restart completion instead of permanently cancelling it
+ok 37 - persisted departure retains original restart completion instead of permanently cancelling it
+  ---
+  duration_ms: 1.2856
+  type: 'test'
+  ...
+# Subtest: opt-in is exact and singular; original default and malformed values stay off
+ok 38 - opt-in is exact and singular; original default and malformed values stay off
+  ---
+  duration_ms: 1.1642
+  type: 'test'
+  ...
+# Subtest: runtime GLBs are exactly the accepted source bytes, not regenerated variants
+ok 39 - runtime GLBs are exactly the accepted source bytes, not regenerated variants
+  ---
+  duration_ms: 36.1413
+  type: 'test'
+  ...
+# Subtest: real loader validates integrity/scene extras, handles HTTP/abort/corrupt source
+ok 40 - real loader validates integrity/scene extras, handles HTTP/abort/corrupt source
+  ---
+  duration_ms: 150.9351
+  type: 'test'
+  ...
+# Subtest: suffixed stable node names work; ambiguous matching fails closed
+ok 41 - suffixed stable node names work; ambiguous matching fails closed
+  ---
+  duration_ms: 106.6549
+  type: 'test'
+  ...
+# Subtest: merged sleeve exclusion preserves every non-sleeve triangle and exact sleeve boundary
+ok 42 - merged sleeve exclusion preserves every non-sleeve triangle and exact sleeve boundary
+  ---
+  duration_ms: 26.2222
+  type: 'test'
+  ...
+# Subtest: sleeve mask rejects changed transforms, near precision mutation and duplicate triangles without partial draw changes
+ok 43 - sleeve mask rejects changed transforms, near precision mutation and duplicate triangles without partial draw changes
+  ---
+  duration_ms: 41.0998
+  type: 'test'
+  ...
+# Subtest: rifle root never doubles recoil; support/magazine/bolt use existing procedural pose and reset on switch/reload cancellation
+ok 44 - rifle root never doubles recoil; support/magazine/bolt use existing procedural pose and reset on switch/reload cancellation
+  ---
+  duration_ms: 17.2519
+  type: 'test'
+  ...
+# Subtest: opponent rest placement preserves yaw and crouch within accepted pivot rounding (0.06 mm)
+ok 45 - opponent rest placement preserves yaw and crouch within accepted pivot rounding (0.06 mm)
+  ---
+  duration_ms: 55.9134
+  type: 'test'
+  ...
+# Subtest: rigid clips are deterministic absolute samples; hit/death/respawn and rewind do not accumulate or mutate gameplay
+ok 46 - rigid clips are deterministic absolute samples; hit/death/respawn and rewind do not accumulate or mutate gameplay
+  ---
+  duration_ms: 60.3501
+  type: 'test'
+  ...
+# Subtest: owner reset removes instances but preserves resources, final teardown disposes shared resources exactly once
+ok 47 - owner reset removes instances but preserves resources, final teardown disposes shared resources exactly once
+  ---
+  duration_ms: 92.6056
+  type: 'test'
+  ...
+# Subtest: obsolete generations and post-dispose completion release every late asset without attaching
+ok 48 - obsolete generations and post-dispose completion release every late asset without attaching
+  ---
+  duration_ms: 89.1538
+  type: 'test'
+  ...
+# Subtest: partial failure aborts sibling, keeps procedural fallback and allows a later successful generation
+ok 49 - partial failure aborts sibling, keeps procedural fallback and allows a later successful generation
+  ---
+  duration_ms: 32.5599
+  type: 'test'
+  ...
+# Subtest: invalid second sleeve leaves neither half-installed rifle nor opponent candidate; all loaded resources released
+ok 50 - invalid second sleeve leaves neither half-installed rifle nor opponent candidate; all loaded resources released
+  ---
+  duration_ms: 76.3275
+  type: 'test'
+  ...
+# Subtest: actual View render path switches atomically, keeps only procedural sleeves, preserves pistol and resets opponents
+ok 51 - actual View render path switches atomically, keeps only procedural sleeves, preserves pistol and resets opponents
+  ---
+  duration_ms: 2103.6641
+  type: 'test'
+  ...
+# Subtest: candidate diagnostics distinguish loading, active ready and failure fallback; default exposes no candidate identity
+ok 52 - candidate diagnostics distinguish loading, active ready and failure fallback; default exposes no candidate identity
+  ---
+  duration_ms: 1.7898
+  type: 'test'
+  ...
+# Subtest: second source edit: a 240ms hit is not cut off by the old 180ms consumer window
+ok 53 - second source edit: a 240ms hit is not cut off by the old 180ms consumer window
+  ---
+  duration_ms: 115.5985
+  type: 'test'
+  ...
+# Subtest: second source edit: longer fire clip follows its own duration; other actor and original source remain unchanged
+ok 54 - second source edit: longer fire clip follows its own duration; other actor and original source remain unchanged
+  ---
+  duration_ms: 567.3608
+  type: 'test'
+  ...
+# Subtest: invalid or duplicate source clips fail before the candidate can be activated
+ok 55 - invalid or duplicate source clips fail before the candidate can be activated
+  ---
+  duration_ms: 619.1618
+  type: 'test'
+  ...
+# Subtest: actual GLB hit/death beyond Feedback retention fail closed instead of silently truncating
+ok 56 - actual GLB hit/death beyond Feedback retention fail closed instead of silently truncating
+  ---
+  duration_ms: 43.8412
+  type: 'test'
+  ...
+# Subtest: mouse-down records its own view and sub-tick before later mouse movement
+ok 57 - mouse-down records its own view and sub-tick before later mouse movement
+  ---
+  duration_ms: 6.1606
+  type: 'test'
+  ...
+# Subtest: held rifle fires at its cooldown sub-tick using only the view available then
+ok 58 - held rifle fires at its cooldown sub-tick using only the view available then
+  ---
+  duration_ms: 0.6375
+  type: 'test'
+  ...
+# Subtest: pause clears held movement, interaction and queued shots before resume
+ok 59 - pause clears held movement, interaction and queued shots before resume
+  ---
+  duration_ms: 1.0004
+  type: 'test'
+  ...
+# Subtest: raw pointer lock has a supported fallback and successful lock clears the error
+ok 60 - raw pointer lock has a supported fallback and successful lock clears the error
+  ---
+  duration_ms: 0.3618
+  type: 'test'
+  ...
+# Subtest: a canceled pointer-lock request cannot relock after a delayed failure
+ok 61 - a canceled pointer-lock request cannot relock after a delayed failure
+  ---
+  duration_ms: 0.6161
+  type: 'test'
+  ...
+# Subtest: Escape and hidden-tab events clear lock and held controls
+ok 62 - Escape and hidden-tab events clear lock and held controls
+  ---
+  duration_ms: 0.3333
+  type: 'test'
+  ...
+# Subtest: a canceled pointer-lock request cannot resume after delayed acquisition
+ok 63 - a canceled pointer-lock request cannot resume after delayed acquisition
+  ---
+  duration_ms: 0.4361
+  type: 'test'
+  ...
+# Subtest: pointer-lock failure keeps the exact browser cause without bypass or retry
+ok 64 - pointer-lock failure keeps the exact browser cause without bypass or retry
+  ---
+  duration_ms: 2.021
+  type: 'test'
+  ...
+# Subtest: saved sensitivity scales yaw/pitch once, preserves shot sampling, and UI input never reaches gameplay
+ok 65 - saved sensitivity scales yaw/pitch once, preserves shot sampling, and UI input never reaches gameplay
+  ---
+  duration_ms: 1.0849
+  type: 'test'
+  ...
+# Subtest: a held rifle keeps its legal tail shot across render rates without firing after an early release
+ok 66 - a held rifle keeps its legal tail shot across render rates without firing after an early release
+  ---
+  duration_ms: 720.7556
+  type: 'test'
+  ...
+# Subtest: release then re-press in one catch-up frame preserves the previous burst and the new aim
+ok 67 - release then re-press in one catch-up frame preserves the previous burst and the new aim
+  ---
+  duration_ms: 18.2941
+  type: 'test'
+  ...
+# Subtest: trigger history obeys reload, switch lock and semi-automatic fire at every render rate
+ok 68 - trigger history obeys reload, switch lock and semi-automatic fire at every render rate
+  ---
+  duration_ms: 64.1433
+  type: 'test'
+  ...
+# Subtest: pause drops historical trigger edges rather than replaying them after resume
+ok 69 - pause drops historical trigger edges rather than replaying them after resume
+  ---
+  duration_ms: 5.4332
+  type: 'test'
+  ...
+# Subtest: v1 command-tape hashes remain byte-compatible after adding presentation facts
+ok 70 - v1 command-tape hashes remain byte-compatible after adding presentation facts
+  ---
+  duration_ms: 884.5657
+  type: 'test'
+  ...
+# Subtest: one authoritative trace records exact shooting eye, world/range endpoint, and death at settlement
+ok 71 - one authoritative trace records exact shooting eye, world/range endpoint, and death at settlement
+  ---
+  duration_ms: 106.4033
+  type: 'test'
+  ...
+# Subtest: death presentation expires without advancing simulation, extending life, or replaying old events
+ok 72 - death presentation expires without advancing simulation, extending life, or replaying old events
+  ---
+  duration_ms: 34.0251
+  type: 'test'
+  ...
+# Subtest: muting immediately stops existing voices and unmuting does not replay them
+ok 73 - muting immediately stops existing voices and unmuting does not replay them
+  ---
+  duration_ms: 21.2448
+  type: 'test'
+  ...
+# Subtest: full magazine travel stays inside the first-person frame and support hand follows its grip
+ok 74 - full magazine travel stays inside the first-person frame and support hand follows its grip
+  ---
+  duration_ms: 433.6948
+  type: 'test'
+  ...
+# Subtest: head and body hits use Rapier hitboxes with different damage
+ok 75 - head and body hits use Rapier hitboxes with different damage
+  ---
+  duration_ms: 630.9708
+  type: 'test'
+  ...
+# Subtest: solid cover blocks bullets and perception
+ok 76 - solid cover blocks bullets and perception
+  ---
+  duration_ms: 1.8388
+  type: 'test'
+  ...
+# Subtest: frame-internal shooting captures supplied view before later aim input
+ok 77 - frame-internal shooting captures supplied view before later aim input
+  ---
+  duration_ms: 1.61
+  type: 'test'
+  ...
+# Subtest: movement is integrated to the shot timestamp, not to the end of the tick
+ok 78 - movement is integrated to the shot timestamp, not to the end of the tick
+  ---
+  duration_ms: 27.817
+  type: 'test'
+  ...
+# Subtest: rate limit, empty magazines and exact reload completion conserve ammunition
+ok 79 - rate limit, empty magazines and exact reload completion conserve ammunition
+  ---
+  duration_ms: 5.5875
+  type: 'test'
+  ...
+# Subtest: switching cancels reload without duplicating ammo; pistol works
+ok 80 - switching cancels reload without duplicating ammo; pistol works
+  ---
+  duration_ms: 2.2122
+  type: 'test'
+  ...
+# Subtest: fixed recoil and complete replay state hashes repeat for a seed and command tape
+ok 81 - fixed recoil and complete replay state hashes repeat for a seed and command tape
+  ---
+  duration_ms: 41.8964
+  type: 'test'
+  ...
+# Subtest: different seed changes spread; movement increases spread
+ok 82 - different seed changes spread; movement increases spread
+  ---
+  duration_ms: 50.8184
+  type: 'test'
+  ...
+# Subtest: Rapier character controller stops at walls; diagonal speed is normalized
+ok 83 - Rapier character controller stops at walls; diagonal speed is normalized
+  ---
+  duration_ms: 35.5061
+  type: 'test'
+  ...
+# Subtest: crouch changes head height and quiet movement creates no footsteps
+ok 84 - crouch changes head height and quiet movement creates no footsteps
+  ---
+  duration_ms: 141.3474
+  type: 'test'
+  ...
+# Subtest: invalid command batch is rejected atomically, including unknown and missing inputs
+ok 85 - invalid command batch is rejected atomically, including unknown and missing inputs
+  ---
+  duration_ms: 1.7281
+  type: 'test'
+  ...
+# Subtest: invalid seed, roster and rule configurations fail before a simulation starts
+ok 86 - invalid seed, roster and rule configurations fail before a simulation starts
+  ---
+  duration_ms: 0.4283
+  type: 'test'
+  ...
+# Subtest: timeout settles once, freezes the round, then resets and swaps sides
+ok 87 - timeout settles once, freezes the round, then resets and swaps sides
+  ---
+  duration_ms: 1.1578
+  type: 'test'
+  ...
+# Subtest: plant requires carrier at site, uninterrupted hold, then explosion wins
+ok 88 - plant requires carrier at site, uninterrupted hold, then explosion wins
+  ---
+  duration_ms: 0.773
+  type: 'test'
+  ...
+# Subtest: defender cannot plant and a carrier cannot plant away from the site
+ok 89 - defender cannot plant and a carrier cannot plant away from the site
+  ---
+  duration_ms: 0.5847
+  type: 'test'
+  ...
+# Subtest: movement cancels plant progress rather than pausing it
+ok 90 - movement cancels plant progress rather than pausing it
+  ---
+  duration_ms: 0.5984
+  type: 'test'
+  ...
+# Subtest: plant completing exactly at timeout takes precedence; defuse wins an exact fuse tie
+ok 91 - plant completing exactly at timeout takes precedence; defuse wins an exact fuse tie
+  ---
+  duration_ms: 1.131
+  type: 'test'
+  ...
+# Subtest: post-plant attacker elimination does not award a defender win
+ok 92 - post-plant attacker elimination does not award a defender win
+  ---
+  duration_ms: 0.7275
+  type: 'test'
+  ...
+# Subtest: pre-plant elimination wins; six actors are supported without team hard-coding
+ok 93 - pre-plant elimination wins; six actors are supported without team hard-coding
+  ---
+  duration_ms: 1.6836
+  type: 'test'
+  ...
+# Subtest: dead carrier drops bomb for a surviving attacker to pick up
+ok 94 - dead carrier drops bomb for a surviving attacker to pick up
+  ---
+  duration_ms: 1.1109
+  type: 'test'
+  ...
+# Subtest: observations hide unseen enemies and unplanted enemy carrier position
+ok 95 - observations hide unseen enemies and unplanted enemy carrier position
+  ---
+  duration_ms: 4.6374
+  type: 'test'
+  ...
+# Subtest: dispose is repeatable and use-after-dispose is rejected
+ok 96 - dispose is repeatable and use-after-dispose is rejected
+  ---
+  duration_ms: 0.7836
+  type: 'test'
+  ...
+# Subtest: self is excluded; a friendly actor physically blocks and takes the shot
+ok 97 - self is excluded; a friendly actor physically blocks and takes the shot
+  ---
+  duration_ms: 25.5957
+  type: 'test'
+  ...
+# Subtest: spawn inside cover and incomplete coordinates are rejected
+ok 98 - spawn inside cover and incomplete coordinates are rejected
+  ---
+  duration_ms: 0.4425
+  type: 'test'
+  ...
+# Subtest: a later teammate cannot steal and reset an uninterrupted defuse
+ok 99 - a later teammate cannot steal and reset an uninterrupted defuse
+  ---
+  duration_ms: 4.201
+  type: 'test'
+  ...
+# Subtest: a different teammate starts fresh progress after the current defuser releases
+ok 100 - a different teammate starts fresh progress after the current defuser releases
+  ---
+  duration_ms: 0.9403
+  type: 'test'
+  ...
+# Subtest: rules and public weapon/map/difficulty content are frozen against runtime mutation
+ok 101 - rules and public weapon/map/difficulty content are frozen against runtime mutation
+  ---
+  duration_ms: 9.0054
+  type: 'test'
+  ...
+# Subtest: snapshot exposes a correct round deadline through nonzero-time side swaps
+ok 102 - snapshot exposes a correct round deadline through nonzero-time side swaps
+  ---
+  duration_ms: 1.5516
+  type: 'test'
+  ...
+# Subtest: same-frame bot shots discard a target killed by an earlier command without spending ammo
+ok 103 - same-frame bot shots discard a target killed by an earlier command without spending ammo
+  ---
+  duration_ms: 1.4845
+  type: 'test'
+  ...
+# Subtest: a bot does not execute a queued shot through newly unavailable visibility
+ok 104 - a bot does not execute a queued shot through newly unavailable visibility
+  ---
+  duration_ms: 14.2154
+  type: 'test'
+  ...
+# Subtest: the real licensed concrete source produces one shared, opaque and bounded mip chain
+ok 105 - the real licensed concrete source produces one shared, opaque and bounded mip chain
+  ---
+  duration_ms: 10.7083
+  type: 'test'
+  ...
+# Subtest: both floor consumers wrap the same real-world UV including negative coordinates and use coarser far footprints
+ok 106 - both floor consumers wrap the same real-world UV including negative coordinates and use coarser far footprints
+  ---
+  duration_ms: 0.2753
+  type: 'test'
+  ...
+# Subtest: CPU floor writes finite colour below its horizon before existing occlusion, including odd view sizes and vertical aim
+ok 107 - CPU floor writes finite colour below its horizon before existing occlusion, including odd view sizes and vertical aim
+  ---
+  duration_ms: 83.3496
+  type: 'test'
+  ...
+# Subtest: mouse-down records its own view and sub-tick before later mouse movement
+ok 108 - mouse-down records its own view and sub-tick before later mouse movement
+  ---
+  duration_ms: 5.9637
+  type: 'test'
+  ...
+# Subtest: held rifle fires at its cooldown sub-tick using only the view available then
+ok 109 - held rifle fires at its cooldown sub-tick using only the view available then
+  ---
+  duration_ms: 1.1418
+  type: 'test'
+  ...
+# Subtest: pause clears held movement, interaction and queued shots before resume
+ok 110 - pause clears held movement, interaction and queued shots before resume
+  ---
+  duration_ms: 3.0049
+  type: 'test'
+  ...
+# Subtest: raw pointer lock has a supported fallback and successful lock clears the error
+ok 111 - raw pointer lock has a supported fallback and successful lock clears the error
+  ---
+  duration_ms: 0.4397
+  type: 'test'
+  ...
+# Subtest: a canceled pointer-lock request cannot relock after a delayed failure
+ok 112 - a canceled pointer-lock request cannot relock after a delayed failure
+  ---
+  duration_ms: 0.3451
+  type: 'test'
+  ...
+# Subtest: Escape and hidden-tab events clear lock and held controls
+ok 113 - Escape and hidden-tab events clear lock and held controls
+  ---
+  duration_ms: 0.7834
+  type: 'test'
+  ...
+# Subtest: a canceled pointer-lock request cannot resume after delayed acquisition
+ok 114 - a canceled pointer-lock request cannot resume after delayed acquisition
+  ---
+  duration_ms: 0.7477
+  type: 'test'
+  ...
+# Subtest: pointer-lock failure keeps the exact browser cause without bypass or retry
+ok 115 - pointer-lock failure keeps the exact browser cause without bypass or retry
+  ---
+  duration_ms: 0.5002
+  type: 'test'
+  ...
+# Subtest: saved sensitivity scales yaw/pitch once, preserves shot sampling, and UI input never reaches gameplay
+ok 116 - saved sensitivity scales yaw/pitch once, preserves shot sampling, and UI input never reaches gameplay
+  ---
+  duration_ms: 0.6982
+  type: 'test'
+  ...
+# Subtest: a held rifle keeps its legal tail shot across render rates without firing after an early release
+ok 117 - a held rifle keeps its legal tail shot across render rates without firing after an early release
+  ---
+  duration_ms: 2079.7168
+  type: 'test'
+  ...
+# Subtest: release then re-press in one catch-up frame preserves the previous burst and the new aim
+ok 118 - release then re-press in one catch-up frame preserves the previous burst and the new aim
+  ---
+  duration_ms: 32.6418
+  type: 'test'
+  ...
+# Subtest: trigger history obeys reload, switch lock and semi-automatic fire at every render rate
+ok 119 - trigger history obeys reload, switch lock and semi-automatic fire at every render rate
+  ---
+  duration_ms: 26.9067
+  type: 'test'
+  ...
+# Subtest: pause drops historical trigger edges rather than replaying them after resume
+ok 120 - pause drops historical trigger edges rather than replaying them after resume
+  ---
+  duration_ms: 8.8424
+  type: 'test'
+  ...
+# Subtest: v2 freezes the original command tapes under new rules; presentation impact facts stay outside gameplay hashes
+ok 121 - v2 freezes the original command tapes under new rules; presentation impact facts stay outside gameplay hashes
+  ---
+  duration_ms: 255.6628
+  type: 'test'
+  ...
+# Subtest: one authoritative trace records exact shooting eye, world/range endpoint, and death at settlement
+ok 122 - one authoritative trace records exact shooting eye, world/range endpoint, and death at settlement
+  ---
+  duration_ms: 4.322
+  type: 'test'
+  ...
+# Subtest: death presentation expires without advancing simulation, extending life, or replaying old events
+ok 123 - death presentation expires without advancing simulation, extending life, or replaying old events
+  ---
+  duration_ms: 1.3549
+  type: 'test'
+  ...
+# Subtest: muting immediately stops existing voices and unmuting does not replay them
+ok 124 - muting immediately stops existing voices and unmuting does not replay them
+  ---
+  duration_ms: 17.7723
+  type: 'test'
+  ...
+# Subtest: full magazine travel stays inside the first-person frame and support hand follows its grip
+ok 125 - full magazine travel stays inside the first-person frame and support hand follows its grip
+  ---
+  duration_ms: 87.1843
+  type: 'test'
+  ...
+# Subtest: head and body hits use Rapier hitboxes with different damage
+ok 126 - head and body hits use Rapier hitboxes with different damage
+  ---
+  duration_ms: 542.8917
+  type: 'test'
+  ...
+# Subtest: solid cover blocks bullets and perception
+ok 127 - solid cover blocks bullets and perception
+  ---
+  duration_ms: 2.6351
+  type: 'test'
+  ...
+# Subtest: frame-internal shooting captures supplied view before later aim input
+ok 128 - frame-internal shooting captures supplied view before later aim input
+  ---
+  duration_ms: 2.611
+  type: 'test'
+  ...
+# Subtest: movement is integrated to the shot timestamp, not to the end of the tick
+ok 129 - movement is integrated to the shot timestamp, not to the end of the tick
+  ---
+  duration_ms: 23.9614
+  type: 'test'
+  ...
+# Subtest: rate limit, empty magazines and exact reload completion conserve ammunition
+ok 130 - rate limit, empty magazines and exact reload completion conserve ammunition
+  ---
+  duration_ms: 18.101
+  type: 'test'
+  ...
+# Subtest: switching cancels reload without duplicating ammo; pistol works
+ok 131 - switching cancels reload without duplicating ammo; pistol works
+  ---
+  duration_ms: 19.4875
+  type: 'test'
+  ...
+# Subtest: fixed recoil and complete replay state hashes repeat for a seed and command tape
+ok 132 - fixed recoil and complete replay state hashes repeat for a seed and command tape
+  ---
+  duration_ms: 157.6627
+  type: 'test'
+  ...
+# Subtest: different seed changes spread; movement increases spread
+ok 133 - different seed changes spread; movement increases spread
+  ---
+  duration_ms: 4.3953
+  type: 'test'
+  ...
+# Subtest: Rapier character controller stops at walls; diagonal speed is normalized
+ok 134 - Rapier character controller stops at walls; diagonal speed is normalized
+  ---
+  duration_ms: 202.7339
+  type: 'test'
+  ...
+# Subtest: crouch changes head height and quiet movement creates no footsteps
+ok 135 - crouch changes head height and quiet movement creates no footsteps
+  ---
+  duration_ms: 3.9885
+  type: 'test'
+  ...
+# Subtest: invalid command batch is rejected atomically, including unknown and missing inputs
+ok 136 - invalid command batch is rejected atomically, including unknown and missing inputs
+  ---
+  duration_ms: 3.0207
+  type: 'test'
+  ...
+# Subtest: invalid seed, roster and rule configurations fail before a simulation starts
+ok 137 - invalid seed, roster and rule configurations fail before a simulation starts
+  ---
+  duration_ms: 0.6043
+  type: 'test'
+  ...
+# Subtest: timeout settles once, freezes the round, then resets and swaps sides
+ok 138 - timeout settles once, freezes the round, then resets and swaps sides
+  ---
+  duration_ms: 1.8953
+  type: 'test'
+  ...
+# Subtest: plant requires carrier at site, uninterrupted hold, then explosion wins
+ok 139 - plant requires carrier at site, uninterrupted hold, then explosion wins
+  ---
+  duration_ms: 1.0176
+  type: 'test'
+  ...
+# Subtest: defender cannot plant and a carrier cannot plant away from the site
+ok 140 - defender cannot plant and a carrier cannot plant away from the site
+  ---
+  duration_ms: 1.8683
+  type: 'test'
+  ...
+# Subtest: movement cancels plant progress rather than pausing it
+ok 141 - movement cancels plant progress rather than pausing it
+  ---
+  duration_ms: 1.1071
+  type: 'test'
+  ...
+# Subtest: plant completing exactly at timeout takes precedence; defuse wins an exact fuse tie
+ok 142 - plant completing exactly at timeout takes precedence; defuse wins an exact fuse tie
+  ---
+  duration_ms: 0.6965
+  type: 'test'
+  ...
+# Subtest: post-plant attacker elimination does not award a defender win
+ok 143 - post-plant attacker elimination does not award a defender win
+  ---
+  duration_ms: 1.3819
+  type: 'test'
+  ...
+# Subtest: pre-plant elimination wins; six actors are supported without team hard-coding
+ok 144 - pre-plant elimination wins; six actors are supported without team hard-coding
+  ---
+  duration_ms: 2.1142
+  type: 'test'
+  ...
+# Subtest: dead carrier drops bomb for a surviving attacker to pick up
+ok 145 - dead carrier drops bomb for a surviving attacker to pick up
+  ---
+  duration_ms: 3.7938
+  type: 'test'
+  ...
+# Subtest: observations hide unseen enemies and unplanted enemy carrier position
+ok 146 - observations hide unseen enemies and unplanted enemy carrier position
+  ---
+  duration_ms: 3.2479
+  type: 'test'
+  ...
+# Subtest: dispose is repeatable and use-after-dispose is rejected
+ok 147 - dispose is repeatable and use-after-dispose is rejected
+  ---
+  duration_ms: 0.7775
+  type: 'test'
+  ...
+# Subtest: self is excluded; a friendly actor physically blocks and takes the shot
+ok 148 - self is excluded; a friendly actor physically blocks and takes the shot
+  ---
+  duration_ms: 2.2895
+  type: 'test'
+  ...
+# Subtest: spawn inside cover and incomplete coordinates are rejected
+ok 149 - spawn inside cover and incomplete coordinates are rejected
+  ---
+  duration_ms: 0.3007
+  type: 'test'
+  ...
+# Subtest: a later teammate cannot steal and reset an uninterrupted defuse
+ok 150 - a later teammate cannot steal and reset an uninterrupted defuse
+  ---
+  duration_ms: 3.6371
+  type: 'test'
+  ...
+# Subtest: a different teammate starts fresh progress after the current defuser releases
+ok 151 - a different teammate starts fresh progress after the current defuser releases
+  ---
+  duration_ms: 0.9616
+  type: 'test'
+  ...
+# Subtest: rules and public weapon/map/difficulty content are frozen against runtime mutation
+ok 152 - rules and public weapon/map/difficulty content are frozen against runtime mutation
+  ---
+  duration_ms: 148.6423
+  type: 'test'
+  ...
+# Subtest: snapshot exposes a correct round deadline through nonzero-time side swaps
+ok 153 - snapshot exposes a correct round deadline through nonzero-time side swaps
+  ---
+  duration_ms: 2.3909
+  type: 'test'
+  ...
+# Subtest: same-frame bot shots discard a target killed by an earlier command without spending ammo
+ok 154 - same-frame bot shots discard a target killed by an earlier command without spending ammo
+  ---
+  duration_ms: 1.2734
+  type: 'test'
+  ...
+# Subtest: a bot does not execute a queued shot through newly unavailable visibility
+ok 155 - a bot does not execute a queued shot through newly unavailable visibility
+  ---
+  duration_ms: 0.7317
+  type: 'test'
+  ...
+# Subtest: motion checkpoint queries preserve death state and exact event times
+ok 156 - motion checkpoint queries preserve death state and exact event times
+  ---
+  duration_ms: 988.8642
+  type: 'test'
+  ...
+# Subtest: motion checkpoint queries preserve reload state and exact event times
+ok 157 - motion checkpoint queries preserve reload state and exact event times
+  ---
+  duration_ms: 466.8069
+  type: 'test'
+  ...
+# Subtest: motion checkpoint queries preserve two-movers state and exact event times
+ok 158 - motion checkpoint queries preserve two-movers state and exact event times
+  ---
+  duration_ms: 223.3133
+  type: 'test'
+  ...
+# Subtest: acceleration, release, reverse zero-crossing and speed-cap integration are split invariant
+ok 159 - acceleration, release, reverse zero-crossing and speed-cap integration are split invariant
+  ---
+  duration_ms: 3.5009
+  type: 'test'
+  ...
+# Subtest: release coasts, a deliberate opposite key brakes earlier, then accelerates the other way
+ok 160 - release coasts, a deliberate opposite key brakes earlier, then accelerates the other way
+  ---
+  duration_ms: 299.2248
+  type: 'test'
+  ...
+# Subtest: normalized diagonal run/walk/crouch retain caps without an instant mode-change stop
+ok 161 - normalized diagonal run/walk/crouch retain caps without an instant mode-change stop
+  ---
+  duration_ms: 14.5362
+  type: 'test'
+  ...
+# Subtest: collision removes wall-normal velocity and running in place is not moving inaccuracy
+ok 162 - collision removes wall-normal velocity and running in place is not moving inaccuracy
+  ---
+  duration_ms: 53.4604
+  type: 'test'
+  ...
+# Subtest: shot spread samples actual speed at its timestamp, not a key state or a later frame
+ok 163 - shot spread samples actual speed at its timestamp, not a key state or a later frame
+  ---
+  duration_ms: 14.1159
+  type: 'test'
+  ...
+# Subtest: unrelated subtick commands do not change free movement or sampled shooting accuracy
+ok 164 - unrelated subtick commands do not change free movement or sampled shooting accuracy
+  ---
+  duration_ms: 53.1805
+  type: 'test'
+  ...
+# Subtest: learnable full-magazine recoil never resets at shot seven; manual compensation cancels it once
+ok 165 - learnable full-magazine recoil never resets at shot seven; manual compensation cancels it once
+  ---
+  duration_ms: 30.4996
+  type: 'test'
+  ...
+# Subtest: recoil and firing spread recover continuously to the original first shot, independent of samples
+ok 166 - recoil and firing spread recover continuously to the original first shot, independent of samples
+  ---
+  duration_ms: 2.1939
+  type: 'test'
+  ...
+# Subtest: HUD uses the same movement/recoil envelope and cannot alter the authoritative state
+ok 167 - HUD uses the same movement/recoil envelope and cannot alter the authoritative state
+  ---
+  duration_ms: 1.7639
+  type: 'test'
+  ...
+# Subtest: reload/switch retain recovery clocks; death, next round and a new game clear kinetic/weapon state
+ok 168 - reload/switch retain recovery clocks; death, next round and a new game clear kinetic/weapon state
+  ---
+  duration_ms: 19.4447
+  type: 'test'
+  ...
+# Subtest: one cover loop: hidden approach, peek, deliberate brake, compensated burst, retreat reload and re-peek
+ok 169 - one cover loop: hidden approach, peek, deliberate brake, compensated burst, retreat reload and re-peek
+  ---
+  duration_ms: 8.0804
+  type: 'test'
+  ...
+# Subtest: run-to-crouch slows rather than granting instant low-speed accuracy; pistol has its own recovery
+ok 170 - run-to-crouch slows rather than granting instant low-speed accuracy; pistol has its own recovery
+  ---
+  duration_ms: 2.7037
+  type: 'test'
+  ...
+# Subtest: unrelated timestamp samples cannot change wall sliding or choose the other side of a cover corner
+ok 171 - unrelated timestamp samples cannot change wall sliding or choose the other side of a cover corner
+  ---
+  duration_ms: 230.9191
+  type: 'test'
+  ...
+# Subtest: automatic plant eligibility after coasting is fixed-tick, not unlocked early by aim samples
+ok 172 - automatic plant eligibility after coasting is fixed-tick, not unlocked early by aim samples
+  ---
+  duration_ms: 5.4908
+  type: 'test'
+  ...
+# Subtest: reload sleeves bend with finite segments around stable body anchors; wrist targets do not move
+ok 173 - reload sleeves bend with finite segments around stable body anchors; wrist targets do not move
+  ---
+  duration_ms: 400.1728
+  type: 'test'
+  ...
+# Subtest: shared sleeve geometry preserves pose roundtrip and does not modify hands or source parts
+ok 174 - shared sleeve geometry preserves pose roundtrip and does not modify hands or source parts
+  ---
+  duration_ms: 8.5474
+  type: 'test'
+  ...
+# Subtest: sleeve cuff shares every rim vertex with the unchanged wrist through the entire reload
+ok 175 - sleeve cuff shares every rim vertex with the unchanged wrist through the entire reload
+  ---
+  duration_ms: 13.3859
+  type: 'test'
+  ...
+# Subtest: one licensed rifle source is actually consumed with its detachable magazine and barrel-end muzzle
+ok 176 - one licensed rifle source is actually consumed with its detachable magazine and barrel-end muzzle
+  ---
+  duration_ms: 6.6516
+  type: 'test'
+  ...
+# Subtest: reload palm contacts an actual magazine face throughout exit and insertion, then returns to its foregrip
+ok 177 - reload palm contacts an actual magazine face throughout exit and insertion, then returns to its foregrip
+  ---
+  duration_ms: 198.837
+  type: 'test'
+  ...
+# Subtest: original mouse gain stays the default; draft changes require explicit save/apply
+ok 178 - original mouse gain stays the default; draft changes require explicit save/apply
+  ---
+  duration_ms: 1.781
+  type: 'test'
+  ...
+# Subtest: defaults are a draft until applied, then remove the persisted override without touching unrelated storage
+ok 179 - defaults are a draft until applied, then remove the persisted override without touching unrelated storage
+  ---
+  duration_ms: 0.2142
+  type: 'test'
+  ...
+# Subtest: storage failure keeps current runtime value and draft available for retry/cancel
+ok 180 - storage failure keeps current runtime value and draft available for retry/cancel
+  ---
+  duration_ms: 0.2902
+  type: 'test'
+  ...
+# Subtest: invalid stored data and invalid edits cannot poison mouse angles; quantized round trips are stable
+ok 181 - invalid stored data and invalid edits cannot poison mouse angles; quantized round trips are stable
+  ---
+  duration_ms: 0.3317
+  type: 'test'
+  ...
+# Subtest: one shot has attack/recovery, shares simulation timing, and never moves aim or snapshot
+ok 182 - one shot has attack/recovery, shares simulation timing, and never moves aim or snapshot
+  ---
+  duration_ms: 203.1075
+  type: 'test'
+  ...
+# Subtest: reload has exit/insert/settle phases and switch interruption instantly returns magazine
+ok 183 - reload has exit/insert/settle phases and switch interruption instantly returns magazine
+  ---
+  duration_ms: 1.8005
+  type: 'test'
+  ...
+# Subtest: head/body/miss/kill result follows actual shot, not mere eventual target death
+ok 184 - head/body/miss/kill result follows actual shot, not mere eventual target death
+  ---
+  duration_ms: 6.0131
+  type: 'test'
+  ...
+# Subtest: editable synthesis recipes are finite, bounded, return to silence and distinguish weapons/results
+ok 185 - editable synthesis recipes are finite, bounded, return to silence and distinguish weapons/results
+  ---
+  duration_ms: 119.2298
+  type: 'test'
+  ...
+# Subtest: sound consumer keeps observation filtering, one-shot delivery and cancels reset voices
+ok 186 - sound consumer keeps observation filtering, one-shot delivery and cancels reset voices
+  ---
+  duration_ms: 14.8845
+  type: 'test'
+  ...
+# Subtest: actual visible CPU viewmodel vertices match Three projection and front-face selection through recoil and reload
+ok 187 - actual visible CPU viewmodel vertices match Three projection and front-face selection through recoil and reload
+  ---
+  duration_ms: 597.5024
+  type: 'test'
+  ...
+# (node:29924) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: entry is readable before JavaScript, with full-page reload instead of a second Game
+ok 188 - entry is readable before JavaScript, with full-page reload instead of a second Game
+  ---
+  duration_ms: 2.7728
+  type: 'test'
+  ...
+# Subtest: slow startup keeps the same import pending and eventually finishes
+ok 189 - slow startup keeps the same import pending and eventually finishes
+  ---
+  duration_ms: 19.874
+  type: 'test'
+  ...
+# Subtest: module download/evaluation failure is shown, not left blank or retried in-place
+ok 190 - module download/evaluation failure is shown, not left blank or retried in-place
+  ---
+  duration_ms: 0.3586
+  type: 'test'
+  ...
+# Subtest: successful startup removes its pending slow notice
+ok 191 - successful startup removes its pending slow notice
+  ---
+  duration_ms: 0.1898
+  type: 'test'
+  ...
+# Subtest: source head stays centered inside the existing head volume; primary head/chest shots use real physics
+ok 192 - source head stays centered inside the existing head volume; primary head/chest shots use real physics
+  ---
+  duration_ms: 782.1691
+  type: 'test'
+  ...
+# Subtest: shared armor palette preserves source geometry and weapon/cloth detail
+ok 193 - shared armor palette preserves source geometry and weapon/cloth detail
+  ---
+  duration_ms: 8.0432
+  type: 'test'
+  ...
+# Subtest: Three projection agrees with simulation right/forward/up at all yaw quadrants
+ok 194 - Three projection agrees with simulation right/forward/up at all yaw quadrants
+  ---
+  duration_ms: 2.3895
+  type: 'test'
+  ...
+# Subtest: Three center ray and actor facing match the simulation after the coordinate boundary
+ok 195 - Three center ray and actor facing match the simulation after the coordinate boundary
+  ---
+  duration_ms: 0.8886
+  type: 'test'
+  ...
+# Subtest: actual Canvas actor columns and actual Three projection agree on horizontal location
+ok 196 - actual Canvas actor columns and actual Three projection agree on horizontal location
+  ---
+  duration_ms: 256.0184
+  type: 'test'
+  ...
+# Subtest: Three paint strips and CPU surface colours share world-height bands without changing collision content
+ok 197 - Three paint strips and CPU surface colours share world-height bands without changing collision content
+  ---
+  duration_ms: 6.57
+  type: 'test'
+  ...
+1..197
+# tests 197
+# suites 0
+# pass 197
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 13153.1635

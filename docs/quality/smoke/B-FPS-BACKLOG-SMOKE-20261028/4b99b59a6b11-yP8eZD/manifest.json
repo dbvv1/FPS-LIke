@@ -1,0 +1,218 @@
+{
+  "passed": true,
+  "sourceCommit": "4b99b59a6b111c61d4aebd6e659bfb851e9eb736",
+  "sourceTree": "c9a6488f3b243a3155358eec455935279777abb0",
+  "build": [
+    {
+      "path": "web-dist/assets/client-AbA-rlxf.js",
+      "sha256": "6c8314abe951d1a409df8d0bbe31080bb5334fd12583ff88ab0721998a52c0ff"
+    },
+    {
+      "path": "web-dist/assets/client-C8MkmnTK.js",
+      "sha256": "212e7b632279164750fa362272264b68b13f2b5e73f41e3abf26b63384837c9e"
+    },
+    {
+      "path": "web-dist/assets/client-CYqn3vUG.js",
+      "sha256": "dc382a166504223987f1f33150d51ecb2e41cde8ecd612ce006e4a367f96eaca"
+    },
+    {
+      "path": "web-dist/assets/client-tGfO_AEM.js",
+      "sha256": "dff95715727a2e4898238a6679dbbcd258fc350ee0620ae90b088783e2dfa591"
+    },
+    {
+      "path": "web-dist/assets/dist-DwPxGqmt.js",
+      "sha256": "08c69cde4f2710d151c009e1a314539a54523b42ea27af4c482c7a2ac31654b0"
+    },
+    {
+      "path": "web-dist/assets/enemy-relay-guard-CS-HTAkv.glb",
+      "sha256": "5b316a139cf48b21a6d6b7328ac1c8b58a73c4f41ce1a0de24f2a8ca74afbd74"
+    },
+    {
+      "path": "web-dist/assets/fp-arms-rx24-Csz61tNP.glb",
+      "sha256": "e672d06e30262f2575076f759645aa3d82d6734f0c26ef280a2a36870549b9e1"
+    },
+    {
+      "path": "web-dist/assets/index-BpPtv9dx.js",
+      "sha256": "8779b1b51ff312f111f20c3b8740861f93a7cd197457264044484cff54573145"
+    },
+    {
+      "path": "web-dist/assets/index-Lpyfeiio.css",
+      "sha256": "92c07a6a0976395fbf00aa36b0c9b7861c981b8cc7359128e68f222b65eeaed4"
+    },
+    {
+      "path": "web-dist/assets/navigation-BdDe0SZQ.js",
+      "sha256": "13e57f12816aa577224df42a323a15feda3a65c7493a3e7c49776e5f2f23f903"
+    },
+    {
+      "path": "web-dist/assets/navigation-CmfBWBL5.js",
+      "sha256": "cf1e22714b1aab7e48215883fb0871788b6fafaf1201912684aa8d54df1d7b9e"
+    },
+    {
+      "path": "web-dist/assets/preload-helper-BLdHbfdN.js",
+      "sha256": "8aec9ff75ffa86a03d51268b63126abadb3754aa5a6b6c5bb16e4e2446a63dee"
+    },
+    {
+      "path": "web-dist/assets/recast-navigation.wasm-compat-Qa-X0_Ub.js",
+      "sha256": "32c03f6185eb21c7428f58164d12336ae1596d9187370e11aa9edea965ce0896"
+    },
+    {
+      "path": "web-dist/index.html",
+      "sha256": "d065e23d855b571057ee3bca4a993932abba1699d52b1f93dbd6675ab4dc0aa4"
+    }
+  ],
+  "runs": [
+    {
+      "label": "default",
+      "query": "",
+      "status": 0,
+      "signal": null,
+      "report": "entries/default/report.json"
+    },
+    {
+      "label": "characters",
+      "query": "?contentSet=characters-v1",
+      "status": 0,
+      "signal": null,
+      "report": "entries/characters/report.json"
+    },
+    {
+      "label": "movement",
+      "query": "?gameplay=movement-v2",
+      "status": 0,
+      "signal": null,
+      "report": "entries/movement/report.json"
+    },
+    {
+      "label": "combined",
+      "query": "?gameplay=movement-v2&contentSet=characters-v1",
+      "status": 0,
+      "signal": null,
+      "report": "entries/combined/report.json"
+    },
+    {
+      "label": "capture",
+      "status": 0,
+      "signal": null,
+      "report": "capture/report.json"
+    }
+  ],
+  "rawOutput": "local raw output, not published",
+  "qualityAcceptance": "not-performed",
+  "runId": "4b99b59a6b11-yP8eZD",
+  "entries": {
+    "default": {
+      "query": "",
+      "passed": true,
+      "rendererClass": "gpu",
+      "browserVersion": "156.0.8078.4",
+      "contentSet": null,
+      "stages": [
+        "loaded real WebGL2 scene",
+        "pointer lock, mouse aim, movement, pistol shot, reload interruption",
+        "pause freezes clock, resume and restart clear input/ammo state"
+      ],
+      "errors": [],
+      "warnings": [],
+      "screenshots": [
+        "screenshots/default-menu.png",
+        "screenshots/default-playing.png"
+      ],
+      "report": "entries/default/report.json"
+    },
+    "characters": {
+      "query": "?contentSet=characters-v1",
+      "passed": true,
+      "rendererClass": "gpu",
+      "browserVersion": "156.0.8078.4",
+      "contentSet": {
+        "requested": "characters-v1",
+        "status": "ready",
+        "error": null,
+        "active": true,
+        "sourceCommit": "b198df62a56f4c520716fbc9cb4afac47dd62213",
+        "assets": [
+          {
+            "id": "fp-arms-rx24",
+            "bytes": 188088,
+            "sha256": "e672d06e30262f2575076f759645aa3d82d6734f0c26ef280a2a36870549b9e1"
+          },
+          {
+            "id": "enemy-relay-guard",
+            "bytes": 40388,
+            "sha256": "5b316a139cf48b21a6d6b7328ac1c8b58a73c4f41ce1a0de24f2a8ca74afbd74"
+          }
+        ]
+      },
+      "stages": [
+        "loaded real WebGL2 scene",
+        "pointer lock, mouse aim, movement, pistol shot, reload interruption",
+        "pause freezes clock, resume and restart clear input/ammo state"
+      ],
+      "errors": [],
+      "warnings": [],
+      "screenshots": [
+        "screenshots/characters-menu.png",
+        "screenshots/characters-playing.png"
+      ],
+      "report": "entries/characters/report.json"
+    },
+    "movement": {
+      "query": "?gameplay=movement-v2",
+      "passed": true,
+      "rendererClass": "gpu",
+      "browserVersion": "156.0.8078.4",
+      "contentSet": null,
+      "stages": [
+        "loaded real WebGL2 scene",
+        "pointer lock, mouse aim, movement, pistol shot, reload interruption",
+        "pause freezes clock, resume and restart clear input/ammo state"
+      ],
+      "errors": [],
+      "warnings": [],
+      "screenshots": [
+        "screenshots/movement-menu.png",
+        "screenshots/movement-playing.png"
+      ],
+      "report": "entries/movement/report.json"
+    },
+    "combined": {
+      "query": "?gameplay=movement-v2&contentSet=characters-v1",
+      "passed": true,
+      "rendererClass": "gpu",
+      "browserVersion": "156.0.8078.4",
+      "contentSet": {
+        "requested": "characters-v1",
+        "status": "ready",
+        "error": null,
+        "active": true,
+        "sourceCommit": "b198df62a56f4c520716fbc9cb4afac47dd62213",
+        "assets": [
+          {
+            "id": "fp-arms-rx24",
+            "bytes": 188088,
+            "sha256": "e672d06e30262f2575076f759645aa3d82d6734f0c26ef280a2a36870549b9e1"
+          },
+          {
+            "id": "enemy-relay-guard",
+            "bytes": 40388,
+            "sha256": "5b316a139cf48b21a6d6b7328ac1c8b58a73c4f41ce1a0de24f2a8ca74afbd74"
+          }
+        ]
+      },
+      "stages": [
+        "loaded real WebGL2 scene",
+        "pointer lock, mouse aim, movement, pistol shot, reload interruption",
+        "pause freezes clock, resume and restart clear input/ammo state"
+      ],
+      "errors": [],
+      "warnings": [],
+      "screenshots": [
+        "screenshots/combined-menu.png",
+        "screenshots/combined-playing.png"
+      ],
+      "report": "entries/combined/report.json"
+    }
+  },
+  "captureRunId": "run-4b99b59a6b11-idle-HddHDQ",
+  "sanitization": "Local absolute paths and full browser argv are withheld from this public copy; renderer strings are unchanged. Raw reports and DEBUG browser logs stay in the local ignored output directory."
+}

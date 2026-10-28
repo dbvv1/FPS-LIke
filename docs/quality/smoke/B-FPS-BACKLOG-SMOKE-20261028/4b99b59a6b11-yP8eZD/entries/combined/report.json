@@ -1,0 +1,54 @@
+{
+  "passed": true,
+  "errors": [],
+  "warnings": [],
+  "stages": [
+    "loaded real WebGL2 scene",
+    "pointer lock, mouse aim, movement, pistol shot, reload interruption",
+    "pause freezes clock, resume and restart clear input/ammo state"
+  ],
+  "requestedLaunch": {
+    "headless": true,
+    "chromiumSandbox": true,
+    "executablePath": "withheld: local Playwright Chromium (revision 1248)",
+    "ignoreDefaultArgs": [
+      "--enable-unsafe-swiftshader"
+    ],
+    "args": [],
+    "browserVersion": "156.0.8078.4"
+  },
+  "launchEvidence": "Requested options only; verify final argv in DEBUG=pw:browser output.",
+  "query": "?gameplay=movement-v2&contentSet=characters-v1",
+  "webgl": {
+    "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+    "renderer": "WebKit WebGL",
+    "vendor": "WebKit",
+    "unmaskedRenderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 (0x00002F04) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "unmaskedVendor": "Google Inc. (NVIDIA)"
+  },
+  "rendererClass": "gpu",
+  "contentSet": {
+    "requested": "characters-v1",
+    "status": "ready",
+    "error": null,
+    "active": true,
+    "sourceCommit": "b198df62a56f4c520716fbc9cb4afac47dd62213",
+    "assets": [
+      {
+        "id": "fp-arms-rx24",
+        "bytes": 188088,
+        "sha256": "e672d06e30262f2575076f759645aa3d82d6734f0c26ef280a2a36870549b9e1"
+      },
+      {
+        "id": "enemy-relay-guard",
+        "bytes": 40388,
+        "sha256": "5b316a139cf48b21a6d6b7328ac1c8b58a73c4f41ce1a0de24f2a8ca74afbd74"
+      }
+    ]
+  },
+  "pixels": {
+    "colors": 380,
+    "dominant": 0.1120952380952381
+  },
+  "sanitization": "Local absolute paths and full browser argv are withheld from this public copy; renderer strings are unchanged. Raw reports and DEBUG browser logs stay in the local ignored output directory."
+}

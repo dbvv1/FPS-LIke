@@ -1,0 +1,26 @@
+# DEBUG=pw:browser excerpt (argv lines removed; raw logs retained locally)
+
+## default
+2026-10-28T10:59:48.649Z pw:browser <launched> pid=111476
+2026-10-28T11:00:14.515Z pw:browser [pid=111476] <process did exit: exitCode=0, signal=null>
+2026-10-28T11:00:14.580Z pw:browser [pid=111476] <gracefully close end>
+
+## characters
+2026-10-28T11:00:18.550Z pw:browser <launched> pid=59032
+2026-10-28T11:00:37.409Z pw:browser [pid=59032] <process did exit: exitCode=0, signal=null>
+2026-10-28T11:00:37.510Z pw:browser [pid=59032] <gracefully close end>
+
+## movement
+2026-10-28T11:00:39.860Z pw:browser <launched> pid=58052
+2026-10-28T11:01:02.209Z pw:browser [pid=58052] <process did exit: exitCode=0, signal=null>
+2026-10-28T11:01:02.328Z pw:browser [pid=58052] <gracefully close end>
+
+## combined
+2026-10-28T11:01:04.312Z pw:browser <launched> pid=47852
+2026-10-28T11:01:25.531Z pw:browser [pid=47852] <process did exit: exitCode=0, signal=null>
+2026-10-28T11:01:25.570Z pw:browser [pid=47852] <gracefully close end>
+
+## capture
+2026-10-28T11:01:38.364Z pw:browser <launched> pid=22996
+2026-10-28T11:01:57.974Z pw:browser [pid=22996] <process did exit: exitCode=0, signal=null>
+2026-10-28T11:01:58.238Z pw:browser [pid=22996] <gracefully close end>

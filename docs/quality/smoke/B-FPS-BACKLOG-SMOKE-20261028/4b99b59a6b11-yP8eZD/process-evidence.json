@@ -1,0 +1,173 @@
+{
+  "runId": "4b99b59a6b11-yP8eZD",
+  "checkedAtUtc": {
+    "preflight": "2026-10-28T10:58:20Z (before npm ci)",
+    "npmCi": {
+      "start": "2026-10-28T10:58:46Z",
+      "end": "2026-10-28T10:59:11Z",
+      "exitCode": 0,
+      "externalTimeoutSeconds": 600
+    },
+    "smoke": {
+      "start": "2026-10-28T10:59:29Z",
+      "end": "2026-10-28T11:02:03Z",
+      "exitCode": 0,
+      "externalTimeoutSeconds": 1200,
+      "externalTimeoutTriggered": false
+    },
+    "finalCleanupCheck": "2026-10-28T11:02:20Z (approx; after smoke exit)"
+  },
+  "serialPreflight": {
+    "receiverState": "Only B-FPS-BACKLOG-SMOKE-20261028 was in phase=running in the receiver state directory; other state files were older or imported markers.",
+    "sharedGpuLock": "No existing shared GPU mutex entry or lock file was found in the receiver work root or run roots. No lock was acquired, taken over, or released; this is not a claim of cross-task GPU exclusivity.",
+    "otherGpuWork": "Process scan found no Playwright/Chromium/headless-shell/Vite preview processes and no listeners on 4173, 5173, 4174, 5174, 3000, 8080 or 8000 before the run.",
+    "userBrowsers": "Existing msedge/msedgewebview2 processes (started 2026-10-27 local time) were left untouched and are outside the task-owned chain.",
+    "serialization": "The four playable entries and the capture segment ran one after another inside the single smoke:backlog command; no parallel self-started browser or preview was used."
+  },
+  "processChain": {
+    "top": {
+      "pid": 98908,
+      "name": "node.exe",
+      "role": "node tools/smoke-backlog.mjs",
+      "parentPid": 63768,
+      "parentName": "cmd.exe",
+      "grandparentPid": 84232,
+      "grandparentName": "node.exe (command not sampled)"
+    }
+  },
+  "runs": [
+    {
+      "label": "default",
+      "browser": {
+        "launchedAt": "2026-10-28T10:59:48.649Z",
+        "pid": 111476,
+        "exitedAt": "2026-10-28T11:00:14.515Z",
+        "exitCode": 0,
+        "signal": "null",
+        "parentPid": 110616,
+        "parentName": "unknown (process name not sampled)"
+      },
+      "preview": {
+        "nodePid": 110616,
+        "parentPid": null,
+        "port": null,
+        "note": "PID 110616 observed as the browser parent; its command line and the preview port were not sampled"
+      },
+      "report": "entries/default/report.json"
+    },
+    {
+      "label": "characters",
+      "browser": {
+        "launchedAt": "2026-10-28T11:00:18.550Z",
+        "pid": 59032,
+        "exitedAt": "2026-10-28T11:00:37.409Z",
+        "exitCode": 0,
+        "signal": "null",
+        "parentPid": null,
+        "parentName": "unknown (process had exited before sampling)"
+      },
+      "preview": {
+        "nodePid": 75208,
+        "parentPid": 98908,
+        "port": 7702,
+        "note": "node PID, parent PID and listening port observed"
+      },
+      "report": "entries/characters/report.json"
+    },
+    {
+      "label": "movement",
+      "browser": {
+        "launchedAt": "2026-10-28T11:00:39.860Z",
+        "pid": 58052,
+        "exitedAt": "2026-10-28T11:01:02.209Z",
+        "exitCode": 0,
+        "signal": "null",
+        "parentPid": null,
+        "parentName": "unknown (process had exited before sampling)"
+      },
+      "preview": {
+        "nodePid": null,
+        "parentPid": null,
+        "port": null,
+        "note": "per-run node PID and preview port not sampled"
+      },
+      "report": "entries/movement/report.json"
+    },
+    {
+      "label": "combined",
+      "browser": {
+        "launchedAt": "2026-10-28T11:01:04.312Z",
+        "pid": 47852,
+        "exitedAt": "2026-10-28T11:01:25.531Z",
+        "exitCode": 0,
+        "signal": "null",
+        "parentPid": null,
+        "parentName": "unknown (process had exited before sampling)"
+      },
+      "preview": {
+        "nodePid": null,
+        "parentPid": null,
+        "port": null,
+        "note": "per-run node PID and preview port not sampled"
+      },
+      "report": "entries/combined/report.json"
+    },
+    {
+      "label": "capture",
+      "browser": {
+        "launchedAt": "2026-10-28T11:01:38.364Z",
+        "pid": 22996,
+        "exitedAt": "2026-10-28T11:01:57.974Z",
+        "exitCode": 0,
+        "signal": "null",
+        "parentPid": null,
+        "parentName": "unknown (process had exited before sampling)"
+      },
+      "preview": {
+        "nodePid": 89452,
+        "parentPid": 98908,
+        "port": 8757,
+        "note": "capture node PID, parent PID and listening port observed"
+      },
+      "report": "capture/report.json"
+    }
+  ],
+  "actualArgvAudit": {
+    "source": "local DEBUG=pw:browser <launching> lines (raw argv not published)",
+    "headless": true,
+    "noSandboxFlag": false,
+    "enableUnsafeSwiftShaderFlag": false,
+    "useAngleSwiftShaderFlag": false,
+    "disableGpuFlag": false,
+    "chromiumSandboxRequested": true,
+    "userDataDir": "run-local temporary Chromium profile (path withheld)",
+    "note": "Only the audited flags above are reported; the raw command line stays local."
+  },
+  "finalCleanup": {
+    "processesMatchingOwnScripts": [],
+    "ownBrowsersRemaining": [],
+    "observedPreviewPortsAfter": {},
+    "observedPortsDuring": {
+      "charactersSmoke": 7702,
+      "capture": 8757
+    },
+    "previewClosed": true,
+    "gpuProcessesExited": true,
+    "sharedGpuSlotReleased": "not applicable: no shared lock existed; all task-owned GPU-using processes exited",
+    "crossTaskGpuState": "unknown; no global scheduler or lock evidence"
+  },
+  "unknowns": [
+    "Per-run preview ports for default, movement and combined were not sampled.",
+    "Browser parent PIDs for characters, movement, combined and capture were not sampled (the processes had exited before the snapshot); the default browser parent PID is 110616 but its process name was not sampled.",
+    "Node 24+ was not verified: this run used Node v22.23.2 and npm 10.9.8, and npm ci reported EBADENGINE for the declared node >=24 requirement. No other Node runtime was installed or used.",
+    "Whether another receiver task was using the GPU at the same time cannot be proven without a shared lock or scheduler; the process/port scan found none at preflight and at final cleanup."
+  ],
+  "sanitization": "Local absolute paths and full browser argv are withheld from this public copy; renderer strings are unchanged. Raw reports and DEBUG browser logs stay in the local ignored output directory.",
+  "environment": {
+    "node": "v22.23.2",
+    "npm": "10.9.8",
+    "projectEngines": "node >=24",
+    "npmCiEngineWarning": "EBADENGINE: fps-like@0.1.0 required node >=24; current v22.23.2, npm 10.9.8",
+    "node24Plus": "not verified: no Node 24+ runtime available in this environment; npm ci, npm test and smoke ran on Node v22.23.2"
+  }
+}

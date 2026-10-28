@@ -1,0 +1,262 @@
+{
+  "passed": true,
+  "sourceCommit": "4b99b59a6b111c61d4aebd6e659bfb851e9eb736",
+  "sourceDirty": false,
+  "shots": [
+    {
+      "file": "gameplay-gpu-ANGLE-NVIDIA-NVIDIA-GeForce-RTX-5070-0x00002F04-Direct3D11-vs-5-9baae1ed29-seed1-tick60-r1/00000.png",
+      "run": 1,
+      "runId": "run-4b99b59a6b11-idle-HddHDQ",
+      "sourceCommit": "4b99b59a6b111c61d4aebd6e659bfb851e9eb736",
+      "sourceDirty": false,
+      "rgbaSha256": "3e61d7293149c9403dee28c5f5d327319b32762f7e87d4fbc08e034398185a48",
+      "pngSha256": "a49ba4a22873dd1ce52a36b6bfa6f279892de95a5fb5cc49accd4738124e662e",
+      "ready": true,
+      "shot": "gameplay",
+      "seed": 1,
+      "input": "idle",
+      "requestedTime": 1,
+      "t": 1,
+      "virtualTick": 60,
+      "fixedDt": 0.016666666666666666,
+      "frame": 0,
+      "frames": 2,
+      "complete": false,
+      "warmupFrames": 12,
+      "stateHash": "94cfc436",
+      "simTick": 60,
+      "simTime": 1,
+      "phase": "live",
+      "camera": {
+        "position": {
+          "x": 0,
+          "y": 1.62,
+          "z": -14
+        },
+        "yaw": 0,
+        "pitch": 0,
+        "fov": 80,
+        "weapon": true
+      },
+      "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 (0x00002F04) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "vendor": "Google Inc. (NVIDIA)",
+      "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "unmasked": true,
+      "rendererClass": "gpu",
+      "backend": "three-webgl2",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "pixelRatio": 1,
+        "bufferWidth": 1280,
+        "bufferHeight": 720
+      },
+      "expectedViewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "audio": "not-captured",
+      "publishedFile": "screenshots/capture-seed1-tick60-r1__00000.png"
+    },
+    {
+      "file": "gameplay-gpu-ANGLE-NVIDIA-NVIDIA-GeForce-RTX-5070-0x00002F04-Direct3D11-vs-5-9baae1ed29-seed1-tick60-r1/00001.png",
+      "run": 1,
+      "runId": "run-4b99b59a6b11-idle-HddHDQ",
+      "sourceCommit": "4b99b59a6b111c61d4aebd6e659bfb851e9eb736",
+      "sourceDirty": false,
+      "rgbaSha256": "3e61d7293149c9403dee28c5f5d327319b32762f7e87d4fbc08e034398185a48",
+      "pngSha256": "a49ba4a22873dd1ce52a36b6bfa6f279892de95a5fb5cc49accd4738124e662e",
+      "ready": true,
+      "shot": "gameplay",
+      "seed": 1,
+      "input": "idle",
+      "requestedTime": 1,
+      "t": 1.0166666666666666,
+      "virtualTick": 61,
+      "fixedDt": 0.016666666666666666,
+      "frame": 1,
+      "frames": 2,
+      "complete": true,
+      "warmupFrames": 12,
+      "stateHash": "5fea515c",
+      "simTick": 61,
+      "simTime": 1.0166666666666666,
+      "phase": "live",
+      "camera": {
+        "position": {
+          "x": 0,
+          "y": 1.62,
+          "z": -14
+        },
+        "yaw": 0,
+        "pitch": 0,
+        "fov": 80,
+        "weapon": true
+      },
+      "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 (0x00002F04) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "vendor": "Google Inc. (NVIDIA)",
+      "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "unmasked": true,
+      "rendererClass": "gpu",
+      "backend": "three-webgl2",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "pixelRatio": 1,
+        "bufferWidth": 1280,
+        "bufferHeight": 720
+      },
+      "expectedViewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "audio": "not-captured",
+      "publishedFile": "screenshots/capture-seed1-tick60-r1__00001.png"
+    },
+    {
+      "file": "gameplay-gpu-ANGLE-NVIDIA-NVIDIA-GeForce-RTX-5070-0x00002F04-Direct3D11-vs-5-9baae1ed29-seed1-tick60-r2/00000.png",
+      "run": 2,
+      "runId": "run-4b99b59a6b11-idle-HddHDQ",
+      "sourceCommit": "4b99b59a6b111c61d4aebd6e659bfb851e9eb736",
+      "sourceDirty": false,
+      "rgbaSha256": "3e61d7293149c9403dee28c5f5d327319b32762f7e87d4fbc08e034398185a48",
+      "pngSha256": "a49ba4a22873dd1ce52a36b6bfa6f279892de95a5fb5cc49accd4738124e662e",
+      "ready": true,
+      "shot": "gameplay",
+      "seed": 1,
+      "input": "idle",
+      "requestedTime": 1,
+      "t": 1,
+      "virtualTick": 60,
+      "fixedDt": 0.016666666666666666,
+      "frame": 0,
+      "frames": 2,
+      "complete": false,
+      "warmupFrames": 12,
+      "stateHash": "94cfc436",
+      "simTick": 60,
+      "simTime": 1,
+      "phase": "live",
+      "camera": {
+        "position": {
+          "x": 0,
+          "y": 1.62,
+          "z": -14
+        },
+        "yaw": 0,
+        "pitch": 0,
+        "fov": 80,
+        "weapon": true
+      },
+      "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 (0x00002F04) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "vendor": "Google Inc. (NVIDIA)",
+      "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "unmasked": true,
+      "rendererClass": "gpu",
+      "backend": "three-webgl2",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "pixelRatio": 1,
+        "bufferWidth": 1280,
+        "bufferHeight": 720
+      },
+      "expectedViewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "audio": "not-captured",
+      "publishedFile": "screenshots/capture-seed1-tick60-r2__00000.png"
+    },
+    {
+      "file": "gameplay-gpu-ANGLE-NVIDIA-NVIDIA-GeForce-RTX-5070-0x00002F04-Direct3D11-vs-5-9baae1ed29-seed1-tick60-r2/00001.png",
+      "run": 2,
+      "runId": "run-4b99b59a6b11-idle-HddHDQ",
+      "sourceCommit": "4b99b59a6b111c61d4aebd6e659bfb851e9eb736",
+      "sourceDirty": false,
+      "rgbaSha256": "3e61d7293149c9403dee28c5f5d327319b32762f7e87d4fbc08e034398185a48",
+      "pngSha256": "a49ba4a22873dd1ce52a36b6bfa6f279892de95a5fb5cc49accd4738124e662e",
+      "ready": true,
+      "shot": "gameplay",
+      "seed": 1,
+      "input": "idle",
+      "requestedTime": 1,
+      "t": 1.0166666666666666,
+      "virtualTick": 61,
+      "fixedDt": 0.016666666666666666,
+      "frame": 1,
+      "frames": 2,
+      "complete": true,
+      "warmupFrames": 12,
+      "stateHash": "5fea515c",
+      "simTick": 61,
+      "simTime": 1.0166666666666666,
+      "phase": "live",
+      "camera": {
+        "position": {
+          "x": 0,
+          "y": 1.62,
+          "z": -14
+        },
+        "yaw": 0,
+        "pitch": 0,
+        "fov": 80,
+        "weapon": true
+      },
+      "renderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 (0x00002F04) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+      "vendor": "Google Inc. (NVIDIA)",
+      "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "unmasked": true,
+      "rendererClass": "gpu",
+      "backend": "three-webgl2",
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "pixelRatio": 1,
+        "bufferWidth": 1280,
+        "bufferHeight": 720
+      },
+      "expectedViewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "audio": "not-captured",
+      "publishedFile": "screenshots/capture-seed1-tick60-r2__00001.png"
+    }
+  ],
+  "errors": [],
+  "warnings": [],
+  "checks": [
+    "gameplay: 2 runs × 2 frames; exact RGBA/state/camera repeat comparison"
+  ],
+  "qualityAcceptance": "not-performed; this is capture infrastructure, not a lighting/material quality approval",
+  "runId": "run-4b99b59a6b11-idle-HddHDQ",
+  "outputDirectory": "local raw capture output, not published",
+  "parameters": {
+    "input": "idle",
+    "shots": [
+      "gameplay"
+    ],
+    "seed": "1",
+    "t": "1",
+    "frames": "2",
+    "repeat": 2
+  },
+  "sourceBinding": "local build produced in this capture invocation",
+  "launch": {
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": [
+      "--enable-unsafe-swiftshader"
+    ],
+    "args": [
+      "--disable-background-timer-throttling",
+      "--disable-renderer-backgrounding",
+      "--disable-backgrounding-occluded-windows"
+    ],
+    "executablePath": "withheld: local Playwright Chromium (revision 1248)"
+  },
+  "launchEvidence": "Requested options; retain DEBUG=pw:browser log to verify actual argv. Sandbox remains enabled.",
+  "browserVersion": "156.0.8078.4",
+  "sanitization": "Local absolute paths and full browser argv are withheld from this public copy; renderer strings are unchanged. Raw reports and DEBUG browser logs stay in the local ignored output directory."
+}
