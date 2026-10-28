@@ -5,14 +5,18 @@
   "qualityAcceptance": "not-performed",
   "scope": "fixed-source offline-entry-only; two-route functional smoke; no six-round full-match playthrough; no old-entry recapture; initial deployment frames only",
   "handoff": {
-    "verdict": "Fixed-source two-route real WebGL2 GPU functional smoke passed. Accept only as a side entry; this is not a quality acceptance, not a full-match acceptance and not acceptance of the three standards.",
+    "verdict": "Fixed-source two-route real WebGL2 GPU functional smoke passed on the second attempt. Accept the second attempt only as side-entry functional evidence. Process compliance is not established: attempt 0 produced software WebGL and failed, then a renderer switch/retry produced the GPU pass, which violates the stop boundary. This is not a quality acceptance, not a full-match acceptance and not acceptance of the three standards.",
     "firstStep": "dot-B first verifies sourceCommit/sourceTree and checks the SHA-256 of every published file against artifact-hashes.json, then publishes the after route as a side entry and confirms the site version it lands on.",
     "doNot": [
       "Do not use this run to change the default entry.",
       "Do not treat it as a six-round full match, halftime side switch, end-of-match or play-again, or human visual/feel/audio acceptance.",
-      "Do not treat the single initial deployment view as coverage of the wall face/corner, cover sightline, lamp readability, enemy contrast or combat view.",
-      "Do not claim cross-task GPU exclusivity or Node 24+ validation."
-    ]
+      "Do not treat the single initial deployment view as coverage of the wall face/corner, cover sightline, lamp readability, enemy contrast or combat view; the deployment menu and HUD overlay much of that frame and it cannot verify the three-piece quality.",
+      "Do not claim cross-task GPU exclusivity or Node 24+ validation.",
+      "Do not claim the first attempt was the prescribed native configuration or that no renderer switch occurred.",
+      "Do not claim preview/port/parent-chain cleanup or full serial verification between the two attempts; partial process-sample evidence covers 20:43:30.363-20:44:29.306Z (only the receiver worker), while the last ~30.34s and port state are unknown.",
+      "Do not use the second attempt's success to erase the stop-boundary violation."
+    ],
+    "firstAttemptManifest": "The complete attempt-0 manifest was recovered from the retained local first-attempt smoke log and is published redacted in exit-evidence.json and first-attempt-and-gaps.json; its 21 build hashes match the second attempt. Not retained: the output-directory report.json contents, browser logs and raw report.webgl version/renderer/vendor/unmaskedVendor."
   },
   "source": {
     "repository": "dbvv1/FPS-Like",
@@ -36,7 +40,7 @@
         "head": "9a5c02fc6b51c852d567cc0d4d28bf388fc41f4b",
         "tree": "7cb322681201244e6e9f252ecf21bf63a037ac78"
       },
-      "note": "The runner asserts a clean worktree before build and re-asserts unchanged HEAD and clean status after both routes, then re-hashes every web-dist file. Only ignored node_modules, dist, web-dist and outputs are outside git status. These checks were made before publishing this evidence directory; the only worktree changes after the run are the new evidence files under docs/quality/smoke/B-FPS-ART-STANDARDS-SMOKE-20261029/."
+      "note": "The runner asserted a clean worktree before build and re-asserted unchanged HEAD and clean status after both routes, then re-hashed every web-dist file. Only ignored node_modules, dist, web-dist and outputs are outside git status. These checks were made before publishing the evidence directory; subsequent review-rework edits on 2026-10-29 are confined to manifest.json, exit-evidence.json, first-attempt-and-gaps.json and artifact-hashes.json in this evidence directory."
     },
     "identityCheck": "Preflight verified HEAD/tree against base_ref; tools/smoke-backlog.mjs recorded HEAD/tree at start and asserted unchanged HEAD, clean status and unchanged build hashes after capture."
   },
@@ -61,7 +65,20 @@
       "buildIncluded": true,
       "buildLog": "npm run build (tsc --noEmit, vite build sim, vite build) completed inside the smoke command",
       "serial": "The two routes ran one after the other: offline-base browser exited at 20:46:48.634Z before the art-standards browser launched at 20:46:49.791Z."
-    }
+    },
+    "attempt0": {
+      "runId": "9a5c02fc6b51-wS6MkO",
+      "startUtc": "2026-10-28T20:39:27.251Z",
+      "endUtc": "2026-10-28T20:43:30.074Z",
+      "exitCode": 1,
+      "externalTimeoutSeconds": 600,
+      "timeoutTriggered": false,
+      "configuration": "FPS_SMOKE_CHROMIUM unset; Playwright default chrome-headless-shell; the exact FPS_SMOKE_RENDERER value is not retained; the attempt produced a software WebGL result",
+      "result": "software WebGL; offline-base passed; art-standards failed at finishOfflineRound waiting for phase=over (page.waitForFunction timeout 120000ms); runner exited 1",
+      "detailsFile": "first-attempt-and-gaps.json"
+    },
+    "attempts": 2,
+    "acceptedAttempt": 1
   },
   "entry": {
     "before": {
@@ -293,7 +310,7 @@
     "changedPixels": 10354,
     "totalPixels": 1228500,
     "changedRatio": 0.0084,
-    "note": "Only 0.84% of pixels differ in this single initial deployment view; it may not show the wall face/corner, cover sightline or lamp. Each frame is the fixed runner's #stage element screenshot taken before any page input, so the pre-match deployment menu and HUD overlay are present because the run has not started. It is a reproducible starting frame, not acceptance of the three standards."
+    "note": "Only 0.84% of pixels differ in this single initial deployment view; it may not show the wall face/corner, cover sightline or lamp. Each frame is the fixed runner's #stage element screenshot taken before any page input, so the pre-match deployment menu and HUD overlay are present because the run has not started. It is a reproducible starting frame, not acceptance of the three standards. The deployment menu and HUD overlay much of the scene, so this frame cannot verify the three-piece standards' visual quality; it is not quality acceptance."
   },
   "browser": {
     "requested": {
@@ -363,7 +380,7 @@
         "createdUtc": "2026-10-28T20:44:59.998Z"
       }
     ],
-    "parentChainSource": "Read-only live Win32_Process sampling of the owned tree during the run (PID, parent PID, creation time, command line). The outer local launch shell PID 52476 had exited before its name could be sampled; it is not claimed."
+    "parentChainSource": "Read-only live Win32_Process sampling of the owned tree during the run (PID, parent PID, creation time, command line). The parent process outside pid 101580 (pid 52476) had exited before its name could be sampled; its name and role are not claimed."
   },
   "renderer": {
     "requestedMode": "native",
@@ -521,12 +538,14 @@
     "previewPortEvidence": "report.cleanup.previewPortClosed=true is produced by an actual TCP connect probe to each runner-assigned preview port inside the smoke process after server close.",
     "postRunProcessScan": "After the smoke, no chrome.exe, chrome-headless-shell.exe, tools/smoke.mjs, smoke-backlog or Vite preview process remained; only receiver/worker infrastructure and unrelated user applications were present.",
     "postRunPortProbe": "Ports 4173, 5173, 4174, 5174, 3000, 8080, 8000 and 12765 were confirmed closed after the run.",
-    "lock": "No existing shared GPU mutex or lock file was found or used; no lock was acquired, taken over or released. This is not a claim of cross-task GPU exclusivity."
+    "lock": "No existing shared GPU mutex or lock file was found or used; no lock was acquired, taken over or released. This is not a claim of cross-task GPU exclusivity.",
+    "scope": "All cleanup entries describe the second attempt only. They do not by themselves prove the first attempt's preview, browser children or parent chain had exited; separate polling logs partially cover the 20:43:30.074-20:44:59.647Z gap (worker-only samples 20:43:30.363-20:44:29.306Z), but not the final ~30.34s or port state."
   },
   "serialPreflight": {
     "otherGpuWork": "Before the run: no chrome.exe, chrome-headless-shell.exe or Playwright/Chromium process, no tools/smoke.mjs or Vite preview node process, and no listener on 4173/5173/4174/5174/3000/8080/8000/12765.",
     "receiverParallelTasks": "Separate receiver tasks may be marked running for reader/build work; none owned a browser, preview server or this worktree during preflight.",
-    "singleGpuJob": "Exactly one headless Chromium instance at a time, inside the single art-standards smoke command; the two routes were serial, not parallel."
+    "singleGpuJob": "Exactly one headless Chromium instance at a time, inside the single art-standards smoke command; the two routes were serial, not parallel.",
+    "scope": "These statements describe only the accepted second command. No timestamp or raw sample is retained for the beforeRun claim. Separate polling logs partially evidence the 20:43:30.074-20:44:59.647Z gap (worker-only samples 20:43:30.363-20:44:29.306Z), while the final ~30.34s and port state are unknown."
   },
   "unverified": [
     "full six-round browser playthrough",
@@ -539,12 +558,129 @@
     "human visual, feel and audio quality; non-author visual preference and a meaningful second art revision",
     "cross-task global GPU exclusivity",
     "preview port number (cleanup boolean and process scan retained)",
-    "Node 24+ (run used Node v22.23.2 / npm 10.9.8; package engines requires >=24)"
+    "Node 24+ (run used Node v22.23.2 / npm 10.9.8; package engines requires >=24)",
+    "process compliance of attempt 0 (software WebGL result followed by a renderer switch/retry)",
+    "first-attempt preview TCP/port-close proof and the exit codes/times of pids 111052 and 6792 (process samples partially cover the attempt-0 chain)",
+    "the final 20:44:29.306-20:44:59.647Z (~30.34s) of the between-attempt gap and the between-attempt port/listener state (process samples cover 20:43:30.363-20:44:29.306Z with only the receiver worker)",
+    "three-piece visual quality from the initial deployment frame (deployment menu/HUD occludes much of the scene)",
+    "attempt 0 output-directory report.json contents, browser logs and raw report.webgl version/renderer/vendor/unmaskedVendor (the complete attempt-0 manifest content and the unmaskedRenderer string are retained)"
   ],
   "redactions": [
     "Local Chromium executable path removed from report.json, manifest.json and exit-evidence.json.",
     "Full browser argv, local user-data/profile paths, run-directory absolute paths, wsEndpoint/nonce and credentials are excluded from public files; raw logs remain local only.",
     "Raw screenshots are game canvas/page captures only; no desktop or browser chrome capture."
   ],
-  "artifactIndex": "artifact-hashes.json"
+  "artifactIndex": "artifact-hashes.json",
+  "revision": {
+    "id": "review-rework-2026-10-29",
+    "kind": "records-only",
+    "supersedes": "The 2026-10-28 publication at commit 18d9a1b remains the historical first publication; its second-attempt functional facts are preserved unchanged.",
+    "noRerun": "No browser, GPU, preview server or smoke was restarted and no dependency install, build, recapture or source change was performed. Only files in this evidence directory were edited or added.",
+    "detailsFile": "first-attempt-and-gaps.json",
+    "correctedClaims": [
+      "The previous description of the accepted run as the prescribed native configuration, and the statement that no renderer switch occurred, are withdrawn. Attempt 0 launched software WebGL and failed; a second invocation switched to full Chromium and obtained GPU success.",
+      "The previous openIssues=empty and only-six-rounds-and-human-acceptance summary is withdrawn; see openIssues.",
+      "The previous publication did not retain attempt 0's output directory contents, preview/parent-chain exit evidence or between-attempt cleanup verification."
+    ],
+    "status": "review_ready",
+    "statusMeaning": "This revision is submitted for review only. It is not whole-card compliance and not three-piece art final."
+  },
+  "processGaps": {
+    "stopBoundaryViolation": "Attempt 0 produced software WebGL and exited 1 (default headless shell; FPS_SMOKE_CHROMIUM unset; exact FPS_SMOKE_RENDERER value not retained). A second invocation then switched to full Chromium with FPS_SMOKE_RENDERER=native and obtained a GPU pass. That is a renderer switch and retry after a non-GPU result, contrary to the original card's keep-result/no-switch/no-retry rule. Pre-specifying an existing executable in the second invocation does not override the already-triggered stop condition.",
+    "firstAttemptRecords": "Attempt 0 run id 9a5c02fc6b51-wS6MkO; output directory outputs/art-standards-smoke/9a5c02fc6b51-wS6MkO (repository-relative). The runner produced a manifest and two report.json files per its source. The complete manifest stdout is retained in the local first-attempt smoke log; the earlier cited 2.5 KB stdout fragment is only the tail of this same log. Its redacted full content is published in exit-evidence.json attempts[0].manifest and first-attempt-and-gaps.json firstAttempt.manifest, and its 21 build hashes are identical to the second attempt's published build list. Not retained: the output-directory report.json contents, browser logs and the raw report.webgl version/renderer/vendor/unmaskedVendor.",
+    "firstAttemptCleanup": "The explicit preview TCP/port-close proof is not retained. Browser exits are known (96172/50524 exit 0), and runner smoke-backlog 90404 returned rc=1 at 20:43:30.074Z, but the exit code/time of in-process smoke.mjs 111052 and the identity/exit of outer parent 6792 remain unknown; 37504's own exit code is not separately retained (offline-base route status 0). Browser exit 0 is still not a substitute for preview/parent-chain teardown. Partial process-sample evidence: pid 50524 sampled to 20:43:29.256Z, pid 111052 to 20:43:29.499Z, pid 90404 to 20:43:29.492Z, and offline-base route smoke.mjs pid 37504 sampled 20:39:43.914-20:41:11.233Z; all are absent from samples from 20:43:30.363Z, consistent with exit.",
+    "betweenAttempts": "Partial process-sample evidence exists through 20:44:29.306Z: a browser-scoped Win32_Process polling log (20:41:35.966-20:44:29.306Z) and a node-scoped log (20:39:39.501-20:44:27.390Z) show pid 50524 last at 20:43:29.256Z and pids 111052/90404 last at 20:43:29.499Z/20:43:29.492Z; from 20:43:30.363Z to 20:44:29.306Z all samples contain only receiver worker pid 78372, with no own browser/smoke/vite process. There is no port/listener probe. 20:44:29.306-20:44:59.647Z (~30.34s) and the exit status of 111052/6792 are unknown. Cleanup after the second run cannot prove the first attempt was clean.",
+    "detailsFile": "first-attempt-and-gaps.json"
+  },
+  "verifiedSecondAttempt": {
+    "runId": "9a5c02fc6b51-eDgeRr",
+    "startUtc": "2026-10-28T20:44:59.647Z",
+    "endUtc": "2026-10-28T20:48:20.230Z",
+    "exitCode": 0,
+    "bothRoutesPassed": true,
+    "afterRoute": {
+      "artState": "ready",
+      "active": true,
+      "pieces": 3,
+      "triangles": 2396,
+      "calls": 4,
+      "bytes": 123604
+    },
+    "hashChecks": "At original publication 18d9a1b, the 12 indexed published files' bytes/SHA-256 were independently verified and all 21 manifest.build hashes matched web-dist. This revision adds first-attempt-and-gaps.json and changes manifest.json/exit-evidence.json; artifact-hashes.json is re-indexed for the revised set, so the 12-file count describes the original publication only.",
+    "claimLimits": [
+      "Headless/sandbox and no-unsafe-swiftshader claims are limited to the retained DEBUG=pw:browser argv checks for the two accepted routes.",
+      "The serial claim covers only the two routes inside the second command; offline-base browser exited at 20:46:48.634Z before art-standards launched at 20:46:49.791Z.",
+      "Cross-task global GPU exclusivity and Node 24+ validation are not proven.",
+      "The second attempt's functional pass does not make the overall card process-compliant and does not establish three-piece art quality."
+    ],
+    "detailsFile": "first-attempt-and-gaps.json"
+  },
+  "openIssues": [
+    {
+      "id": "process-stop-boundary-violation",
+      "category": "process",
+      "summary": "Attempt 0 produced software WebGL and failed; the operator switched to full Chromium and retried to obtain GPU success, violating the card's keep-result/no-switch/no-retry boundary.",
+      "status": "open, not curable after the fact"
+    },
+    {
+      "id": "first-attempt-evidence-not-retained",
+      "category": "process-evidence",
+      "summary": "The attempt-0 complete manifest content is retained (recovered from the local first-attempt smoke log, published redacted, with 21 build hashes matching the second attempt). Not retained: the output-directory report.json contents, browser logs and the raw report.webgl version/renderer/vendor/unmaskedVendor; only the unmaskedRenderer string survives from the historical record.",
+      "status": "open, partially retained"
+    },
+    {
+      "id": "first-attempt-preview-parent-exit-unknown",
+      "category": "process-evidence",
+      "summary": "The failing route's preview port-close proof and complete parent-chain exit record are missing; browser pids 96172 and 50524 exiting 0 do not prove preview or parent-chain teardown.",
+      "status": "open, unknown"
+    },
+    {
+      "id": "between-attempts-cleanup-unproven",
+      "category": "process-evidence",
+      "summary": "Retained polling logs partially evidence the gap: 20:43:30.363-20:44:29.306Z samples contain only receiver worker pid 78372, with own browser/smoke/vite processes absent after 20:43:29.26-20:43:29.50Z. No port probe exists and the final 20:44:29.306-20:44:59.647Z (~30.34s) is unsampled, so full cleanup and serial verification before the second start are unproven.",
+      "status": "open, partially evidenced"
+    },
+    {
+      "id": "quality-wall-corner-cover-lamp-combat",
+      "category": "quality",
+      "summary": "Wall face/corner at player eye height, crouched cover sightline, selected-lamp readability, and the normal combat view with enemy and ally were not captured or judged.",
+      "status": "open"
+    },
+    {
+      "id": "quality-initial-frame-occluded",
+      "category": "quality",
+      "summary": "The only art comparison frames are initial deployment #stage captures with the deployment menu and HUD overlaying much of the scene; they cannot verify the three standards' visual quality, and the 0.84% pixel difference is not a quality verdict.",
+      "status": "open"
+    },
+    {
+      "id": "quality-non-author-and-second-revision",
+      "category": "quality",
+      "summary": "No non-author visual preference judgement and no meaningful second art revision were performed.",
+      "status": "open"
+    },
+    {
+      "id": "gpu-performance",
+      "category": "performance",
+      "summary": "GPU frame timing and performance were not measured.",
+      "status": "open"
+    },
+    {
+      "id": "full-match-and-human-acceptance",
+      "category": "coverage",
+      "summary": "Six-round full match, halftime side switch, end-of-match result and play-again, and human visual/feel/audio acceptance remain unverified.",
+      "status": "open"
+    },
+    {
+      "id": "node-24-not-validated",
+      "category": "environment",
+      "summary": "The run used Node v22.23.2 / npm 10.9.8 while package engines requires >=24; Node 24+ was not validated.",
+      "status": "open"
+    },
+    {
+      "id": "cross-task-gpu-exclusivity-unproven",
+      "category": "environment",
+      "summary": "No shared GPU lock existed or was used; cross-task global GPU exclusivity is not proven.",
+      "status": "open, not claimed"
+    }
+  ]
 }
