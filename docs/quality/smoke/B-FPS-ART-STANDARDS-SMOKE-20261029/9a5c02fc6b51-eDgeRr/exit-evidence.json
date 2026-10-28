@@ -1,0 +1,202 @@
+{
+  "runId": "9a5c02fc6b51-eDgeRr",
+  "acceptedAttempt": 1,
+  "checkedAtUtc": {
+    "preflight": "2026-10-28T20:38Z (approx, before npm ci)",
+    "npmCi": {
+      "start": "2026-10-28T20:38:56.571Z",
+      "end": "2026-10-28T20:39:15.544Z",
+      "exitCode": 0,
+      "externalTimeoutSeconds": 600,
+      "timeoutTriggered": false
+    },
+    "smoke": {
+      "start": "2026-10-28T20:44:59.647Z",
+      "end": "2026-10-28T20:48:20.230Z",
+      "exitCode": 0,
+      "externalTimeoutSeconds": 600,
+      "timeoutTriggered": false
+    },
+    "finalCleanupCheck": "2026-10-28T20:48:30Z (approx, after smoke exit)"
+  },
+  "command": {
+    "dependencyInstall": "npm ci --offline",
+    "smoke": "FPS_SMOKE_RENDERER=native FPS_SMOKE_CHROMIUM=<existing local Playwright Chromium> node tools/smoke-backlog.mjs --art-standards"
+  },
+  "attempts": [
+    {
+      "attempt": 0,
+      "accepted": false,
+      "publishedAsEvidence": false,
+      "startUtc": "2026-10-28T20:39:27.251Z",
+      "endUtc": "2026-10-28T20:43:30.074Z",
+      "exitCode": 1,
+      "externalTimeoutSeconds": 600,
+      "timeoutTriggered": false,
+      "configuration": "FPS_SMOKE_CHROMIUM unset; Playwright launched the default chrome-headless-shell.exe",
+      "rendererClass": "software",
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "result": "offline-base passed; art-standards failed at finishOfflineRound waiting for the natural first round to reach phase over (page.waitForFunction timeout 120000ms). The runner exited 1.",
+      "browserPids": [
+        {
+          "route": "offline-base",
+          "pid": 96172,
+          "launchedAtUtc": "2026-10-28T20:39:41.812Z",
+          "exitedAtUtc": "2026-10-28T20:41:13.110Z",
+          "exitCode": "0",
+          "signal": "null"
+        },
+        {
+          "route": "art-standards",
+          "pid": 50524,
+          "launchedAtUtc": "2026-10-28T20:41:14.513Z",
+          "exitedAtUtc": "2026-10-28T20:43:29.412Z",
+          "exitCode": "0",
+          "signal": "null"
+        }
+      ],
+      "note": "Retained locally only. The task allows pointing FPS_SMOKE_CHROMIUM at an existing executable; attempt 1 is the prescribed native configuration and the only published result. No renderer fallback, no no-sandbox/unsafe flag and no renderer switch was used to obtain the accepted result."
+    },
+    {
+      "attempt": 1,
+      "accepted": true,
+      "publishedAsEvidence": true,
+      "startUtc": "2026-10-28T20:44:59.647Z",
+      "endUtc": "2026-10-28T20:48:20.230Z",
+      "exitCode": 0,
+      "externalTimeoutSeconds": 600,
+      "timeoutTriggered": false,
+      "configuration": "FPS_SMOKE_RENDERER=native; FPS_SMOKE_CHROMIUM pointed at the existing full Playwright Chromium executable (local path withheld)",
+      "result": "offline-base and art-standards both passed; runner status 0; build included."
+    }
+  ],
+  "browserProcesses": [
+    {
+      "route": "offline-base",
+      "pid": 58212,
+      "launchedAtUtc": "2026-10-28T20:45:15.461Z",
+      "exitedAtUtc": "2026-10-28T20:46:48.634Z",
+      "exitCode": "0",
+      "signal": "null",
+      "parentPid": 45856,
+      "parentRole": "node tools/smoke.mjs",
+      "rawExitLine": "2026-10-28T20:46:48.634Z pw:browser [pid=58212] <process did exit: exitCode=0, signal=null>"
+    },
+    {
+      "route": "art-standards",
+      "pid": 79772,
+      "launchedAtUtc": "2026-10-28T20:46:49.791Z",
+      "exitedAtUtc": "2026-10-28T20:48:17.983Z",
+      "exitCode": "0",
+      "signal": "null",
+      "parentPid": 95000,
+      "parentRole": "node tools/smoke.mjs",
+      "rawExitLine": "2026-10-28T20:48:17.983Z pw:browser [pid=79772] <process did exit: exitCode=0, signal=null>"
+    }
+  ],
+  "routeInvocations": [
+    {
+      "label": "offline-base",
+      "processStartUtc": "2026-10-28T20:45:11.047Z",
+      "browserLaunchUtc": "2026-10-28T20:45:15.461Z",
+      "browserExitUtc": "2026-10-28T20:46:48.634Z",
+      "exitCode": 0,
+      "runnerStatus": 0,
+      "browserPid": 58212,
+      "browserExitCode": "0",
+      "rendererClass": "gpu",
+      "previewPortClosed": true,
+      "browserDisconnected": true
+    },
+    {
+      "label": "art-standards",
+      "processStartUtc": "2026-10-28T20:46:48.752Z",
+      "browserLaunchUtc": "2026-10-28T20:46:49.791Z",
+      "browserExitUtc": "2026-10-28T20:48:17.983Z",
+      "exitCode": 0,
+      "runnerStatus": 0,
+      "browserPid": 79772,
+      "browserExitCode": "0",
+      "rendererClass": "gpu",
+      "previewPortClosed": true,
+      "browserDisconnected": true
+    }
+  ],
+  "cleanup": {
+    "browserDisconnected": true,
+    "previewPortClosed": true,
+    "previewPortNumberPersisted": false,
+    "previewPortProbe": "In-process TCP connect probe on each runner-assigned preview port returned ECONNREFUSED after server close.",
+    "postRunPlaywrightChromium": "none",
+    "postRunSmokeOrPreviewNode": "none",
+    "portsClosedAfterRun": [
+      4173,
+      5173,
+      4174,
+      5174,
+      3000,
+      8080,
+      8000,
+      12765
+    ],
+    "ownProcessChainGone": "Post-run Win32_Process scan found no chrome.exe, chrome-headless-shell.exe, tools/smoke.mjs, smoke-backlog or Vite preview process; only the receiver worker and unrelated infrastructure remained.",
+    "lock": "No shared lock was acquired, taken over or released; none was present."
+  },
+  "serialPreflight": {
+    "beforeRun": "No Playwright/Chromium/headless-shell process, no smoke/vite node process and no listener on 4173/5173/4174/5174/3000/8080/8000/12765.",
+    "withinRun": "The two routes were serial: offline-base browser exited before the art-standards browser launched.",
+    "otherGpuWork": "No other GPU task process was found during preflight; no browser or preview server was owned by another receiver task in this worktree."
+  },
+  "processChain": [
+    {
+      "pid": 58212,
+      "parentPid": 45856,
+      "process": "chrome.exe",
+      "role": "headless full Chromium (Playwright-bundled build 156.0.8078.4)",
+      "createdUtc": "2026-10-28T20:45:15.474Z"
+    },
+    {
+      "pid": 45856,
+      "parentPid": 101580,
+      "process": "node",
+      "role": "node tools/smoke.mjs",
+      "createdUtc": "2026-10-28T20:45:11.047Z"
+    },
+    {
+      "pid": 101580,
+      "parentPid": 52476,
+      "process": "node",
+      "role": "node tools/smoke-backlog.mjs --art-standards",
+      "createdUtc": "2026-10-28T20:44:59.998Z"
+    },
+    {
+      "pid": 79772,
+      "parentPid": 95000,
+      "process": "chrome.exe",
+      "role": "headless full Chromium (Playwright-bundled build 156.0.8078.4)",
+      "createdUtc": "2026-10-28T20:46:49.797Z"
+    },
+    {
+      "pid": 95000,
+      "parentPid": 101580,
+      "process": "node",
+      "role": "node tools/smoke.mjs",
+      "createdUtc": "2026-10-28T20:46:48.752Z"
+    }
+  ],
+  "processChainSource": "Read-only live Win32_Process sampling of the owned tree during the run (PID, parent PID, creation time, command line). The outer local launch shell PID 52476 had exited before its name could be sampled; it is not claimed.",
+  "argvSafety": {
+    "headless": true,
+    "noSandboxPresent": false,
+    "disableSetuidSandboxPresent": false,
+    "unsafeSwiftshaderPresent": false,
+    "useAngleSwiftshaderPresent": false,
+    "disableGpuPresent": false,
+    "evidence": "Checked against the DEBUG=pw:browser <launching> lines of both accepted routes; the full argv is retained locally and redacted from the public excerpt."
+  },
+  "redactions": [
+    "Local Chromium executable path removed from report.json, manifest.json and exit-evidence.json.",
+    "Full browser argv, local user-data/profile paths, run-directory absolute paths, wsEndpoint/nonce and credentials are excluded from public files; raw logs remain local only.",
+    "Raw screenshots are game canvas/page captures only; no desktop or browser chrome capture."
+  ]
+}
