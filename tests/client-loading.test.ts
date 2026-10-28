@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { TrainingMatch, completeMatchRequested } from '../src/session/match.js';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {stripTypeScriptTypes} from 'node:module';
@@ -19,7 +20,7 @@ function fixture(stage:'navigation'|'game'){
  class Hud{difficulty='hard';setBusy(){}menu(){}message(){}}
  class Controls{reset(){}pause(){events.push('controls.pause');}dispose(){events.push('controls.dispose');}}
  class Soundscape{dispose(){events.push('sound.dispose');}}
- const deps={Game:{async create(){events.push('game.create');if(stage==='game')await gate.promise;return game;}},Bot:class{},initNavigation:async()=>{events.push('nav.init');if(stage==='navigation')await gate.promise;},Navigation,Controls,MouseSensitivity:class{},View,CanvasView,Soundscape,RESULT_HOLD_MS:700,Hud,document,window,performance:{now:()=>0},requestAnimationFrame:()=>{events.push('raf');return 1;},cancelAnimationFrame:()=>events.push('cancelRaf'),console:{error:()=>events.push('fatal')}};
+ const deps={TrainingMatch,completeMatchRequested,MatchPanel:class{},Game:{async create(){events.push('game.create');if(stage==='game')await gate.promise;return game;}},Bot:class{},initNavigation:async()=>{events.push('nav.init');if(stage==='navigation')await gate.promise;},Navigation,Controls,MouseSensitivity:class{},View,CanvasView,Soundscape,RESULT_HOLD_MS:700,Hud,document,window,performance:{now:()=>0},requestAnimationFrame:()=>{events.push('raf');return 1;},cancelAnimationFrame:()=>events.push('cancelRaf'),console:{error:()=>events.push('fatal')}};
  const done=new AsyncFunction(...Object.keys(deps),source)(...Object.values(deps));
  const hide=(persisted=false)=>{const event=new Event('pagehide');Object.defineProperty(event,'persisted',{value:persisted});window.dispatchEvent(event);};
  const settle=()=>new Promise<void>(r=>setImmediate(r));

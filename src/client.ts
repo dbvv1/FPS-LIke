@@ -9,12 +9,15 @@ import { Soundscape } from './render/audio.js';
 import { RESULT_HOLD_MS } from './render/feedback.js';
 import { Hud } from './ui/hud.js';
 import type { GameState } from './sim/types.js';
+import { TrainingMatch, completeMatchRequested } from './session/match.js';
+import { MatchPanel } from './ui/match-panel.js';
 const canvas = document.querySelector<HTMLCanvasElement>('#stage')!;
 let game: Game, nav: Navigation, bot: Bot, view: View | CanvasView, controls: Controls;
 let ready = false, running = false, restarting = false, frameId = 0, simStart = 0, lastFrame = performance.now();
 let startupCancelled = false;
 const startupCancellation = new Error('Scene startup cancelled by navigation');
 let resultRevealAt: number | null = null;
+let match: TrainingMatch | null = null, matchPanel: MatchPanel | null = null;
 const sound = new Soundscape();
 const sensitivity = new MouseSensitivity(() => window.localStorage);
 const hud = new Hud(() => void resume(), () => next(), () => void restart(), enabled => { sound.enabled = enabled; if (enabled) void sound.unlock().catch(() => hud.message('当前浏览器未启用音频，画面与操作仍可继续。')); }, sensitivity);
@@ -35,7 +38,9 @@ async function resume() {
   await controls.lock();
 }
 function next() {
-  if (!ready || game.state.phase !== 'over') return;
+  if (!ready || restarting || game.state.phase !== 'over') return;
+  if (match?.summary.complete) { void restart(); return; }
+  if (match && !match.canAdvance(game.state)) return;
   resultRevealAt = null; game.nextRound(); controls.reset(player()); sound.reset(); view.reset(); hud.reset();
   hud.menu(true, game.state, player()); hud.update(game.state, player(), performance.now()); void resume();
 }
@@ -45,7 +50,7 @@ async function restart() {
   try {
     const replacement = await Game.create(1, [{ id: 'player', team: 'amber' }, { id: 'bot', team: 'blue', bot: hud.difficulty }]);
     if (startupCancelled) { replacement.dispose(); return; }
-    game.dispose(); game = replacement; bot = new Bot('bot', hud.difficulty, 0x85ebca6a, nav);
+    game.dispose(); game = replacement; match?.reset(); bot = new Bot('bot', hud.difficulty, 0x85ebca6a, nav);
     controls.reset(player()); view.reset(); sound.reset(); hud.reset(); hud.menu(true, game.state, player());
   } catch (error) { if (!startupCancelled) fail(error); }
   finally { restarting = false; if (!startupCancelled) hud.setBusy(false); }
@@ -65,13 +70,16 @@ function frame(now: number) {
           if (game.state.phase === 'over') {
             // The authoritative result is already settled. Leave its visible
             // reaction unobscured briefly; no gameplay or collision is extended.
+            match?.observe(game.state, player());
             running = false; resultRevealAt = now + RESULT_HOLD_MS; controls.pause(); hud.menu(false);
           }
         }
       }
       const state = game.state, actor = player(state);
       if (resultRevealAt !== null && now >= resultRevealAt) { resultRevealAt = null; hud.menu(true, state, actor); }
-      view.render(state, actor, controls.yaw, controls.pitch, now, dt); hud.update(state, actor, now); sound.update(state, actor, controls.yaw, game.observe(actor.id).sounds.map(s => s.id));
+      view.render(state, actor, controls.yaw, controls.pitch, now, dt); hud.update(state, actor, now);
+      if (match) matchPanel!.update(state, actor, match.summary);
+      sound.update(state, actor, controls.yaw, game.observe(actor.id).sounds.map(s => s.id));
       document.getElementById('debug-state')!.textContent = JSON.stringify({ backend: view.backend, running, locked: controls.locked, tick: state.tick, round: state.round, phase: state.phase, time: state.time, yaw: controls.yaw, pitch: controls.pitch, player: { position: actor.position, hp: actor.hp, weapon: actor.weapon, ammo: actor.weapons[actor.weapon].ammo, reload: actor.reload, input: actor.input }, score: state.score, result: state.result }, null, 2);
     }
   } catch (error) { fail(error); return; }
@@ -90,6 +98,7 @@ window.addEventListener('pageshow', event => {
   if (event.persisted && ready) { lastFrame = performance.now(); simStart = lastFrame; hud.menu(true, game.state, player()); frameId = requestAnimationFrame(frame); }
 });
 try {
+  if (completeMatchRequested(window.location?.search ?? '')) { match = new TrainingMatch(); matchPanel = new MatchPanel(); }
   const probe = document.createElement('canvas');
   const webgl = probe.getContext('webgl2');
   if (webgl) { webgl.getExtension('WEBGL_lose_context')?.loseContext(); view = new View(canvas); }
@@ -115,7 +124,7 @@ try {
   // Read-only observability for smoke tests; no command injection or simulation mutation.
   Object.defineProperty(window, 'fpsClient', { value: Object.freeze({
     snapshot: (): GameState => game.state,
-    state: () => ({ ready, running, locked: controls.locked, backend: view.backend, yaw: controls.yaw, pitch: controls.pitch, ...view.info }),
+    state: () => ({ ...(match ? { match: match.summary } : {}), ready, running, locked: controls.locked, backend: view.backend, yaw: controls.yaw, pitch: controls.pitch, ...view.info }),
   }) });
   frameId = requestAnimationFrame(frame);
 } catch (error) { if (!startupCancelled) fail(error); }
