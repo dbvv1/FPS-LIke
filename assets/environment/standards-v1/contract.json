@@ -1,0 +1,209 @@
+{
+  "schema": "fps-art-standard-draft/1",
+  "status": "engineering-draft-not-adopted",
+  "mainCommit": "80f5ef6297237e96f7e8f40fbbdff0ee38548dc1",
+  "runningCommit": "19f718ebd5570ed1fb962b30d4ee607dc1ec9f6f",
+  "sourceRecords": [
+    {
+      "path": "src/candidates/offline-training-v1/render/environment-kit.ts",
+      "snapshot": "source/src__candidates__offline-training-v1__render__environment-kit.ts",
+      "sha256": "d9c2bc05289cfd8329e50f79dbcf6fd4bcb4bd7699e7c9001cfc2f0c909cb3d5",
+      "same_in_running_commit": true
+    },
+    {
+      "path": "src/candidates/offline-training-v1/render/scene.ts",
+      "snapshot": "source/src__candidates__offline-training-v1__render__scene.ts",
+      "sha256": "65cc48b24fd636df343f6b0f24a4fbfb9a0096a56154dcc7db924a54c13cc491",
+      "same_in_running_commit": true
+    },
+    {
+      "path": "src/candidates/offline-training-v1/content/map.ts",
+      "snapshot": "source/src__candidates__offline-training-v1__content__map.ts",
+      "sha256": "2431dfef756bfddaa4893e058bdf59f38ac17f83d56e50712620e2707151a3af",
+      "same_in_running_commit": true
+    },
+    {
+      "path": "docs/brief.md",
+      "snapshot": "source/docs__brief.md",
+      "sha256": "39e85614eb421ed87d96e56a6e171e985f4228efd1dce018b29155850a15637a",
+      "same_in_running_commit": true
+    },
+    {
+      "path": "assets/environment/README.md",
+      "snapshot": "source/assets__environment__README.md",
+      "sha256": "6eb58f06b343743fe09e15568e42a850e3b987b91d5e348c7b3f602423175654",
+      "same_in_running_commit": true
+    }
+  ],
+  "consumer": {
+    "path": "src/candidates/offline-training-v1/render/scene.ts",
+    "renderFileCorrection": "scene.ts, not three.ts",
+    "glbEnvironmentLoaderExists": false,
+    "mapUnchanged": true,
+    "currentWallTris": 12,
+    "currentLampTris": 24,
+    "lampInstances": 6,
+    "noLampCollision": true
+  },
+  "axes": {
+    "source": "simulation XYZ, Y-up",
+    "authoring": "Blender XYZ, Z-up; local bottom-center pivot",
+    "export": "glTF XYZ, Y-up; Blender (x,y,z) maps to glTF (x,z,-y)",
+    "placement": "No placement is performed. Existing Three boundary maps simulation z to -z."
+  },
+  "pieces": [
+    {
+      "id": "wall-center-dogleg",
+      "sourceBoxId": "center-dogleg",
+      "simulationCenter": [
+        0.0,
+        1.7,
+        -6.0
+      ],
+      "sizeXYZ": [
+        2.2,
+        3.4,
+        1.2
+      ],
+      "sourceLine": 20
+    },
+    {
+      "id": "low-cover-site",
+      "sourceBoxId": "site-cover",
+      "simulationCenter": [
+        0.0,
+        0.4,
+        12.6
+      ],
+      "sizeXYZ": [
+        2.2,
+        0.8,
+        1.1
+      ],
+      "sourceLine": 21
+    },
+    {
+      "id": "lamp-existing",
+      "sizeXYZ": [
+        0.8,
+        5,
+        0.35
+      ],
+      "originalParts": [
+        {
+          "id": "pole",
+          "sizeXYZ": [
+            0.12,
+            5,
+            0.12
+          ],
+          "localBottomCenter": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "id": "head",
+          "sizeXYZ": [
+            0.8,
+            0.12,
+            0.35
+          ],
+          "localBottomCenter": [
+            0,
+            4.74,
+            0
+          ]
+        }
+      ],
+      "simulationPositions": [
+        [
+          -11.5,
+          0,
+          -13
+        ],
+        [
+          -11.5,
+          0,
+          6
+        ],
+        [
+          -11.5,
+          0,
+          15
+        ],
+        [
+          11.5,
+          0,
+          -13
+        ],
+        [
+          11.5,
+          0,
+          6
+        ],
+        [
+          11.5,
+          0,
+          15
+        ]
+      ],
+      "geometryConstraint": "Each mesh must remain inside its own original part box, not merely aggregate lamp bounds."
+    }
+  ],
+  "palette": {
+    "plaster": "#d8d5c5",
+    "base": "#526e78",
+    "trim": "#c2c6bd",
+    "orange": "#cc9552",
+    "seam": "#82928f",
+    "recess": "#6d8588",
+    "floor": "#a6b0a6",
+    "sky": "#99b8c7"
+  },
+  "material": {
+    "roughness": 0.91,
+    "metallic": 0,
+    "opaque": true,
+    "vertexColorEncoding": "linear",
+    "lampFaceOriginalHex": "#ffe7ad",
+    "lampPoleOriginalHex": "#26323b"
+  },
+  "baselineSurfaceRules": {
+    "panelSpan": 2,
+    "plinthMax": 0.68,
+    "plinthHeightRatio": 0.28,
+    "footHeight": 0.09,
+    "ochreHeight": 0.07,
+    "capHeight": 0.1,
+    "upperBandFromTop": [
+      0.44,
+      0.3
+    ],
+    "inspectionBaySpan": 4,
+    "inspectionX": [
+      0.28,
+      0.34,
+      1.02,
+      1.08
+    ],
+    "inspectionZAbovePlinth": [
+      0.22,
+      0.28,
+      0.62,
+      0.68
+    ]
+  },
+  "budget": {
+    "hardMaximumTrisPerPiece": 2000,
+    "target": "Minimum useful topology; do not fill the cap. Existing consumer is 12 triangles per wall, so added geometry is a cost to justify in later game-camera review.",
+    "maxPrimitivesPerPiece": 2,
+    "textureBytes": 0
+  },
+  "licensing": {
+    "type": "original-procedural-draft",
+    "sourceBasis": "Existing FPS original environment recipe and newly authored bpy geometry; no external mesh/image/weight/service used.",
+    "rights": "No new license grant is made in this draft. Existing repository asset-specific licenses remain unchanged; do not extend another directory CC0 dedication to these files without owner choice."
+  }
+}

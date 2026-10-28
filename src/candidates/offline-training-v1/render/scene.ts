@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { ArtStandards, artEnabled, type ArtSlot } from './art-standards.js';
 import { KIT, environmentEnabled, makeKitWall, kitTexture, floorPixels, kitBudget } from './environment-kit.js';
 import { groundLevels, groundUV } from './ground.js';
 import { YARD, wallStrip } from './yard.js';
@@ -13,7 +14,10 @@ export class View {
   readonly backend = 'three-webgl2';
   private environment = environmentEnabled(globalThis.location?.search ?? '');
   private environmentPresented = false;
-  get info() { return { ...(this.environment ? { environment: { id: KIT.id, active: this.environmentPresented, budget: kitBudget(MAP.walls.length), evidence: 'offline-estimate' } } : {}), memory: { ...this.renderer.info.memory }, calls: this.renderer.info.render.calls }; }
+  private artPresented = false;
+  private art: ArtStandards | undefined;
+  private artSlots: ArtSlot[] = [];
+  get info() { return { ...(this.art ? { art: { ...this.art.info, active: this.artPresented } } : {}), ...(this.environment ? { environment: { id: KIT.id, active: this.environmentPresented, budget: kitBudget(MAP.walls.length), evidence: 'offline-estimate' } } : {}), memory: { ...this.renderer.info.memory }, calls: this.renderer.info.render.calls }; }
   readonly renderer: THREE.WebGLRenderer;
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera(80, 1, 0.05, 100);
@@ -51,6 +55,7 @@ export class View {
       if (this.environment) {
         const piece = makeKitWall(wall);
         this.scene.add(piece.mesh); this.geometries.add(piece.geometry); this.materials.add(piece.material); this.textures.add(piece.texture);
+        if (wall.id === 'center-dogleg' || wall.id === 'site-cover') this.artSlots.push({ id: wall.id, position: toThree({ ...wall.center, y: wall.center.y - wall.half.y }), fallback: [piece.mesh] });
         continue;
       }
       const texture=new THREE.DataTexture(wallStrip(wall),1,128);texture.colorSpace=THREE.SRGBColorSpace;texture.needsUpdate=true;this.textures.add(texture);
@@ -69,8 +74,9 @@ export class View {
     const ring = new THREE.Mesh(new THREE.RingGeometry(MAP.siteRadius - 0.08, MAP.siteRadius, 48), new THREE.MeshBasicMaterial({ color: 0xffc666, side: THREE.DoubleSide }));
     ring.rotation.x = -Math.PI / 2; ring.position.set(...toThree({ ...MAP.site, y: 0.025 })); this.scene.add(ring);
     for (const x of [-11.5, 11.5]) for (const z of [-13, 6, 15]) {
-      this.box(this.scene, toThree({ x, y: 2.5, z }), [0.12, 5, 0.12], 0x26323b);
-      this.box(this.scene, toThree({ x, y: 4.8, z }), [0.8, 0.12, 0.35], 0xffe7ad, true);
+      const pole = this.box(this.scene, toThree({ x, y: 2.5, z }), [0.12, 5, 0.12], 0x26323b);
+      const head = this.box(this.scene, toThree({ x, y: 4.8, z }), [0.8, 0.12, 0.35], 0xffe7ad, true);
+      if (x === -11.5 && z === -13) this.artSlots.push({ id: 'lamp-existing', position: toThree({ x, y: 0, z }), fallback: [pole, head] });
     }
     this.box(this.bomb, [0, 0.18, 0], [0.44, 0.36, 0.35], 0x16252d);
     this.box(this.bomb, [0, 0.38, 0], [0.3, 0.06, 0.12], 0xf6a738, true);
@@ -78,6 +84,7 @@ export class View {
     this.makeWeapon(this.rifle, false); this.makeWeapon(this.pistol, true);
     this.weapon.add(this.rifle, this.pistol, this.flash); this.flash.position.set(0.01, 0.03, -0.7); this.flash.visible = false;
     this.camera.add(this.weapon); this.scene.add(this.camera);
+    if (artEnabled(globalThis.location?.search ?? '')) { this.art = new ArtStandards(this.scene, this.artSlots); void this.art.start(); }
     this.resize();
     this.scene.traverse(o => { if (o instanceof THREE.Mesh || o instanceof THREE.LineSegments) { this.geometries.add(o.geometry); for (const m of Array.isArray(o.material) ? o.material : [o.material]) this.materials.add(m); } });
   }
@@ -103,7 +110,7 @@ export class View {
     this.renderer.setSize(w, h, false); this.camera.aspect = w / Math.max(1, h); this.camera.updateProjectionMatrix();
   }
   render(state: GameState, player: Actor, yaw: number, pitch: number, now: number, dt: number) {
-    this.environmentPresented = false;
+    this.environmentPresented = false; this.artPresented = false;
     const pose = weaponPose(state, player), effects=this.feedback.update(state,now);
     cameraPose(this.camera, eye(player), yaw, pitch);
     this.weapon.position.set(pose.x, pose.y, pose.z);
@@ -155,8 +162,8 @@ export class View {
     this.bomb.visible = state.bomb.planted || !state.bomb.carrier;
     this.bomb.position.set(...toThree(state.bomb.position));
     this.renderer.render(this.scene, this.camera);
-    this.environmentPresented = this.environment;
+    this.environmentPresented = this.environment; this.artPresented = this.art?.info.state === 'ready';
   }
-  reset() {this.environmentPresented=false;this.feedback.reset();for(const mesh of this.impacts)mesh.visible=false;}
-  dispose() { this.environmentPresented=false;for (const g of this.geometries) g.dispose(); for (const m of this.materials) m.dispose(); for(const t of this.textures)t.dispose(); this.renderer.dispose(); }
+  reset() {this.artPresented=false;this.environmentPresented=false;this.feedback.reset();for(const mesh of this.impacts)mesh.visible=false;}
+  dispose() { this.artPresented=false; this.art?.dispose(); this.environmentPresented=false;for (const g of this.geometries) g.dispose(); for (const m of this.materials) m.dispose(); for(const t of this.textures)t.dispose(); this.renderer.dispose(); }
 }

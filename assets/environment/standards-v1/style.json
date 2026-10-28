@@ -1,0 +1,23 @@
+{
+  "schema": "fps-art-standard-style/1",
+  "revision": "draft-01",
+  "palette": {
+    "plaster": "#d8d5c5",
+    "base": "#526e78",
+    "trim": "#c2c6bd",
+    "orange": "#cc9552",
+    "seam": "#82928f",
+    "recess": "#6d8588",
+    "floor": "#a6b0a6",
+    "sky": "#99b8c7"
+  },
+  "roughness": 0.91,
+  "metallic": 0,
+  "wallBevel": 0.025,
+  "coverBevel": 0.018,
+  "poleBevel": 0.008,
+  "headBevel": 0.012,
+  "wallFaceInset": 0.01,
+  "coverFaceInset": 0.006,
+  "note": "Bevel/inset are explicit draft art parameters, not measured game dimensions. All contract dimensions and original component union bounds remain locked. Second revision reserved; no blind batch expansion."
+}

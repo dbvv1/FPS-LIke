@@ -1,0 +1,187 @@
+{
+  "schema": "fps-art-standard-draft/1",
+  "status": "engineering-draft-not-adopted",
+  "method": "Editable bpy procedural geometry, not neural-generated",
+  "mainCommit": "80f5ef6297237e96f7e8f40fbbdff0ee38548dc1",
+  "runningCommit": "19f718ebd5570ed1fb962b30d4ee607dc1ec9f6f",
+  "blenderVersion": "4.3.2",
+  "styleRevision": "draft-01",
+  "units": "meters",
+  "exportAxis": "Y-up, bottom-center pivot",
+  "notGameCapture": true,
+  "noGameSourceChanged": true,
+  "noExternalDownloadsOrServices": true,
+  "assets": [
+    {
+      "id": "wall-center-dogleg",
+      "file": "models/wall-center-dogleg.glb",
+      "dimensionsXYZ": [
+        2.2,
+        3.4,
+        1.2
+      ],
+      "sourceStats": {
+        "sourceVertices": 800,
+        "triangles": 1596,
+        "materialCount": 1,
+        "materials": [
+          "Shared_Matte_VertexPalette"
+        ],
+        "components": [
+          {
+            "name": "wall-center-dogleg",
+            "vertices": 800,
+            "triangles": 1596,
+            "originalPartBoundsBlender": {
+              "min": [
+                -1.1,
+                -0.6,
+                0.0
+              ],
+              "max": [
+                1.1,
+                0.6,
+                3.4
+              ]
+            },
+            "allVerticesWithinPartBox": true,
+            "closedTwoManifold": true
+          }
+        ]
+      },
+      "glbBytes": 76776,
+      "sha256": "2ca378155b3c5e7286167b56bbbed307e1f1eb80ac250d026e7a9bc094323a25",
+      "textureBytes": 0,
+      "adopted": false
+    },
+    {
+      "id": "low-cover-site",
+      "file": "models/low-cover-site.glb",
+      "dimensionsXYZ": [
+        2.2,
+        0.8,
+        1.1
+      ],
+      "sourceStats": {
+        "sourceVertices": 342,
+        "triangles": 680,
+        "materialCount": 1,
+        "materials": [
+          "Shared_Matte_VertexPalette"
+        ],
+        "components": [
+          {
+            "name": "low-cover-site",
+            "vertices": 342,
+            "triangles": 680,
+            "originalPartBoundsBlender": {
+              "min": [
+                -1.1,
+                -0.55,
+                0.0
+              ],
+              "max": [
+                1.1,
+                0.55,
+                0.8
+              ]
+            },
+            "allVerticesWithinPartBox": true,
+            "closedTwoManifold": true
+          }
+        ]
+      },
+      "glbBytes": 36492,
+      "sha256": "ca2f7dc220a403fc41905242b957f4110271bb085bcb5c61955d7ed3dc8d1930",
+      "textureBytes": 0,
+      "adopted": false
+    },
+    {
+      "id": "lamp-existing",
+      "file": "models/lamp-existing.glb",
+      "dimensionsXYZ": [
+        0.8,
+        5,
+        0.35
+      ],
+      "sourceStats": {
+        "sourceVertices": 64,
+        "triangles": 120,
+        "materialCount": 2,
+        "materials": [
+          "Lamp_Unlit_Opaque",
+          "Shared_Matte_VertexPalette"
+        ],
+        "components": [
+          {
+            "name": "lamp-pole",
+            "vertices": 32,
+            "triangles": 60,
+            "originalPartBoundsBlender": {
+              "min": [
+                -0.06,
+                -0.06,
+                0.0
+              ],
+              "max": [
+                0.06,
+                0.06,
+                5.0
+              ]
+            },
+            "allVerticesWithinPartBox": true,
+            "closedTwoManifold": true
+          },
+          {
+            "name": "lamp-head",
+            "vertices": 32,
+            "triangles": 60,
+            "originalPartBoundsBlender": {
+              "min": [
+                -0.4,
+                -0.175,
+                4.74
+              ],
+              "max": [
+                0.4,
+                0.175,
+                4.86
+              ]
+            },
+            "allVerticesWithinPartBox": true,
+            "closedTwoManifold": true
+          }
+        ]
+      },
+      "glbBytes": 10336,
+      "sha256": "09265db770ba91c8f81442c87468ec68b95e689011e8e2d7e2a66de4015500be",
+      "textureBytes": 0,
+      "adopted": false
+    }
+  ],
+  "blend": {
+    "file": "models/fps-three-standards-draft-01.blend",
+    "bytes": 128581,
+    "sha256": "e7eb49e09d36d4ed18e892b771a9e304ecf224534c3a28b39e505e3f604f9fc6",
+    "editableTextBlocks": [
+      "tools/build.py",
+      "contract.json",
+      "style.json"
+    ],
+    "previewScene": "Offline studio array, NOT game layout, NOT game renderer"
+  },
+  "inputs": [
+    {
+      "file": "tools/build.py",
+      "sha256": "3219449f7ef19ce644c7cffb97ba9135148ef934a9ba31614b0affdf97ac52b0"
+    },
+    {
+      "file": "contract.json",
+      "sha256": "ec9ccaa86bbd72810cbcae956982afb609197236f2af67a7f71a760f9b3dcffd"
+    },
+    {
+      "file": "style.json",
+      "sha256": "b6b3e27a5691c00af16fa9b40d02928769b89a51c19bea02cd495e0fbbc83417"
+    }
+  ]
+}

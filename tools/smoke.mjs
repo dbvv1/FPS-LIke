@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { resolve, sep } from 'node:path';
@@ -11,7 +12,8 @@ const query = process.env.FPS_SMOKE_QUERY ?? '';
 if (query && !query.startsWith('?')) throw new Error('Smoke query must start with ?');
 await mkdir(output, { recursive: true });
 const report = { passed: false, errors: [], warnings: [], stages: [] };
-const offline = query === OFFLINE_QUERY;
+const artStandards = query === OFFLINE_QUERY + '&art=standards-v1';
+const offline = query === OFFLINE_QUERY || artStandards;
 if (new URLSearchParams(query).get('gameplay') === 'offline-training-v1' && !offline) throw new Error('Offline smoke requires the exact complete entry');
 if (offline) report.offlineCoverage = { fullMatchPlaythrough: false, completedRounds: [], restartScope: 'whole match via existing restart UI; no separate round-restart control', unverified: ['six-round completion UI', 'halftime transition', 'end-of-match replay', 'human visual/audio quality'] };
 let server, browser, page, previewPort;
@@ -45,12 +47,43 @@ try {
     await page.waitForFunction(() => { const state = JSON.parse(document.getElementById('debug-state').textContent); return state.contentSet?.status === 'ready' && state.contentSet?.active === true; });
     report.contentSet = await page.evaluate(() => JSON.parse(document.getElementById('debug-state').textContent).contentSet);
   }
+  if (artStandards) {
+    await page.waitForFunction(() => window.fpsClient.state().art?.state === 'ready' && window.fpsClient.state().art?.active === true);
+    report.artStandards = await page.evaluate(() => window.fpsClient.state().art);
+    assert.equal(report.artStandards.pieces, 3);
+    assert.deepEqual(report.artStandards.budget, {triangles:2396,calls:4,bytes:123604});
+  }
   if (offline) {
     await page.waitForFunction(() => window.fpsClient.state().environment?.active === true);
     const initial = await page.evaluate(() => ({ state: window.fpsClient.state(), snapshot: window.fpsClient.snapshot(), hud: { progress: document.getElementById('round').textContent, goal: document.getElementById('goal').textContent, title: document.getElementById('match-title').textContent } }));
     assertOfflineReady(initial.state, initial.snapshot, initial.hud);
     report.offlineInitial = initial;
     report.stages.push('nine bot controllers, ten actors, complete-match HUD, courtyard active');
+  }
+  if (process.env.FPS_ART_COMPARE === '1') {
+    assert.equal(offline, true);
+    const captureState = async () => page.evaluate(() => {
+      const snapshot = window.fpsClient.snapshot(), state = window.fpsClient.state();
+      const player = snapshot.actors.find(a => a.id === 'player');
+      return { snapshot, running: state.running, locked: state.locked, yaw: state.yaw, pitch: state.pitch, player };
+    });
+    const initial = await captureState();
+    assert.equal(initial.running, false); assert.equal(initial.locked, false); assert.equal(initial.snapshot.tick, 0);
+    const images = [];
+    for (let i = 1; i <= 2; i++) {
+      // No input or state injection: retain ordinary deployment pose at tick zero.
+      await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      assert.deepEqual(await captureState(), initial, 'capture state/camera must stay frozen');
+      const name = `art-deployment-${i}.png`, bytes = await page.locator('#stage').screenshot();
+      assert.deepEqual(await captureState(), initial, 'capture state/camera changed during screenshot');
+      await writeFile(new URL(name, output), bytes);
+      images.push({ name, sha256: createHash('sha256').update(bytes).digest('hex'), pixels: PNG.sync.read(bytes).data });
+    }
+    assert.deepEqual(images[0].pixels, images[1].pixels, 'same-state repeated frames differ');
+    report.artComparison = { shot: 'offline-deployment-player', viewport: {width:1365,height:900}, fov:80, fovSource:'fixed View constructor in reviewed source',
+      state: initial, stateSha256: createHash('sha256').update(JSON.stringify(initial)).digest('hex'),
+      frames: images.map(({name,sha256}) => ({name,sha256})), identicalPixels:true,
+      scope:'initial player view only; not wall/corner/cover/combat acceptance; no quality input injection' };
   }
   await page.screenshot({ path: fileURLToPath(new URL('menu.png', output)) });
   const pixels = PNG.sync.read(await page.locator('#stage').screenshot());
