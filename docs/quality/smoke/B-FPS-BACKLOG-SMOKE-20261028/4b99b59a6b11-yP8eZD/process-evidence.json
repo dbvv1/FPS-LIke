@@ -67,10 +67,10 @@
         "parentName": "unknown (process had exited before sampling)"
       },
       "preview": {
-        "nodePid": 75208,
-        "parentPid": 98908,
-        "port": 7702,
-        "note": "node PID, parent PID and listening port observed"
+        "nodePid": null,
+        "parentPid": null,
+        "port": null,
+        "note": "per-run node PID and preview port not sampled; the smoke.mjs node seen in the 2026-10-28T11:00:37Z snapshot was created at 11:00:37.568Z, after this run's browser exited at 11:00:37.409Z, so it is not attributed to characters"
       },
       "report": "entries/characters/report.json"
     },
@@ -86,10 +86,10 @@
         "parentName": "unknown (process had exited before sampling)"
       },
       "preview": {
-        "nodePid": null,
-        "parentPid": null,
-        "port": null,
-        "note": "per-run node PID and preview port not sampled"
+        "nodePid": 75208,
+        "parentPid": 98908,
+        "port": 7702,
+        "note": "node PID, parent PID and listening port observed in the 2026-10-28T11:00:37Z snapshot; created at 11:00:37.568Z, after the characters browser exited at 11:00:37.409Z and before the movement browser launched at 11:00:39.860Z"
       },
       "report": "entries/movement/report.json"
     },
@@ -148,7 +148,7 @@
     "ownBrowsersRemaining": [],
     "observedPreviewPortsAfter": {},
     "observedPortsDuring": {
-      "charactersSmoke": 7702,
+      "movementSmoke": 7702,
       "capture": 8757
     },
     "previewClosed": true,
@@ -157,7 +157,8 @@
     "crossTaskGpuState": "unknown; no global scheduler or lock evidence"
   },
   "unknowns": [
-    "Per-run preview ports for default, movement and combined were not sampled.",
+    "Per-run preview ports for default, characters and combined were not sampled.",
+    "Preview node PID for characters was not sampled; the node seen in the 11:00:37Z snapshot was created after the characters browser had exited, so no characters preview PID is claimed.",
     "Browser parent PIDs for characters, movement, combined and capture were not sampled (the processes had exited before the snapshot); the default browser parent PID is 110616 but its process name was not sampled.",
     "Node 24+ was not verified: this run used Node v22.23.2 and npm 10.9.8, and npm ci reported EBADENGINE for the declared node >=24 requirement. No other Node runtime was installed or used.",
     "Whether another receiver task was using the GPU at the same time cannot be proven without a shared lock or scheduler; the process/port scan found none at preflight and at final cleanup."

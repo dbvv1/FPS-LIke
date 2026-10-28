@@ -48,8 +48,8 @@ capture 子段：`shot=gameplay`、seed 1、t=1、frames=2、repeat=2。两次�
 - 预检：接收端状态里只有本任务在 running；未发现其他 Playwright／Chromium／Vite preview 进程，也没有 4173／5173／4174／5174／3000／8080／8000 监听。用户自己的 Edge 进程不在本任务链内，未触碰。
 - 没有可复用的共用 GPU 锁或锁根；本轮没有获取／抢占／释放任何锁。四个入口与 capture 在单条命令内串行执行。
 - 本任务自有浏览器（DEBUG 日志实测 PID，括号内为父 PID）：default 111476（父 110616，父进程名未采样）、characters 59032（父进程未采样）、movement 58052（父进程未采样）、combined 47852（父进程未采样）、capture 22996（父进程未采样）；五次均以 `exitCode=0, signal=null` 退出，完整时间见 `process-evidence.json` 与 `logs/browser-excerpt.log`。这些进程已退出，父 PID 无法补采。
-- 观察到的预览节点／端口：characters 的 smoke.mjs PID 75208（父进程 98908）监听 7702；capture.mjs PID 89452（父进程 98908）监听 8757；default 只观察到浏览器父节点 PID 110616，其命令行和端口未采样。movement／combined 的节点 PID 与端口未采样，未推断。
-- 结束复查：无 smoke／capture 脚本进程、无属于本任务的 Chromium；7702 与 8757 已无监听，预览随进程退出关闭。task 自有 GPU 进程全部退出；没有共用锁可归还。跨任务 GPU 独占性未知。
+- 观察到的预览节点／端口：movement 的 smoke.mjs PID 75208（父进程 98908）监听 7702；该进程创建于 11:00:37.568Z，晚于 characters 浏览器退出（11:00:37.409Z）、早于 movement 浏览器启动（11:00:39.860Z），故归 movement。capture.mjs PID 89452（父进程 98908）监听 8757；default 只观察到浏览器父节点 PID 110616，其命令行和端口未采样。characters／combined 的节点 PID 与端口未采样，未推断。
+- 结束复查：无 smoke／capture 脚本进程、无属于本任务的 Chromium；movement 的 7702 与 capture 的 8757 已无监听，预览随进程退出关闭。task 自有 GPU 进程全部退出；没有共用锁可归还。跨任务 GPU 独占性未知。
 
 ## 安全与脱敏
 
@@ -66,6 +66,6 @@ capture 子段：`shot=gameplay`、seed 1、t=1、frames=2、repeat=2。两次�
 
 - smoke 通过只是功能门槛，不代表画面或手感更好，也不据此更换默认入口。
 - capture 是拍摄基础设施，`qualityAcceptance=not-performed`；本轮未做画质／灯光盲判。
-- 未验证：跨任务全局 GPU 独占、default／movement／combined 的预览端口、movement／combined 的节点 PID；characters／movement／combined／capture 浏览器的父进程，以及 default 浏览器父进程 110616 的进程名（进程已退出，无法补采）。
+- 未验证：跨任务全局 GPU 独占、default／characters／combined 的预览端口、characters／combined 的节点 PID；characters／movement／combined／capture 浏览器的父进程，以及 default 浏览器父进程 110616 的进程名（进程已退出，无法补采）。
 - 未验证：Node 24+。本轮 `npm ci`／`npm test`／smoke 均运行在 Node v22.23.2、npm 10.9.8，`npm ci` 报 EBADENGINE（要求 `node >=24`）；未安装其他 Node，也未在 24+ 上重跑。
 - 未合 main、未部署、未改网站版本。
