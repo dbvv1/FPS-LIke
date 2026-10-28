@@ -23,3 +23,14 @@ smoke 保留 sandbox、仅 headless，不允许可见窗口或操作桌面。页
 本地开发或预览地址后加 `?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1`：1 人＋9 机器人、六回合、第三回合后换边、整场结算和重开，以及原庭院表面材质候选。不包含技能、双点、经济或联网；也未合并 movement-v2 / characters-v1。`shot` 或 `contentSet` 组合明确报错，不冒称拍摄或角色内容生效；去掉全部参数返回默认。环境只在 Three 路径生效，CPU 回退不表示材质验证通过。
 
 `npm test` 包含原候选完整 CPU 回归（重定位测试 import）与路由/基底隔离测试。`npm run sim:offline-training -- --seed 1 --seeds 5 --replay` 跑五种子、每种子六回合及重放比较，输出职责、无视线射击和完成统计。模拟、构建不等于浏览器 smoke；该新整合入口的浏览器/GPU、实玩、画面与手感均未验证，原 v13 四入口 smoke 不替代新入口验收。此整合不重新制作或评价美术；环境原有差距见 [环境候选](quality/environment-candidate.md)。
+
+## 离线旁置入口的页面 smoke
+
+`npm run smoke:offline-training` 构建干净的固定提交后，仅验
+`?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1`。
+不重复四个旧入口或 capture；其源码隔离仍由路由测试与 v13 baseline 哈希回归检查。
+
+此命令使用真实 headless 页面输入，不改模拟时间或状态：核对九个 bot、十名角色、六回合 HUD 与 courtyard active；移动、瞄准、开火、换弹中断、暂停冻结和恢复；自然等待第一回合结束（最多 120 秒），用 UI 进入第二回合，再“重新开始”清空整场记录和比分。当前 UI 没有独立的“仅重开本回合”动作。
+**这不是六回合实玩验收**：半场换边、六回合终局与终局“再打一场”、人工画面/听感仍未覆盖。任何首回合超时或输入断言失败都使 smoke 失败，不回退为模拟通过。
+
+每次独占 `outputs/offline-training-smoke/<commit>-<unique>/`，保留 source commit/tree、构建文件 SHA-256、页面报告与 `DEBUG=pw:browser` 日志；报告区分原始 renderer 与 gpu/software/unknown，并核对自有浏览器 PID 的零码退出、断连及预览端口关闭。Windows 构建复用现有 npm 调用。默认保留 sandbox、精确移除 unsafe SwiftShader 默认参数；可沿现有 `FPS_SMOKE_CHROMIUM` 与 `FPS_SMOKE_RENDERER=native` 配置选择执行器，不启动可见窗口。原始输出含执行环境信息，公开前需脱敏扫描。

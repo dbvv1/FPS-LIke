@@ -5,16 +5,21 @@ import { resolve, sep } from 'node:path';
 import { chromium } from 'playwright';
 import { preview } from 'vite';
 import { PNG } from 'pngjs';
+import { OFFLINE_QUERY, assertOfflineReady, assertMatchReset, finishOfflineRound, portClosed } from './smoke-offline-support.mjs';
 const output = process.env.FPS_SMOKE_OUTPUT ? pathToFileURL(resolve(process.env.FPS_SMOKE_OUTPUT) + sep) : new URL('../outputs/browser-smoke/', import.meta.url);
 const query = process.env.FPS_SMOKE_QUERY ?? '';
 if (query && !query.startsWith('?')) throw new Error('Smoke query must start with ?');
 await mkdir(output, { recursive: true });
 const report = { passed: false, errors: [], warnings: [], stages: [] };
-let server, browser, page;
+const offline = query === OFFLINE_QUERY;
+if (new URLSearchParams(query).get('gameplay') === 'offline-training-v1' && !offline) throw new Error('Offline smoke requires the exact complete entry');
+if (offline) report.offlineCoverage = { fullMatchPlaythrough: false, completedRounds: [], restartScope: 'whole match via existing restart UI; no separate round-restart control', unverified: ['six-round completion UI', 'halftime transition', 'end-of-match replay', 'human visual/audio quality'] };
+let server, browser, page, previewPort;
 try {
   server = await preview({ configFile: false, root: fileURLToPath(new URL('..', import.meta.url)), build: { outDir: 'web-dist' }, preview: { host: '127.0.0.1', port: 0, open: false } });
   const address = server.httpServer.address();
   assert.ok(address && typeof address !== 'string');
+  previewPort = address.port;
   const origin = `http://127.0.0.1:${address.port}`;
   const executablePath = process.env.FPS_SMOKE_CHROMIUM;
   // Playwright 1.64 also inserts this switch in its defaults. Omitting it from
@@ -39,6 +44,13 @@ try {
   if (new URLSearchParams(query).get('contentSet') === 'characters-v1') {
     await page.waitForFunction(() => { const state = JSON.parse(document.getElementById('debug-state').textContent); return state.contentSet?.status === 'ready' && state.contentSet?.active === true; });
     report.contentSet = await page.evaluate(() => JSON.parse(document.getElementById('debug-state').textContent).contentSet);
+  }
+  if (offline) {
+    await page.waitForFunction(() => window.fpsClient.state().environment?.active === true);
+    const initial = await page.evaluate(() => ({ state: window.fpsClient.state(), snapshot: window.fpsClient.snapshot(), hud: { progress: document.getElementById('round').textContent, goal: document.getElementById('goal').textContent, title: document.getElementById('match-title').textContent } }));
+    assertOfflineReady(initial.state, initial.snapshot, initial.hud);
+    report.offlineInitial = initial;
+    report.stages.push('nine bot controllers, ten actors, complete-match HUD, courtyard active');
   }
   await page.screenshot({ path: fileURLToPath(new URL('menu.png', output)) });
   const pixels = PNG.sync.read(await page.locator('#stage').screenshot());
@@ -75,9 +87,16 @@ try {
   await page.waitForTimeout(200); assert.equal(await page.evaluate(() => window.fpsClient.snapshot().tick), paused);
   await page.locator('#start').click(); await page.waitForFunction(() => window.fpsClient.state().running);
   await page.keyboard.press('Escape'); await page.waitForFunction(() => !window.fpsClient.state().running);
+  if (offline) await finishOfflineRound(page, report);
   await page.locator('#restart').click();
   await page.waitForFunction(() => window.fpsClient.snapshot().tick === 0);
   assert.equal(await page.evaluate(() => window.fpsClient.snapshot().actors.find(a => a.id === 'player').weapons.pistol.ammo), 10);
+  if (offline) {
+    const reset = await page.evaluate(() => ({ state: window.fpsClient.state(), snapshot: window.fpsClient.snapshot() }));
+    assertMatchReset(reset.state, reset.snapshot);
+    report.offlineReset = reset;
+    report.stages.push('whole-match restart clears completed-round record and score');
+  }
   report.stages.push('pause freezes clock, resume and restart clear input/ammo state');
   assert.deepEqual(report.errors, []);
   report.passed = true;
@@ -85,8 +104,16 @@ try {
   report.failure = String(error.stack ?? error); process.exitCode = 1;
   if (page) { try { await page.screenshot({ path: fileURLToPath(new URL('failure.png', output)) }); } catch {} }
 } finally {
-  await browser?.close();
-  if (server) { server.httpServer.closeAllConnections(); await new Promise(resolve => server.httpServer.close(resolve)); }
+  report.cleanup = {};
+  try {
+    await browser?.close();
+    report.cleanup.browserDisconnected = !!browser && !browser.isConnected();
+  } catch (error) { report.cleanup.browserError = String(error); report.passed = false; process.exitCode = 1; }
+  try {
+    if (server) { server.httpServer.closeAllConnections(); await new Promise((resolve, reject) => server.httpServer.close(error => error ? reject(error) : resolve())); }
+    report.cleanup.previewPortClosed = previewPort !== undefined && await portClosed(previewPort);
+    if (previewPort !== undefined) assert.equal(report.cleanup.previewPortClosed, true);
+  } catch (error) { report.cleanup.previewError = String(error); report.passed = false; process.exitCode = 1; }
   await writeFile(new URL('report.json', output), JSON.stringify(report, null, 2) + '\n');
   console.log(JSON.stringify(report, null, 2));
 }

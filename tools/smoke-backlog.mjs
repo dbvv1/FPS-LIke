@@ -5,34 +5,47 @@ import { resolve, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
+import { OFFLINE_QUERY, browserExitReceipt } from './smoke-offline-support.mjs';
+const offline = process.argv.slice(2).includes('--offline-training');
+assert.ok(process.argv.slice(2).every(arg => arg === '--offline-training'), 'Unknown smoke option');
 const root = fileURLToPath(new URL('..', import.meta.url));
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
 const sourceCommit = git('rev-parse', 'HEAD'), sourceTree = git('rev-parse', 'HEAD^{tree}');
 assert.equal(git('status', '--porcelain'), '', 'Commit all intended source changes before smoke');
-const base = resolve(root, 'outputs/backlog-smoke'); mkdirSync(base, { recursive: true });
+const base = resolve(root, offline ? 'outputs/offline-training-smoke' : 'outputs/backlog-smoke'); mkdirSync(base, { recursive: true });
 const output = mkdtempSync(join(base, sourceCommit.slice(0, 12) + '-'));
-const manifest = { passed: false, sourceCommit, sourceTree, build: [], runs: [], output, qualityAcceptance: 'not-performed' };
+const manifest = { passed: false, sourceCommit, sourceTree, build: [], runs: [], output, qualityAcceptance: 'not-performed', scope: offline ? 'offline-entry-only; no six-round full-match playthrough; no old-entry recapture' : 'v13-backlog' };
 try {
   const command = process.platform === 'win32' ? (process.env.ComSpec || 'cmd.exe') : 'npm';
   const args = process.platform === 'win32' ? ['/d', '/s', '/c', 'npm run build'] : ['run', 'build'];
   const build = spawnSync(command, args, { cwd: root, encoding: 'utf8', windowsHide: true });
   writeFileSync(join(output, 'build.log'), (build.stdout ?? '') + (build.stderr ?? ''));
   assert.equal(build.status, 0, 'production build');
-  function walk(dir) { for (const name of readdirSync(dir, { withFileTypes: true })) { const p = join(dir, name.name); if (name.isDirectory()) walk(p); else manifest.build.push({ path: relative(root, p).split('\\').join('/'), sha256: createHash('sha256').update(readFileSync(p)).digest('hex') }); } }
+  function walk(dir) { for (const name of readdirSync(dir, { withFileTypes: true })) { const p = join(dir, name.name); if (name.isDirectory()) walk(p); else manifest.build.push({ path: relative(root, p).replaceAll('\\', '/'), sha256: createHash('sha256').update(readFileSync(p)).digest('hex') }); } }
   walk(join(root, 'web-dist'));
-  for (const [label, query] of [['default', ''], ['characters', '?contentSet=characters-v1'], ['movement', '?gameplay=movement-v2'], ['combined', '?gameplay=movement-v2&contentSet=characters-v1']]) {
+  for (const [label, query] of (offline ? [['offline-training', OFFLINE_QUERY]] : [['default', ''], ['characters', '?contentSet=characters-v1'], ['movement', '?gameplay=movement-v2'], ['combined', '?gameplay=movement-v2&contentSet=characters-v1']])) {
     const dir = join(output, label); mkdirSync(dir);
     const result = spawnSync(process.execPath, ['tools/smoke.mjs'], { cwd: root, encoding: 'utf8', windowsHide: true, env: { ...process.env, DEBUG: 'pw:browser', FPS_SMOKE_QUERY: query, FPS_SMOKE_OUTPUT: dir } });
     writeFileSync(join(dir, 'browser.log'), (result.stdout ?? '') + (result.stderr ?? ''));
     manifest.runs.push({ label, query, status: result.status, signal: result.signal, report: `${label}/report.json` });
     assert.equal(result.status, 0, `${label} smoke`);
-    assert.equal(JSON.parse(readFileSync(join(dir, 'report.json'), 'utf8')).passed, true);
+    const report = JSON.parse(readFileSync(join(dir, 'report.json'), 'utf8'));
+    assert.equal(report.passed, true);
+    if (offline) {
+      manifest.runs.at(-1).browserExit = browserExitReceipt((result.stdout ?? '') + (result.stderr ?? ''));
+      assert.equal(report.cleanup.browserDisconnected, true);
+      assert.equal(report.cleanup.previewPortClosed, true);
+      manifest.runs.at(-1).rendererClass = report.rendererClass;
+      manifest.runs.at(-1).coverage = report.offlineCoverage;
+    }
   }
-  const captureArgs = ['--import', 'tsx', 'tools/capture.mjs', '--shot', 'gameplay', '--t', '1', '--frames', '2', '--repeat', '2', '--out', join(output, 'capture'), ...(process.env.FPS_SMOKE_RENDERER === 'native' ? [] : ['--software'])];
-  const capture = spawnSync(process.execPath, captureArgs, { cwd: root, encoding: 'utf8', windowsHide: true, env: { ...process.env, DEBUG: 'pw:browser', ...(process.env.FPS_SMOKE_CHROMIUM ? { FPS_CAPTURE_CHROMIUM: process.env.FPS_SMOKE_CHROMIUM } : {}) } });
-  writeFileSync(join(output, 'capture-browser.log'), (capture.stdout ?? '') + (capture.stderr ?? ''));
-  manifest.runs.push({ label: 'capture', status: capture.status, signal: capture.signal, report: 'capture/*/report.json' });
-  assert.equal(capture.status, 0, 'capture smoke');
+  if (!offline) {
+    const captureArgs = ['--import', 'tsx', 'tools/capture.mjs', '--shot', 'gameplay', '--t', '1', '--frames', '2', '--repeat', '2', '--out', join(output, 'capture'), ...(process.env.FPS_SMOKE_RENDERER === 'native' ? [] : ['--software'])];
+    const capture = spawnSync(process.execPath, captureArgs, { cwd: root, encoding: 'utf8', windowsHide: true, env: { ...process.env, DEBUG: 'pw:browser', ...(process.env.FPS_SMOKE_CHROMIUM ? { FPS_CAPTURE_CHROMIUM: process.env.FPS_SMOKE_CHROMIUM } : {}) } });
+    writeFileSync(join(output, 'capture-browser.log'), (capture.stdout ?? '') + (capture.stderr ?? ''));
+    manifest.runs.push({ label: 'capture', status: capture.status, signal: capture.signal, report: 'capture/*/report.json' });
+    assert.equal(capture.status, 0, 'capture smoke');
+  }
   assert.equal(git('rev-parse', 'HEAD'), sourceCommit, 'source commit must remain fixed');
   assert.equal(git('status', '--porcelain'), '', 'source tree must remain clean');
   for (const file of manifest.build) assert.equal(createHash('sha256').update(readFileSync(resolve(root, file.path))).digest('hex'), file.sha256, `build changed after capture: ${file.path}`);
