@@ -1,3 +1,4 @@
+import { squadPlan } from './squads.js';
 import { DIFFICULTIES } from '../content/difficulty.js';
 import { MAP } from '../content/map.js';
 import { WEAPONS } from '../content/weapons.js';
@@ -22,7 +23,7 @@ export class Bot {
   private aim = { yaw: 0, pitch: 0 };
   private reactionRecorded = false;
   readonly reactions: number[] = [];
-  constructor(readonly id: string, readonly difficulty: Difficulty, seed: number, private nav: Navigation, private preferredWeapon: WeaponId = 'rifle') {
+  constructor(readonly id: string, readonly difficulty: Difficulty, seed: number, private nav: Navigation, private preferredWeapon: WeaponId = 'rifle', private squadSlot?: number) {
     this.random = { random: Math.imul(seed || 1, 2654435761) >>> 0 };
     this.route = MAP.routes[Math.floor(nextRandom(this.random) * MAP.routes.length)]!.map(p => ({ ...p }));
   }
@@ -36,6 +37,8 @@ export class Bot {
     }
     if (self.hp <= 0 || o.phase !== 'live') return [];
     if (self.weapon !== this.preferredWeapon) return [{ actorId: this.id, type: 'switch', weapon: this.preferredWeapon }];
+    const plan = this.squadSlot === undefined ? null : squadPlan(o, this.squadSlot, this.routeIndex);
+    if (plan) this.routeIndex = plan.routeIndex;
     const commands: Command[] = [];
     type BotAction = Command extends infer C ? C extends Command ? Omit<C, 'actorId'> : never : never;
     const emit = (c: BotAction) => commands.push({ ...c, actorId: this.id });
@@ -74,15 +77,16 @@ export class Bot {
     this.target = null;
     if (self.weapons[self.weapon].ammo < 5 && !self.reload) emit({ type: 'reload' });
     let goal: Vec3;
-    const canInteract = (o.bomb.planted && self.side === 'defend' && flatDistance(self.position, o.bomb.position) < 1.4) || (!o.bomb.planted && o.bomb.carrier === self.id && flatDistance(self.position, MAP.site) < 1.7);
+    const canInteract = plan ? plan.interact : (o.bomb.planted && self.side === 'defend' && flatDistance(self.position, o.bomb.position) < 1.4) || (!o.bomb.planted && o.bomb.carrier === self.id && flatDistance(self.position, MAP.site) < 1.7);
     if (canInteract) {
       emit({ type: 'move', x: 0, z: 0 });
       emit({ type: 'interact', held: true });
-      emit({ type: 'aim', yaw: self.yaw + 0.012, pitch: 0 });
+      emit({ type: 'aim', yaw: self.yaw + (plan ? 0 : 0.012), pitch: 0 });
       return commands;
     }
     emit({ type: 'interact', held: false });
-    if (o.bomb.planted) goal = self.side === 'defend' ? o.bomb.position : { x: 0, y: 0, z: 9 };
+    if (plan) goal = plan.goal;
+    else if (o.bomb.planted) goal = self.side === 'defend' ? o.bomb.position : { x: 0, y: 0, z: 9 };
     else if (this.lastClue && o.time - this.lastClue.time < 4 * SECOND) goal = this.lastClue.position;
     else if (self.side === 'attack') {
       if (!o.bomb.carrier) goal = o.bomb.position;

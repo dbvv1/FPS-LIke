@@ -69,13 +69,20 @@ export class Hud {
     if (player.hp < this.lastHp) { element('hurt').classList.remove('flash'); void element('hurt').offsetWidth; element('hurt').classList.add('flash'); }
     this.lastHp = player.hp;
     element('score-a').textContent = String(state.score.amber); element('score-d').textContent = String(state.score.blue);
-    element('round').textContent = `回合 ${String(state.round).padStart(2, '0')}`;
+    element('round').textContent = `回合 ${String(state.round).padStart(2, '0')}${state.actors.length === 10 ? ' · 离线 5v5' : ''}`;
     const remaining = Math.max(0, Math.ceil(((state.bomb.planted ? state.bomb.explodeAt! : state.roundEndsAt) - state.time) / SECOND));
     element('timer').textContent = `${String(Math.floor(remaining / 60)).padStart(2, '0')}:${String(remaining % 60).padStart(2, '0')}`;
     element('timer').classList.toggle('urgent', state.bomb.planted);
     element('side').textContent = player.side === 'attack' ? '进攻 / ATTACK' : '防守 / DEFEND';
     const d = Math.hypot(player.position.x - MAP.site.x, player.position.z - MAP.site.z);
     element('goal').textContent = state.bomb.planted ? player.side === 'defend' ? '信标已安放 · 靠近并按住 E 拆除' : '守住信标，直到引爆' : player.side === 'attack' ? d <= MAP.siteRadius ? '已抵达信标点 · 按住 E 安放' : '推进至信标区域 · 按住 E 安放' : '阻止安放，或守住回合时间';
+    if (state.actors.length === 10) {
+      const allies=state.actors.filter(a=>a.team===player.team&&a.hp>0).length;
+      const enemies=state.actors.filter(a=>a.team!==player.team&&a.hp>0).length;
+      const carrier=state.bomb.carrier===player.id?'你携带信标':player.side==='attack'&&state.bomb.carrier?'队友携带信标':'';
+      if(!state.bomb.planted && player.side==='attack' && state.bomb.carrier!==player.id)element('goal').textContent=state.bomb.carrier?'掩护携带信标的队友推进':'信标掉落 · 靠近拾取后推进安放';
+      element('goal').textContent += ` · 存活 ${allies}:${enemies}${carrier ? ' · '+carrier : ''}`;
+    }
     element('hp').textContent = String(player.hp); element('hp-bar').style.width = `${player.hp}%`;
     const mag = player.weapons[player.weapon];
     element('weapon').textContent = player.weapon === 'rifle' ? 'RX-24 / 步枪' : 'PX-10 / 手枪';

@@ -1,3 +1,4 @@
+import { squadsRequested, squadSpecs, squadBots } from '../src/session/squads.js';
 import test from 'node:test';
 import { TrainingMatch, completeMatchRequested } from '../src/session/match.js';
 import assert from 'node:assert/strict';
@@ -20,7 +21,7 @@ async function fixture(){
  class Controls{reset(){events.push('controls.reset');}pause(){}dispose(){events.push('controls.dispose');}}
  class Soundscape{reset(){events.push('sound.reset');}dispose(){events.push('sound.dispose');}}
  class Navigation{dispose(){events.push('nav.dispose');}}
- const deps={TrainingMatch,completeMatchRequested,MatchPanel:class{},Game:{async create(){createCount++;if(createCount===2)await pending;return createCount===1?initial:replacement;}},Bot:class{constructor(){events.push('bot.create');}},initNavigation:async()=>{},Navigation,Controls,MouseSensitivity:class{},View,CanvasView:class{},Soundscape,RESULT_HOLD_MS:700,Hud,document,window,performance:{now:()=>0},requestAnimationFrame:()=>1,cancelAnimationFrame:()=>{},console:{error:()=>events.push('fatal')}};
+ const deps={squadsRequested,squadSpecs,squadBots,TrainingMatch,completeMatchRequested,MatchPanel:class{},Game:{async create(){createCount++;if(createCount===2)await pending;return createCount===1?initial:replacement;}},Bot:class{constructor(){events.push('bot.create');}},initNavigation:async()=>{},Navigation,Controls,MouseSensitivity:class{},View,CanvasView:class{},Soundscape,RESULT_HOLD_MS:700,Hud,document,window,performance:{now:()=>0},requestAnimationFrame:()=>1,cancelAnimationFrame:()=>{},console:{error:()=>events.push('fatal')}};
  await new AsyncFunction(...Object.keys(deps),source)(...Object.values(deps));
  const hide=(persisted=false)=>{const event=new Event('pagehide');Object.defineProperty(event,'persisted',{value:persisted});window.dispatchEvent(event);};
  return{events,initial,replacement,resolve,reject,restart,hide,elements,createCount:()=>createCount,settle:()=>new Promise<void>(r=>setImmediate(r))};

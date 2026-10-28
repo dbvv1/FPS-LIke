@@ -1,12 +1,15 @@
+import { squadSpawn } from './squads.js';
 import { MAP } from '../content/map.js';
 import { WEAPONS } from '../content/weapons.js';
 import { distance, flatDistance, hash, nextRandom } from './math.js';
 import { Physics, eye, initPhysics } from './physics.js';
 import { SECOND, SUBTICKS, type Actor, type Command, type GameState, type PlayerSpec, type Rules, type Side, type Sound, type Team, type Vec3, type WeaponId } from './types.js';
 export const DEFAULT_RULES: Readonly<Rules> = Object.freeze({ roundTicks: 60 * 70, plantTicks: 60 * 3, defuseTicks: 60 * 5, bombTicks: 60 * 25, swapEvery: 3 });
+export type GameOptions = { formation?: 'squads-v1' };
 export type VisibleEnemy = Pick<Actor, 'id' | 'team' | 'side' | 'position'> & { crouch: boolean };
 export type Observation = {
   time: number; round: number; phase: GameState['phase']; self: Actor;
+  allies?: Pick<Actor, 'id'|'position'|'hp'|'bot'>[];
   enemies: VisibleEnemy[]; bodyVisibleIds: string[]; sounds: Sound[];
   bomb: { planted: boolean; position: Vec3; carrier: string | null };
 };
@@ -16,14 +19,18 @@ export class Game {
   private disposed = false;
   private readonly ruleSet: Readonly<Rules>;
   get rules(): Readonly<Rules> { return this.ruleSet; }
+  readonly options: Readonly<GameOptions>;
   private readonly specs: PlayerSpec[];
-  static async create(seed = 1, specs: PlayerSpec[] = [{ id: 'amber-1', team: 'amber' }, { id: 'blue-1', team: 'blue' }], rules: Partial<Rules> = {}) {
+  static async create(seed = 1, specs: PlayerSpec[] = [{ id: 'amber-1', team: 'amber' }, { id: 'blue-1', team: 'blue' }], rules: Partial<Rules> = {}, options: GameOptions = {}) {
     await initPhysics();
-    return new Game(seed, specs, rules);
+    return new Game(seed, specs, rules, options);
   }
-  private constructor(seed: number, specs: PlayerSpec[], rules: Partial<Rules>) {
+  private constructor(seed: number, specs: PlayerSpec[], rules: Partial<Rules>, options: GameOptions) {
+    if (Object.keys(options).some(k=>k!=='formation') || (options.formation !== undefined && options.formation !== 'squads-v1')) throw new Error('Invalid formation version');
+    this.options = Object.freeze({...options});
+    const capacity = options.formation === 'squads-v1' ? 5 : 3;
     if (!Number.isSafeInteger(seed) || seed < 0 || seed > 0xffffffff) throw new Error('seed must be a uint32');
-    if (specs.length < 2 || specs.length > 6 || new Set(specs.map(s => s.id)).size !== specs.length || specs.some(s => typeof s.id !== 'string' || !s.id || !['amber', 'blue'].includes(s.team)) || !specs.some(s => s.team === 'amber') || !specs.some(s => s.team === 'blue') || ['amber', 'blue'].some(t => specs.filter(s => s.team === t).length > 3)) throw new Error('Use unique player IDs and 1–3 actors on each team');
+    if (specs.length < 2 || specs.length > capacity * 2 || new Set(specs.map(s => s.id)).size !== specs.length || specs.some(s => typeof s.id !== 'string' || !s.id || !['amber', 'blue'].includes(s.team)) || !specs.some(s => s.team === 'amber') || !specs.some(s => s.team === 'blue') || ['amber', 'blue'].some(t => specs.filter(s => s.team === t).length > capacity)) throw new Error(`Use unique player IDs and 1–${capacity} actors on each team`);
     for (const p of specs) if (p.position && (![p.position.x, p.position.y, p.position.z].every(Number.isFinite) || Math.abs(p.position.x) > 12 || Math.abs(p.position.z) > 17 || p.position.y !== 0)) throw new Error('Invalid spawn');
     for (const p of specs) {
       if (p.bot !== undefined && !['easy', 'normal', 'hard'].includes(p.bot)) throw new Error('Invalid bot difficulty');
@@ -45,14 +52,14 @@ export class Game {
     // Preserve the v1 gameplay replay hash. Presentation facts are derived from the
     // same trace, not input/state used by future gameplay, and are excluded.
     const state = { ...this.current, shots: this.current.shots.map(({ impact: _impact, ...shot }) => shot) };
-    return hash({ state, rules: this.rules });
+    return hash({ state, rules: this.rules, ...(this.options.formation ? { options: this.options } : {}) });
   }
   private resetActors() {
     const swapped = Math.floor((this.current.round - 1) / this.rules.swapEvery) % 2 === 1;
     const counts = { attack: 0, defend: 0 };
     this.current.actors = this.specs.map(spec => {
       const side: Side = (spec.team === 'amber') !== swapped ? 'attack' : 'defend';
-      const position = this.current.round === 1 && spec.position ? { ...spec.position } : { ...MAP.spawns[side], x: MAP.spawns[side].x + counts[side] * 1.1 };
+      const position = this.current.round === 1 && spec.position ? { ...spec.position } : this.options.formation === 'squads-v1' ? squadSpawn(side, counts[side]) : { ...MAP.spawns[side], x: MAP.spawns[side].x + counts[side] * 1.1 };
       counts[side]++;
       const weapons = Object.fromEntries((['rifle', 'pistol'] as const).map(id => [id, { ammo: WEAPONS[id].magazine, reserve: WEAPONS[id].reserve, shots: 0, lastShot: -SECOND }])) as Actor['weapons'];
       return { id: spec.id, team: spec.team, side, hp: 100, position, yaw: side === 'attack' ? 0 : Math.PI, pitch: 0, input: { x: 0, z: 0, walk: false, crouch: false, interact: false }, weapon: 'rifle', weapons, reload: null, nextShot: 0, nextFootstep: 0, bot: spec.bot ?? null };
@@ -238,7 +245,7 @@ export class Game {
     });
     // Unplanted enemy carrier location is private. Public site knowledge is not enemy tracking.
     const bomb = this.current.bomb;
-    return structuredClone({ time: this.current.time, round: this.current.round, phase: this.current.phase, self: actor, enemies: enemies.map(a => ({ id: a.id, team: a.team, side: a.side, position: a.position, crouch: a.input.crouch })), bodyVisibleIds, sounds, bomb: { planted: bomb.planted, position: bomb.planted || actor.side === 'attack' ? bomb.position : MAP.site, carrier: actor.side === 'attack' ? bomb.carrier : null } });
+    return structuredClone({ time: this.current.time, round: this.current.round, phase: this.current.phase, self: actor, ...(this.options.formation ? {allies: this.current.actors.filter(a=>a.team===actor.team).map(a=>({id:a.id,position:a.position,hp:a.hp,bot:a.bot}))} : {}), enemies: enemies.map(a => ({ id: a.id, team: a.team, side: a.side, position: a.position, crouch: a.input.crouch })), bodyVisibleIds, sounds, bomb: { planted: bomb.planted, position: bomb.planted || actor.side === 'attack' ? bomb.position : MAP.site, carrier: actor.side === 'attack' ? bomb.carrier : null } });
   }
   dispose() { if (!this.disposed) { this.physics.dispose(); this.disposed = true; } }
 }

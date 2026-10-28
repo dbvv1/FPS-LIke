@@ -1,3 +1,4 @@
+import { squadsRequested, squadSpecs, squadBots } from './session/squads.js';
 import { Game } from './sim/game.js';
 import { Bot } from './sim/bot.js';
 import { initNavigation, Navigation } from './sim/navigation.js';
@@ -12,11 +13,12 @@ import type { GameState } from './sim/types.js';
 import { TrainingMatch, completeMatchRequested } from './session/match.js';
 import { MatchPanel } from './ui/match-panel.js';
 const canvas = document.querySelector<HTMLCanvasElement>('#stage')!;
-let game: Game, nav: Navigation, bot: Bot, view: View | CanvasView, controls: Controls;
+let game: Game, nav: Navigation, bot: Bot, bots: Bot[] = [], view: View | CanvasView, controls: Controls;
 let ready = false, running = false, restarting = false, frameId = 0, simStart = 0, lastFrame = performance.now();
 let startupCancelled = false;
 const startupCancellation = new Error('Scene startup cancelled by navigation');
 let resultRevealAt: number | null = null;
+let squads = false;
 let match: TrainingMatch | null = null, matchPanel: MatchPanel | null = null;
 const sound = new Soundscape();
 const sensitivity = new MouseSensitivity(() => window.localStorage);
@@ -48,9 +50,9 @@ async function restart() {
   if (!ready || restarting) return;
   restarting = true; running = false; resultRevealAt = null; controls.pause(); hud.setBusy(true);
   try {
-    const replacement = await Game.create(1, [{ id: 'player', team: 'amber' }, { id: 'bot', team: 'blue', bot: hud.difficulty }]);
+    const replacement = await Game.create(1, squads ? squadSpecs(hud.difficulty) : [{ id: 'player', team: 'amber' }, { id: 'bot', team: 'blue', bot: hud.difficulty }], {}, squads ? { formation: 'squads-v1' } : {});
     if (startupCancelled) { replacement.dispose(); return; }
-    game.dispose(); game = replacement; match?.reset(); bot = new Bot('bot', hud.difficulty, 0x85ebca6a, nav);
+    game.dispose(); game = replacement; match?.reset(); if (squads) bots = squadBots(hud.difficulty, 1, nav); else bot = new Bot('bot', hud.difficulty, 0x85ebca6a, nav);
     controls.reset(player()); view.reset(); sound.reset(); hud.reset(); hud.menu(true, game.state, player());
   } catch (error) { if (!startupCancelled) fail(error); }
   finally { restarting = false; if (!startupCancelled) hud.setBusy(false); }
@@ -66,7 +68,7 @@ function frame(now: number) {
         let steps = 0;
         while (running && now >= simStart + tickMs && steps++ < 15) {
           const actor = player();
-          game.step([...controls.commands(actor, simStart, simStart + tickMs, game.state.time), ...bot.commands(game.observe('bot'))]); simStart += tickMs;
+          game.step([...controls.commands(actor, simStart, simStart + tickMs, game.state.time), ...(squads ? bots.flatMap(b => b.commands(game.observe(b.id))) : bot.commands(game.observe('bot')))]); simStart += tickMs;
           if (game.state.phase === 'over') {
             // The authoritative result is already settled. Leave its visible
             // reaction unobscured briefly; no gameplay or collision is extended.
@@ -98,6 +100,7 @@ window.addEventListener('pageshow', event => {
   if (event.persisted && ready) { lastFrame = performance.now(); simStart = lastFrame; hud.menu(true, game.state, player()); frameId = requestAnimationFrame(frame); }
 });
 try {
+  squads = squadsRequested(window.location?.search ?? '');
   if (completeMatchRequested(window.location?.search ?? '')) { match = new TrainingMatch(); matchPanel = new MatchPanel(); }
   const probe = document.createElement('canvas');
   const webgl = probe.getContext('webgl2');
@@ -106,9 +109,9 @@ try {
   document.getElementById('render-mode')!.hidden = view.backend !== 'canvas2d-cpu';
   await initNavigation(); if (startupCancelled) throw startupCancellation;
   nav = new Navigation();
-  game = await Game.create(1, [{ id: 'player', team: 'amber' }, { id: 'bot', team: 'blue', bot: hud.difficulty }]);
+  game = await Game.create(1, squads ? squadSpecs(hud.difficulty) : [{ id: 'player', team: 'amber' }, { id: 'bot', team: 'blue', bot: hud.difficulty }], {}, squads ? { formation: 'squads-v1' } : {});
   if (startupCancelled) { game.dispose(); throw startupCancellation; }
-  bot = new Bot('bot', hud.difficulty, 0x85ebca6a, nav);
+  if (squads) bots = squadBots(hud.difficulty, 1, nav); else bot = new Bot('bot', hud.difficulty, 0x85ebca6a, nav);
   controls = new Controls(canvas, locked => {
     // A delayed pointer-lock acquisition must not resume behind a new settings draft.
     if (locked && sensitivity.dirty) { controls.pause(); hud.message('灵敏度尚未应用，请先保存或取消修改。'); return; }
@@ -124,7 +127,7 @@ try {
   // Read-only observability for smoke tests; no command injection or simulation mutation.
   Object.defineProperty(window, 'fpsClient', { value: Object.freeze({
     snapshot: (): GameState => game.state,
-    state: () => ({ ...(match ? { match: match.summary } : {}), ready, running, locked: controls.locked, backend: view.backend, yaw: controls.yaw, pitch: controls.pitch, ...view.info }),
+    state: () => ({ ...(squads ? { squads: { version: 'offline-v1', formation: game.options.formation, botIds: bots.map(b=>b.id) } } : {}), ...(match ? { match: match.summary } : {}), ready, running, locked: controls.locked, backend: view.backend, yaw: controls.yaw, pitch: controls.pitch, ...view.info }),
   }) });
   frameId = requestAnimationFrame(frame);
 } catch (error) { if (!startupCancelled) fail(error); }
