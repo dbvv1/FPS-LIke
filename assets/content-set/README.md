@@ -47,6 +47,11 @@ loader, and package metadata belongs to `gltf.scene.userData`.
   no AnimationMixer delta, wall-clock animation loop or incremental transform is
   added. Crouch scales by .65 before the feet-origin fall; world Z is reflected
   and yaw negated only at the render boundary. Teammates keep the original palette.
+  Fire/hit stop at the loaded clip duration, not a copied 120/180 ms constant.
+  A source retime must also update the accepted artifact hash and review the
+  existing 700 ms Feedback retention limit; longer hit/death clips are rejected
+  before activation. The 240 ms fixture is within that limit and does
+  not alter simulation cadence, damage or reload timing.
 - There is no skinned motion, finger articulation or enemy magazine/reload clip.
   Rigid gait, grip, reload contact, death silhouette and screen coverage need
   real-client same-camera comparison; this candidate is not quality-passed.

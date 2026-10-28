@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader, type GLTF } from 'three/addons/loaders/GLTFLoader.js';
 import { SECOND, type Actor, type GameState } from '../sim/types.js';
-import { type ShotEffect } from './feedback.js';
+import { RESULT_HOLD_MS, type ShotEffect } from './feedback.js';
 import { toThree } from './coordinates.js';
 import { weaponParts, weaponPartPosition, weaponMesh, type weaponPose } from './weapon.js';
 
@@ -155,6 +155,8 @@ export class ContentOpponent {
     for (const name of ['head', 'spine', 'leg-l', 'leg-r', 'weapon']) contentNode(this.scene, name);
     this.scene.traverse(node => this.rests.push({ node, position: node.position.clone(), quaternion: node.quaternion.clone() }));
     for (const clip of gltf.animations) {
+      if (!Number.isFinite(clip.duration) || clip.duration <= 0 || clip.tracks.length === 0 || this.clips.has(clip.name)) throw new Error(`Invalid or duplicate rigid clip ${clip.name}`);
+      if ((clip.name === 'hit' || clip.name === 'death') && clip.duration > RESULT_HOLD_MS / 1000) throw new Error(`Rigid clip ${clip.name} exceeds Feedback retention`);
       const bindings = clip.tracks.map(track => {
         const parsed = THREE.PropertyBinding.parseTrackName(track.name);
         if ((parsed.propertyName !== 'position' && parsed.propertyName !== 'quaternion') || track.getInterpolation() !== THREE.InterpolateLinear) throw new Error(`Unsupported rigid track ${track.name}`);
@@ -181,8 +183,8 @@ export class ContentOpponent {
     this.sample('idle', time, true);
     if (Math.hypot(actor.input.x, actor.input.z) > .01) this.sample('walk', time, true);
     const shot = [...state.shots].reverse().find(shot => shot.actorId === actor.id && shot.weapon === actor.weapon && shot.time <= state.time);
-    if (shot && !actor.reload && state.phase === 'live' && time - shot.time / SECOND < .12) this.sample('fire', time - shot.time / SECOND);
-    if (hit && hit.age < 180 && !hit.shot.impact?.killed) this.sample('hit', hit.age / 1000);
+    if (shot && !actor.reload && state.phase === 'live' && time - shot.time / SECOND < this.clips.get('fire')!.duration) this.sample('fire', time - shot.time / SECOND);
+    if (hit && hit.age / 1000 < this.clips.get('hit')!.duration && !hit.shot.impact?.killed) this.sample('hit', hit.age / 1000);
   }
   detach() { this.mount.removeFromParent(); }
 }

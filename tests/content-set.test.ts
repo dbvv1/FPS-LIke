@@ -297,3 +297,76 @@ test('candidate diagnostics distinguish loading, active ready and failure fallba
   const missing = contentSetDiagnostics(query, 'three-webgl2').contentSet!;
   assert.equal(missing.status, 'fallback'); assert.equal(missing.active, false);
 });
+
+// A source edit must survive actual GLB parsing, not just a renamed in-memory
+// clip. Only the selected animation's input accessors change; geometry, output
+// poses and all other animation buffers stay byte-for-byte unchanged.
+async function retimedEnemy(name: string, scale: number) {
+  const source = await bytes('enemy-relay-guard');
+  const jsonLength = source.readUInt32LE(12);
+  const json = JSON.parse(source.subarray(20, 20 + jsonLength).toString());
+  const binStart = 20 + jsonLength + 8;
+  const bin = Buffer.from(source.subarray(binStart)), changedOffsets = new Set<number>();
+  const animation = json.animations.find((entry: { name: string }) => entry.name === name);
+  for (const index of new Set<number>(animation.samplers.map((sampler: { input: number }) => sampler.input))) {
+    const accessor = json.accessors[index], view = json.bufferViews[accessor.bufferView];
+    assert.equal(accessor.componentType, 5126); assert.equal(accessor.type, 'SCALAR');
+    for (let i = 0; i < accessor.count; i++) {
+      const offset = (view.byteOffset ?? 0) + (accessor.byteOffset ?? 0) + i * (view.byteStride ?? 4);
+      bin.writeFloatLE(bin.readFloatLE(offset) * scale, offset);
+      for (let byte = offset; byte < offset + 4; byte++) changedOffsets.add(byte);
+    }
+    accessor.min = accessor.min.map((n: number) => n * scale);
+    accessor.max = accessor.max.map((n: number) => n * scale);
+  }
+  for (let i = 0; i < bin.length; i++) if (!changedOffsets.has(i)) assert.equal(bin[i], source[binStart + i], 'unrelated source byte');
+  const encoded = Buffer.from(JSON.stringify(json)), padded = Buffer.alloc(Math.ceil(encoded.length / 4) * 4, 32); encoded.copy(padded);
+  const result = Buffer.alloc(12 + 8 + padded.length + 8 + bin.length);
+  result.writeUInt32LE(0x46546c67, 0); result.writeUInt32LE(2, 4); result.writeUInt32LE(result.length, 8);
+  result.writeUInt32LE(padded.length, 12); result.writeUInt32LE(0x4e4f534a, 16); padded.copy(result, 20);
+  const binHeader = 20 + padded.length; result.writeUInt32LE(bin.length, binHeader); result.writeUInt32LE(0x004e4942, binHeader + 4); bin.copy(result, binHeader + 8);
+  return new GLTFLoader().parseAsync(result.buffer.slice(result.byteOffset, result.byteOffset + result.byteLength), '');
+}
+
+test('second source edit: a 240ms hit is not cut off by the old 180ms consumer window', async () => {
+  const source = await retimedEnemy('hit', 4 / 3), opponent = new ContentOpponent(source), baseline = new ContentOpponent(source);
+  const a = actor(), s = state(a); s.time = .18 * SECOND;
+  const hit: Shot = { ...shot(actor('player'), 0), hit: a.id, impact: { origin: a.position, end: a.position, kind: 'actor', killed: false } };
+  opponent.pose(s, a, [{shot:hit,born:0,age:180}], true); baseline.pose(s,a,[],true);
+  const expected = source.animations.find(clip => clip.name === 'hit')!.tracks.find(track => track.name === 'spine.quaternion')!.InterpolantFactoryMethodLinear().evaluate(.18);
+  const actual = contentNode(opponent.scene,'spine').quaternion.toArray();
+  actual.forEach((value,index)=>assert.ok(Math.abs(value-expected[index]!)<1e-7));
+  assert.notDeepEqual(actual, contentNode(baseline.scene,'spine').quaternion.toArray());
+  opponent.pose(s,a,[{shot:hit,born:0,age:241}],true);assert.deepEqual(transforms(opponent.mount),transforms(baseline.mount));
+  opponent.detach();baseline.detach();disposeContent(source.scene);
+});
+
+test('second source edit: longer fire clip follows its own duration; other actor and original source remain unchanged', async () => {
+  const source = await retimedEnemy('fire', 2), opponent = new ContentOpponent(source), independent = new ContentOpponent(source), original = await load('enemy-relay-guard');
+  const a=actor(),s=state(a);s.time=.18*SECOND;s.shots=[shot(a,0)];
+  const independentBefore=transforms(independent.mount), sourceBefore=transforms(source.scene);
+  opponent.pose(s,a,[],true);
+  const expected=source.animations.find(c=>c.name==='fire')!.tracks.find(t=>t.name==='weapon.quaternion')!.InterpolantFactoryMethodLinear().evaluate(.18);
+  contentNode(opponent.scene,'weapon').quaternion.toArray().forEach((value,index)=>assert.ok(Math.abs(value-expected[index]!)<1e-7));
+  assert.deepEqual(transforms(independent.mount),independentBefore);assert.deepEqual(transforms(source.scene),sourceBefore);
+  assert.ok(Math.abs(original.animations.find(c=>c.name==='fire')!.duration-.12)<1e-6);
+  opponent.detach();independent.detach();disposeContent(source.scene);disposeContent(original.scene);
+});
+
+test('invalid or duplicate source clips fail before the candidate can be activated', async () => {
+  for (const bad of ['zero', 'nan', 'empty', 'duplicate'] as const) {
+    const source=await load('enemy-relay-guard');
+    if(bad==='duplicate')source.animations.push(source.animations[0]!.clone());
+    else {const clip=source.animations.find(c=>c.name==='hit')!;if(bad==='zero')clip.duration=0;else if(bad==='nan')clip.duration=NaN;else clip.tracks=[];}
+    assert.throws(()=>new ContentOpponent(source),/Invalid or duplicate/);disposeContent(source.scene);
+  }
+});
+
+test('actual GLB hit/death beyond Feedback retention fail closed instead of silently truncating', async () => {
+  for (const [name, scale] of [['hit', 5], ['death', 1.5]] as const) {
+    const source=await retimedEnemy(name,scale);
+    assert.ok(source.animations.find(clip=>clip.name===name)!.duration>.7);
+    assert.throws(()=>new ContentOpponent(source),/exceeds Feedback retention/);
+    disposeContent(source.scene);
+  }
+});
