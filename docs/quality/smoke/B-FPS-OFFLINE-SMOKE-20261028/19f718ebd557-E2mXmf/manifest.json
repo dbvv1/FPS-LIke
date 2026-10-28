@@ -1,0 +1,400 @@
+{
+  "task": "B-FPS-OFFLINE-SMOKE-20261028",
+  "runId": "19f718ebd557-E2mXmf",
+  "qualityAcceptance": "not-performed",
+  "fullMatchPlaythrough": false,
+  "scope": "offline-entry-only; no six-round full-match playthrough; no old-entry recapture",
+  "handoff": {
+    "verdict": "Fixed-source single-entry real WebGL2 GPU functional smoke passed. Accept only as a side entry; this is not a quality acceptance and not a full-match acceptance.",
+    "firstStep": "dot-B first verifies sourceCommit/sourceTree and checks the SHA-256 of every published file against artifact-hashes.json, then publishes entry.query as a side entry and confirms the site version it lands on.",
+    "doNot": [
+      "Do not use this run to change the default entry.",
+      "Do not treat it as a six-round full match, halftime side switch, end-of-match or play-again, or human visual/feel/audio acceptance.",
+      "Do not claim cross-task GPU exclusivity or Node 24+ validation."
+    ]
+  },
+  "source": {
+    "repository": "dbvv1/FPS-Like",
+    "baseRef": "19f718ebd5570ed1fb962b30d4ee607dc1ec9f6f",
+    "sourceCommit": "19f718ebd5570ed1fb962b30d4ee607dc1ec9f6f",
+    "sourceTree": "dffe2ecd3e8b12190037e446112d250ccca9c9bb",
+    "expectedTree": "dffe2ecd3e8b12190037e446112d250ccca9c9bb",
+    "localWorktreeBranch": "receiver/B-FPS-OFFLINE-SMOKE-20261028",
+    "cleanBefore": true,
+    "cleanAfter": true,
+    "cleanEvidence": {
+      "before": {
+        "checkedUtc": "2026-10-28T15:55:30Z (approx, worktree creation check)",
+        "porcelain": "",
+        "head": "19f718ebd5570ed1fb962b30d4ee607dc1ec9f6f",
+        "tree": "dffe2ecd3e8b12190037e446112d250ccca9c9bb"
+      },
+      "after": {
+        "checkedUtc": "2026-10-28T16:05Z (approx, independent post-run check)",
+        "porcelain": "",
+        "head": "19f718ebd5570ed1fb962b30d4ee607dc1ec9f6f",
+        "tree": "dffe2ecd3e8b12190037e446112d250ccca9c9bb"
+      },
+      "note": "The smoke runner also asserted clean status and unchanged HEAD after the run and re-hashed every web-dist file; only ignored node_modules/dist/web-dist/outputs are outside git status."
+    },
+    "identityCheck": "The receiver preflight verified HEAD/tree against the fixed base_ref/expectedTree before the run. tools/smoke-backlog.mjs records HEAD/tree at start and asserts a clean worktree, re-asserts unchanged HEAD and clean status after the run, and re-hashes every build file; an independent git rev-parse/status check after the run also matched.",
+    "reusedEvidence": "Per the task card, the previously accepted 323 CPU tests, build identity, independent non-author review and 106-item baseline hash/route evidence were reused as reference instead of being repeated; this command still ran npm run build and recomputed the SHA-256 of the 19 web-dist files it lists."
+  },
+  "command": {
+    "dependencyInstall": {
+      "command": "npm ci --offline",
+      "startUtc": "2026-10-28T15:57:42.716Z",
+      "endUtc": "2026-10-28T15:58:04.450Z",
+      "exitCode": 0,
+      "externalTimeoutSeconds": 600,
+      "timeoutTriggered": false,
+      "note": "Offline install from the existing npm cache; EBADENGINE warning because engines.node is >=24 and the host runs Node v22.23.2 (same as the accepted previous run). No network install and no browser download."
+    },
+    "smoke": {
+      "command": "FPS_SMOKE_RENDERER=native npm run smoke:offline-training",
+      "runner": "node tools/smoke-backlog.mjs --offline-training",
+      "startUtc": "2026-10-28T15:58:12.360Z",
+      "endUtc": "2026-10-28T15:59:50.767Z",
+      "npmExitCode": 0,
+      "externalTimeoutSeconds": 300,
+      "timeoutTriggered": false,
+      "buildIncluded": true,
+      "buildLog": "npm run build (tsc --noEmit, vite build sim, vite build) completed inside the smoke command"
+    }
+  },
+  "entry": {
+    "query": "?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1",
+    "onlyEntry": true,
+    "oldFourEntriesRerun": false,
+    "captureRerun": false,
+    "note": "Single real-page offline-training entry; old playable entries, capture and the 106-item baseline were deliberately not repeated."
+  },
+  "build": [
+    {
+      "path": "web-dist/assets/candidate-route-CGjPCnp4.js",
+      "sha256": "fb321dc1ce3a93f2aaa7fd63790ef716ff2ab8fec9f4c76652a852ae04a7fb39"
+    },
+    {
+      "path": "web-dist/assets/client-674-JLJ9.js",
+      "sha256": "c19595ae6db6ebf6158b29756fba658421b500f4365c266f57241a74814e2627"
+    },
+    {
+      "path": "web-dist/assets/client-BatDTjbQ.js",
+      "sha256": "4b5f12bedb44ba2f6fa14d56af89e64f1c84db59a12b8fed939889e40a8d1bdc"
+    },
+    {
+      "path": "web-dist/assets/client-BMnd1Fir.js",
+      "sha256": "b1d8d6d2a161f084fc20d5ec30e5379de849c10a7e94036a541b90fa547fa88e"
+    },
+    {
+      "path": "web-dist/assets/client-DOn3SGeZ.js",
+      "sha256": "c3403e28ec6654d216a387d05a9306f2b7fabc5b37c078d54274f24a0f148160"
+    },
+    {
+      "path": "web-dist/assets/client-JQboD5sB.js",
+      "sha256": "b61f9e14c69193ec6d544361a0f816f9361db11058aedefd14e44a30ee6ae924"
+    },
+    {
+      "path": "web-dist/assets/dist-DyANwOSt.js",
+      "sha256": "c0ab9b3b93e1036c83761195b510e48c66dccd56351a0e1a59ab790c8321b188"
+    },
+    {
+      "path": "web-dist/assets/enemy-relay-guard-CS-HTAkv.glb",
+      "sha256": "5b316a139cf48b21a6d6b7328ac1c8b58a73c4f41ce1a0de24f2a8ca74afbd74"
+    },
+    {
+      "path": "web-dist/assets/entry-DXJYkQAB.css",
+      "sha256": "e6dd3ce9c0a96572f82aa61e485a7196f6cff244133eaef45ff684939fab6d89"
+    },
+    {
+      "path": "web-dist/assets/entry-pfL5azjv.js",
+      "sha256": "0e0c48228c0055c3962bf576ebb698704095af67662ab7fdba8cd8a8629e6187"
+    },
+    {
+      "path": "web-dist/assets/fp-arms-rx24-Csz61tNP.glb",
+      "sha256": "e672d06e30262f2575076f759645aa3d82d6734f0c26ef280a2a36870549b9e1"
+    },
+    {
+      "path": "web-dist/assets/GLTFLoader-B40FBTyG.js",
+      "sha256": "d6317d6e43976a556a60fc3ddd998b428d1eaa8409a54692181ed9c6f96f1af9"
+    },
+    {
+      "path": "web-dist/assets/index-DZLlb6am.js",
+      "sha256": "9b3f1e3295cae81ff828148acd117b2a791989bc35ea0f8c2538b254f27bb49d"
+    },
+    {
+      "path": "web-dist/assets/index-Lpyfeiio.css",
+      "sha256": "92c07a6a0976395fbf00aa36b0c9b7861c981b8cc7359128e68f222b65eeaed4"
+    },
+    {
+      "path": "web-dist/assets/navigation-BIBK3oG3.js",
+      "sha256": "961f7f83e7724c719bb490e0408a139eb8aeaddc62933db92f8a8decb4b55390"
+    },
+    {
+      "path": "web-dist/assets/navigation-CmC2rhOi.js",
+      "sha256": "103a24dc416f904ee3f4fd12a89d6e4597c6b60922fc058963ceab5c245da8ac"
+    },
+    {
+      "path": "web-dist/assets/preload-helper-BLdHbfdN.js",
+      "sha256": "8aec9ff75ffa86a03d51268b63126abadb3754aa5a6b6c5bb16e4e2446a63dee"
+    },
+    {
+      "path": "web-dist/assets/recast-navigation.wasm-compat-Qa-X0_Ub.js",
+      "sha256": "32c03f6185eb21c7428f58164d12336ae1596d9187370e11aa9edea965ce0896"
+    },
+    {
+      "path": "web-dist/index.html",
+      "sha256": "3b279f1eedc52498f0547a6685abb42ca4bbd4f24fb384b61fe721520cd9f9bd"
+    }
+  ],
+  "runs": [
+    {
+      "label": "offline-training",
+      "query": "?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1",
+      "status": 0,
+      "signal": null,
+      "report": "report.json",
+      "rendererClass": "gpu",
+      "browserExit": {
+        "pid": 109884,
+        "exitCode": "0",
+        "signal": "null"
+      },
+      "coverage": {
+        "fullMatchPlaythrough": false,
+        "completedRounds": [
+          {
+            "round": 1,
+            "side": "attack",
+            "won": false,
+            "reason": "timeout",
+            "shots": 1,
+            "hits": 0,
+            "headHits": 0
+          }
+        ],
+        "restartScope": "whole match via existing restart UI; no separate round-restart control",
+        "unverified": [
+          "six-round completion UI",
+          "halftime transition",
+          "end-of-match replay",
+          "human visual/audio quality"
+        ]
+      }
+    }
+  ],
+  "browser": {
+    "requested": {
+      "headless": true,
+      "chromiumSandbox": true,
+      "ignoreDefaultArgs": [
+        "--enable-unsafe-swiftshader"
+      ],
+      "args": [],
+      "executable": "withheld (local Playwright Chromium)"
+    },
+    "version": "156.0.8078.4",
+    "actualArgvChecks": {
+      "headless": true,
+      "noSandboxPresent": false,
+      "disableSetuidSandboxPresent": false,
+      "unsafeSwiftshaderPresent": false,
+      "useAngleSwiftshaderPresent": false,
+      "disableGpuPresent": false,
+      "evidence": "Checked against the DEBUG=pw:browser <launching> line; the full argv is retained locally and redacted from the public excerpt."
+    },
+    "parentChain": [
+      {
+        "pid": 109884,
+        "parentPid": 80952,
+        "process": "chromium",
+        "role": "headless Chromium (Playwright-bundled build 156.0.8078.4)",
+        "createdUtc": "2026-10-28T15:58:24.324Z"
+      },
+      {
+        "pid": 80952,
+        "parentPid": 68604,
+        "process": "node",
+        "role": "node tools/smoke.mjs",
+        "createdUtc": "2026-10-28T15:58:23.151Z"
+      },
+      {
+        "pid": 68604,
+        "parentPid": 87088,
+        "process": "node",
+        "role": "node tools/smoke-backlog.mjs --offline-training",
+        "createdUtc": "2026-10-28T15:58:15.329Z"
+      },
+      {
+        "pid": 87088,
+        "parentPid": 81080,
+        "process": "cmd.exe",
+        "role": "npm script shell (/d /s /c node tools/smoke-backlog.mjs --offline-training)",
+        "createdUtc": "2026-10-28T15:58:15.213Z"
+      },
+      {
+        "pid": 81080,
+        "parentPid": 93416,
+        "process": "node",
+        "role": "node npm-cli.js run smoke:offline-training",
+        "createdUtc": "2026-10-28T15:58:14.667Z"
+      },
+      {
+        "pid": 93416,
+        "parentPid": 57188,
+        "process": "bash.exe",
+        "role": "npm launcher shell",
+        "createdUtc": "2026-10-28T15:58:14.580Z"
+      },
+      {
+        "pid": 57188,
+        "parentPid": 109724,
+        "process": "bash.exe",
+        "role": "npm launcher shell",
+        "createdUtc": "2026-10-28T15:58:12.772Z"
+      },
+      {
+        "pid": 109724,
+        "parentPid": 1592,
+        "process": "env.exe",
+        "role": "timeout env wrapper",
+        "createdUtc": "2026-10-28T15:58:12.686Z"
+      }
+    ],
+    "parentChainSource": "Windows Security event 4688 (process creation), read-only after the run. The Chrome audit event at 2026-10-28T15:58:24.324Z names NewProcessId 0x1AD3C, creator PID 0x13C38 (80952) and ParentProcessName node.exe, matching the DEBUG launch at 15:58:24.314Z. Timestamps converted from +08:00 to UTC; account and full paths omitted."
+  },
+  "renderer": {
+    "requestedMode": "native",
+    "note": "FPS_SMOKE_RENDERER=native is a launch request, not proof of GPU. The class below is derived from the WebGL debug renderer string.",
+    "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+    "renderer": "WebKit WebGL",
+    "vendor": "WebKit",
+    "unmaskedRenderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 (0x00002F04) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "unmaskedVendor": "Google Inc. (NVIDIA)",
+    "class": "gpu"
+  },
+  "assertions": {
+    "stages": [
+      "nine bot controllers, ten actors, complete-match HUD, courtyard active",
+      "loaded real WebGL2 scene",
+      "pointer lock, mouse aim, movement, pistol shot, reload interruption",
+      "natural first-round result, UI next round preserves match record",
+      "whole-match restart clears completed-round record and score",
+      "pause freezes clock, resume and restart clear input/ammo state"
+    ],
+    "squads": {
+      "version": "offline-v1",
+      "formation": "squads-v1",
+      "botControllerCount": 9,
+      "botIds": [
+        "amber-1",
+        "amber-2",
+        "amber-3",
+        "amber-4",
+        "blue-1",
+        "blue-2",
+        "blue-3",
+        "blue-4",
+        "blue-5"
+      ]
+    },
+    "actors": {
+      "total": 10,
+      "amber": 5,
+      "blue": 5
+    },
+    "environment": {
+      "id": "courtyard-v1",
+      "active": true,
+      "budget": {
+        "wallTriangles": 120,
+        "wallDraws": 10,
+        "rgbaBytes": 5505024,
+        "extraPasses": 0
+      },
+      "evidence": "offline-estimate"
+    },
+    "hud": {
+      "progress": "1 / 6 回合 · 进攻",
+      "goal": "掩护携带信标的队友推进 · 存活 5:5 · 队友携带信标",
+      "title": "进攻阶段 · 回合 1 / 6"
+    },
+    "pixels": {
+      "colors": 436,
+      "dominant": 0.14052258852258853
+    },
+    "completedRound": {
+      "round": 1,
+      "side": "attack",
+      "won": false,
+      "reason": "timeout",
+      "shots": 1,
+      "hits": 0,
+      "headHits": 0
+    },
+    "restartScope": "whole match via existing restart UI; no separate round-restart control",
+    "restartReset": {
+      "tick": 0,
+      "round": 1,
+      "score": {
+        "amber": 0,
+        "blue": 0
+      },
+      "matchRounds": 0,
+      "matchComplete": false,
+      "pistolAmmo": 10
+    },
+    "nextRoundRecord": "After the UI next-round action, round was 2 and running while state.match.rounds still held the completed round 1 record (asserted by the smoke script).",
+    "pauseResume": "pause froze the simulation tick; resume advanced it"
+  },
+  "screenshots": [
+    {
+      "path": "screenshots/menu.png",
+      "bytes": 511159,
+      "sha256": "1d077f4fb810701b65d1506282733cf9c63d1edc85198759941048352f9e8980",
+      "width": 1365,
+      "height": 900
+    },
+    {
+      "path": "screenshots/playing.png",
+      "bytes": 195812,
+      "sha256": "43efc27e2cbfc2ce7ea38c19062a8adc8b4d638476081dd774b620e73e2d36aa",
+      "width": 1365,
+      "height": 900
+    }
+  ],
+  "cleanup": {
+    "browserDisconnected": true,
+    "previewPortClosed": true,
+    "browserPid": 109884,
+    "browserExitCode": "0",
+    "browserSignal": "null",
+    "previewPortNumberPersisted": false,
+    "previewPortEvidence": "report.cleanup.previewPortClosed=true is produced by an actual TCP connect probe to the runner-assigned preview port inside the smoke process after server close.",
+    "postRunProcessScan": "After the smoke, no ms-playwright Chromium, tools/smoke.mjs, smoke-backlog or Vite preview process remained; only receiver/worker infrastructure and unrelated user applications were present.",
+    "postRunPortProbe": "Ports 12765, 4173, 5173, 4174, 5174, 3000, 8080 and 8000 were confirmed closed after the run.",
+    "lock": "No existing shared GPU mutex or lock file was found or used; no lock was acquired, taken over or released. This is not a claim of cross-task GPU exclusivity."
+  },
+  "serialPreflight": {
+    "mobaPriorRun": "B-MOBA-BACKLOG-SMOKE-20261028 had no receiver state entry and no live task process; its latest unit output stopped without a running worker; port 12765 was closed.",
+    "otherGpuWork": "No Playwright/Chromium/headless-shell or Vite preview process and no listener on 4173/5173/4174/5174/3000/8080/8000/12765 before the run.",
+    "receiverParallelTasks": "Three other receiver tasks were marked running (reader/build work on dbvv1/a1dbv); none owned a browser, preview server or this worktree. The user-existing Edge/Chrome GUI processes were left untouched and are outside the task chain.",
+    "singleGpuJob": "Exactly one headless Chromium instance was started, inside the single offline-training smoke command; no parallel self-started browser or preview."
+  },
+  "unverified": [
+    "full six-round browser playthrough",
+    "halftime side switch",
+    "end-of-match result screen and the play-again action",
+    "a separate single-round restart action (the current UI only restarts the whole match)",
+    "human visual, feel and audio quality",
+    "cross-task global GPU exclusivity",
+    "preview port number (cleanup boolean and process scan retained)",
+    "Node 24+ (run used Node v22.23.2 / npm 10.9.8; package engines requires >=24)"
+  ],
+  "redactions": [
+    "Local Chromium executable path removed from report.json and manifest.json.",
+    "Full browser argv, local user-data/profile paths, run-directory absolute paths, wsEndpoint/nonce and credentials are excluded from public files; raw logs remain local only.",
+    "Raw screenshots are game canvas/page captures only; no desktop or browser chrome capture."
+  ],
+  "artifactIndex": "artifact-hashes.json"
+}

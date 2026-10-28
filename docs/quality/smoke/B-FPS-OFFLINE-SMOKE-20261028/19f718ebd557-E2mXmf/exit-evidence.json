@@ -1,0 +1,136 @@
+{
+  "runId": "19f718ebd557-E2mXmf",
+  "checkedAtUtc": {
+    "preflight": "2026-10-28T15:56:40Z (approx, before npm ci)",
+    "npmCi": {
+      "start": "2026-10-28T15:57:42.716Z",
+      "end": "2026-10-28T15:58:04.450Z",
+      "exitCode": 0,
+      "externalTimeoutSeconds": 600,
+      "timeoutTriggered": false
+    },
+    "smoke": {
+      "start": "2026-10-28T15:58:12.360Z",
+      "end": "2026-10-28T15:59:50.767Z",
+      "npmExitCode": 0,
+      "runnerStatus": 0,
+      "runnerSignal": null,
+      "externalTimeoutSeconds": 300,
+      "timeoutTriggered": false
+    },
+    "finalCleanupCheck": "2026-10-28T16:05Z (approx, after smoke exit)"
+  },
+  "command": {
+    "dependencyInstall": "npm ci --offline",
+    "smoke": "FPS_SMOKE_RENDERER=native npm run smoke:offline-training"
+  },
+  "browserProcess": {
+    "pid": 109884,
+    "launchedAtUtc": "2026-10-28T15:58:24.314Z",
+    "exitedAtUtc": "2026-10-28T15:59:50.092Z",
+    "exitCode": "0",
+    "signal": "null",
+    "parentPid": 80952,
+    "parentName": "node.exe",
+    "parentRole": "node tools/smoke.mjs",
+    "parentChainSource": "Recovered read-only from Windows Security 4688 process-creation events after the live sampling missed the short-lived parent; creator PID 0x13C38 (80952), ParentProcessName node.exe. The full chain is in manifest.browser.parentChain.",
+    "rawExitLine": "2026-10-28T15:59:50.092Z pw:browser [pid=109884] <process did exit: exitCode=0, signal=null>"
+  },
+  "cleanup": {
+    "browserDisconnected": true,
+    "previewPortClosed": true,
+    "previewPortNumberPersisted": false,
+    "previewPortProbe": "In-process TCP connect probe on the runner-assigned port returned ECONNREFUSED after server close.",
+    "postRunPlaywrightChromium": "none",
+    "postRunSmokeOrPreviewNode": "none",
+    "portsClosedAfterRun": [
+      12765,
+      4173,
+      5173,
+      4174,
+      5174,
+      3000,
+      8080,
+      8000
+    ],
+    "lock": "No shared lock was acquired, taken over or released; none was present."
+  },
+  "serialPreflight": {
+    "mobaPriorRun": "B-MOBA-BACKLOG-SMOKE-20261028 had no receiver state entry and no live task process; its latest unit output stopped without a running worker; port 12765 was closed.",
+    "otherGpuWork": "No Playwright/Chromium/headless-shell or Vite preview process and no listener on 4173/5173/4174/5174/3000/8080/8000/12765 before the run.",
+    "receiverParallelTasks": "Three other receiver tasks were marked running (reader/build work on dbvv1/a1dbv); none owned a browser, preview server or this worktree. The user-existing Edge/Chrome GUI processes were left untouched and are outside the task chain.",
+    "singleGpuJob": "Exactly one headless Chromium instance was started, inside the single offline-training smoke command; no parallel self-started browser or preview."
+  },
+  "processChain": [
+    {
+      "pid": 109884,
+      "parentPid": 80952,
+      "process": "chromium",
+      "role": "headless Chromium (Playwright-bundled build 156.0.8078.4)",
+      "createdUtc": "2026-10-28T15:58:24.324Z"
+    },
+    {
+      "pid": 80952,
+      "parentPid": 68604,
+      "process": "node",
+      "role": "node tools/smoke.mjs",
+      "createdUtc": "2026-10-28T15:58:23.151Z"
+    },
+    {
+      "pid": 68604,
+      "parentPid": 87088,
+      "process": "node",
+      "role": "node tools/smoke-backlog.mjs --offline-training",
+      "createdUtc": "2026-10-28T15:58:15.329Z"
+    },
+    {
+      "pid": 87088,
+      "parentPid": 81080,
+      "process": "cmd.exe",
+      "role": "npm script shell (/d /s /c node tools/smoke-backlog.mjs --offline-training)",
+      "createdUtc": "2026-10-28T15:58:15.213Z"
+    },
+    {
+      "pid": 81080,
+      "parentPid": 93416,
+      "process": "node",
+      "role": "node npm-cli.js run smoke:offline-training",
+      "createdUtc": "2026-10-28T15:58:14.667Z"
+    },
+    {
+      "pid": 93416,
+      "parentPid": 57188,
+      "process": "bash.exe",
+      "role": "npm launcher shell",
+      "createdUtc": "2026-10-28T15:58:14.580Z"
+    },
+    {
+      "pid": 57188,
+      "parentPid": 109724,
+      "process": "bash.exe",
+      "role": "npm launcher shell",
+      "createdUtc": "2026-10-28T15:58:12.772Z"
+    },
+    {
+      "pid": 109724,
+      "parentPid": 1592,
+      "process": "env.exe",
+      "role": "timeout env wrapper",
+      "createdUtc": "2026-10-28T15:58:12.686Z"
+    }
+  ],
+  "argvSafety": {
+    "headless": true,
+    "noSandboxPresent": false,
+    "disableSetuidSandboxPresent": false,
+    "unsafeSwiftshaderPresent": false,
+    "useAngleSwiftshaderPresent": false,
+    "disableGpuPresent": false,
+    "evidence": "Checked against the DEBUG=pw:browser <launching> line; the full argv is retained locally and redacted from the public excerpt."
+  },
+  "redactions": [
+    "Local Chromium executable path removed from report.json and manifest.json.",
+    "Full browser argv, local user-data/profile paths, run-directory absolute paths, wsEndpoint/nonce and credentials are excluded from public files; raw logs remain local only.",
+    "Raw screenshots are game canvas/page captures only; no desktop or browser chrome capture."
+  ]
+}

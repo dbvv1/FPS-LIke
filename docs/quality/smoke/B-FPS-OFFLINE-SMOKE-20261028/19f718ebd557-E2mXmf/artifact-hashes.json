@@ -1,0 +1,41 @@
+{
+  "runId": "19f718ebd557-E2mXmf",
+  "note": "SHA-256 of every published file except this index",
+  "files": [
+    {
+      "path": "manifest.json",
+      "bytes": 16315,
+      "sha256": "57faca4f3075eb9ccedeb36baca2d434228ec869cd4dba9850888af9bedb41bb"
+    },
+    {
+      "path": "report.json",
+      "bytes": 23667,
+      "sha256": "0d874c61d3a25b2af311eade879f81bef231581985a9c30b1abf97d91786ab5f"
+    },
+    {
+      "path": "exit-evidence.json",
+      "bytes": 5090,
+      "sha256": "df7f3646138d6827e91bff70a9fd9a6ecc6bd8ca1be881445cd34928bb3a50f2"
+    },
+    {
+      "path": "logs/browser-exit-excerpt.log",
+      "bytes": 908,
+      "sha256": "36666787603095bd66afcef443e6f917b465907d2ba7afad6ad2bf070b9ddf52"
+    },
+    {
+      "path": "logs/npm-ci.log",
+      "bytes": 370,
+      "sha256": "c5360f7d083c653d65f7e41a6d7b0de59a6f91eae2d24f1558f41cdd8eb3c3e0"
+    },
+    {
+      "path": "screenshots/menu.png",
+      "bytes": 511159,
+      "sha256": "1d077f4fb810701b65d1506282733cf9c63d1edc85198759941048352f9e8980"
+    },
+    {
+      "path": "screenshots/playing.png",
+      "bytes": 195812,
+      "sha256": "43efc27e2cbfc2ce7ea38c19062a8adc8b4d638476081dd774b620e73e2d36aa"
+    }
+  ]
+}

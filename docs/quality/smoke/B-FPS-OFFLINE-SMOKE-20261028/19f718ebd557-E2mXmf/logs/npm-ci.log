@@ -1,0 +1,12 @@
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   package: 'fps-like@0.1.0',
+npm warn EBADENGINE   required: { node: '>=24' },
+npm warn EBADENGINE   current: { node: 'v22.23.2', npm: '10.9.8' }
+npm warn EBADENGINE }
+
+added 39 packages, and audited 40 packages in 17s
+
+8 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities

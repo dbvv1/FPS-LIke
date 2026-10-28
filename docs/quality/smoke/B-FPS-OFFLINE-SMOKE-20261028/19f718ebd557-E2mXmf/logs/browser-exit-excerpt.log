@@ -1,0 +1,9 @@
+# Public, redacted excerpt of DEBUG=pw:browser for run 19f718ebd557-E2mXmf.
+# Raw log retained locally; the full launch argv and local profile paths are omitted.
+2026-10-28T15:58:24.314Z pw:browser <launching> [argv redacted: local Playwright Chromium executable and Playwright default switches; --headless present; --no-sandbox, --disable-setuid-sandbox, --enable-unsafe-swiftshader, --use-angle=swiftshader and --disable-gpu absent]
+2026-10-28T15:58:24.675Z pw:browser <launched> pid=109884
+2026-10-28T15:59:49.143Z pw:browser [pid=109884] <gracefully close start>
+2026-10-28T15:59:50.092Z pw:browser [pid=109884] <process did exit: exitCode=0, signal=null>
+2026-10-28T15:59:50.092Z pw:browser [pid=109884] starting temporary directories cleanup
+2026-10-28T15:59:50.140Z pw:browser [pid=109884] finished temporary directories cleanup
+2026-10-28T15:59:50.140Z pw:browser [pid=109884] <gracefully close end>
