@@ -1,0 +1,4188 @@
+{
+  "mode": "CPU simulation; no browser/GPU/play acceptance",
+  "results": [
+    {
+      "seed": 1,
+      "formation": {
+        "formation": "squads-v1",
+        "movement": "ground-v1"
+      },
+      "playerInput": "idle",
+      "botCount": 9,
+      "complete": true,
+      "score": {
+        "amber": 1,
+        "blue": 5
+      },
+      "rounds": [
+        {
+          "finalActors": [
+            {
+              "id": "amber-1",
+              "hp": 0,
+              "position": {
+                "x": -7.708044694241835,
+                "y": 7.371427636826411e-05,
+                "z": -8.496331000002101
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 1.702044242263118
+            },
+            {
+              "id": "amber-2",
+              "hp": 0,
+              "position": {
+                "x": -7.226481508847792,
+                "y": 9.395038796355948e-05,
+                "z": -13.076985750347376
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 2.9041517542302735
+            },
+            {
+              "id": "amber-3",
+              "hp": 0,
+              "position": {
+                "x": -7.111810041146388,
+                "y": 9.720155503600836e-05,
+                "z": -13.709143699089745
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 2.731021854915815
+            },
+            {
+              "id": "amber-4",
+              "hp": 16,
+              "position": {
+                "x": -7.5552387537117145,
+                "y": 3.1250674510374665e-05,
+                "z": -10.191502067227983
+              },
+              "planFromFreshStage0": {
+                "role": "recover",
+                "goal": {
+                  "x": -7.708044694241835,
+                  "y": 7.371427636826411e-05,
+                  "z": -8.496331000002101
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 5.337434723007359
+            },
+            {
+              "id": "blue-1",
+              "hp": 0,
+              "position": {
+                "x": -7.496798411011696,
+                "y": 0,
+                "z": 9.712909164372832
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-2",
+              "hp": 0,
+              "position": {
+                "x": -7.156334432873056,
+                "y": 8.602703746873885e-05,
+                "z": 12.485388446641151
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-3",
+              "hp": 0,
+              "position": {
+                "x": -7.05897783673621,
+                "y": 7.494872261304408e-05,
+                "z": 13.396360015666167
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-4",
+              "hp": 0,
+              "position": {
+                "x": -7.399920902783972,
+                "y": 3.331936750328168e-05,
+                "z": 13.914364439071392
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-5",
+              "hp": 0,
+              "position": {
+                "x": -7.260043132929643,
+                "y": 1.9950108253397048e-05,
+                "z": 14.927126774249283
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 14
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "player",
+              "hp": 100,
+              "position": {
+                "x": -9.40000300716755,
+                "y": 9.786571172298864e-05,
+                "z": -15.200000272432431
+              },
+              "planFromFreshStage0": null,
+              "nearestLiveAlly": 5.337434723007359
+            }
+          ],
+          "bomb": {
+            "carrier": null,
+            "position": {
+              "x": -7.708044694241835,
+              "y": 7.371427636826411e-05,
+              "z": -8.496331000002101
+            },
+            "planted": false,
+            "explodeAt": null
+          },
+          "round": 1,
+          "side": "attack",
+          "ticks": 195,
+          "reason": "elimination",
+          "winner": "amber",
+          "hash": "3480e571",
+          "shots": 43,
+          "noLosShots": 0,
+          "friendlyHits": 9
+        },
+        {
+          "finalActors": [
+            {
+              "id": "amber-1",
+              "hp": 0,
+              "position": {
+                "x": -7.708044694241835,
+                "y": 7.371427636826411e-05,
+                "z": -8.496331000002101
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-2",
+              "hp": 0,
+              "position": {
+                "x": -7.226481508847792,
+                "y": 9.395038796355948e-05,
+                "z": -13.076985750347376
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-3",
+              "hp": 0,
+              "position": {
+                "x": -7.1118102689819445,
+                "y": 9.720155503600836e-05,
+                "z": -13.709143691419317
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-4",
+              "hp": 0,
+              "position": {
+                "x": -7.555239390488076,
+                "y": 9.999999747378752e-05,
+                "z": -10.191503243038728
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": 8
+                },
+                "interact": false,
+                "routeIndex": 1
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-1",
+              "hp": 0,
+              "position": {
+                "x": -7.485538155771792,
+                "y": 9.506921196589246e-05,
+                "z": 9.696906778495759
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 3.78871091646012
+            },
+            {
+              "id": "blue-2",
+              "hp": 0,
+              "position": {
+                "x": -7.678141409937528,
+                "y": 0,
+                "z": 12.83812843116
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 3.0582214186012497
+            },
+            {
+              "id": "blue-3",
+              "hp": 16,
+              "position": {
+                "x": -4.678652604095111,
+                "y": 0,
+                "z": 12.24165114842622
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 2.3456946948703115
+            },
+            {
+              "id": "blue-4",
+              "hp": 0,
+              "position": {
+                "x": -7.3999214241434,
+                "y": 9.699556539999321e-05,
+                "z": 13.914364875596018
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 2.8897156610419628
+            },
+            {
+              "id": "blue-5",
+              "hp": 100,
+              "position": {
+                "x": -4.589255307142714,
+                "y": 0,
+                "z": 14.585641704047195
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 14
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 2.3456946948703115
+            },
+            {
+              "id": "player",
+              "hp": 0,
+              "position": {
+                "x": -9.40000295516784,
+                "y": 9.99702388071455e-05,
+                "z": -15.200000122956268
+              },
+              "planFromFreshStage0": null,
+              "nearestLiveAlly": null
+            }
+          ],
+          "bomb": {
+            "carrier": null,
+            "position": {
+              "x": -7.708044694241835,
+              "y": 7.371427636826411e-05,
+              "z": -8.496331000002101
+            },
+            "planted": false,
+            "explodeAt": null
+          },
+          "round": 2,
+          "side": "attack",
+          "ticks": 217,
+          "reason": "elimination",
+          "winner": "blue",
+          "hash": "2307561e",
+          "shots": 35,
+          "noLosShots": 0,
+          "friendlyHits": 5
+        },
+        {
+          "finalActors": [
+            {
+              "id": "amber-1",
+              "hp": 0,
+              "position": {
+                "x": -7.732140371546848,
+                "y": 0.00026473264733795077,
+                "z": -8.646775749744847
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-2",
+              "hp": 0,
+              "position": {
+                "x": -7.226481508847792,
+                "y": 9.407229663338512e-05,
+                "z": -13.076985714765435
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-3",
+              "hp": 0,
+              "position": {
+                "x": -7.111809755612267,
+                "y": 6.895321712363511e-05,
+                "z": -13.70914357240033
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-4",
+              "hp": 0,
+              "position": {
+                "x": -7.555239436530968,
+                "y": 0,
+                "z": -10.191502565576027
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": 8
+                },
+                "interact": false,
+                "routeIndex": 1
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-1",
+              "hp": 0,
+              "position": {
+                "x": -7.485538155771792,
+                "y": 9.506921196589246e-05,
+                "z": 9.696906778495759
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 3.8136204515481302
+            },
+            {
+              "id": "blue-2",
+              "hp": 0,
+              "position": {
+                "x": -4.878574110047323,
+                "y": 9.835987293627113e-05,
+                "z": 10.947281015584855
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 1.297223259250167
+            },
+            {
+              "id": "blue-3",
+              "hp": 72,
+              "position": {
+                "x": -4.625498194740031,
+                "y": 0,
+                "z": 12.219578451497936
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 2.376815934527112
+            },
+            {
+              "id": "blue-4",
+              "hp": 0,
+              "position": {
+                "x": -7.39992089064409,
+                "y": 0,
+                "z": 13.914364439071392
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 2.808036105053601
+            },
+            {
+              "id": "blue-5",
+              "hp": 100,
+              "position": {
+                "x": -4.67583776582321,
+                "y": 9.527775546303019e-05,
+                "z": 14.595861244897145
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 14
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 2.376815934527112
+            },
+            {
+              "id": "player",
+              "hp": 0,
+              "position": {
+                "x": -9.40000295516784,
+                "y": 7.999884110176936e-05,
+                "z": -15.199999957928023
+              },
+              "planFromFreshStage0": null,
+              "nearestLiveAlly": null
+            }
+          ],
+          "bomb": {
+            "carrier": null,
+            "position": {
+              "x": -7.732140371546848,
+              "y": 0.00026473264733795077,
+              "z": -8.646775749744847
+            },
+            "planted": false,
+            "explodeAt": null
+          },
+          "round": 3,
+          "side": "attack",
+          "ticks": 219,
+          "reason": "elimination",
+          "winner": "blue",
+          "hash": "7b0d0320",
+          "shots": 33,
+          "noLosShots": 0,
+          "friendlyHits": 9
+        },
+        {
+          "finalActors": [
+            {
+              "id": "amber-1",
+              "hp": 0,
+              "position": {
+                "x": -7.485519561674764,
+                "y": 9.300940291723236e-05,
+                "z": 9.696880855762018
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-2",
+              "hp": 0,
+              "position": {
+                "x": -7.678141977345851,
+                "y": 0,
+                "z": 12.83813149888368
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-3",
+              "hp": 0,
+              "position": {
+                "x": -7.05897813023021,
+                "y": 9.697649511508644e-05,
+                "z": 13.396360039940417
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-4",
+              "hp": 0,
+              "position": {
+                "x": -7.6143309402822545,
+                "y": 9.999999747378752e-05,
+                "z": 13.672228896126544
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-1",
+              "hp": 0,
+              "position": {
+                "x": -7.740204976609675,
+                "y": 7.587647996842861e-05,
+                "z": -8.697218758286908
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 3.8702644730667384
+            },
+            {
+              "id": "blue-2",
+              "hp": 0,
+              "position": {
+                "x": -7.226481508847792,
+                "y": 9.407501784153283e-05,
+                "z": -13.076985679185828
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 1.1285196978837637
+            },
+            {
+              "id": "blue-3",
+              "hp": 16,
+              "position": {
+                "x": -5.543069443009466,
+                "y": 9.949774539563805e-05,
+                "z": -13.324539018973843
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 0.6201012416975172
+            },
+            {
+              "id": "blue-4",
+              "hp": 16,
+              "position": {
+                "x": -7.074425893663548,
+                "y": 9.147827222477645e-05,
+                "z": -4.8846493747616755
+              },
+              "planFromFreshStage0": {
+                "role": "carry",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 8.577691401853977,
+              "objectivePath": [
+                {
+                  "x": -7.07442569732666,
+                  "y": 0,
+                  "z": -4.884649276733398
+                },
+                {
+                  "x": -5.199999809265137,
+                  "y": 0,
+                  "z": 7.200000762939453
+                },
+                {
+                  "x": -4.800000190734863,
+                  "y": 0,
+                  "z": 7.600000381469727
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "z": 10
+                }
+              ]
+            },
+            {
+              "id": "blue-5",
+              "hp": 100,
+              "position": {
+                "x": -6.154294646444809,
+                "y": 0,
+                "z": -13.429082314503617
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 0.6201012416975172
+            },
+            {
+              "id": "player",
+              "hp": 0,
+              "position": {
+                "x": -9.400000240496482,
+                "y": 7.102616291376762e-05,
+                "z": 15.200000216297756
+              },
+              "planFromFreshStage0": null,
+              "nearestLiveAlly": null
+            }
+          ],
+          "bomb": {
+            "carrier": "blue-4",
+            "position": {
+              "x": -7.074425893663548,
+              "y": 9.147827222477645e-05,
+              "z": -4.8846493747616755
+            },
+            "planted": false,
+            "explodeAt": null
+          },
+          "round": 4,
+          "side": "defend",
+          "ticks": 219,
+          "reason": "elimination",
+          "winner": "blue",
+          "hash": "1a240b9b",
+          "shots": 35,
+          "noLosShots": 0,
+          "friendlyHits": 6
+        },
+        {
+          "finalActors": [
+            {
+              "id": "amber-1",
+              "hp": 0,
+              "position": {
+                "x": -7.496798411011696,
+                "y": 0,
+                "z": 9.712909164372832
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-2",
+              "hp": 0,
+              "position": {
+                "x": -7.678141965305468,
+                "y": 0,
+                "z": 12.838130990945668
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-3",
+              "hp": 0,
+              "position": {
+                "x": -7.05897783673621,
+                "y": 7.492979784728959e-05,
+                "z": 13.396360015666167
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-4",
+              "hp": 0,
+              "position": {
+                "x": -7.466937466083184,
+                "y": 9.221622167387977e-05,
+                "z": 13.631176997791414
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-1",
+              "hp": 0,
+              "position": {
+                "x": -7.437122313043801,
+                "y": 0,
+                "z": -6.794467547209933
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 12.663830176602477
+            },
+            {
+              "id": "blue-2",
+              "hp": 0,
+              "position": {
+                "x": -7.226481508847792,
+                "y": 9.395038796355948e-05,
+                "z": -13.076985750347376
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 18.18955381620795
+            },
+            {
+              "id": "blue-3",
+              "hp": 0,
+              "position": {
+                "x": -7.1118102689819445,
+                "y": 6.89531079842709e-05,
+                "z": -13.709143742428928
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 18.739335048965636
+            },
+            {
+              "id": "blue-4",
+              "hp": 0,
+              "position": {
+                "x": -7.593656483804807,
+                "y": 0,
+                "z": -10.296491239033639
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": 8
+                },
+                "interact": false,
+                "routeIndex": 1
+              },
+              "nearestLiveAlly": 15.793041380947606
+            },
+            {
+              "id": "blue-5",
+              "hp": 72,
+              "position": {
+                "x": -0.5900321755934375,
+                "y": 0,
+                "z": 3.858698714116205
+              },
+              "planFromFreshStage0": {
+                "role": "carry",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null,
+              "objectivePath": [
+                {
+                  "x": -0.590032160282135,
+                  "y": 0,
+                  "z": 3.858698606491089
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "z": 10
+                }
+              ]
+            },
+            {
+              "id": "player",
+              "hp": 0,
+              "position": {
+                "x": -9.400000240496482,
+                "y": 7.102616291376762e-05,
+                "z": 15.200000216297756
+              },
+              "planFromFreshStage0": null,
+              "nearestLiveAlly": null
+            }
+          ],
+          "bomb": {
+            "carrier": "blue-5",
+            "position": {
+              "x": -0.5900321755934375,
+              "y": 0,
+              "z": 3.858698714116205
+            },
+            "planted": false,
+            "explodeAt": null
+          },
+          "round": 5,
+          "side": "defend",
+          "ticks": 777,
+          "reason": "elimination",
+          "winner": "blue",
+          "hash": "72d110bd",
+          "shots": 36,
+          "noLosShots": 0,
+          "friendlyHits": 9
+        },
+        {
+          "finalActors": [
+            {
+              "id": "amber-1",
+              "hp": 0,
+              "position": {
+                "x": -7.485538155771792,
+                "y": 9.506921196589246e-05,
+                "z": 9.696906778495759
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-2",
+              "hp": 0,
+              "position": {
+                "x": -7.678141965305468,
+                "y": 0,
+                "z": 12.838130990945668
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-3",
+              "hp": 0,
+              "position": {
+                "x": -7.05897783673621,
+                "y": 7.493820885429159e-05,
+                "z": 13.396360015666167
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-4",
+              "hp": 0,
+              "position": {
+                "x": -7.348664093782737,
+                "y": 0,
+                "z": 13.593225455304463
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-1",
+              "hp": 0,
+              "position": {
+                "x": -7.728580987051828,
+                "y": 0,
+                "z": -8.624452837975696
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 14.38099869841303
+            },
+            {
+              "id": "blue-2",
+              "hp": 0,
+              "position": {
+                "x": -7.226481508847792,
+                "y": 9.407229663338512e-05,
+                "z": -13.076985714765435
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 18.19133599513588
+            },
+            {
+              "id": "blue-3",
+              "hp": 0,
+              "position": {
+                "x": -7.111810041146388,
+                "y": 9.693418542155996e-05,
+                "z": -13.7091437109493
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 18.741226779535577
+            },
+            {
+              "id": "blue-4",
+              "hp": 0,
+              "position": {
+                "x": -7.555239436530968,
+                "y": 0,
+                "z": -10.191502565576027
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": 8
+                },
+                "interact": false,
+                "routeIndex": 1
+              },
+              "nearestLiveAlly": 15.68315550280815
+            },
+            {
+              "id": "blue-5",
+              "hp": 44,
+              "position": {
+                "x": -0.5950682244359058,
+                "y": 5.2625695388996974e-05,
+                "z": 3.862585210711151
+              },
+              "planFromFreshStage0": {
+                "role": "carry",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null,
+              "objectivePath": [
+                {
+                  "x": -0.5950682163238525,
+                  "y": 0,
+                  "z": 3.8625853061676025
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "z": 10
+                }
+              ]
+            },
+            {
+              "id": "player",
+              "hp": 0,
+              "position": {
+                "x": -9.400000240496482,
+                "y": 0,
+                "z": 15.200000216297756
+              },
+              "planFromFreshStage0": null,
+              "nearestLiveAlly": null
+            }
+          ],
+          "bomb": {
+            "carrier": "blue-5",
+            "position": {
+              "x": -0.5950682244359058,
+              "y": 5.2625695388996974e-05,
+              "z": 3.862585210711151
+            },
+            "planted": false,
+            "explodeAt": null
+          },
+          "round": 6,
+          "side": "defend",
+          "ticks": 712,
+          "reason": "elimination",
+          "winner": "blue",
+          "hash": "9ea457a8",
+          "shots": 44,
+          "noLosShots": 0,
+          "friendlyHits": 8
+        }
+      ],
+      "activity": {
+        "amber-1": {
+          "commands": 1910,
+          "movingTicks": 616,
+          "shots": 2,
+          "distance": 34.27808724143736
+        },
+        "amber-2": {
+          "commands": 1464,
+          "movingTicks": 348,
+          "shots": 3,
+          "distance": 13.315771871300944
+        },
+        "amber-3": {
+          "commands": 2192,
+          "movingTicks": 204,
+          "shots": 23,
+          "distance": 7.810007825594064
+        },
+        "amber-4": {
+          "commands": 2986,
+          "movingTicks": 521,
+          "shots": 46,
+          "distance": 27.98638867875363
+        },
+        "blue-1": {
+          "commands": 1969,
+          "movingTicks": 647,
+          "shots": 1,
+          "distance": 35.82050874183404
+        },
+        "blue-2": {
+          "commands": 1952,
+          "movingTicks": 449,
+          "shots": 14,
+          "distance": 17.323932501231383
+        },
+        "blue-3": {
+          "commands": 3132,
+          "movingTicks": 369,
+          "shots": 49,
+          "distance": 14.773935412892685
+        },
+        "blue-4": {
+          "commands": 2162,
+          "movingTicks": 593,
+          "shots": 8,
+          "distance": 32.89424350276313
+        },
+        "blue-5": {
+          "commands": 7097,
+          "movingTicks": 1654,
+          "shots": 80,
+          "distance": 75.27517484545038
+        }
+      },
+      "seconds": [
+        3.25,
+        3.6166666666666667,
+        3.65,
+        3.65,
+        12.95,
+        11.866666666666667
+      ],
+      "noLosShots": 0,
+      "finalHash": "9ea457a8",
+      "replayEqual": true
+    },
+    {
+      "seed": 2,
+      "formation": {
+        "formation": "squads-v1",
+        "movement": "ground-v1"
+      },
+      "playerInput": "idle",
+      "botCount": 9,
+      "complete": true,
+      "score": {
+        "amber": 1,
+        "blue": 5
+      },
+      "rounds": [
+        {
+          "finalActors": [
+            {
+              "id": "amber-1",
+              "hp": 0,
+              "position": {
+                "x": -7.728580987051828,
+                "y": 0,
+                "z": -8.624452837975696
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-2",
+              "hp": 0,
+              "position": {
+                "x": -7.226481508847792,
+                "y": 9.395038796355948e-05,
+                "z": -13.076985750347376
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-3",
+              "hp": 0,
+              "position": {
+                "x": -7.111809898379327,
+                "y": 0,
+                "z": -13.709143673581764
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-4",
+              "hp": 0,
+              "position": {
+                "x": -7.555238515434377,
+                "y": 0,
+                "z": -10.191501983935172
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": 8
+                },
+                "interact": false,
+                "routeIndex": 1
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-1",
+              "hp": 0,
+              "position": {
+                "x": -7.485520020423259,
+                "y": 9.47553853620775e-05,
+                "z": 9.696880905704809
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 5.702350131408242
+            },
+            {
+              "id": "blue-2",
+              "hp": 0,
+              "position": {
+                "x": -7.678141772025381,
+                "y": 7.489572453778237e-05,
+                "z": 12.838130490422737
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 3.588351544497444
+            },
+            {
+              "id": "blue-3",
+              "hp": 0,
+              "position": {
+                "x": -7.05897783673621,
+                "y": 7.494661986129358e-05,
+                "z": 13.396360015666167
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 2.782360877425002
+            },
+            {
+              "id": "blue-4",
+              "hp": 0,
+              "position": {
+                "x": -7.399920963363069,
+                "y": 0,
+                "z": 13.914364463303029
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 2.9354031438238573
+            },
+            {
+              "id": "blue-5",
+              "hp": 72,
+              "position": {
+                "x": -4.54102975939533,
+                "y": 0,
+                "z": 14.580196800041696
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 14
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "player",
+              "hp": 0,
+              "position": {
+                "x": -9.400002621899413,
+                "y": 7.999884110176936e-05,
+                "z": -15.199999918826054
+              },
+              "planFromFreshStage0": null,
+              "nearestLiveAlly": null
+            }
+          ],
+          "bomb": {
+            "carrier": null,
+            "position": {
+              "x": -7.728580987051828,
+              "y": 0,
+              "z": -8.624452837975696
+            },
+            "planted": false,
+            "explodeAt": null
+          },
+          "round": 1,
+          "side": "attack",
+          "ticks": 294,
+          "reason": "elimination",
+          "winner": "blue",
+          "hash": "bad8a271",
+          "shots": 47,
+          "noLosShots": 0,
+          "friendlyHits": 8
+        },
+        {
+          "finalActors": [
+            {
+              "id": "amber-1",
+              "hp": 0,
+              "position": {
+                "x": -7.482574128109263,
+                "y": 9.550950926495716e-05,
+                "z": -7.085653617745265
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-2",
+              "hp": 0,
+              "position": {
+                "x": -7.226481508847792,
+                "y": 9.407773904968053e-05,
+                "z": -13.076985643606221
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-3",
+              "hp": 0,
+              "position": {
+                "x": -7.1118102689819445,
+                "y": 6.89531079842709e-05,
+                "z": -13.709143742428928
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-4",
+              "hp": 0,
+              "position": {
+                "x": -7.519296468875577,
+                "y": 9.952831533155404e-05,
+                "z": -9.843922115191114
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": 8
+                },
+                "interact": false,
+                "routeIndex": 1
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-1",
+              "hp": 0,
+              "position": {
+                "x": -7.485538155771792,
+                "y": 9.506921196589246e-05,
+                "z": 9.696906778495759
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 5.840156008659151
+            },
+            {
+              "id": "blue-2",
+              "hp": 0,
+              "position": {
+                "x": -7.289195243093589,
+                "y": 7.838767487555742e-06,
+                "z": 12.57482021902947
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 3.6417337565394714
+            },
+            {
+              "id": "blue-3",
+              "hp": 0,
+              "position": {
+                "x": -7.058978105368556,
+                "y": 3.337539965286851e-06,
+                "z": 13.396359989030527
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 3.0573356501301148
+            },
+            {
+              "id": "blue-4",
+              "hp": 0,
+              "position": {
+                "x": -7.399920830064993,
+                "y": 3.331936750328168e-05,
+                "z": 13.914364414839755
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 3.237020021151071
+            },
+            {
+              "id": "blue-5",
+              "hp": 100,
+              "position": {
+                "x": -4.224260696685987,
+                "y": 0,
+                "z": 14.54164532049536
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 14
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "player",
+              "hp": 0,
+              "position": {
+                "x": -9.400002760780163,
+                "y": 9.618876356398687e-05,
+                "z": -15.200000310047253
+              },
+              "planFromFreshStage0": null,
+              "nearestLiveAlly": null
+            }
+          ],
+          "bomb": {
+            "carrier": null,
+            "position": {
+              "x": -7.482574128109263,
+              "y": 9.550950926495716e-05,
+              "z": -7.085653617745265
+            },
+            "planted": false,
+            "explodeAt": null
+          },
+          "round": 2,
+          "side": "attack",
+          "ticks": 313,
+          "reason": "elimination",
+          "winner": "blue",
+          "hash": "b8cba31d",
+          "shots": 44,
+          "noLosShots": 0,
+          "friendlyHits": 7
+        },
+        {
+          "finalActors": [
+            {
+              "id": "amber-1",
+              "hp": 0,
+              "position": {
+                "x": -7.644091193535132,
+                "y": 0,
+                "z": -8.09686761093326
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-2",
+              "hp": 0,
+              "position": {
+                "x": -7.226481508847792,
+                "y": 9.395038796355948e-05,
+                "z": -13.076985750347376
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-3",
+              "hp": 0,
+              "position": {
+                "x": -7.111810041146388,
+                "y": 9.720155503600836e-05,
+                "z": -13.709143699089745
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-4",
+              "hp": 0,
+              "position": {
+                "x": -7.555238515434377,
+                "y": 0,
+                "z": -10.191501628639603
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": 8
+                },
+                "interact": false,
+                "routeIndex": 1
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-1",
+              "hp": 0,
+              "position": {
+                "x": -7.4913569944910705,
+                "y": 8.770739805186167e-05,
+                "z": 9.705178744159639
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 5.833619108112788
+            },
+            {
+              "id": "blue-2",
+              "hp": 0,
+              "position": {
+                "x": -7.127745149756894,
+                "y": 0,
+                "z": 12.465999811929647
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 3.5655327259427922
+            },
+            {
+              "id": "blue-3",
+              "hp": 0,
+              "position": {
+                "x": -7.058977232421297,
+                "y": 4.643850843422115e-06,
+                "z": 13.396359435244525
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 3.0535787695621734
+            },
+            {
+              "id": "blue-4",
+              "hp": 0,
+              "position": {
+                "x": -7.399920902783972,
+                "y": 3.331936750328168e-05,
+                "z": 13.914364439071392
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 3.2332690671997444
+            },
+            {
+              "id": "blue-5",
+              "hp": 100,
+              "position": {
+                "x": -4.227866338681075,
+                "y": 0,
+                "z": 14.540542291813473
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 14
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "player",
+              "hp": 0,
+              "position": {
+                "x": -9.400002773114752,
+                "y": 0,
+                "z": -15.200000338270321
+              },
+              "planFromFreshStage0": null,
+              "nearestLiveAlly": null
+            }
+          ],
+          "bomb": {
+            "carrier": null,
+            "position": {
+              "x": -7.644091193535132,
+              "y": 0,
+              "z": -8.09686761093326
+            },
+            "planted": false,
+            "explodeAt": null
+          },
+          "round": 3,
+          "side": "attack",
+          "ticks": 264,
+          "reason": "elimination",
+          "winner": "blue",
+          "hash": "d2f89f30",
+          "shots": 38,
+          "noLosShots": 0,
+          "friendlyHits": 10
+        },
+        {
+          "finalActors": [
+            {
+              "id": "amber-1",
+              "hp": 0,
+              "position": {
+                "x": -7.48552007036605,
+                "y": 0,
+                "z": 9.6968809556476
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-2",
+              "hp": 0,
+              "position": {
+                "x": -7.678141868665424,
+                "y": 7.489572453778237e-05,
+                "z": 12.838130990945668
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-3",
+              "hp": 0,
+              "position": {
+                "x": -7.058979281664984,
+                "y": 8.953881479101256e-05,
+                "z": 13.396360773171374
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-4",
+              "hp": 0,
+              "position": {
+                "x": -7.518541177145552,
+                "y": 1.2011696526315063e-05,
+                "z": 13.637229495836653
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-1",
+              "hp": 0,
+              "position": {
+                "x": -7.400478224939434,
+                "y": 9.6220122941304e-05,
+                "z": -6.56624970305711
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 12.418746571937657
+            },
+            {
+              "id": "blue-2",
+              "hp": 0,
+              "position": {
+                "x": -7.226481508847792,
+                "y": 9.407501784153283e-05,
+                "z": -13.076985679185828
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 18.152854737991248
+            },
+            {
+              "id": "blue-3",
+              "hp": 0,
+              "position": {
+                "x": -7.111810496817501,
+                "y": 0,
+                "z": -13.709143759422343
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 18.70243951650817
+            },
+            {
+              "id": "blue-4",
+              "hp": 0,
+              "position": {
+                "x": -7.437570723502301,
+                "y": 0,
+                "z": -9.04244204278417
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 14.570587713051138
+            },
+            {
+              "id": "blue-5",
+              "hp": 72,
+              "position": {
+                "x": -0.5929735275574393,
+                "y": 0,
+                "z": 3.820431490333558
+              },
+              "planFromFreshStage0": {
+                "role": "carry",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null,
+              "objectivePath": [
+                {
+                  "x": -0.592973530292511,
+                  "y": 0,
+                  "z": 3.8204314708709717
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "z": 10
+                }
+              ]
+            },
+            {
+              "id": "player",
+              "hp": 0,
+              "position": {
+                "x": -9.400000240496482,
+                "y": 0,
+                "z": 15.200000216297756
+              },
+              "planFromFreshStage0": null,
+              "nearestLiveAlly": null
+            }
+          ],
+          "bomb": {
+            "carrier": "blue-5",
+            "position": {
+              "x": -0.5929735275574393,
+              "y": 0,
+              "z": 3.820431490333558
+            },
+            "planted": false,
+            "explodeAt": null
+          },
+          "round": 4,
+          "side": "defend",
+          "ticks": 742,
+          "reason": "elimination",
+          "winner": "blue",
+          "hash": "fdae791a",
+          "shots": 46,
+          "noLosShots": 0,
+          "friendlyHits": 9
+        },
+        {
+          "finalActors": [
+            {
+              "id": "amber-1",
+              "hp": 0,
+              "position": {
+                "x": -7.485519561674764,
+                "y": 0,
+                "z": 9.696880855762018
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-2",
+              "hp": 0,
+              "position": {
+                "x": -7.678141977345851,
+                "y": 0,
+                "z": 12.83813149888368
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-3",
+              "hp": 0,
+              "position": {
+                "x": -7.058980571856081,
+                "y": 3.466022462816909e-05,
+                "z": 13.396362724243126
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-4",
+              "hp": 0,
+              "position": {
+                "x": -7.614330829021593,
+                "y": 0,
+                "z": 13.672228274091207
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-1",
+              "hp": 0,
+              "position": {
+                "x": -7.412734483339591,
+                "y": 2.949287591036409e-06,
+                "z": -6.643731341930106
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 1.6653001264044607
+            },
+            {
+              "id": "blue-2",
+              "hp": 0,
+              "position": {
+                "x": -7.226481508847792,
+                "y": 9.407501784153283e-05,
+                "z": -13.076985679185828
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 1.5883523853543207
+            },
+            {
+              "id": "blue-3",
+              "hp": 44,
+              "position": {
+                "x": -7.344056907442948,
+                "y": 0,
+                "z": -8.307614721729205
+              },
+              "planFromFreshStage0": {
+                "role": "recover",
+                "goal": {
+                  "x": -7.412734483339591,
+                  "y": 2.949287591036409e-06,
+                  "z": -6.643731341930106
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 5.229181503455654
+            },
+            {
+              "id": "blue-4",
+              "hp": 0,
+              "position": {
+                "x": -7.2315275215150905,
+                "y": 8.812582382233813e-05,
+                "z": -9.132828776316455
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 0.8328511863386089
+            },
+            {
+              "id": "blue-5",
+              "hp": 72,
+              "position": {
+                "x": -5.648036416730002,
+                "y": 0,
+                "z": -13.254113856588582
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 5.229181503455654
+            },
+            {
+              "id": "player",
+              "hp": 0,
+              "position": {
+                "x": -9.400000240496482,
+                "y": 0,
+                "z": 15.200000216297756
+              },
+              "planFromFreshStage0": null,
+              "nearestLiveAlly": null
+            }
+          ],
+          "bomb": {
+            "carrier": null,
+            "position": {
+              "x": -7.412734483339591,
+              "y": 2.949287591036409e-06,
+              "z": -6.643731341930106
+            },
+            "planted": false,
+            "explodeAt": null
+          },
+          "round": 5,
+          "side": "defend",
+          "ticks": 259,
+          "reason": "elimination",
+          "winner": "blue",
+          "hash": "af343d5c",
+          "shots": 35,
+          "noLosShots": 0,
+          "friendlyHits": 8
+        },
+        {
+          "finalActors": [
+            {
+              "id": "amber-1",
+              "hp": 0,
+              "position": {
+                "x": -7.487603232497349,
+                "y": 0,
+                "z": 9.69984243484214
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 3.944249835096535
+            },
+            {
+              "id": "amber-2",
+              "hp": 0,
+              "position": {
+                "x": -7.678141977345851,
+                "y": 0,
+                "z": 12.83813149888368
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 0.8426626419867171
+            },
+            {
+              "id": "amber-3",
+              "hp": 0,
+              "position": {
+                "x": -7.058977598453302,
+                "y": 0,
+                "z": 13.396359777383259
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 0.4465856986457082
+            },
+            {
+              "id": "amber-4",
+              "hp": 44,
+              "position": {
+                "x": -7.430823976939065,
+                "y": 7.435373481712304e-05,
+                "z": 13.64368356726587
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 2.509935590610203
+            },
+            {
+              "id": "blue-1",
+              "hp": 0,
+              "position": {
+                "x": -7.735077011137037,
+                "y": 9.703282557893544e-05,
+                "z": -8.665208733873442
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-2",
+              "hp": 0,
+              "position": {
+                "x": -7.226481508847792,
+                "y": 9.407773904968053e-05,
+                "z": -13.076985643606221
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-3",
+              "hp": 0,
+              "position": {
+                "x": -7.111809755612267,
+                "y": 6.895321712363511e-05,
+                "z": -13.70914357240033
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-4",
+              "hp": 0,
+              "position": {
+                "x": -7.555238876146035,
+                "y": 3.1247371225617826e-05,
+                "z": -10.191502164006074
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": 8
+                },
+                "interact": false,
+                "routeIndex": 1
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-5",
+              "hp": 0,
+              "position": {
+                "x": -7.52353354188852,
+                "y": 0,
+                "z": -13.76215141084861
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "player",
+              "hp": 100,
+              "position": {
+                "x": -9.400000240496482,
+                "y": 4.16186849179212e-05,
+                "z": 15.200000216297756
+              },
+              "planFromFreshStage0": null,
+              "nearestLiveAlly": 2.509935590610203
+            }
+          ],
+          "bomb": {
+            "carrier": null,
+            "position": {
+              "x": -7.735077011137037,
+              "y": 9.703282557893544e-05,
+              "z": -8.665208733873442
+            },
+            "planted": false,
+            "explodeAt": null
+          },
+          "round": 6,
+          "side": "defend",
+          "ticks": 185,
+          "reason": "elimination",
+          "winner": "amber",
+          "hash": "681cc796",
+          "shots": 30,
+          "noLosShots": 0,
+          "friendlyHits": 6
+        }
+      ],
+      "activity": {
+        "amber-1": {
+          "commands": 2030,
+          "movingTicks": 659,
+          "shots": 2,
+          "distance": 36.1498354441057
+        },
+        "amber-2": {
+          "commands": 1467,
+          "movingTicks": 348,
+          "shots": 3,
+          "distance": 13.315771528843424
+        },
+        "amber-3": {
+          "commands": 2072,
+          "movingTicks": 204,
+          "shots": 26,
+          "distance": 7.810001148415685
+        },
+        "amber-4": {
+          "commands": 3361,
+          "movingTicks": 549,
+          "shots": 43,
+          "distance": 28.196758801312775
+        },
+        "blue-1": {
+          "commands": 2099,
+          "movingTicks": 687,
+          "shots": 2,
+          "distance": 38.09929939589956
+        },
+        "blue-2": {
+          "commands": 1895,
+          "movingTicks": 390,
+          "shots": 14,
+          "distance": 14.449870576054078
+        },
+        "blue-3": {
+          "commands": 2714,
+          "movingTicks": 301,
+          "shots": 37,
+          "distance": 13.21654939908746
+        },
+        "blue-4": {
+          "commands": 2043,
+          "movingTicks": 554,
+          "shots": 9,
+          "distance": 30.01277064507308
+        },
+        "blue-5": {
+          "commands": 6276,
+          "movingTicks": 1180,
+          "shots": 104,
+          "distance": 53.73881444152678
+        }
+      },
+      "seconds": [
+        4.9,
+        5.216666666666667,
+        4.4,
+        12.366666666666667,
+        4.316666666666666,
+        3.0833333333333335
+      ],
+      "noLosShots": 0,
+      "finalHash": "681cc796",
+      "replayEqual": true
+    },
+    {
+      "seed": 3,
+      "formation": {
+        "formation": "squads-v1",
+        "movement": "ground-v1"
+      },
+      "playerInput": "idle",
+      "botCount": 9,
+      "complete": true,
+      "score": {
+        "amber": 1,
+        "blue": 5
+      },
+      "rounds": [
+        {
+          "finalActors": [
+            {
+              "id": "amber-1",
+              "hp": 0,
+              "position": {
+                "x": -7.735077011137037,
+                "y": 9.703282557893544e-05,
+                "z": -8.665208733873442
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-2",
+              "hp": 0,
+              "position": {
+                "x": -7.226481508847792,
+                "y": 9.407501784153283e-05,
+                "z": -13.076985679185828
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-3",
+              "hp": 0,
+              "position": {
+                "x": -7.1118098027631085,
+                "y": 9.622537618270144e-05,
+                "z": -13.709143625773654
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-4",
+              "hp": 0,
+              "position": {
+                "x": -7.555238515434377,
+                "y": 9.999999747378752e-05,
+                "z": -10.191501865503316
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": 8
+                },
+                "interact": false,
+                "routeIndex": 1
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-1",
+              "hp": 0,
+              "position": {
+                "x": -7.485538155771792,
+                "y": 9.506921196589246e-05,
+                "z": 9.696906778495759
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 5.816617616425776
+            },
+            {
+              "id": "blue-2",
+              "hp": 0,
+              "position": {
+                "x": -7.0672608275524205,
+                "y": 8.401532249990851e-05,
+                "z": 12.423819366375012
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 3.5067900164787593
+            },
+            {
+              "id": "blue-3",
+              "hp": 0,
+              "position": {
+                "x": -7.05897783673621,
+                "y": 7.494031160604209e-05,
+                "z": 13.396360015666167
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 3.010548629165818
+            },
+            {
+              "id": "blue-4",
+              "hp": 0,
+              "position": {
+                "x": -7.39992089064409,
+                "y": 0,
+                "z": 13.914364439071392
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 3.1859239166164173
+            },
+            {
+              "id": "blue-5",
+              "hp": 72,
+              "position": {
+                "x": -4.277869321688676,
+                "y": 0,
+                "z": 14.549112580661053
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 14
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "player",
+              "hp": 0,
+              "position": {
+                "x": -9.400002631860227,
+                "y": 0,
+                "z": -15.200000298437683
+              },
+              "planFromFreshStage0": null,
+              "nearestLiveAlly": null
+            }
+          ],
+          "bomb": {
+            "carrier": null,
+            "position": {
+              "x": -7.735077011137037,
+              "y": 9.703282557893544e-05,
+              "z": -8.665208733873442
+            },
+            "planted": false,
+            "explodeAt": null
+          },
+          "round": 1,
+          "side": "attack",
+          "ticks": 249,
+          "reason": "elimination",
+          "winner": "blue",
+          "hash": "dc39cd99",
+          "shots": 35,
+          "noLosShots": 0,
+          "friendlyHits": 9
+        },
+        {
+          "finalActors": [
+            {
+              "id": "amber-1",
+              "hp": 0,
+              "position": {
+                "x": -7.728580987051828,
+                "y": 0,
+                "z": -8.624452837975696
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-2",
+              "hp": 0,
+              "position": {
+                "x": -7.226481508847792,
+                "y": 9.395038796355948e-05,
+                "z": -13.076985750347376
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-3",
+              "hp": 0,
+              "position": {
+                "x": -7.111809898379327,
+                "y": 0,
+                "z": -13.709143673581764
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-4",
+              "hp": 0,
+              "position": {
+                "x": -7.555239721031635,
+                "y": 9.860334102995694e-05,
+                "z": -10.191504156386998
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": 8
+                },
+                "interact": false,
+                "routeIndex": 1
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-1",
+              "hp": 0,
+              "position": {
+                "x": -7.4913569944910705,
+                "y": 8.770739805186167e-05,
+                "z": 9.705178744159639
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 5.807430122291015
+            },
+            {
+              "id": "blue-2",
+              "hp": 0,
+              "position": {
+                "x": -7.084857265282654,
+                "y": 9.258730278816074e-05,
+                "z": 12.436153979693726
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 3.5072974287797227
+            },
+            {
+              "id": "blue-3",
+              "hp": 0,
+              "position": {
+                "x": -7.05897783673621,
+                "y": 7.494872261304408e-05,
+                "z": 13.396360015666167
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 3.0045011094212453
+            },
+            {
+              "id": "blue-4",
+              "hp": 0,
+              "position": {
+                "x": -7.399920963363069,
+                "y": 0,
+                "z": 13.914364463303029
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 3.180155015124419
+            },
+            {
+              "id": "blue-5",
+              "hp": 100,
+              "position": {
+                "x": -4.28312259032644,
+                "y": 0,
+                "z": 14.545992377550977
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 14
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "player",
+              "hp": 0,
+              "position": {
+                "x": -9.40000267854944,
+                "y": 9.791578486328945e-05,
+                "z": -15.20000024026502
+              },
+              "planFromFreshStage0": null,
+              "nearestLiveAlly": null
+            }
+          ],
+          "bomb": {
+            "carrier": null,
+            "position": {
+              "x": -7.728580987051828,
+              "y": 0,
+              "z": -8.624452837975696
+            },
+            "planted": false,
+            "explodeAt": null
+          },
+          "round": 2,
+          "side": "attack",
+          "ticks": 254,
+          "reason": "elimination",
+          "winner": "blue",
+          "hash": "9f2c0db8",
+          "shots": 30,
+          "noLosShots": 0,
+          "friendlyHits": 10
+        },
+        {
+          "finalActors": [
+            {
+              "id": "amber-1",
+              "hp": 0,
+              "position": {
+                "x": -7.72438311993028,
+                "y": 4.923282176605426e-05,
+                "z": -8.59823916410096
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-2",
+              "hp": 0,
+              "position": {
+                "x": -7.226481508847792,
+                "y": 9.407501784153283e-05,
+                "z": -13.076985679185828
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-3",
+              "hp": 0,
+              "position": {
+                "x": -7.111810224201847,
+                "y": 9.977344598155469e-05,
+                "z": -13.70914388392006
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-4",
+              "hp": 0,
+              "position": {
+                "x": -7.555238841322016,
+                "y": 9.96811140794307e-05,
+                "z": -10.191502471053369
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": 8
+                },
+                "interact": false,
+                "routeIndex": 1
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-1",
+              "hp": 0,
+              "position": {
+                "x": -7.485519561674764,
+                "y": 9.300940291723236e-05,
+                "z": 9.696880855762018
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 5.8268288497485585
+            },
+            {
+              "id": "blue-2",
+              "hp": 0,
+              "position": {
+                "x": -7.678141881862844,
+                "y": 7.490252392017283e-05,
+                "z": 12.838128520963252
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 3.8311807773131865
+            },
+            {
+              "id": "blue-3",
+              "hp": 0,
+              "position": {
+                "x": -7.05897783673621,
+                "y": 7.494031160604209e-05,
+                "z": 13.396360015666167
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 3.036840216924127
+            },
+            {
+              "id": "blue-4",
+              "hp": 0,
+              "position": {
+                "x": -7.399920902783972,
+                "y": 3.331936750328168e-05,
+                "z": 13.914364439071392
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 3.2156684437519463
+            },
+            {
+              "id": "blue-5",
+              "hp": 44,
+              "position": {
+                "x": -4.245693994938016,
+                "y": 0,
+                "z": 14.539965073631972
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 14
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "player",
+              "hp": 0,
+              "position": {
+                "x": -9.400003009684603,
+                "y": 9.818100079428405e-05,
+                "z": -15.200000246768244
+              },
+              "planFromFreshStage0": null,
+              "nearestLiveAlly": null
+            }
+          ],
+          "bomb": {
+            "carrier": null,
+            "position": {
+              "x": -7.72438311993028,
+              "y": 4.923282176605426e-05,
+              "z": -8.59823916410096
+            },
+            "planted": false,
+            "explodeAt": null
+          },
+          "round": 3,
+          "side": "attack",
+          "ticks": 286,
+          "reason": "elimination",
+          "winner": "blue",
+          "hash": "e23c241b",
+          "shots": 52,
+          "noLosShots": 0,
+          "friendlyHits": 10
+        },
+        {
+          "finalActors": [
+            {
+              "id": "amber-1",
+              "hp": 0,
+              "position": {
+                "x": -7.485520020423259,
+                "y": 9.47553853620775e-05,
+                "z": 9.696880905704809
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-2",
+              "hp": 0,
+              "position": {
+                "x": -7.678141977345851,
+                "y": 4.9742753617465496e-05,
+                "z": 12.838131497691737
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-3",
+              "hp": 0,
+              "position": {
+                "x": -7.058977739639213,
+                "y": 0,
+                "z": 13.396360039940417
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-4",
+              "hp": 0,
+              "position": {
+                "x": -7.614330879752938,
+                "y": 7.412795093841851e-05,
+                "z": 13.672227987128435
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-1",
+              "hp": 0,
+              "position": {
+                "x": -7.732140371546848,
+                "y": 0.00026473264733795077,
+                "z": -8.646775749744847
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 14.464107570217498
+            },
+            {
+              "id": "blue-2",
+              "hp": 0,
+              "position": {
+                "x": -7.226481508847792,
+                "y": 9.407229663338512e-05,
+                "z": -13.076985714765435
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 18.253817397536057
+            },
+            {
+              "id": "blue-3",
+              "hp": 0,
+              "position": {
+                "x": -7.11175930435294,
+                "y": 9.613597649149597e-05,
+                "z": -13.70914283955223
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 18.803663147273586
+            },
+            {
+              "id": "blue-4",
+              "hp": 0,
+              "position": {
+                "x": -7.606192215090346,
+                "y": 0,
+                "z": -8.700810101800496
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 14.449344522448461
+            },
+            {
+              "id": "blue-5",
+              "hp": 72,
+              "position": {
+                "x": -0.5714353816617308,
+                "y": 0,
+                "z": 3.9204320487542894
+              },
+              "planFromFreshStage0": {
+                "role": "carry",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null,
+              "objectivePath": [
+                {
+                  "x": -0.5714353919029236,
+                  "y": 0,
+                  "z": 3.9204320907592773
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "z": 10
+                }
+              ]
+            },
+            {
+              "id": "player",
+              "hp": 0,
+              "position": {
+                "x": -9.400000240496482,
+                "y": 4.16186849179212e-05,
+                "z": 15.200000216297756
+              },
+              "planFromFreshStage0": null,
+              "nearestLiveAlly": null
+            }
+          ],
+          "bomb": {
+            "carrier": "blue-5",
+            "position": {
+              "x": -0.5714353816617308,
+              "y": 0,
+              "z": 3.9204320487542894
+            },
+            "planted": false,
+            "explodeAt": null
+          },
+          "round": 4,
+          "side": "defend",
+          "ticks": 689,
+          "reason": "elimination",
+          "winner": "blue",
+          "hash": "670bf2df",
+          "shots": 48,
+          "noLosShots": 0,
+          "friendlyHits": 5
+        },
+        {
+          "finalActors": [
+            {
+              "id": "amber-1",
+              "hp": 0,
+              "position": {
+                "x": -7.48552007036605,
+                "y": 0,
+                "z": 9.6968809556476
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-2",
+              "hp": 0,
+              "position": {
+                "x": -7.678141868665424,
+                "y": 7.489572453778237e-05,
+                "z": 12.838130990945668
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-3",
+              "hp": 0,
+              "position": {
+                "x": -7.0589806347436355,
+                "y": 0,
+                "z": 13.396363391822339
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "amber-4",
+              "hp": 0,
+              "position": {
+                "x": -7.614330977059037,
+                "y": 0,
+                "z": 13.672227797818266
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-1",
+              "hp": 0,
+              "position": {
+                "x": -7.363488539267129,
+                "y": 0,
+                "z": -6.338228327776143
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 12.268287310267413
+            },
+            {
+              "id": "blue-2",
+              "hp": 0,
+              "position": {
+                "x": -7.226481508847792,
+                "y": 9.395038796355948e-05,
+                "z": -13.076985750347376
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 18.218856152525774
+            },
+            {
+              "id": "blue-3",
+              "hp": 0,
+              "position": {
+                "x": -7.111810496817501,
+                "y": 0,
+                "z": -13.709143759422343
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 18.768800435999022
+            },
+            {
+              "id": "blue-4",
+              "hp": 0,
+              "position": {
+                "x": -7.421623250855191,
+                "y": 7.259003905346617e-05,
+                "z": -8.52293735386338
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 14.169110706953663
+            },
+            {
+              "id": "blue-5",
+              "hp": 72,
+              "position": {
+                "x": -0.5880310629027874,
+                "y": 5.203750333748758e-05,
+                "z": 3.8893837842100654
+              },
+              "planFromFreshStage0": {
+                "role": "carry",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null,
+              "objectivePath": [
+                {
+                  "x": -0.5880310535430908,
+                  "y": 0,
+                  "z": 3.8893837928771973
+                },
+                {
+                  "x": 0,
+                  "y": 0,
+                  "z": 10
+                }
+              ]
+            },
+            {
+              "id": "player",
+              "hp": 0,
+              "position": {
+                "x": -9.400000240496482,
+                "y": 7.102616291376762e-05,
+                "z": 15.200000216297756
+              },
+              "planFromFreshStage0": null,
+              "nearestLiveAlly": null
+            }
+          ],
+          "bomb": {
+            "carrier": "blue-5",
+            "position": {
+              "x": -0.5880310629027874,
+              "y": 5.203750333748758e-05,
+              "z": 3.8893837842100654
+            },
+            "planted": false,
+            "explodeAt": null
+          },
+          "round": 5,
+          "side": "defend",
+          "ticks": 774,
+          "reason": "elimination",
+          "winner": "blue",
+          "hash": "cfc4da72",
+          "shots": 41,
+          "noLosShots": 0,
+          "friendlyHits": 9
+        },
+        {
+          "finalActors": [
+            {
+              "id": "amber-1",
+              "hp": 0,
+              "position": {
+                "x": -7.503929311875254,
+                "y": 0.00019979901844635606,
+                "z": 9.72303966106847
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 3.90565362935847
+            },
+            {
+              "id": "amber-2",
+              "hp": 0,
+              "position": {
+                "x": -7.678141977345851,
+                "y": 7.49125683796592e-05,
+                "z": 12.838131975528793
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": -2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 0.81744844518752
+            },
+            {
+              "id": "amber-3",
+              "hp": 0,
+              "position": {
+                "x": -7.05897813023021,
+                "y": 8.957631507655606e-05,
+                "z": 13.396360038753835
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 2,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 0.4717548891617225
+            },
+            {
+              "id": "amber-4",
+              "hp": 44,
+              "position": {
+                "x": -7.46964082936835,
+                "y": 1.1193551472388208e-05,
+                "z": 13.628542774943602
+              },
+              "planFromFreshStage0": {
+                "role": "hold",
+                "goal": {
+                  "x": 7,
+                  "y": 0,
+                  "z": 9
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": 2.489129555912727
+            },
+            {
+              "id": "blue-1",
+              "hp": 0,
+              "position": {
+                "x": -7.454126980126603,
+                "y": 9.619018237572163e-05,
+                "z": -6.901579433353618
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-2",
+              "hp": 0,
+              "position": {
+                "x": -7.226481508847792,
+                "y": 9.395038796355948e-05,
+                "z": -13.076985750347376
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-3",
+              "hp": 0,
+              "position": {
+                "x": -7.111809755612267,
+                "y": 0,
+                "z": -13.70914357240033
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 8,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-4",
+              "hp": 0,
+              "position": {
+                "x": -7.558976299595088,
+                "y": 0.00033910631464095786,
+                "z": -10.201696886494755
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": -8,
+                  "y": 0,
+                  "z": 8
+                },
+                "interact": false,
+                "routeIndex": 1
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "blue-5",
+              "hp": 0,
+              "position": {
+                "x": -7.415586886469997,
+                "y": 9.612948633730412e-05,
+                "z": -14.140150722517705
+              },
+              "planFromFreshStage0": {
+                "role": "advance",
+                "goal": {
+                  "x": 0,
+                  "y": 0,
+                  "z": -10
+                },
+                "interact": false,
+                "routeIndex": 0
+              },
+              "nearestLiveAlly": null
+            },
+            {
+              "id": "player",
+              "hp": 100,
+              "position": {
+                "x": -9.400000240496482,
+                "y": 4.16186849179212e-05,
+                "z": 15.200000216297756
+              },
+              "planFromFreshStage0": null,
+              "nearestLiveAlly": 2.489129555912727
+            }
+          ],
+          "bomb": {
+            "carrier": null,
+            "position": {
+              "x": -7.454126980126603,
+              "y": 9.619018237572163e-05,
+              "z": -6.901579433353618
+            },
+            "planted": false,
+            "explodeAt": null
+          },
+          "round": 6,
+          "side": "defend",
+          "ticks": 185,
+          "reason": "elimination",
+          "winner": "amber",
+          "hash": "4a661289",
+          "shots": 31,
+          "noLosShots": 0,
+          "friendlyHits": 7
+        }
+      ],
+      "activity": {
+        "amber-1": {
+          "commands": 1864,
+          "movingTicks": 607,
+          "shots": 1,
+          "distance": 34.01409743512523
+        },
+        "amber-2": {
+          "commands": 1471,
+          "movingTicks": 348,
+          "shots": 4,
+          "distance": 13.315771088972195
+        },
+        "amber-3": {
+          "commands": 2091,
+          "movingTicks": 204,
+          "shots": 24,
+          "distance": 7.810004187650849
+        },
+        "amber-4": {
+          "commands": 3168,
+          "movingTicks": 504,
+          "shots": 45,
+          "distance": 27.689388893753105
+        },
+        "blue-1": {
+          "commands": 2127,
+          "movingTicks": 686,
+          "shots": 3,
+          "distance": 38.087821449004295
+        },
+        "blue-2": {
+          "commands": 1870,
+          "movingTicks": 398,
+          "shots": 16,
+          "distance": 14.770552568664055
+        },
+        "blue-3": {
+          "commands": 2486,
+          "movingTicks": 204,
+          "shots": 40,
+          "distance": 7.810064464415398
+        },
+        "blue-4": {
+          "commands": 2058,
+          "movingTicks": 570,
+          "shots": 6,
+          "distance": 30.809912402365445
+        },
+        "blue-5": {
+          "commands": 7410,
+          "movingTicks": 1654,
+          "shots": 98,
+          "distance": 78.55421396786603
+        }
+      },
+      "seconds": [
+        4.15,
+        4.233333333333333,
+        4.766666666666667,
+        11.483333333333333,
+        12.9,
+        3.0833333333333335
+      ],
+      "noLosShots": 0,
+      "finalHash": "4a661289",
+      "replayEqual": true
+    }
+  ]
+}

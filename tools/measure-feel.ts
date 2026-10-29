@@ -5,17 +5,19 @@ import { Game as MovementGame } from '../src/candidates/movement-v2/sim/game.js'
 import { Game as TrainingGame } from '../src/candidates/offline-training-v1/sim/game.js';
 import { shootingState } from '../src/candidates/movement-v2/sim/shooting.js';
 import type { Command } from '../src/sim/types.js';
-export async function measure() {
+export async function measure(includeGround = false) {
  const results = []; const recoveryProbes = [];
- for (const [mode, Factory] of [['default', DefaultGame], ['movement-v2', MovementGame], ['offline-training-v1', TrainingGame]] as const) {
+ const factories = [['default', DefaultGame], ['movement-v2', MovementGame], ['offline-training-v1', TrainingGame], ...(includeGround ? [['ground-v1', TrainingGame] as const] : [])] as const;
+ for (const [mode, Factory] of factories) {
+  const create = (seed: number, specs: Parameters<typeof TrainingGame.create>[1]) => mode === 'ground-v1' ? TrainingGame.create(seed, specs, {}, { movement: 'ground-v1' }) : Factory.create(seed, specs);
   for (const probeTick of [72,73]) {
-   const probe = await Factory.create(1, [{id:'p',team:'amber',position:{x:0,y:0,z:-16}}, {id:'d',team:'blue',position:{x:8,y:0,z:14}}]);
+   const probe = await create(1, [{id:'p',team:'amber',position:{x:0,y:0,z:-16}}, {id:'d',team:'blue',position:{x:8,y:0,z:14}}]);
    try { for(let tick=0;tick<=probeTick;tick++) probe.step(tick<60||tick===probeTick?[{actorId:'p',type:'shoot',yaw:Math.PI/2,pitch:0}]:[]);
     const s=probe.state,p=s.actors.find(a=>a.id==='p')!; recoveryProbes.push({mode,delayAfterLastBurstShotSeconds:probeTick/60-0.9,acceptedShots:s.shots.length,patternShotsAfterProbe:p.weapons.rifle.shots,lastShot:s.shots.at(-1)});
    } finally {probe.dispose();}
   }
   for (const scenario of ['release', 'reverse', 'burst-reload'] as const) {
-   const game = await Factory.create(1, [{id:'p',team:'amber',position:{x:0,y:0,z:-16}}, {id:'d',team:'blue',position:{x:8,y:0,z:14}}]);
+   const game = await create(1, [{id:'p',team:'amber',position:{x:0,y:0,z:-16}}, {id:'d',team:'blue',position:{x:8,y:0,z:14}}]);
    const rows = []; let previous = game.state.actors.find(a=>a.id==='p')!.position; let reloadStart:number|null=null, reloadEnd:number|null=null;
    try {
     for (let tick=0;tick<300;tick++) {
@@ -44,6 +46,6 @@ export async function measure() {
    } finally {game.dispose();}
   }
  }
- return {schema:1,source:'83e7c0b4e2c026ded1906aa5be71601859482431',seed:1,hz:60,units:'world units, seconds, radians; position-delta velocity includes collision',scope:'Real Game.step command replay, not browser/hardware input or rendered feedback. Two stationary actors, no bot commands. Reverse records first nonpositive forward velocity, not exact zero crossing.',results,recoveryProbes};
+ return {schema:1,source:includeGround?'ground-v1 candidate; parent fa2c388 (same baseline input script)':'83e7c0b4e2c026ded1906aa5be71601859482431',seed:1,hz:60,units:'world units, seconds, radians; position-delta velocity includes collision',scope:'Real Game.step command replay, not browser/hardware input or rendered feedback. Two stationary actors, no bot commands. Reverse records first nonpositive forward velocity, not exact zero crossing.',results,recoveryProbes};
 }
-if(process.argv[1] && import.meta.url===pathToFileURL(process.argv[1]).href){const result=await measure(); if(process.argv[2])writeFileSync(process.argv[2],JSON.stringify(result,null,2)+'\n');else console.log(JSON.stringify(result.results.map(({mode,scenario,summary})=>({mode,scenario,...summary})),null,2));}
+if(process.argv[1] && import.meta.url===pathToFileURL(process.argv[1]).href){const result=await measure(process.argv.includes('--ground')); if(process.argv[2])writeFileSync(process.argv[2],JSON.stringify(result,null,2)+'\n');else console.log(JSON.stringify(result.results.map(({mode,scenario,summary})=>({mode,scenario,...summary})),null,2));}

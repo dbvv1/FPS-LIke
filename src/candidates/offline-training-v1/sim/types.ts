@@ -6,6 +6,7 @@ export type Difficulty = 'easy' | 'normal' | 'hard';
 export type Input = { x: number; z: number; walk: boolean; crouch: boolean; interact: boolean };
 export type Actor = {
   id: string; team: Team; side: Side; hp: number; position: Vec3;
+  velocity?: { x: number; z: number };
   yaw: number; pitch: number; input: Input; weapon: WeaponId;
   weapons: Record<WeaponId, { ammo: number; reserve: number; shots: number; lastShot: number }>;
   reload: { weapon: WeaponId; end: number } | null;

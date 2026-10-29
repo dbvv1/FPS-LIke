@@ -1,3 +1,4 @@
+import { groundMovement, movementPenalty } from './movement.js';
 import { squadSpawn } from './squads.js';
 import { MAP } from '../content/map.js';
 import { WEAPONS } from '../content/weapons.js';
@@ -5,7 +6,7 @@ import { distance, flatDistance, hash, nextRandom } from './math.js';
 import { Physics, eye, initPhysics } from './physics.js';
 import { SECOND, SUBTICKS, type Actor, type Command, type GameState, type PlayerSpec, type Rules, type Side, type Sound, type Team, type Vec3, type WeaponId } from './types.js';
 export const DEFAULT_RULES: Readonly<Rules> = Object.freeze({ roundTicks: 60 * 70, plantTicks: 60 * 3, defuseTicks: 60 * 5, bombTicks: 60 * 25, swapEvery: 3 });
-export type GameOptions = { formation?: 'squads-v1' };
+export type GameOptions = { formation?: 'squads-v1'; movement?: 'ground-v1' };
 export type VisibleEnemy = Pick<Actor, 'id' | 'team' | 'side' | 'position'> & { crouch: boolean };
 export type Observation = {
   time: number; round: number; phase: GameState['phase']; self: Actor;
@@ -26,7 +27,8 @@ export class Game {
     return new Game(seed, specs, rules, options);
   }
   private constructor(seed: number, specs: PlayerSpec[], rules: Partial<Rules>, options: GameOptions) {
-    if (Object.keys(options).some(k=>k!=='formation') || (options.formation !== undefined && options.formation !== 'squads-v1')) throw new Error('Invalid formation version');
+    if (Object.keys(options).some(k=>k!=='formation' && k!=='movement') || (options.formation !== undefined && options.formation !== 'squads-v1')) throw new Error('Invalid formation version');
+    if (options.movement !== undefined && options.movement !== 'ground-v1') throw new Error('Invalid movement version');
     this.options = Object.freeze({...options});
     const capacity = options.formation === 'squads-v1' ? 5 : 3;
     if (!Number.isSafeInteger(seed) || seed < 0 || seed > 0xffffffff) throw new Error('seed must be a uint32');
@@ -52,7 +54,7 @@ export class Game {
     // Preserve the v1 gameplay replay hash. Presentation facts are derived from the
     // same trace, not input/state used by future gameplay, and are excluded.
     const state = { ...this.current, shots: this.current.shots.map(({ impact: _impact, ...shot }) => shot) };
-    return hash({ state, rules: this.rules, ...(this.options.formation ? { options: this.options } : {}) });
+    return hash({ state, rules: this.rules, ...((this.options.formation || this.options.movement) ? { options: this.options } : {}) });
   }
   private resetActors() {
     const swapped = Math.floor((this.current.round - 1) / this.rules.swapEvery) % 2 === 1;
@@ -62,7 +64,7 @@ export class Game {
       const position = this.current.round === 1 && spec.position ? { ...spec.position } : this.options.formation === 'squads-v1' ? squadSpawn(side, counts[side]) : { ...MAP.spawns[side], x: MAP.spawns[side].x + counts[side] * 1.1 };
       counts[side]++;
       const weapons = Object.fromEntries((['rifle', 'pistol'] as const).map(id => [id, { ammo: WEAPONS[id].magazine, reserve: WEAPONS[id].reserve, shots: 0, lastShot: -SECOND }])) as Actor['weapons'];
-      return { id: spec.id, team: spec.team, side, hp: 100, position, yaw: side === 'attack' ? 0 : Math.PI, pitch: 0, input: { x: 0, z: 0, walk: false, crouch: false, interact: false }, weapon: 'rifle', weapons, reload: null, nextShot: 0, nextFootstep: 0, bot: spec.bot ?? null };
+      return { ...(this.options.movement ? { velocity: { x: 0, z: 0 } } : {}), id: spec.id, team: spec.team, side, hp: 100, position, yaw: side === 'attack' ? 0 : Math.PI, pitch: 0, input: { x: 0, z: 0, walk: false, crouch: false, interact: false }, weapon: 'rifle', weapons, reload: null, nextShot: 0, nextFootstep: 0, bot: spec.bot ?? null };
     });
     const carrier = this.current.actors.find(a => a.side === 'attack')!;
     this.current.bomb = { carrier: carrier.id, position: { ...carrier.position }, planted: false, explodeAt: null };
@@ -141,7 +143,7 @@ export class Game {
     if (now - mag.lastShot > 0.3 * SECOND) mag.shots = 0;
     const recoil = weapon.recoil[mag.shots % weapon.recoil.length]!;
     const moving = Math.hypot(actor.input.x, actor.input.z) > 0.1;
-    const spread = weapon.spread + (moving ? weapon.movingSpread * (actor.input.walk ? 0.5 : 1) : 0);
+    const spread = weapon.spread + weapon.movingSpread * (actor.velocity ? movementPenalty(actor.velocity) : moving ? (actor.input.walk ? 0.5 : 1) : 0);
     const shotYaw = yaw + recoil[0] + (nextRandom(this.current) * 2 - 1) * spread;
     const shotPitch = pitch + recoil[1] + (nextRandom(this.current) * 2 - 1) * spread;
     mag.ammo--; mag.shots++; mag.lastShot = now; actor.nextShot = now + weapon.interval * SUBTICKS;
@@ -177,10 +179,15 @@ export class Game {
       for (const actor of this.current.actors) {
         if (actor.hp <= 0) continue;
         const moving = Math.hypot(actor.input.x, actor.input.z) > 0.001;
-        if (moving) {
+        if (moving || actor.velocity) {
           const speed = actor.input.crouch ? 1.7 : actor.input.walk ? 2.3 : 4.5;
           const before = { ...actor.position };
-          this.physics.move(actor, { x: actor.input.x * speed * elapsed, y: -0.12 * elapsed, z: actor.input.z * speed * elapsed });
+          if (actor.velocity) {
+            const motion = groundMovement(actor.velocity, actor.input, elapsed);
+            this.physics.move(actor, motion.translation);
+            // Blocked components must not accumulate invisible velocity against a wall.
+            actor.velocity = { x: (actor.position.x - before.x) / elapsed, z: (actor.position.z - before.z) / elapsed };
+          } else this.physics.move(actor, { x: actor.input.x * speed * elapsed, y: -0.12 * elapsed, z: actor.input.z * speed * elapsed });
           if (!actor.input.walk && !actor.input.crouch && flatDistance(before, actor.position) > 0.001 && this.current.time >= actor.nextFootstep) {
             this.sound(actor, 'step', 13); actor.nextFootstep = this.current.time + 0.35 * SECOND;
           }
@@ -202,7 +209,7 @@ export class Game {
       if (pickup) s.bomb.carrier = pickup.id;
     }
     if (s.bomb.carrier) s.bomb.position = { ...s.actors.find(a => a.id === s.bomb.carrier)!.position };
-    const eligible = s.actors.filter(a => a.hp > 0 && a.input.interact && !a.reload && Math.hypot(a.input.x, a.input.z) < 0.01 && (
+    const eligible = s.actors.filter(a => a.hp > 0 && a.input.interact && !a.reload && Math.hypot(a.input.x, a.input.z) < 0.01 && (!a.velocity || Math.hypot(a.velocity.x, a.velocity.z) < 0.01) && (
       s.bomb.planted ? a.side === 'defend' && flatDistance(a.position, s.bomb.position) <= 1.6 : a.id === s.bomb.carrier && flatDistance(a.position, MAP.site) <= MAP.siteRadius
     ));
     const candidate = eligible.find(a => a.id === s.interaction?.actorId) ?? eligible[0];

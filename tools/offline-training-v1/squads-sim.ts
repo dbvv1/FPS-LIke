@@ -7,10 +7,10 @@ import { SECOND } from '../../src/candidates/offline-training-v1/sim/types.js';
 
 // CPU evidence for the actual offline roster: the human slot deliberately has
 // no commands, rather than quietly replacing the player with a tenth bot.
-export async function runSquadMatch(seed: number) {
+export async function runSquadMatch(seed: number, ground = false) {
   await initNavigation();
   const nav = new Navigation();
-  const game = await Game.create(seed, squadSpecs('normal'), {}, { formation: 'squads-v1' });
+  const game = await Game.create(seed, squadSpecs('normal'), {}, { formation: 'squads-v1', ...(ground ? {movement:'ground-v1' as const} : {}) });
   const bots = squadBots('normal', seed, nav), match = new TrainingMatch();
   const activity = Object.fromEntries(bots.map(bot => [bot.id, { commands: 0, movingTicks: 0, shots: 0, distance: 0 }]));
   const rounds: { round: number; side: string; ticks: number; reason: string; winner: string; hash: string; shots: number; friendlyHits: number; noLosShots: number; finalActors: unknown[]; bomb: unknown }[] = [];
@@ -54,9 +54,9 @@ if (process.argv[1]?.endsWith('/squads-sim.ts')) {
   if (!Number.isSafeInteger(seed) || seed < 0 || seed > 0xffffffff || !Number.isInteger(count) || count < 1 || count > 100) throw new Error('Use --seed <uint32> --seeds <1..100> [--replay]');
   const results = [];
   for (let i = 0; i < count; i++) {
-    const result = await runSquadMatch((seed + i) >>> 0);
+    const result = await runSquadMatch((seed + i) >>> 0,args.includes('--ground'));
     let replayEqual: boolean | null = null;
-    if (args.includes('--replay')) replayEqual = JSON.stringify(result) === JSON.stringify(await runSquadMatch((seed + i) >>> 0));
+    if (args.includes('--replay')) replayEqual = JSON.stringify(result) === JSON.stringify(await runSquadMatch((seed + i) >>> 0,args.includes('--ground')));
     results.push({ ...result, replayEqual });
     console.error(`seed=${result.seed} complete=${result.complete} noLosShots=${result.noLosShots} replayEqual=${replayEqual}`);
   }

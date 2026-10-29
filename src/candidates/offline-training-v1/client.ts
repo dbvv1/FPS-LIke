@@ -1,3 +1,5 @@
+import { trainingFeelEnabled } from '../../candidate-route.js';
+import { interpolateState } from './render/interpolation.js';
 import { squadsRequested, squadSpecs, squadBots } from './session/squads.js';
 import { Game } from './sim/game.js';
 import { Bot } from './sim/bot.js';
@@ -12,6 +14,8 @@ import { Hud } from './ui/hud.js';
 import type { GameState } from './sim/types.js';
 import { TrainingMatch, completeMatchRequested } from './session/match.js';
 import { MatchPanel } from './ui/match-panel.js';
+const feelEnabled = trainingFeelEnabled(window.location?.search ?? '');
+let previousState: GameState | null = null;
 const canvas = document.querySelector<HTMLCanvasElement>('#stage')!;
 let game: Game, nav: Navigation, bot: Bot, bots: Bot[] = [], view: View | CanvasView, controls: Controls;
 let ready = false, running = false, restarting = false, frameId = 0, simStart = 0, lastFrame = performance.now();
@@ -43,16 +47,16 @@ function next() {
   if (!ready || restarting || game.state.phase !== 'over') return;
   if (match?.summary.complete) { void restart(); return; }
   if (match && !match.canAdvance(game.state)) return;
-  resultRevealAt = null; game.nextRound(); controls.reset(player()); sound.reset(); view.reset(); hud.reset();
+  resultRevealAt = null; previousState = null; game.nextRound(); controls.reset(player()); sound.reset(); view.reset(); hud.reset();
   hud.menu(true, game.state, player()); hud.update(game.state, player(), performance.now()); void resume();
 }
 async function restart() {
   if (!ready || restarting) return;
   restarting = true; running = false; resultRevealAt = null; controls.pause(); hud.setBusy(true);
   try {
-    const replacement = await Game.create(1, squads ? squadSpecs(hud.difficulty) : [{ id: 'player', team: 'amber' }, { id: 'bot', team: 'blue', bot: hud.difficulty }], {}, squads ? { formation: 'squads-v1' } : {});
+    const replacement = await Game.create(1, squads ? squadSpecs(hud.difficulty) : [{ id: 'player', team: 'amber' }, { id: 'bot', team: 'blue', bot: hud.difficulty }], {}, { ...(squads ? { formation: 'squads-v1' as const } : {}), ...(feelEnabled ? { movement: 'ground-v1' as const } : {}) });
     if (startupCancelled) { replacement.dispose(); return; }
-    game.dispose(); game = replacement; match?.reset(); if (squads) bots = squadBots(hud.difficulty, 1, nav); else bot = new Bot('bot', hud.difficulty, 0x85ebca6a, nav);
+    game.dispose(); game = replacement; previousState = null; match?.reset(); if (squads) bots = squadBots(hud.difficulty, 1, nav); else bot = new Bot('bot', hud.difficulty, 0x85ebca6a, nav);
     controls.reset(player()); view.reset(); sound.reset(); hud.reset(); hud.menu(true, game.state, player());
   } catch (error) { if (!startupCancelled) fail(error); }
   finally { restarting = false; if (!startupCancelled) hud.setBusy(false); }
@@ -68,6 +72,7 @@ function frame(now: number) {
         let steps = 0;
         while (running && now >= simStart + tickMs && steps++ < 15) {
           const actor = player();
+          if (feelEnabled) previousState = game.state;
           game.step([...controls.commands(actor, simStart, simStart + tickMs, game.state.time), ...(squads ? bots.flatMap(b => b.commands(game.observe(b.id))) : bot.commands(game.observe('bot')))]); simStart += tickMs;
           if (game.state.phase === 'over') {
             // The authoritative result is already settled. Leave its visible
@@ -79,7 +84,8 @@ function frame(now: number) {
       }
       const state = game.state, actor = player(state);
       if (resultRevealAt !== null && now >= resultRevealAt) { resultRevealAt = null; hud.menu(true, state, actor); }
-      view.render(state, actor, controls.yaw, controls.pitch, now, dt); hud.update(state, actor, now);
+      const visual = feelEnabled && running ? interpolateState(previousState, state, (now - simStart) / tickMs) : state;
+      view.render(visual, visual.actors.find(a => a.id === actor.id)!, controls.yaw, controls.pitch, now, dt); hud.update(state, actor, now);
       if (match) matchPanel!.update(state, actor, match.summary);
       sound.update(state, actor, controls.yaw, game.observe(actor.id).sounds.map(s => s.id));
       document.getElementById('debug-state')!.textContent = JSON.stringify({ backend: view.backend, running, locked: controls.locked, tick: state.tick, round: state.round, phase: state.phase, time: state.time, yaw: controls.yaw, pitch: controls.pitch, player: { position: actor.position, hp: actor.hp, weapon: actor.weapon, ammo: actor.weapons[actor.weapon].ammo, reload: actor.reload, input: actor.input }, score: state.score, result: state.result }, null, 2);
@@ -109,13 +115,13 @@ try {
   document.getElementById('render-mode')!.hidden = view.backend !== 'canvas2d-cpu';
   await initNavigation(); if (startupCancelled) throw startupCancellation;
   nav = new Navigation();
-  game = await Game.create(1, squads ? squadSpecs(hud.difficulty) : [{ id: 'player', team: 'amber' }, { id: 'bot', team: 'blue', bot: hud.difficulty }], {}, squads ? { formation: 'squads-v1' } : {});
+  game = await Game.create(1, squads ? squadSpecs(hud.difficulty) : [{ id: 'player', team: 'amber' }, { id: 'bot', team: 'blue', bot: hud.difficulty }], {}, { ...(squads ? { formation: 'squads-v1' as const } : {}), ...(feelEnabled ? { movement: 'ground-v1' as const } : {}) });
   if (startupCancelled) { game.dispose(); throw startupCancellation; }
   if (squads) bots = squadBots(hud.difficulty, 1, nav); else bot = new Bot('bot', hud.difficulty, 0x85ebca6a, nav);
   controls = new Controls(canvas, locked => {
     // A delayed pointer-lock acquisition must not resume behind a new settings draft.
     if (locked && sensitivity.dirty) { controls.pause(); hud.message('灵敏度尚未应用，请先保存或取消修改。'); return; }
-    running = locked && game.state.phase === 'live'; simStart = performance.now();
+    previousState = null; running = locked && game.state.phase === 'live'; simStart = performance.now();
     hud.menu(!running && resultRevealAt === null, game.state, player());
   }, text => hud.message(text), () => sensitivity.value);
   controls.reset(player());

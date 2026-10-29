@@ -16,3 +16,8 @@ export function validateOfflineTrainingOptions(search: string): void {
     throw new Error('Offline training does not support shot or contentSet; remove those parameters.');
   }
 }
+
+export function trainingFeelEnabled(search: string): boolean {
+ const p = new URLSearchParams(search); const values = p.getAll("feel");
+ return offlineTrainingCandidateEnabled(search) && values.length === 1 && values[0] === "ground-v1";
+}
