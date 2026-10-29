@@ -47,13 +47,14 @@ export function createLightingPost(renderer:THREE.WebGLRenderer,scene:THREE.Scen
         gl_FragColor=vec4(max(c*balance,vec3(0.0)),source.a);}`
   });
   const output=new OutputPass();
+  const depthOnly=new THREE.MeshDepthMaterial({colorWrite:false});
   for(const pass of [beauty,ao,grade,output])composer.addPass(pass);
   let disposed=false;
   function renderLayers(){
     const objects:Array<{object:THREE.Object3D;visible:boolean;world:boolean}>=[];
     const writes=new Map<THREE.Material,boolean>();
     scene.traverse(object=>{if((object as THREE.Mesh).isMesh||(object as THREE.Line).isLine||(object as THREE.Points).isPoints||(object as THREE.Sprite).isSprite)objects.push({object,visible:object.visible,world:renderRole(object)==='world'});});
-    const background=scene.background,autoClear=renderer.autoClear,shadowUpdate=renderer.shadowMap.autoUpdate;
+    const background=scene.background,autoClear=renderer.autoClear,shadowUpdate=renderer.shadowMap.autoUpdate,override=scene.overrideMaterial;
     try{
       for(const row of objects)row.object.visible=row.visible&&row.world;
       composer.render(0);
@@ -61,11 +62,19 @@ export function createLightingPost(renderer:THREE.WebGLRenderer,scene:THREE.Scen
       // shaders (alpha tests/skinning included), without touching its graded color.
       scene.background=null;renderer.autoClear=false;renderer.shadowMap.autoUpdate=false;
       renderer.setRenderTarget(null);renderer.clearDepth();
+      // Opaque Standard materials need only the same triangles/depth, not a second
+      // PBR lighting evaluation. Retain original shaders for any special surface.
+      const depthFastPath=objects.filter(row=>row.world).every(row=>{
+        const material=(row.object as THREE.Mesh).material;
+        return (Array.isArray(material)?material:[material]).every(m=>m instanceof THREE.MeshStandardMaterial&&!m.transparent&&!m.alphaTest&&!m.alphaHash&&!m.displacementMap&&!m.clippingPlanes&&m.side===THREE.FrontSide&&m.depthWrite&&m.depthTest&&m.depthFunc===THREE.LessEqualDepth&&!m.polygonOffset&&!m.wireframe&&!m.stencilWrite&&m.onBeforeCompile===THREE.Material.prototype.onBeforeCompile);
+      });
+      if(depthFastPath)scene.overrideMaterial=depthOnly;
       for(const row of objects)if(row.world){
         const material=(row.object as THREE.Mesh).material;
         for(const m of Array.isArray(material)?material:[material])if(m&&!writes.has(m)){writes.set(m,m.colorWrite);m.colorWrite=false;}
       }
       renderer.render(scene,camera);
+      scene.overrideMaterial=override;
       for(const [material,colorWrite] of writes)material.colorWrite=colorWrite;
       // Render cues in their original shader/toneMapped/depth semantics. Neither
       // the world AO nor the world color grade is multiplied into their pixels.
@@ -74,7 +83,7 @@ export function createLightingPost(renderer:THREE.WebGLRenderer,scene:THREE.Scen
     }finally{
       for(const [material,colorWrite] of writes)material.colorWrite=colorWrite;
       for(const row of objects)row.object.visible=row.visible;
-      scene.background=background;renderer.autoClear=autoClear;renderer.shadowMap.autoUpdate=shadowUpdate;
+      scene.overrideMaterial=override;scene.background=background;renderer.autoClear=autoClear;renderer.shadowMap.autoUpdate=shadowUpdate;
     }
   }
   return {
@@ -84,6 +93,6 @@ export function createLightingPost(renderer:THREE.WebGLRenderer,scene:THREE.Scen
       ao.ssaoMaterial.uniforms['cameraInverseProjectionMatrix']!.value.copy(camera.projectionMatrixInverse);
       renderLayers();
     },
-    dispose(){if(disposed)return;disposed=true;ao.ssaoMaterial.dispose();ao.noiseTexture.dispose();for(const pass of [beauty,ao,grade,output])pass.dispose();composer.dispose();}
+    dispose(){if(disposed)return;disposed=true;depthOnly.dispose();ao.ssaoMaterial.dispose();ao.noiseTexture.dispose();for(const pass of [beauty,ao,grade,output])pass.dispose();composer.dispose();}
   };
 }
