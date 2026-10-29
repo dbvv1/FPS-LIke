@@ -1,6 +1,6 @@
 # 云端固定机位与灯光旁置（2026-10-29）
 
-当前测量源为 `9aa2ee6`（基于已交付 `b6ecc`）：离线训练赛、完整比赛、九机器人、courtyard-v1 与 standards-v1；三个命名机位 seed 1 / tick 120 / idle / 1280×720 DPR 1 均已取得真实 WebGL2 软件图，两遍 RGBA 完全一致。gameplay 保留生产 HUD/枪械，另两图为固定 observer，不代表玩家可达性或手感证据。
+原始基线测量源为 `9aa2ee6`（基于已交付 `b6ecc`）：离线训练赛、完整比赛、九机器人、courtyard-v1 与 standards-v1；三个命名机位 seed 1 / tick 120 / idle / 1280×720 DPR 1 均已取得真实 WebGL2 软件图，两遍 RGBA 完全一致。gameplay 保留生产 HUD/枪械，另两图为固定 observer，不代表玩家可达性或手感证据。
 
 两位独立非作者实际看过三图，临时文字锚点诊断均指向大面积重复墙面、地砖与箱体缺少场所身份，人物轮廓碎片化，接触与明暗层次弱。未取得 1–5 图像锚包及合格同机位目标，不填正式分、不称商业对标通过。后续布景层仍有明显缺口，本轮按用户决定先做完整灯光层。
 
@@ -14,9 +14,22 @@ courtyard-gap 原生生图目标先后两次均未通过独立几何复核：灯
 
 首版三机位各两遍 RGBA 一致，baseline 与 9aa2 原图逐像素一致；两位非作者盲选候选为可接受旁置，指出提示圈变淡、人物暗部和阴影边缘待打磨。首版生产默认有/无 feel 均过，照明+feel 在 180 秒窗口完成首轮 144 tick 与重开、第二轮仅 3 tick，因软件渲染成本超时；真实浏览器 exit 0、端口关闭。保留失败证据，本次半分辨率 AO、去除重复阴影更新、补暗部与保留提示颜色是针对性返工，半分辨率版本提高至第二轮 81 tick 仍超时，继续将不透明、无 alpha/displacement/clipping 的 Standard 世界材质深度重建改用等几何深度 shader，其他材质保留原 shader；截图尺寸及阴影尺寸不变。仍须完整复验，不把首版或下方历史记录当最终通过证据。
 
+
+## 最终本地验证与旁置接收范围
+
+实现验证源 `1826279776c4c537bf97a41842fdad0e4a86570f`（从 9aa2 测量接缝继续，未改静态资产、模拟或输入）。完整 CPU 356/356、生产构建和独立代码审查通过。三个命名机位 baseline/candidate 各两遍，共 12 张，1280×720 DPR 1、seed 1、tick 120；同机位状态、命令、相机与每版重复 RGBA 全部相同，baseline 六张与原 9aa2 图逐像素一致。
+
+最终两位独立非作者实际看六张匿名对照，三个机位均选择照明候选，接受为旁置。箱体、人物、灯柱接地及方向性照明更明确，黄色目标圈已恢复鲜明，未见明显过曝或大范围 AO 光晕。人物腰部/装备暗面仍有黑块合并，cross-lane 人物投影边缘有颗粒与台阶；没有运动阴影稳定性结论。不能替换默认或宣称正式达标，合格目标仍为 0/3，锚图仍缺。
+
+生产入口 baseline/lighting × 有/无 feel 四路均完成两轮各 144 tick 与真实重开：有 feel 每轮 `5ea95f2b`，无 feel 每轮 `2d7ad50c`，照明不改变模拟结果；非空 WebGL2、无页面错误。第三次 180 秒窗口仍只完成第二轮 120 tick，因此最后按实测软件帧成本将本轮照明功能测试等待窗口设为每路 300 秒，未减少 tick、重开或 hash 断言；180 秒性能窗口并未通过。普通实时玩法原有长帧保护保留，显式 smoke 固定步通过不证明软件渲染流畅或真人手感达标。
+
+环境：Chromium 154.0.8037.57，raw renderer `ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)`，分类 software。实际 MAX_SAMPLES/SAMPLES=4，最大各向异性16，compressedTextureFormatsSupported=[]；实际纹理内部格式未观测。候选 ACES、exposure 1.05、sRGB、PCFShadowMap 实际生效；2048² 阴影及固定半分辨率 AO 是实现配置。浏览器使用用户本轮特批 headless `--no-sandbox`，仅本地案例同源页，移除 unsafe SwiftShader 默认参数，外层隔离不变。功能 smoke 与固定机位两个浏览器均真实 exit 0，预览端口已关闭。所有图片和失败回执仅留云端，没有上传或收入 Git。
+
+此单元仅交付候选分支，main/Site 由接收端另行决定。文档收尾提交不改运行代码，接收以 clean 构建全部 29 文件与上述实测产物逐 SHA-256 一致为准。
+
 ---
 
-# 品质记分卡
+# 历史品质记分卡（保留原验收范围）
 
 基线：main `83e7c0b4e2c026ded1906aa5be71601859482431` / Site v15（默认原1v1，离线训练赛与三件环境标准件旁置）。功能门槛已过不代表质量达标。标准按 a1dbv `f4b4e801` 的 game-quality-pass/quality-bar；首轮基线及 ground-v1 手感旁置候选。**品质对象锁定已交付的 v15 offline-training-v1 + complete-v1 + squads offline-v1 + courtyard-v1 + standards-v1；默认1v1和movement-v2仅作拆分诊断，不将旧图代表当前5v5。**
 
