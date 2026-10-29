@@ -22,7 +22,7 @@ export class View {
   private artPresented = false;
   private art: ArtStandards | undefined;
   private artSlots: ArtSlot[] = [];
-  get info() { return { lighting: { id:this.lighting?LIGHTING_ID:'baseline', environment:this.lighting?'hemisphere-and-ambient':'hemisphere', ao:this.lighting?'deterministic-ssao':'none', grade:this.lighting?'cool-shadows-warm-highlights':'none' }, ...(this.art ? { art: { ...this.art.info, active: this.artPresented } } : {}), ...(this.environment ? { environment: { id: KIT.id, active: this.environmentPresented, budget: kitBudget(MAP.walls.length), evidence: 'offline-estimate' } } : {}), memory: { ...this.renderer.info.memory }, calls: this.renderer.info.render.calls }; }
+  get info() { return { lighting: { id:this.lighting?LIGHTING_ID:'baseline', environment:this.lighting?'hemisphere-and-ambient':'hemisphere', ao:this.lighting?'deterministic-ssao-half-resolution':'none', grade:this.lighting?'cool-shadows-warm-highlights':'none' }, ...(this.art ? { art: { ...this.art.info, active: this.artPresented } } : {}), ...(this.environment ? { environment: { id: KIT.id, active: this.environmentPresented, budget: kitBudget(MAP.walls.length), evidence: 'offline-estimate' } } : {}), memory: { ...this.renderer.info.memory }, calls: this.renderer.info.render.calls }; }
   readonly renderer: THREE.WebGLRenderer;
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera(80, 1, 0.05, 100);
@@ -43,8 +43,8 @@ export class View {
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.scene.background = new THREE.Color(this.environment ? KIT.sky : YARD.sky);
     this.scene.fog = new THREE.Fog(this.environment ? KIT.sky : YARD.sky, 32, 80);
-    this.scene.add(new THREE.HemisphereLight(this.lighting?0xc5dfff:0xb9e7ff, this.lighting?0x6c7165:0x32413b, this.lighting?1.5:2.1));
-    if(this.lighting)this.scene.add(new THREE.AmbientLight(0xdde7f2,.25));
+    this.scene.add(new THREE.HemisphereLight(this.lighting?0xc5dfff:0xb9e7ff, this.lighting?0x6c7165:0x32413b, this.lighting?1.8:2.1));
+    if(this.lighting)this.scene.add(new THREE.AmbientLight(0xdde7f2,.35));
     const sun = new THREE.DirectionalLight(this.lighting?0xffe3bd:0xffdba8, this.lighting?3.0:2.6); sun.position.set(-8, 18, -4); this.scene.add(sun);
     if(this.lighting){
       this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.05;
@@ -181,7 +181,7 @@ export class View {
     this.bomb.position.set(...toThree(state.bomb.position));
     if(this.post){
       // Include late-loaded art and actors, without changing meshes or their materials.
-      this.scene.traverse(o=>{if(o instanceof THREE.Mesh){const world=renderRole(o)==='world';o.castShadow=world;o.receiveShadow=world;}});
+      this.scene.traverse(o=>{if(o instanceof THREE.Mesh){const world=renderRole(o)==='world';o.castShadow=world;o.receiveShadow=world;for(const m of Array.isArray(o.material)?o.material:[o.material])if(m instanceof THREE.MeshBasicMaterial)m.toneMapped=false;}});
       this.post.render();
     }else this.renderer.render(this.scene, this.camera);
     this.environmentPresented = this.environment; this.artPresented = this.art?.info.state === 'ready';

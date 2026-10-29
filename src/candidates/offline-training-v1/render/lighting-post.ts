@@ -25,7 +25,10 @@ class WorldAO extends SSAOPass {
 
 export function createLightingPost(renderer:THREE.WebGLRenderer,scene:THREE.Scene,camera:THREE.PerspectiveCamera){
   const target=new THREE.WebGLRenderTarget(1,1,{type:THREE.HalfFloatType,samples:4});
-  const composer=new EffectComposer(renderer,target),beauty=new RenderPass(scene,camera);
+  class WorldBeauty extends RenderPass {
+    override render(...args:Parameters<RenderPass['render']>){super.render(...args);args[0].shadowMap.autoUpdate=false;}
+  }
+  const composer=new EffectComposer(renderer,target),beauty=new WorldBeauty(scene,camera);
   const ao=new WorldAO(scene,camera,1,1,16);
   // Replace Three's random constructor samples before the first submitted frame.
   ao.kernel.splice(0,ao.kernel.length,...aoKernel());
@@ -75,7 +78,7 @@ export function createLightingPost(renderer:THREE.WebGLRenderer,scene:THREE.Scen
     }
   }
   return {
-    resize(width:number,height:number,pixelRatio:number){composer.setPixelRatio(pixelRatio);composer.setSize(width,height);},
+    resize(width:number,height:number,pixelRatio:number){composer.setPixelRatio(pixelRatio);composer.setSize(width,height);ao.setSize(Math.max(1,Math.floor(width*pixelRatio/2)),Math.max(1,Math.floor(height*pixelRatio/2)));},
     render(){
       ao.ssaoMaterial.uniforms['cameraProjectionMatrix']!.value.copy(camera.projectionMatrix);
       ao.ssaoMaterial.uniforms['cameraInverseProjectionMatrix']!.value.copy(camera.projectionMatrixInverse);
