@@ -1,3 +1,4 @@
+import { type ObserverCamera } from '../capture/route.js';
 import * as THREE from 'three';
 import { ArtStandards, artEnabled, type ArtSlot } from './art-standards.js';
 import { KIT, environmentEnabled, makeKitWall, kitTexture, floorPixels, kitBudget } from './environment-kit.js';
@@ -109,13 +110,15 @@ export class View {
     const w = canvas.clientWidth, h = canvas.clientHeight;
     this.renderer.setSize(w, h, false); this.camera.aspect = w / Math.max(1, h); this.camera.updateProjectionMatrix();
   }
-  render(state: GameState, player: Actor, yaw: number, pitch: number, now: number, dt: number) {
+  render(state: GameState, player: Actor, yaw: number, pitch: number, now: number, dt: number, observer?: ObserverCamera) {
     this.environmentPresented = false; this.artPresented = false;
     const pose = weaponPose(state, player), effects=this.feedback.update(state,now);
-    cameraPose(this.camera, eye(player), yaw, pitch);
+    cameraPose(this.camera, observer?.position ?? eye(player), observer?.yaw ?? yaw, observer?.pitch ?? pitch);
+    const fov = observer?.fov ?? 80;
+    if (this.camera.fov !== fov) { this.camera.fov = fov; this.camera.updateProjectionMatrix(); }
     this.weapon.position.set(pose.x, pose.y, pose.z);
     this.weapon.rotation.set(pose.pitch, 0, pose.roll, 'ZYX');
-    this.weapon.visible = player.hp > 0;
+    this.weapon.visible = !observer && player.hp > 0;
     this.rifle.visible = player.weapon === 'rifle'; this.pistol.visible = player.weapon === 'pistol';
     for (const group of [this.rifle, this.pistol]) for (const part of group.children) {
       const source=part.userData.part;
@@ -129,7 +132,7 @@ export class View {
     this.flash.position.set(...weaponMuzzle(player.weapon));
     this.flash.visible = pose.flash > 0; this.flash.scale.setScalar(.6 + pose.flash * .7);
     for (const actor of state.actors) {
-      if (actor.id === player.id) continue;
+      if (!observer && actor.id === player.id) continue;
       let model = this.actors.get(actor.id);
       if (!model) {
         const geometry=new THREE.BufferGeometry(),colors:number[]=[];

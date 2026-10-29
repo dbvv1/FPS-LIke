@@ -1,0 +1,26 @@
+# Offline art observer replay seam — not a visual acceptance
+
+This local candidate adds `artCapture=wall-lamp-observer` and `artCapture=low-cover-observer` only within `gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1`. Add `art=standards-v1` for the existing three-piece art candidate; omit only that parameter for baseline. Legacy `shot` and `contentSet` remain rejected. Normal/default entry and saved preferences are not involved.
+
+Both views replay exactly 120 normal 60 Hz steps, seed 1, default menu difficulty **easy**, original squads spawn, nine existing Bot command producers, and a real idle player zero-move command each step. No actor positions, health, rules, results, or random state are assigned. Read-only `window.__offlineArtCapture` contains full command log, simulation state/hash, actual player pose/HP, observer pose, bot IDs, timing, art readiness, raw renderer/vendor/version and gpu/software/unknown classification. A caller cannot advance the clock or inject state through this object.
+
+These are explicitly **observer** views, not player reachability or crouch-operation recordings. Low camera height is 1.02 m; actual player remains wherever simulation put them, with their true crouch and HP recorded. First-person weapon is hidden; actual actors (including the player) remain in world rendering. No promise that both living teams are visible in either picture. Current purpose is static material/occlusion evidence, not input-to-feedback, feel, gameplay quality, second art iteration, or proof of visual improvement.
+
+## Eventual headless recording contract (not dispatched by this change)
+
+- Fresh viewport 1365×900, DPR 1, same browser and source for both art-off/on variants. Each view and variant needs its own output/manifest directory. No keyboard/mouse or external state injection.
+- Wait for `__offlineArtCapture.ready === true` **and the existing boot overlay to finish**; capture the original canvas/page with no crop/reconstruction. Record full read-only metadata and exact source/build payload hashes in the manifest. `build` in metadata is the runtime bundle URL, not a claim to be a Git SHA.
+- Twelve warm renders share the identical final simulation state and virtual presentation time (2000 ms); no extra simulation steps or rAF. Art-on must load all three existing GLBs or fail; fallback is not capture-ready. Viewport change, pagehide or WebGL context loss makes ready false and disposes resources. Reload for another camera; no hidden live simulation remains.
+- Metadata state and command logs are evidence, not confirmation that the image is unobstructed: a later independent observer must inspect actual images. No GPU smoke or visual judgment has happened for this candidate yet; camera framing remains unverified.
+
+## CPU exploration and its limits
+
+An earlier probe used **normal**, unlike the normal UI's initial **easy** selection. Its early eliminations cannot be compared directly with the prior v14 default-entry 70-second result and are not declared a gameplay regression. Final fixture uses easy and at tick 120 is live, state hash `4a118389`, survivors amber-1..4, blue-5 and player. All real deaths remain. Two independently initialized runs and replaying their complete recorded commands produce the same hash. This is reproducibility evidence, not bot balancing or human-play acceptance.
+
+The pending target concept PNG is not part of this change and has not been uploaded, transformed or retransmitted. Existing art assets, map, collision, gameplay and website remain unchanged; this is an unpublished evidence-capture seam.
+
+## Prepared runner and regression boundary
+
+`node tools/capture-art-observers.mjs` builds the fixed clean commit with the established cross-platform production build invocation, inventories every web-dist SHA-256, then launches one sandboxed headless browser. It has no headed/software/external-base option, no retry/fallback, and never calls page keyboard/mouse or a state setter. It captures two independently loaded repeats for each observer × art off/on (eight original PNGs), full raw metadata, exact RGBA repeat comparison, same complete simulation/commands/camera/raw renderer across each art pair, and source/build binding. Non-GPU or any failure stops that browser sequence. Parent manifest is written even if browser close or preview close fails; real owned process exit must also exist in the retained DEBUG browser log before pass.
+
+Two normal offline art off/on startup checks on the same build cover changed entry/View initialization, ten real actors, nine bots, tick zero, candidate resource activation, and absence of capture namespace. They are **not** a new functional match/play-through. Unchanged input, round progression, next-round and restart code reuse the earlier normal-route smoke evidence recorded at `42077527057dc68ecc561893b13bced2dc7beb2e`; its first-run stop-boundary violation and limited corrected receipt remain as documented, not erased. The 335-test capture-seam suite plus the new runner validator/cleanup tests cover this source delta; browser screenshots and this new startup regression await the authorized serial run. No new GPU task has been dispatched by preparing this runner.

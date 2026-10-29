@@ -82,7 +82,7 @@ test('actual View constructor installs exact world slots, leaves other five lamp
   class Renderer {
     domElement = { clientWidth: 1365, clientHeight: 900 };
     info = { memory: {}, render: { calls: 0 } }; outputColorSpace = ''; disposed = false;
-    setPixelRatio() {} setSize() {} dispose() { this.disposed = true; }
+    render() {} setPixelRatio() {} setSize() {} dispose() { this.disposed = true; }
   }
   for (const m of source.matchAll(/^import (.*?) from '(.*?)';$/gm)) {
     if (m[1]!.startsWith('*')) { deps.THREE = { ...THREE, WebGLRenderer: Renderer }; continue; }
@@ -108,6 +108,20 @@ test('actual View constructor installs exact world slots, leaves other five lamp
     }
     const unchangedHeads = view.scene.children.filter((o: THREE.Object3D) => o instanceof THREE.Mesh && o.geometry instanceof THREE.BoxGeometry && Math.abs(o.geometry.parameters.width - .8) < 1e-8 && o.visible);
     assert.equal(unchangedHeads.length, 5);
+    const { Game } = await import('../../src/candidates/offline-training-v1/sim/game.js');
+    const { CAMERAS } = await import('../../src/candidates/offline-training-v1/capture/route.js');
+    const game = await Game.create();
+    try {
+      const state = game.state, player = state.actors[0]!, beforeHash = game.stateHash;
+      view.render(state, player, player.yaw, player.pitch, 2000, 0);
+      assert.equal(view.weapon.visible, true); assert.equal(view.actors.has(player.id), false);
+      for (const observer of Object.values(CAMERAS)) {
+        view.render(state, player, player.yaw, player.pitch, 2000, 0, observer);
+        assert.equal(view.weapon.visible, false); assert.equal(view.actors.has(player.id), true);
+        assert.deepEqual(view.camera.position.toArray(), [observer.position.x, observer.position.y, -observer.position.z]);
+        assert.equal(view.camera.fov, observer.fov); assert.equal(game.stateHash, beforeHash);
+      }
+    } finally { game.dispose(); }
     view.dispose(); assert.equal(view.info.art.state, 'disposed'); assert.equal(view.renderer.disposed, true);
     assert.equal(JSON.stringify(MAP), before);
   } finally { globalThis.fetch = previousFetch; }
