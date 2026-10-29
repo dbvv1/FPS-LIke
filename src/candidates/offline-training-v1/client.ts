@@ -75,9 +75,13 @@ function frame(now: number) {
       const tickMs = 1000 / 60;
       if (running) {
         // A stalled tab pauses instead of skipping input timestamps or simulating hidden combat.
-        if (now - simStart > 250) { controls.pause(); running = false; }
+        if (!smokeEnabled && now - simStart > 250) { controls.pause(); running = false; }
+        // Explicit smoke advances exactly one real Game step per rendered frame.
+        // Wall-time stalls must not pause its built-in tape or create catch-up bursts.
+        // Normal play keeps timestamped input and the 250 ms stalled-tab protection.
+        const targetTime = smokeEnabled ? simStart + tickMs : now;
         let steps = 0;
-        while (running && now >= simStart + tickMs && steps++ < 15) {
+        while (running && targetTime >= simStart + tickMs && steps++ < (smokeEnabled ? 1 : 15)) {
           const actor = player();
           if (feelEnabled) previousState = game.state;
           game.step([...(smokeEnabled ? [{ actorId: actor.id, type: 'move' as const, x: 0, z: smokeSteps < 60 ? -1 : smokeSteps >= 90 && smokeSteps < 114 ? 1 : 0 }] : controls.commands(actor, simStart, simStart + tickMs, game.state.time)), ...(squads ? bots.flatMap(b => b.commands(game.observe(b.id))) : bot.commands(game.observe('bot')))]); simStart += tickMs;
@@ -99,7 +103,7 @@ function frame(now: number) {
       }
       const state = game.state, actor = player(state);
       if (resultRevealAt !== null && now >= resultRevealAt) { resultRevealAt = null; hud.menu(true, state, actor); }
-      const visual = feelEnabled && running ? interpolateState(previousState, state, (now - simStart) / tickMs) : state;
+      const visual = feelEnabled && running ? interpolateState(previousState, state, smokeEnabled ? 0.5 : (now - simStart) / tickMs) : state;
       view.render(visual, visual.actors.find(a => a.id === actor.id)!, controls.yaw, controls.pitch, now, dt); hud.update(state, actor, now);
       if (match) matchPanel!.update(state, actor, match.summary);
       sound.update(state, actor, controls.yaw, game.observe(actor.id).sounds.map(s => s.id));
