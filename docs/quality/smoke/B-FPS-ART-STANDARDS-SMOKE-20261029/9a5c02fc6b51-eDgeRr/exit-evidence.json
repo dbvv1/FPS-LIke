@@ -484,7 +484,7 @@
     "gpu-performance",
     "full-match-and-human-acceptance",
     "node-24-not-validated",
-    "cross-task-gpu-exclusivity-unproven"
+    "gpu-exclusivity-across-tasks-unproven"
   ],
   "openIssuesDetailsFile": "first-attempt-and-gaps.json"
 }

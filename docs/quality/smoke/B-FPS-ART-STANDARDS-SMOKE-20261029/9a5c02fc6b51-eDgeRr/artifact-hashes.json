@@ -4,18 +4,18 @@
   "files": [
     {
       "path": "exit-evidence.json",
-      "bytes": 28353,
-      "sha256": "3790161c5ad237443297bf0c98de9c640938a7223b135f8e6e43a6ccf080194d"
+      "bytes": 28355,
+      "sha256": "95b1c576ea07ef78ac310f3d996c6650da69e436e7dbb565d8b08af2b3966a13"
     },
     {
       "path": "first-attempt-and-gaps.json",
-      "bytes": 34168,
-      "sha256": "58e82bea85566a5d649df2152e9c235c19384f4e08e6eed9e1b70de00eab53e8"
+      "bytes": 34170,
+      "sha256": "edd47ad6b69530c2609be67bb202fa2c13c114d765fe1815efe6aeeaf09c7ad3"
     },
     {
       "path": "manifest.json",
-      "bytes": 34124,
-      "sha256": "fe2b9fec9150a4453900fc5d2aeacaa7b6fe23fc3d1f81dd50104dc0962de486"
+      "bytes": 34126,
+      "sha256": "d0770476394001d256939474ec437d195591a5d9257ecebd314830c0e7230bea"
     },
     {
       "path": "reports/art-standards.json",

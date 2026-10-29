@@ -407,7 +407,7 @@
       "status": "open"
     },
     {
-      "id": "cross-task-gpu-exclusivity-unproven",
+      "id": "gpu-exclusivity-across-tasks-unproven",
       "category": "environment",
       "summary": "No shared GPU lock existed or was used; cross-task global GPU exclusivity is not proven.",
       "status": "open, not claimed"
