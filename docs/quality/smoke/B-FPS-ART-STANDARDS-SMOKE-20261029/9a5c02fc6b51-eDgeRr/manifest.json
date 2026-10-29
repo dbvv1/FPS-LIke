@@ -1,0 +1,686 @@
+{
+  "task": "B-FPS-ART-STANDARDS-SMOKE-20261029",
+  "runId": "9a5c02fc6b51-eDgeRr",
+  "kind": "build",
+  "qualityAcceptance": "not-performed",
+  "scope": "fixed-source offline-entry-only; two-route functional smoke; no six-round full-match playthrough; no old-entry recapture; initial deployment frames only",
+  "handoff": {
+    "verdict": "Fixed-source two-route real WebGL2 GPU functional smoke passed on the second attempt. Accept the second attempt only as side-entry functional evidence. Process compliance is not established: attempt 0 produced software WebGL and failed, then a renderer switch/retry produced the GPU pass, which violates the stop boundary. This is not a quality acceptance, not a full-match acceptance and not acceptance of the three standards.",
+    "firstStep": "dot-B first verifies sourceCommit/sourceTree and checks the SHA-256 of every published file against artifact-hashes.json, then publishes the after route as a side entry and confirms the site version it lands on.",
+    "doNot": [
+      "Do not use this run to change the default entry.",
+      "Do not treat it as a six-round full match, halftime side switch, end-of-match or play-again, or human visual/feel/audio acceptance.",
+      "Do not treat the single initial deployment view as coverage of the wall face/corner, cover sightline, lamp readability, enemy contrast or combat view; the deployment menu and HUD overlay much of that frame and it cannot verify the three-piece quality.",
+      "Do not claim cross-task GPU exclusivity or Node 24+ validation.",
+      "Do not claim the first attempt was the prescribed native configuration or that no renderer switch occurred.",
+      "Do not claim preview/port/parent-chain cleanup or full serial verification between the two attempts; partial process-sample evidence covers 20:43:30.363-20:44:29.306Z (only the receiver worker), while the last ~30.34s and port state are unknown.",
+      "Do not use the second attempt's success to erase the stop-boundary violation."
+    ],
+    "firstAttemptManifest": "The complete attempt-0 manifest was recovered from the retained local first-attempt smoke log and is published redacted in exit-evidence.json and first-attempt-and-gaps.json; its 21 build hashes match the second attempt. Not retained: the output-directory report.json contents, browser logs and raw report.webgl version/renderer/vendor/unmaskedVendor."
+  },
+  "source": {
+    "repository": "dbvv1/FPS-Like",
+    "baseRef": "9a5c02fc6b51c852d567cc0d4d28bf388fc41f4b",
+    "sourceCommit": "9a5c02fc6b51c852d567cc0d4d28bf388fc41f4b",
+    "sourceTree": "7cb322681201244e6e9f252ecf21bf63a037ac78",
+    "expectedTree": "7cb322681201244e6e9f252ecf21bf63a037ac78",
+    "localWorktreeBranch": "receiver/B-FPS-ART-STANDARDS-SMOKE-20261029",
+    "cleanBefore": true,
+    "cleanAfter": true,
+    "cleanEvidence": {
+      "before": {
+        "checkedUtc": "2026-10-28T20:38Z (approx, worktree preflight)",
+        "porcelain": "",
+        "head": "9a5c02fc6b51c852d567cc0d4d28bf388fc41f4b",
+        "tree": "7cb322681201244e6e9f252ecf21bf63a037ac78"
+      },
+      "after": {
+        "checkedUtc": "2026-10-28T20:48:30Z (approx, independent post-run check)",
+        "porcelain": "",
+        "head": "9a5c02fc6b51c852d567cc0d4d28bf388fc41f4b",
+        "tree": "7cb322681201244e6e9f252ecf21bf63a037ac78"
+      },
+      "note": "The runner asserted a clean worktree before build and re-asserted unchanged HEAD and clean status after both routes, then re-hashed every web-dist file. Only ignored node_modules, dist, web-dist and outputs are outside git status. These checks were made before publishing the evidence directory; subsequent review-rework edits on 2026-10-29 are confined to manifest.json, exit-evidence.json, first-attempt-and-gaps.json and artifact-hashes.json in this evidence directory."
+    },
+    "identityCheck": "Preflight verified HEAD/tree against base_ref; tools/smoke-backlog.mjs recorded HEAD/tree at start and asserted unchanged HEAD, clean status and unchanged build hashes after capture."
+  },
+  "command": {
+    "dependencyInstall": {
+      "command": "npm ci --offline",
+      "startUtc": "2026-10-28T20:38:56.571Z",
+      "endUtc": "2026-10-28T20:39:15.544Z",
+      "exitCode": 0,
+      "externalTimeoutSeconds": 600,
+      "timeoutTriggered": false,
+      "note": "Offline install from the existing npm cache; EBADENGINE warning because engines.node is >=24 and the host runs Node v22.23.2 (same as the accepted previous run). No network install and no browser download."
+    },
+    "smoke": {
+      "command": "FPS_SMOKE_RENDERER=native FPS_SMOKE_CHROMIUM=<existing local Playwright Chromium> node tools/smoke-backlog.mjs --art-standards",
+      "runner": "node tools/smoke-backlog.mjs --art-standards",
+      "startUtc": "2026-10-28T20:44:59.647Z",
+      "endUtc": "2026-10-28T20:48:20.230Z",
+      "exitCode": 0,
+      "externalTimeoutSeconds": 600,
+      "timeoutTriggered": false,
+      "buildIncluded": true,
+      "buildLog": "npm run build (tsc --noEmit, vite build sim, vite build) completed inside the smoke command",
+      "serial": "The two routes ran one after the other: offline-base browser exited at 20:46:48.634Z before the art-standards browser launched at 20:46:49.791Z."
+    },
+    "attempt0": {
+      "runId": "9a5c02fc6b51-wS6MkO",
+      "startUtc": "2026-10-28T20:39:27.251Z",
+      "endUtc": "2026-10-28T20:43:30.074Z",
+      "exitCode": 1,
+      "externalTimeoutSeconds": 600,
+      "timeoutTriggered": false,
+      "configuration": "FPS_SMOKE_CHROMIUM unset; Playwright default chrome-headless-shell; the exact FPS_SMOKE_RENDERER value is not retained; the attempt produced a software WebGL result",
+      "result": "software WebGL; offline-base passed; art-standards failed at finishOfflineRound waiting for phase=over (page.waitForFunction timeout 120000ms); runner exited 1",
+      "detailsFile": "first-attempt-and-gaps.json"
+    },
+    "attempts": 2,
+    "acceptedAttempt": 1
+  },
+  "entry": {
+    "before": {
+      "label": "offline-base",
+      "query": "?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1"
+    },
+    "after": {
+      "label": "art-standards",
+      "query": "?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1",
+      "optIn": "&art=standards-v1"
+    },
+    "replacementScope": "Only center-dogleg, site-cover and the lamp at simulation (-11.5,0,-13) are replaced; the other five lamps, map solids, navigation, lighting, actors, input, HUD and sounds stay intact.",
+    "oldFourEntriesRerun": false,
+    "oldEntryRecapture": false
+  },
+  "build": [
+    {
+      "path": "web-dist/assets/candidate-route-CGjPCnp4.js",
+      "sha256": "fb321dc1ce3a93f2aaa7fd63790ef716ff2ab8fec9f4c76652a852ae04a7fb39"
+    },
+    {
+      "path": "web-dist/assets/client-1mhYtfWF.js",
+      "sha256": "9baef77d9f0a4ba8d15be2a4ecebc370bf290a9aa5526a4d39251af72af017e5"
+    },
+    {
+      "path": "web-dist/assets/client-D14ycf2E.js",
+      "sha256": "af6d94e7596e393a9372d5aa6d40cb4a87758e4409d9bcfa477622fb68dd90cd"
+    },
+    {
+      "path": "web-dist/assets/client-D3FXUyTw.js",
+      "sha256": "1fdee8189ede20d1a9be53b09c260bdf23113ac258574a4ff747469f5778664e"
+    },
+    {
+      "path": "web-dist/assets/client-D9LD1TQP.js",
+      "sha256": "4b50d2d71eefd9543a5113df59e0cdf880fd9b0b9776226f941b70b3fe8f4758"
+    },
+    {
+      "path": "web-dist/assets/client-RbPmBqDP.js",
+      "sha256": "8c6efb5583d35f13ca500721e6eff42590edc207fe7c3471a9c518a6f258f8cb"
+    },
+    {
+      "path": "web-dist/assets/dist-DPjBHF83.js",
+      "sha256": "4b7bd64eb92697bce360d28f8b286aadee8989385c67e065f84e860329384c11"
+    },
+    {
+      "path": "web-dist/assets/enemy-relay-guard-CS-HTAkv.glb",
+      "sha256": "5b316a139cf48b21a6d6b7328ac1c8b58a73c4f41ce1a0de24f2a8ca74afbd74"
+    },
+    {
+      "path": "web-dist/assets/entry-DXJYkQAB.css",
+      "sha256": "e6dd3ce9c0a96572f82aa61e485a7196f6cff244133eaef45ff684939fab6d89"
+    },
+    {
+      "path": "web-dist/assets/entry-DZxl0UI4.js",
+      "sha256": "8fe862fd65501ec245ec74eff410a0ab70e183c3c9dceb75bf7ae83ec7230dbc"
+    },
+    {
+      "path": "web-dist/assets/fp-arms-rx24-Csz61tNP.glb",
+      "sha256": "e672d06e30262f2575076f759645aa3d82d6734f0c26ef280a2a36870549b9e1"
+    },
+    {
+      "path": "web-dist/assets/index-Lpyfeiio.css",
+      "sha256": "92c07a6a0976395fbf00aa36b0c9b7861c981b8cc7359128e68f222b65eeaed4"
+    },
+    {
+      "path": "web-dist/assets/index-Q3fL21-X.js",
+      "sha256": "4b6982f13c5899cb4c440eba5395fd24c67abb501f6905a0a9b9076f892ab453"
+    },
+    {
+      "path": "web-dist/assets/lamp-existing-DVeGWscy.glb",
+      "sha256": "09265db770ba91c8f81442c87468ec68b95e689011e8e2d7e2a66de4015500be"
+    },
+    {
+      "path": "web-dist/assets/low-cover-site-DA3dcXAf.glb",
+      "sha256": "ca2f7dc220a403fc41905242b957f4110271bb085bcb5c61955d7ed3dc8d1930"
+    },
+    {
+      "path": "web-dist/assets/navigation-ChMF795I.js",
+      "sha256": "4dcf88937ca269b7eb9b7eb96ad05cee5f14cb606ff84b21df42837b9f4bb71a"
+    },
+    {
+      "path": "web-dist/assets/navigation-Dra3Mmuv.js",
+      "sha256": "976f4ce515a804086f9df956023bc12b37db017b354737761adc56d99b951e63"
+    },
+    {
+      "path": "web-dist/assets/preload-helper-BLdHbfdN.js",
+      "sha256": "8aec9ff75ffa86a03d51268b63126abadb3754aa5a6b6c5bb16e4e2446a63dee"
+    },
+    {
+      "path": "web-dist/assets/recast-navigation.wasm-compat-Qa-X0_Ub.js",
+      "sha256": "32c03f6185eb21c7428f58164d12336ae1596d9187370e11aa9edea965ce0896"
+    },
+    {
+      "path": "web-dist/assets/wall-center-dogleg-DddcdcKC.glb",
+      "sha256": "2ca378155b3c5e7286167b56bbbed307e1f1eb80ac250d026e7a9bc094323a25"
+    },
+    {
+      "path": "web-dist/index.html",
+      "sha256": "5d819214c2d95aa0bb14a815835874bfe5ebb7b300ae8f113941f5adc724bdd1"
+    }
+  ],
+  "runs": [
+    {
+      "label": "offline-base",
+      "query": "?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1",
+      "status": 0,
+      "signal": null,
+      "report": "reports/offline-base.json",
+      "browserExit": {
+        "pid": 58212,
+        "exitCode": "0",
+        "signal": "null"
+      },
+      "rendererClass": "gpu",
+      "coverage": {
+        "fullMatchPlaythrough": false,
+        "completedRounds": [
+          {
+            "round": 1,
+            "side": "attack",
+            "won": false,
+            "reason": "timeout",
+            "shots": 1,
+            "hits": 0,
+            "headHits": 0
+          }
+        ],
+        "restartScope": "whole match via existing restart UI; no separate round-restart control",
+        "unverified": [
+          "six-round completion UI",
+          "halftime transition",
+          "end-of-match replay",
+          "human visual/audio quality"
+        ]
+      },
+      "routeProcessStartUtc": "2026-10-28T20:45:11.047Z",
+      "browserLaunchUtc": "2026-10-28T20:45:15.461Z",
+      "browserExitUtc": "2026-10-28T20:46:48.634Z"
+    },
+    {
+      "label": "art-standards",
+      "query": "?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1",
+      "status": 0,
+      "signal": null,
+      "report": "reports/art-standards.json",
+      "browserExit": {
+        "pid": 79772,
+        "exitCode": "0",
+        "signal": "null"
+      },
+      "rendererClass": "gpu",
+      "coverage": {
+        "fullMatchPlaythrough": false,
+        "completedRounds": [
+          {
+            "round": 1,
+            "side": "attack",
+            "won": false,
+            "reason": "timeout",
+            "shots": 1,
+            "hits": 0,
+            "headHits": 0
+          }
+        ],
+        "restartScope": "whole match via existing restart UI; no separate round-restart control",
+        "unverified": [
+          "six-round completion UI",
+          "halftime transition",
+          "end-of-match replay",
+          "human visual/audio quality"
+        ]
+      },
+      "routeProcessStartUtc": "2026-10-28T20:46:48.752Z",
+      "browserLaunchUtc": "2026-10-28T20:46:49.791Z",
+      "browserExitUtc": "2026-10-28T20:48:17.983Z"
+    }
+  ],
+  "artComparison": {
+    "shot": "offline-deployment-player",
+    "stateSha256": "b068daeadb8848c9f69036be1ba61d8cfa5b0b692b3d96ff6c32be94f003622c",
+    "rendererClass": "gpu",
+    "scope": "initial-deployment-only; not visual acceptance",
+    "viewport": {
+      "width": 1365,
+      "height": 900
+    },
+    "fov": 80,
+    "fovSource": "fixed View constructor in reviewed source",
+    "frames": {
+      "offline-base": [
+        {
+          "name": "art-deployment-1.png",
+          "sha256": "d96e7666809d9a78b44c36a31b2efeb21ce0c1eb5923f7b95bf0902bc4274e05"
+        },
+        {
+          "name": "art-deployment-2.png",
+          "sha256": "d96e7666809d9a78b44c36a31b2efeb21ce0c1eb5923f7b95bf0902bc4274e05"
+        }
+      ],
+      "art-standards": [
+        {
+          "name": "art-deployment-1.png",
+          "sha256": "850f032b56da3abd7f372e6911ffca78adf19c29f534d12cdb68203919c5a0fb"
+        },
+        {
+          "name": "art-deployment-2.png",
+          "sha256": "850f032b56da3abd7f372e6911ffca78adf19c29f534d12cdb68203919c5a0fb"
+        }
+      ]
+    },
+    "identicalPixelsPerRoute": true,
+    "sameStateAndCamera": true,
+    "sameRendererIdentity": true,
+    "frameCapture": "Two #stage element screenshots per route before any page input; state/camera frozen at tick 0, running=false, yaw=0, pitch=0, player position (-9.4,0,-15.2), 1365x900, vertical FOV 80."
+  },
+  "artStandards": {
+    "id": "standards-v1",
+    "state": "ready",
+    "pieces": 3,
+    "budget": {
+      "triangles": 2396,
+      "calls": 4,
+      "bytes": 123604
+    },
+    "evidence": "runtime-geometry-only",
+    "active": true
+  },
+  "initialFrameComparison": {
+    "changedPixels": 10354,
+    "totalPixels": 1228500,
+    "changedRatio": 0.0084,
+    "note": "Only 0.84% of pixels differ in this single initial deployment view; it may not show the wall face/corner, cover sightline or lamp. Each frame is the fixed runner's #stage element screenshot taken before any page input, so the pre-match deployment menu and HUD overlay are present because the run has not started. It is a reproducible starting frame, not acceptance of the three standards. The deployment menu and HUD overlay much of the scene, so this frame cannot verify the three-piece standards' visual quality; it is not quality acceptance."
+  },
+  "browser": {
+    "requested": {
+      "headless": true,
+      "chromiumSandbox": true,
+      "ignoreDefaultArgs": [
+        "--enable-unsafe-swiftshader"
+      ],
+      "args": [],
+      "executable": "withheld (existing local Playwright Chromium)",
+      "browserVersion": "156.0.8078.4"
+    },
+    "actualArgvChecks": {
+      "headless": true,
+      "noSandboxPresent": false,
+      "disableSetuidSandboxPresent": false,
+      "unsafeSwiftshaderPresent": false,
+      "useAngleSwiftshaderPresent": false,
+      "disableGpuPresent": false,
+      "evidence": "Checked against the DEBUG=pw:browser <launching> lines of both routes; the full argv is retained locally and redacted from public files."
+    },
+    "parentChain": [
+      {
+        "route": "offline-base",
+        "pid": 58212,
+        "parentPid": 45856,
+        "process": "chrome.exe (headless full Chromium)",
+        "createdUtc": "2026-10-28T20:45:15.474Z"
+      },
+      {
+        "route": "offline-base",
+        "pid": 45856,
+        "parentPid": 101580,
+        "process": "node",
+        "role": "node tools/smoke.mjs",
+        "createdUtc": "2026-10-28T20:45:11.047Z"
+      },
+      {
+        "route": "offline-base",
+        "pid": 101580,
+        "parentPid": 52476,
+        "process": "node",
+        "role": "node tools/smoke-backlog.mjs --art-standards",
+        "createdUtc": "2026-10-28T20:44:59.998Z"
+      },
+      {
+        "route": "art-standards",
+        "pid": 79772,
+        "parentPid": 95000,
+        "process": "chrome.exe (headless full Chromium)",
+        "createdUtc": "2026-10-28T20:46:49.797Z"
+      },
+      {
+        "route": "art-standards",
+        "pid": 95000,
+        "parentPid": 101580,
+        "process": "node",
+        "role": "node tools/smoke.mjs",
+        "createdUtc": "2026-10-28T20:46:48.752Z"
+      },
+      {
+        "route": "art-standards",
+        "pid": 101580,
+        "parentPid": 52476,
+        "process": "node",
+        "role": "node tools/smoke-backlog.mjs --art-standards",
+        "createdUtc": "2026-10-28T20:44:59.998Z"
+      }
+    ],
+    "parentChainSource": "Read-only live Win32_Process sampling of the owned tree during the run (PID, parent PID, creation time, command line). The parent process outside pid 101580 (pid 52476) had exited before its name could be sampled; its name and role are not claimed."
+  },
+  "renderer": {
+    "requestedMode": "native",
+    "note": "FPS_SMOKE_RENDERER=native is a launch request, not proof of GPU. The class below is derived from the WebGL debug renderer string.",
+    "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+    "renderer": "WebKit WebGL",
+    "vendor": "WebKit",
+    "unmaskedRenderer": "ANGLE (NVIDIA, NVIDIA GeForce RTX 5070 (0x00002F04) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "unmaskedVendor": "Google Inc. (NVIDIA)",
+    "class": "gpu",
+    "beforeAfterRawIdentityEqual": true
+  },
+  "assertions": {
+    "stages": [
+      "nine bot controllers, ten actors, complete-match HUD, courtyard active",
+      "loaded real WebGL2 scene",
+      "pointer lock, mouse aim, movement, pistol shot, reload interruption",
+      "natural first-round result, UI next round preserves match record",
+      "whole-match restart clears completed-round record and score",
+      "pause freezes clock, resume and restart clear input/ammo state"
+    ],
+    "squads": {
+      "version": "offline-v1",
+      "formation": "squads-v1",
+      "botIds": [
+        "amber-1",
+        "amber-2",
+        "amber-3",
+        "amber-4",
+        "blue-1",
+        "blue-2",
+        "blue-3",
+        "blue-4",
+        "blue-5"
+      ]
+    },
+    "actors": {
+      "total": 10,
+      "amber": 5,
+      "blue": 5
+    },
+    "environment": {
+      "id": "courtyard-v1",
+      "active": true,
+      "budget": {
+        "wallTriangles": 120,
+        "wallDraws": 10,
+        "rgbaBytes": 5505024,
+        "extraPasses": 0
+      },
+      "evidence": "offline-estimate"
+    },
+    "hud": {
+      "progress": "1 / 6 回合 · 进攻",
+      "goal": "掩护携带信标的队友推进 · 存活 5:5 · 队友携带信标",
+      "title": "进攻阶段 · 回合 1 / 6"
+    },
+    "completedRound": {
+      "round": 1,
+      "side": "attack",
+      "won": false,
+      "reason": "timeout",
+      "shots": 1,
+      "hits": 0,
+      "headHits": 0
+    },
+    "restartScope": "whole match via existing restart UI; no separate round-restart control",
+    "restartReset": {
+      "tick": 0,
+      "round": 1,
+      "score": {
+        "amber": 0,
+        "blue": 0
+      },
+      "matchRounds": 0,
+      "matchComplete": false,
+      "pistolAmmo": 10
+    },
+    "pauseResume": "pause froze the simulation tick; resume advanced it"
+  },
+  "screenshots": [
+    {
+      "path": "screenshots/offline-base/art-deployment-1.png",
+      "bytes": 506689,
+      "sha256": "d96e7666809d9a78b44c36a31b2efeb21ce0c1eb5923f7b95bf0902bc4274e05",
+      "width": 1365,
+      "height": 900
+    },
+    {
+      "path": "screenshots/offline-base/art-deployment-2.png",
+      "bytes": 506689,
+      "sha256": "d96e7666809d9a78b44c36a31b2efeb21ce0c1eb5923f7b95bf0902bc4274e05",
+      "width": 1365,
+      "height": 900
+    },
+    {
+      "path": "screenshots/offline-base/menu.png",
+      "bytes": 506689,
+      "sha256": "d96e7666809d9a78b44c36a31b2efeb21ce0c1eb5923f7b95bf0902bc4274e05",
+      "width": 1365,
+      "height": 900
+    },
+    {
+      "path": "screenshots/offline-base/playing.png",
+      "bytes": 195112,
+      "sha256": "e3140df127c375e508c9dba0a43024fa2b0873251339d33516ff2765970d4577",
+      "width": 1365,
+      "height": 900
+    },
+    {
+      "path": "screenshots/art-standards/art-deployment-1.png",
+      "bytes": 506568,
+      "sha256": "850f032b56da3abd7f372e6911ffca78adf19c29f534d12cdb68203919c5a0fb",
+      "width": 1365,
+      "height": 900
+    },
+    {
+      "path": "screenshots/art-standards/art-deployment-2.png",
+      "bytes": 506568,
+      "sha256": "850f032b56da3abd7f372e6911ffca78adf19c29f534d12cdb68203919c5a0fb",
+      "width": 1365,
+      "height": 900
+    },
+    {
+      "path": "screenshots/art-standards/menu.png",
+      "bytes": 506568,
+      "sha256": "850f032b56da3abd7f372e6911ffca78adf19c29f534d12cdb68203919c5a0fb",
+      "width": 1365,
+      "height": 900
+    },
+    {
+      "path": "screenshots/art-standards/playing.png",
+      "bytes": 193270,
+      "sha256": "643fd3769566fedfb487b2f8197b3e9e94f06f0f5dbfe726aba31a5905a8e1c8",
+      "width": 1365,
+      "height": 900
+    }
+  ],
+  "cleanup": {
+    "browserDisconnected": true,
+    "previewPortClosed": true,
+    "browserPids": [
+      {
+        "pid": 58212,
+        "exitCode": "0",
+        "signal": "null"
+      },
+      {
+        "pid": 79772,
+        "exitCode": "0",
+        "signal": "null"
+      }
+    ],
+    "previewPortNumberPersisted": false,
+    "previewPortEvidence": "report.cleanup.previewPortClosed=true is produced by an actual TCP connect probe to each runner-assigned preview port inside the smoke process after server close.",
+    "postRunProcessScan": "After the smoke, no chrome.exe, chrome-headless-shell.exe, tools/smoke.mjs, smoke-backlog or Vite preview process remained; only receiver/worker infrastructure and unrelated user applications were present.",
+    "postRunPortProbe": "Ports 4173, 5173, 4174, 5174, 3000, 8080, 8000 and 12765 were confirmed closed after the run.",
+    "lock": "No existing shared GPU mutex or lock file was found or used; no lock was acquired, taken over or released. This is not a claim of cross-task GPU exclusivity.",
+    "scope": "All cleanup entries describe the second attempt only. They do not by themselves prove the first attempt's preview, browser children or parent chain had exited; separate polling logs partially cover the 20:43:30.074-20:44:59.647Z gap (worker-only samples 20:43:30.363-20:44:29.306Z), but not the final ~30.34s or port state."
+  },
+  "serialPreflight": {
+    "otherGpuWork": "Before the run: no chrome.exe, chrome-headless-shell.exe or Playwright/Chromium process, no tools/smoke.mjs or Vite preview node process, and no listener on 4173/5173/4174/5174/3000/8080/8000/12765.",
+    "receiverParallelTasks": "Separate receiver tasks may be marked running for reader/build work; none owned a browser, preview server or this worktree during preflight.",
+    "singleGpuJob": "Exactly one headless Chromium instance at a time, inside the single art-standards smoke command; the two routes were serial, not parallel.",
+    "scope": "These statements describe only the accepted second command. No timestamp or raw sample is retained for the beforeRun claim. Separate polling logs partially evidence the 20:43:30.074-20:44:59.647Z gap (worker-only samples 20:43:30.363-20:44:29.306Z), while the final ~30.34s and port state are unknown."
+  },
+  "unverified": [
+    "full six-round browser playthrough",
+    "halftime side switch",
+    "end-of-match result screen and the play-again action",
+    "a separate single-round restart action (the current UI only restarts the whole match)",
+    "wall face/corner view at player eye height, crouched cover sightline and selected-lamp readability",
+    "normal combat view with enemy and ally",
+    "GPU performance timing",
+    "human visual, feel and audio quality; non-author visual preference and a meaningful second art revision",
+    "cross-task global GPU exclusivity",
+    "preview port number (cleanup boolean and process scan retained)",
+    "Node 24+ (run used Node v22.23.2 / npm 10.9.8; package engines requires >=24)",
+    "process compliance of attempt 0 (software WebGL result followed by a renderer switch/retry)",
+    "first-attempt preview TCP/port-close proof and the exit codes/times of pids 111052 and 6792 (process samples partially cover the attempt-0 chain)",
+    "the final 20:44:29.306-20:44:59.647Z (~30.34s) of the between-attempt gap and the between-attempt port/listener state (process samples cover 20:43:30.363-20:44:29.306Z with only the receiver worker)",
+    "three-piece visual quality from the initial deployment frame (deployment menu/HUD occludes much of the scene)",
+    "attempt 0 output-directory report.json contents, browser logs and raw report.webgl version/renderer/vendor/unmaskedVendor (the complete attempt-0 manifest content and the unmaskedRenderer string are retained)"
+  ],
+  "redactions": [
+    "Local Chromium executable path removed from report.json, manifest.json and exit-evidence.json.",
+    "Full browser argv, local user-data/profile paths, run-directory absolute paths, wsEndpoint/nonce and credentials are excluded from public files; raw logs remain local only.",
+    "Raw screenshots are game canvas/page captures only; no desktop or browser chrome capture."
+  ],
+  "artifactIndex": "artifact-hashes.json",
+  "revision": {
+    "id": "review-rework-2026-10-29",
+    "kind": "records-only",
+    "supersedes": "The 2026-10-28 publication at commit 18d9a1b remains the historical first publication; its second-attempt functional facts are preserved unchanged.",
+    "noRerun": "No browser, GPU, preview server or smoke was restarted and no dependency install, build, recapture or source change was performed. Only files in this evidence directory were edited or added.",
+    "detailsFile": "first-attempt-and-gaps.json",
+    "correctedClaims": [
+      "The previous description of the accepted run as the prescribed native configuration, and the statement that no renderer switch occurred, are withdrawn. Attempt 0 launched software WebGL and failed; a second invocation switched to full Chromium and obtained GPU success.",
+      "The previous openIssues=empty and only-six-rounds-and-human-acceptance summary is withdrawn; see openIssues.",
+      "The previous publication did not retain attempt 0's output directory contents, preview/parent-chain exit evidence or between-attempt cleanup verification."
+    ],
+    "status": "review_ready",
+    "statusMeaning": "This revision is submitted for review only. It is not whole-card compliance and not three-piece art final."
+  },
+  "processGaps": {
+    "stopBoundaryViolation": "Attempt 0 produced software WebGL and exited 1 (default headless shell; FPS_SMOKE_CHROMIUM unset; exact FPS_SMOKE_RENDERER value not retained). A second invocation then switched to full Chromium with FPS_SMOKE_RENDERER=native and obtained a GPU pass. That is a renderer switch and retry after a non-GPU result, contrary to the original card's keep-result/no-switch/no-retry rule. Pre-specifying an existing executable in the second invocation does not override the already-triggered stop condition.",
+    "firstAttemptRecords": "Attempt 0 run id 9a5c02fc6b51-wS6MkO; output directory outputs/art-standards-smoke/9a5c02fc6b51-wS6MkO (repository-relative). The runner produced a manifest and two report.json files per its source. The complete manifest stdout is retained in the local first-attempt smoke log; the earlier cited 2.5 KB stdout fragment is only the tail of this same log. Its redacted full content is published in exit-evidence.json attempts[0].manifest and first-attempt-and-gaps.json firstAttempt.manifest, and its 21 build hashes are identical to the second attempt's published build list. Not retained: the output-directory report.json contents, browser logs and the raw report.webgl version/renderer/vendor/unmaskedVendor.",
+    "firstAttemptCleanup": "The explicit preview TCP/port-close proof is not retained. Browser exits are known (96172/50524 exit 0), and runner smoke-backlog 90404 returned rc=1 at 20:43:30.074Z, but the exit code/time of in-process smoke.mjs 111052 and the identity/exit of outer parent 6792 remain unknown; 37504's own exit code is not separately retained (offline-base route status 0). Browser exit 0 is still not a substitute for preview/parent-chain teardown. Partial process-sample evidence: pid 50524 sampled to 20:43:29.256Z, pid 111052 to 20:43:29.499Z, pid 90404 to 20:43:29.492Z, and offline-base route smoke.mjs pid 37504 sampled 20:39:43.914-20:41:11.233Z; all are absent from samples from 20:43:30.363Z, consistent with exit.",
+    "betweenAttempts": "Partial process-sample evidence exists through 20:44:29.306Z: a browser-scoped Win32_Process polling log (20:41:35.966-20:44:29.306Z) and a node-scoped log (20:39:39.501-20:44:27.390Z) show pid 50524 last at 20:43:29.256Z and pids 111052/90404 last at 20:43:29.499Z/20:43:29.492Z; from 20:43:30.363Z to 20:44:29.306Z all samples contain only receiver worker pid 78372, with no own browser/smoke/vite process. There is no port/listener probe. 20:44:29.306-20:44:59.647Z (~30.34s) and the exit status of 111052/6792 are unknown. Cleanup after the second run cannot prove the first attempt was clean.",
+    "detailsFile": "first-attempt-and-gaps.json"
+  },
+  "verifiedSecondAttempt": {
+    "runId": "9a5c02fc6b51-eDgeRr",
+    "startUtc": "2026-10-28T20:44:59.647Z",
+    "endUtc": "2026-10-28T20:48:20.230Z",
+    "exitCode": 0,
+    "bothRoutesPassed": true,
+    "afterRoute": {
+      "artState": "ready",
+      "active": true,
+      "pieces": 3,
+      "triangles": 2396,
+      "calls": 4,
+      "bytes": 123604
+    },
+    "hashChecks": "At original publication 18d9a1b, the 12 indexed published files' bytes/SHA-256 were independently verified and all 21 manifest.build hashes matched web-dist. This revision adds first-attempt-and-gaps.json and changes manifest.json/exit-evidence.json; artifact-hashes.json is re-indexed for the revised set, so the 12-file count describes the original publication only.",
+    "claimLimits": [
+      "Headless/sandbox and no-unsafe-swiftshader claims are limited to the retained DEBUG=pw:browser argv checks for the two accepted routes.",
+      "The serial claim covers only the two routes inside the second command; offline-base browser exited at 20:46:48.634Z before art-standards launched at 20:46:49.791Z.",
+      "Cross-task global GPU exclusivity and Node 24+ validation are not proven.",
+      "The second attempt's functional pass does not make the overall card process-compliant and does not establish three-piece art quality."
+    ],
+    "detailsFile": "first-attempt-and-gaps.json"
+  },
+  "openIssues": [
+    {
+      "id": "process-stop-boundary-violation",
+      "category": "process",
+      "summary": "Attempt 0 produced software WebGL and failed; the operator switched to full Chromium and retried to obtain GPU success, violating the card's keep-result/no-switch/no-retry boundary.",
+      "status": "open, not curable after the fact"
+    },
+    {
+      "id": "first-attempt-evidence-not-retained",
+      "category": "process-evidence",
+      "summary": "The attempt-0 complete manifest content is retained (recovered from the local first-attempt smoke log, published redacted, with 21 build hashes matching the second attempt). Not retained: the output-directory report.json contents, browser logs and the raw report.webgl version/renderer/vendor/unmaskedVendor; only the unmaskedRenderer string survives from the historical record.",
+      "status": "open, partially retained"
+    },
+    {
+      "id": "first-attempt-preview-parent-exit-unknown",
+      "category": "process-evidence",
+      "summary": "The failing route's preview port-close proof and complete parent-chain exit record are missing; browser pids 96172 and 50524 exiting 0 do not prove preview or parent-chain teardown.",
+      "status": "open, unknown"
+    },
+    {
+      "id": "between-attempts-cleanup-unproven",
+      "category": "process-evidence",
+      "summary": "Retained polling logs partially evidence the gap: 20:43:30.363-20:44:29.306Z samples contain only receiver worker pid 78372, with own browser/smoke/vite processes absent after 20:43:29.26-20:43:29.50Z. No port probe exists and the final 20:44:29.306-20:44:59.647Z (~30.34s) is unsampled, so full cleanup and serial verification before the second start are unproven.",
+      "status": "open, partially evidenced"
+    },
+    {
+      "id": "quality-wall-corner-cover-lamp-combat",
+      "category": "quality",
+      "summary": "Wall face/corner at player eye height, crouched cover sightline, selected-lamp readability, and the normal combat view with enemy and ally were not captured or judged.",
+      "status": "open"
+    },
+    {
+      "id": "quality-initial-frame-occluded",
+      "category": "quality",
+      "summary": "The only art comparison frames are initial deployment #stage captures with the deployment menu and HUD overlaying much of the scene; they cannot verify the three standards' visual quality, and the 0.84% pixel difference is not a quality verdict.",
+      "status": "open"
+    },
+    {
+      "id": "quality-non-author-and-second-revision",
+      "category": "quality",
+      "summary": "No non-author visual preference judgement and no meaningful second art revision were performed.",
+      "status": "open"
+    },
+    {
+      "id": "gpu-performance",
+      "category": "performance",
+      "summary": "GPU frame timing and performance were not measured.",
+      "status": "open"
+    },
+    {
+      "id": "full-match-and-human-acceptance",
+      "category": "coverage",
+      "summary": "Six-round full match, halftime side switch, end-of-match result and play-again, and human visual/feel/audio acceptance remain unverified.",
+      "status": "open"
+    },
+    {
+      "id": "node-24-not-validated",
+      "category": "environment",
+      "summary": "The run used Node v22.23.2 / npm 10.9.8 while package engines requires >=24; Node 24+ was not validated.",
+      "status": "open"
+    },
+    {
+      "id": "gpu-exclusivity-across-tasks-unproven",
+      "category": "environment",
+      "summary": "No shared GPU lock existed or was used; cross-task global GPU exclusivity is not proven.",
+      "status": "open, not claimed"
+    }
+  ]
+}

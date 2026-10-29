@@ -1,0 +1,71 @@
+{
+  "runId": "9a5c02fc6b51-eDgeRr",
+  "note": "SHA-256 of every published file except this index",
+  "files": [
+    {
+      "path": "exit-evidence.json",
+      "bytes": 28355,
+      "sha256": "95b1c576ea07ef78ac310f3d996c6650da69e436e7dbb565d8b08af2b3966a13"
+    },
+    {
+      "path": "first-attempt-and-gaps.json",
+      "bytes": 34170,
+      "sha256": "edd47ad6b69530c2609be67bb202fa2c13c114d765fe1815efe6aeeaf09c7ad3"
+    },
+    {
+      "path": "manifest.json",
+      "bytes": 34126,
+      "sha256": "d0770476394001d256939474ec437d195591a5d9257ecebd314830c0e7230bea"
+    },
+    {
+      "path": "reports/art-standards.json",
+      "bytes": 36707,
+      "sha256": "991055ce782ca22e603a930bb7a63312d043a24c7c97b7dde409abcc564b9820"
+    },
+    {
+      "path": "reports/offline-base.json",
+      "bytes": 35898,
+      "sha256": "eb43a21af254d84ee9f73ba890d4e4daa5759b639b9cd48f0c39897d91ba3566"
+    },
+    {
+      "path": "screenshots/art-standards/art-deployment-1.png",
+      "bytes": 506568,
+      "sha256": "850f032b56da3abd7f372e6911ffca78adf19c29f534d12cdb68203919c5a0fb"
+    },
+    {
+      "path": "screenshots/art-standards/art-deployment-2.png",
+      "bytes": 506568,
+      "sha256": "850f032b56da3abd7f372e6911ffca78adf19c29f534d12cdb68203919c5a0fb"
+    },
+    {
+      "path": "screenshots/art-standards/menu.png",
+      "bytes": 506568,
+      "sha256": "850f032b56da3abd7f372e6911ffca78adf19c29f534d12cdb68203919c5a0fb"
+    },
+    {
+      "path": "screenshots/art-standards/playing.png",
+      "bytes": 193270,
+      "sha256": "643fd3769566fedfb487b2f8197b3e9e94f06f0f5dbfe726aba31a5905a8e1c8"
+    },
+    {
+      "path": "screenshots/offline-base/art-deployment-1.png",
+      "bytes": 506689,
+      "sha256": "d96e7666809d9a78b44c36a31b2efeb21ce0c1eb5923f7b95bf0902bc4274e05"
+    },
+    {
+      "path": "screenshots/offline-base/art-deployment-2.png",
+      "bytes": 506689,
+      "sha256": "d96e7666809d9a78b44c36a31b2efeb21ce0c1eb5923f7b95bf0902bc4274e05"
+    },
+    {
+      "path": "screenshots/offline-base/menu.png",
+      "bytes": 506689,
+      "sha256": "d96e7666809d9a78b44c36a31b2efeb21ce0c1eb5923f7b95bf0902bc4274e05"
+    },
+    {
+      "path": "screenshots/offline-base/playing.png",
+      "bytes": 195112,
+      "sha256": "e3140df127c375e508c9dba0a43024fa2b0873251339d33516ff2765970d4577"
+    }
+  ]
+}
