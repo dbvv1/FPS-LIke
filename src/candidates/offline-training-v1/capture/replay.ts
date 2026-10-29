@@ -12,10 +12,11 @@ export async function prepareReplay(lifetime: CaptureLifetime) {
   const game = lifetime.own(await Game.create(REPLAY.seed, squadSpecs(REPLAY.difficulty), {}, { formation: 'squads-v1' }));
   const bots = squadBots(REPLAY.difficulty, REPLAY.seed, nav);
   const commands: Command[][] = [];
-  for (let tick = 0; tick < REPLAY.ticks; tick++) {
+  const advance = () => {
     lifetime.assertActive();
     const input: Command[] = [{ actorId: 'player', type: 'move', x: 0, z: 0 }, ...bots.flatMap(b => b.commands(game.observe(b.id)))];
     commands.push(structuredClone(input)); game.step(input);
-  }
-  return { game, commands, botIds: squadSpecs(REPLAY.difficulty).filter(s => s.bot).map(s => s.id) };
+  };
+  for (let tick = 0; tick < REPLAY.ticks; tick++) advance();
+  return { game, commands, advance, botIds: squadSpecs(REPLAY.difficulty).filter(s => s.bot).map(s => s.id) };
 }
