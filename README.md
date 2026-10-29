@@ -16,11 +16,11 @@
 
 [在线试玩离线训练赛](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1)已开放，可进入 1 人＋9 机器人的六回合训练赛，三回合后换边，整场结算后重开。去掉参数返回原 1v1；此入口不组合角色或 movement-v2 参数。
 
-## 三件环境标准件候选
+## 三件环境标准件旁置试玩
 
-在包含此候选的本地版本中，给离线训练赛入口追加 `&art=standards-v1`，可比较中心折墙、场地低掩体和一盏既有路灯的新造型。仅 Three/WebGL2 显示，其他五盏灯和玩法保持原样；删除该参数回到原庭院。资源加载失败会保留原几何。
+[在线试玩三件环境标准件](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1)已在网站 v15 开放，可比较中心折墙、场地低掩体和一盏既有路灯的新造型。仅 Three/WebGL2 显示，其他五盏灯和玩法保持原样；删除该参数回到原庭院。资源加载失败会保留原几何。
 
-当前公开网站仍是 v14；这项候选尚未发布到网站。画面差距与验证范围见[品质页](docs/quality.md)。
+画面差距与验证范围见[品质页](docs/quality.md)。
 
 ## 本地试玩
 
