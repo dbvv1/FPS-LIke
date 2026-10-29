@@ -1,5 +1,7 @@
 type ObserverCamera = { position: { x: number; y: number; z: number }; yaw: number; pitch: number; fov: number };
 import * as THREE from 'three';
+import { createLightingPost } from './lighting-post.js';
+import { LIGHTING_ID, lightingEnabled, renderRole } from './lighting-style.js';
 import { ArtStandards, artEnabled, type ArtSlot } from './art-standards.js';
 import { KIT, environmentEnabled, makeKitWall, kitTexture, floorPixels, kitBudget } from './environment-kit.js';
 import { groundLevels, groundUV } from './ground.js';
@@ -13,12 +15,14 @@ import { weaponParts, weaponPose, weaponMesh, weaponPartPosition, weaponMuzzle }
 import { cameraPose, toThree } from './coordinates.js';
 export class View {
   readonly backend = 'three-webgl2';
+  private lighting = lightingEnabled(globalThis.location?.search ?? '');
+  private post: ReturnType<typeof createLightingPost> | undefined;
   private environment = environmentEnabled(globalThis.location?.search ?? '');
   private environmentPresented = false;
   private artPresented = false;
   private art: ArtStandards | undefined;
   private artSlots: ArtSlot[] = [];
-  get info() { return { ...(this.art ? { art: { ...this.art.info, active: this.artPresented } } : {}), ...(this.environment ? { environment: { id: KIT.id, active: this.environmentPresented, budget: kitBudget(MAP.walls.length), evidence: 'offline-estimate' } } : {}), memory: { ...this.renderer.info.memory }, calls: this.renderer.info.render.calls }; }
+  get info() { return { lighting: { id:this.lighting?LIGHTING_ID:'baseline', environment:this.lighting?'hemisphere-and-ambient':'hemisphere', ao:this.lighting?'deterministic-ssao':'none', grade:this.lighting?'cool-shadows-warm-highlights':'none' }, ...(this.art ? { art: { ...this.art.info, active: this.artPresented } } : {}), ...(this.environment ? { environment: { id: KIT.id, active: this.environmentPresented, budget: kitBudget(MAP.walls.length), evidence: 'offline-estimate' } } : {}), memory: { ...this.renderer.info.memory }, calls: this.renderer.info.render.calls }; }
   readonly renderer: THREE.WebGLRenderer;
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera(80, 1, 0.05, 100);
@@ -39,8 +43,17 @@ export class View {
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.scene.background = new THREE.Color(this.environment ? KIT.sky : YARD.sky);
     this.scene.fog = new THREE.Fog(this.environment ? KIT.sky : YARD.sky, 32, 80);
-    this.scene.add(new THREE.HemisphereLight(0xb9e7ff, 0x32413b, 2.1));
-    const sun = new THREE.DirectionalLight(0xffdba8, 2.6); sun.position.set(-8, 18, -4); this.scene.add(sun);
+    this.scene.add(new THREE.HemisphereLight(this.lighting?0xc5dfff:0xb9e7ff, this.lighting?0x6c7165:0x32413b, this.lighting?1.5:2.1));
+    if(this.lighting)this.scene.add(new THREE.AmbientLight(0xdde7f2,.25));
+    const sun = new THREE.DirectionalLight(this.lighting?0xffe3bd:0xffdba8, this.lighting?3.0:2.6); sun.position.set(-8, 18, -4); this.scene.add(sun);
+    if(this.lighting){
+      this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.05;
+      this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=THREE.PCFShadowMap;
+      sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+      Object.assign(sun.shadow.camera,{left:-25,right:25,top:25,bottom:-25,near:.1,far:70});
+      sun.shadow.camera.updateProjectionMatrix();sun.shadow.normalBias=.025;sun.shadow.bias=-.0001;
+      this.post=createLightingPost(this.renderer,this.scene,this.camera);
+    }
     const floor=this.box(this.scene, [0, -0.15, 0], [27, 0.3, 37], 0xffffff);
     const base=groundLevels[0]!,texture=this.environment ? kitTexture(floorPixels(),256,256) : new THREE.DataTexture(base.rgba,base.size,base.size);
     if (!this.environment) {
@@ -84,6 +97,7 @@ export class View {
     this.scene.add(this.bomb);
     this.makeWeapon(this.rifle, false); this.makeWeapon(this.pistol, true);
     this.weapon.add(this.rifle, this.pistol, this.flash); this.flash.position.set(0.01, 0.03, -0.7); this.flash.visible = false;
+    this.weapon.userData.lightingCue=true;
     this.camera.add(this.weapon); this.scene.add(this.camera);
     if (artEnabled(globalThis.location?.search ?? '')) { this.art = new ArtStandards(this.scene, this.artSlots); void this.art.start(); }
     this.resize();
@@ -109,6 +123,7 @@ export class View {
     const canvas = this.renderer.domElement;
     const w = canvas.clientWidth, h = canvas.clientHeight;
     this.renderer.setSize(w, h, false); this.camera.aspect = w / Math.max(1, h); this.camera.updateProjectionMatrix();
+    this.post?.resize(w,h,this.renderer.getPixelRatio());
   }
   render(state: GameState, player: Actor, yaw: number, pitch: number, now: number, dt: number, observer?: ObserverCamera) {
     this.environmentPresented = false; this.artPresented = false;
@@ -164,9 +179,13 @@ export class View {
     }
     this.bomb.visible = state.bomb.planted || !state.bomb.carrier;
     this.bomb.position.set(...toThree(state.bomb.position));
-    this.renderer.render(this.scene, this.camera);
+    if(this.post){
+      // Include late-loaded art and actors, without changing meshes or their materials.
+      this.scene.traverse(o=>{if(o instanceof THREE.Mesh){const world=renderRole(o)==='world';o.castShadow=world;o.receiveShadow=world;}});
+      this.post.render();
+    }else this.renderer.render(this.scene, this.camera);
     this.environmentPresented = this.environment; this.artPresented = this.art?.info.state === 'ready';
   }
   reset() {this.artPresented=false;this.environmentPresented=false;this.feedback.reset();for(const mesh of this.impacts)mesh.visible=false;}
-  dispose() { this.artPresented=false; this.art?.dispose(); this.environmentPresented=false;for (const g of this.geometries) g.dispose(); for (const m of this.materials) m.dispose(); for(const t of this.textures)t.dispose(); this.renderer.dispose(); }
+  dispose() { this.artPresented=false; this.art?.dispose(); this.post?.dispose(); if(this.lighting)this.scene.traverse(o=>{if(o instanceof THREE.DirectionalLight)o.shadow.dispose();}); this.environmentPresented=false;for (const g of this.geometries) g.dispose(); for (const m of this.materials) m.dispose(); for(const t of this.textures)t.dispose(); this.renderer.dispose(); }
 }

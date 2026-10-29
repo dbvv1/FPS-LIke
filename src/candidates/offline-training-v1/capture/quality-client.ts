@@ -68,7 +68,7 @@ try {
       viewport: { width: innerWidth, height: innerHeight, dpr: devicePixelRatio },
       replay: REPLAY, botIds: replay.botIds, commands: replay.commands, state, stateHash: hash, match: match.summary,
       t, frame, hz: REPLAY.hz, warmFrames: 12, art: true,
-      qualityParameters: { toneMapping: view.renderer.toneMapping, exposure: view.renderer.toneMappingExposure, outputColorSpace: view.renderer.outputColorSpace, shadowEnabled: view.renderer.shadowMap.enabled, shadowType: view.renderer.shadowMap.type },
+      qualityParameters: { maxSamples: gl.getParameter((gl as WebGL2RenderingContext).MAX_SAMPLES), samples: gl.getParameter(gl.SAMPLES), maxAnisotropy: view.renderer.capabilities.getMaxAnisotropy(), compressedTextureFormatsSupported: Array.from(gl.getParameter(gl.COMPRESSED_TEXTURE_FORMATS) as Uint32Array), actualTextureFormats:'not-observed', lighting:view.info.lighting, toneMapping: view.renderer.toneMapping, exposure: view.renderer.toneMappingExposure, outputColorSpace: view.renderer.outputColorSpace, shadowEnabled: view.renderer.shadowMap.enabled, shadowType: view.renderer.shadowMap.type },
       renderInfo: { ...view.info, render: { ...view.renderer.info.render }, memory: { ...view.renderer.info.memory } },
       renderer: evidence.unmasked ? evidence.renderer : '', rendererEvidence: evidence };
   };
