@@ -1,4 +1,6 @@
 import { qualityCaptureOptions, CAPTURE_SIZE } from './quality-route.js';
+import { feelCaptureOptions } from './feel-route.js';
+import { FEEL_SCOPE } from './feel-trace.js';
 import { prepareReplay, REPLAY } from './replay.js';
 import { eye } from '../sim/physics.js';
 import { View } from '../render/scene.js';
@@ -8,7 +10,8 @@ import { TrainingMatch } from '../session/match.js';
 import { MouseSensitivity } from '../input/sensitivity.js';
 import { CaptureLifetime } from '../../../capture/lifetime.js';
 import { rendererEvidence } from '../../../capture/renderer.js';
-const options = qualityCaptureOptions(location.search);
+const feel = feelCaptureOptions(location.search);
+const options = feel ?? qualityCaptureOptions(location.search);
 if (!options) throw new Error('Missing qualityCapture');
 const canvas = document.querySelector<HTMLCanvasElement>('#stage');
 if (!canvas) throw new Error('Missing stage');
@@ -38,7 +41,7 @@ try {
   document.getElementById('render-mode')!.hidden = true;
   const view = lifetime.own(new View(canvas));
   view.resize();
-  const replay = await prepareReplay(lifetime);
+  const replay = await prepareReplay(lifetime, !!feel);
   const deadline = performance.now() + 15000;
   while (view.info.art?.state !== 'ready') {
     lifetime.assertActive();
@@ -63,10 +66,11 @@ try {
     const evidence = rendererEvidence(gl as WebGL2RenderingContext);
     status = { ...status, ready: true, name: options.name, camera: options.camera ?? { position: eye(player), yaw: player.yaw, pitch: player.pitch, fov: 80 }, cameraKind: options.camera ? 'observer' : 'player', observer: options.camera ?? null,
       actualPlayerPose: { position: player.position, yaw: player.yaw, pitch: player.pitch, crouch: player.input.crouch, hp: player.hp },
-      scope: options.camera ? 'fixed observer; player reachability not established; HUD and weapon omitted' : 'actual player eye, production weapon and HUD; idle replay, not feel evidence',
+      feel: feel ? { ...FEEL_SCOPE, tape: 'move-stop', observations: replay.observations, recordingFrame: frame, virtualPtsMs: frame * 1000 / REPLAY.hz, stage: 'render-submitted-and-gl-finished; PNG not captured', inputTapeTick: state.tick, remainingFrames: Math.max(0, 120-frame) } : null,
+      scope: options.camera ? 'fixed observer; player reachability not established; HUD and weapon omitted' : (feel ? 'actual player eye, production weapon and HUD; fixed move-stop tape; screen response unreviewed' : 'actual player eye, production weapon and HUD; idle replay, not feel evidence'),
       firstPersonWeapon: !options.camera && player.hp > 0, hud: !options.camera,
       viewport: { width: innerWidth, height: innerHeight, dpr: devicePixelRatio },
-      replay: REPLAY, botIds: replay.botIds, commands: replay.commands, state, stateHash: hash, match: match.summary,
+      replay: feel ? { ...REPLAY, playerInput: 'move positive-z 60 ticks then zero 60 ticks' } : REPLAY, botIds: replay.botIds, commands: replay.commands, state, stateHash: hash, match: match.summary,
       t, frame, hz: REPLAY.hz, warmFrames: 12, art: true,
       renderInfo: { ...view.info, render: { ...view.renderer.info.render }, memory: { ...view.renderer.info.memory } },
       renderer: evidence.unmasked ? evidence.renderer : '', rendererEvidence: evidence };
@@ -75,6 +79,7 @@ try {
   Object.defineProperty(window, '__shotNext', { value: () => {
     try {
       lifetime.assertActive();
+      if (feel && frame >= 120) throw new Error('Feel tape complete; no implicit repetition');
       if (replay.game.state.phase === 'over') throw new Error('Replay round ended; no implicit next round');
       status = { ...status, ready: false }; replay.advance(); frame++; render(1 / REPLAY.hz);
       return structuredClone(status);
