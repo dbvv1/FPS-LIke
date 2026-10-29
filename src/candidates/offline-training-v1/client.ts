@@ -14,6 +14,11 @@ import { Hud } from './ui/hud.js';
 import type { GameState } from './sim/types.js';
 import { TrainingMatch, completeMatchRequested } from './session/match.js';
 import { MatchPanel } from './ui/match-panel.js';
+// Fixed, built-in smoke tape; never accepts external commands or mutates simulation state.
+const smokeParams = new URLSearchParams(window.location?.search ?? '');
+const smokeEnabled = smokeParams.getAll('smoke').length === 1 && smokeParams.get('smoke') === 'ground-v1' && smokeParams.getAll('gameplay').length === 1 && smokeParams.get('gameplay') === 'offline-training-v1';
+let smokePass = 0, smokeSteps = 0, smokeComplete = false;
+const smokeRuns: { ticks: number; hash: string }[] = [];
 const feelEnabled = trainingFeelEnabled(window.location?.search ?? '');
 let previousState: GameState | null = null;
 const canvas = document.querySelector<HTMLCanvasElement>('#stage')!;
@@ -38,6 +43,8 @@ function fail(error: unknown) {
 }
 async function resume() {
   if (!ready || restarting || game.state.phase === 'over') return;
+  if (smokeEnabled && smokeComplete) return;
+  if (smokeEnabled) { previousState = null; running = true; simStart = performance.now(); hud.menu(false); return; }
   hud.message('');
   // Keep pointer lock in the gesture; audio permission must not delay/revive a start.
   void sound.unlock().catch(() => hud.message('音频未启用，画面与操作可以继续。'));
@@ -73,7 +80,15 @@ function frame(now: number) {
         while (running && now >= simStart + tickMs && steps++ < 15) {
           const actor = player();
           if (feelEnabled) previousState = game.state;
-          game.step([...controls.commands(actor, simStart, simStart + tickMs, game.state.time), ...(squads ? bots.flatMap(b => b.commands(game.observe(b.id))) : bot.commands(game.observe('bot')))]); simStart += tickMs;
+          game.step([...(smokeEnabled ? [{ actorId: actor.id, type: 'move' as const, x: 0, z: smokeSteps < 60 ? -1 : smokeSteps >= 90 && smokeSteps < 114 ? 1 : 0 }] : controls.commands(actor, simStart, simStart + tickMs, game.state.time)), ...(squads ? bots.flatMap(b => b.commands(game.observe(b.id))) : bot.commands(game.observe('bot')))]); simStart += tickMs;
+          if (smokeEnabled && ++smokeSteps === 144) {
+            running = false;
+            smokeRuns.push({ ticks: game.state.tick, hash: game.stateHash });
+            if (smokePass === 0) {
+              const oldGame = game;
+              void restart().then(() => { if (!startupCancelled && game !== oldGame) { smokePass = 1; smokeSteps = 0; void resume(); } });
+            } else { smokeComplete = true; hud.menu(true, game.state, player()); }
+          }
           if (game.state.phase === 'over') {
             // The authoritative result is already settled. Leave its visible
             // reaction unobscured briefly; no gameplay or collision is extended.
@@ -133,7 +148,8 @@ try {
   // Read-only observability for smoke tests; no command injection or simulation mutation.
   Object.defineProperty(window, 'fpsClient', { value: Object.freeze({
     snapshot: (): GameState => game.state,
-    state: () => ({ ...(squads ? { squads: { version: 'offline-v1', formation: game.options.formation, botIds: bots.map(b=>b.id) } } : {}), ...(match ? { match: match.summary } : {}), ready, running, locked: controls.locked, backend: view.backend, yaw: controls.yaw, pitch: controls.pitch, ...view.info }),
+    state: () => ({ ...(smokeEnabled ? { smoke: { version: 'ground-v1', pass: smokePass, steps: smokeSteps, complete: smokeComplete, runs: smokeRuns.map(run => ({ ...run })) } } : {}), ...(squads ? { squads: { version: 'offline-v1', formation: game.options.formation, botIds: bots.map(b=>b.id) } } : {}), ...(match ? { match: match.summary } : {}), ready, running, locked: controls.locked, backend: view.backend, yaw: controls.yaw, pitch: controls.pitch, ...view.info }),
   }) });
+  if (smokeEnabled) void resume();
   frameId = requestAnimationFrame(frame);
 } catch (error) { if (!startupCancelled) fail(error); }
