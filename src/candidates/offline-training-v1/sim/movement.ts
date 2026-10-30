@@ -4,13 +4,17 @@ import type { Input } from './types.js';
 export const MOVEMENT = Object.freeze({ runSpeed: 4.5, walkSpeed: 2.3, crouchSpeed: 1.7, friction: 5.2, stopSpeed: 80 * 0.0254, acceleration: 5.5, accurateRatio: 0.34 });
 export type Velocity = { x: number; z: number };
 export function groundMovement(initial: Velocity, input: Input, dt: number) {
-  const speed = Math.hypot(initial.x, initial.z);
-  const remaining = Math.max(0, speed - Math.max(speed, MOVEMENT.stopSpeed) * MOVEMENT.friction * dt);
-  const velocity = speed > 0 ? { x: initial.x * remaining / speed, z: initial.z * remaining / speed } : { x: 0, z: 0 };
   const length = Math.hypot(input.x, input.z);
+  const wishSpeed = (input.crouch ? MOVEMENT.crouchSpeed : input.walk ? MOVEMENT.walkSpeed : MOVEMENT.runSpeed) * Math.min(1, length);
+  // While driving, use the same normalized friction/acceleration response at
+  // each target speed. A fixed standing stop floor otherwise exceeds crouch
+  // acceleration and erases it every tick. Released input keeps original drag.
+  const stopSpeed = length > 0 ? MOVEMENT.stopSpeed * wishSpeed / MOVEMENT.runSpeed : MOVEMENT.stopSpeed;
+  const speed = Math.hypot(initial.x, initial.z);
+  const remaining = Math.max(0, speed - Math.max(speed, stopSpeed) * MOVEMENT.friction * dt);
+  const velocity = speed > 0 ? { x: initial.x * remaining / speed, z: initial.z * remaining / speed } : { x: 0, z: 0 };
   if (length > 0) {
     const x = input.x / length, z = input.z / length;
-    const wishSpeed = (input.crouch ? MOVEMENT.crouchSpeed : input.walk ? MOVEMENT.walkSpeed : MOVEMENT.runSpeed) * Math.min(1, length);
     const add = Math.min(Math.max(0, wishSpeed - (velocity.x * x + velocity.z * z)), MOVEMENT.acceleration * dt * wishSpeed);
     velocity.x += x * add; velocity.z += z * add;
   }
