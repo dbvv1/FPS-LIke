@@ -184,7 +184,7 @@ export class Game {
           const before = { ...actor.position };
           if (actor.velocity) {
             const motion = groundMovement(actor.velocity, actor.input, elapsed);
-            this.physics.move(actor, motion.translation);
+            this.physics.move(actor, motion.translation, true);
             // Blocked components must not accumulate invisible velocity against a wall.
             actor.velocity = { x: (actor.position.x - before.x) / elapsed, z: (actor.position.z - before.z) / elapsed };
           } else this.physics.move(actor, { x: actor.input.x * speed * elapsed, y: -0.12 * elapsed, z: actor.input.z * speed * elapsed });

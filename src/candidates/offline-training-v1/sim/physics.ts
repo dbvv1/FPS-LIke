@@ -44,13 +44,32 @@ export class Physics {
     const pos = { ...actor.position, y: actor.position.y + 0.87 };
     return !this.walls.some(w => w.intersectsShape(new RAPIER.Capsule(0.55, 0.3), pos, rotation));
   }
-  move(actor: Actor, translation: Vec3) {
+  move(actor: Actor, translation: Vec3, separateGrounded = false) {
     this.sync(actor);
     this.world.step();
-    this.controller.computeColliderMovement(this.bodies.get(actor.id)!.move, translation, RAPIER.QueryFilterFlags.EXCLUDE_SENSORS);
-    const m = this.controller.computedMovement();
-    actor.position = { x: actor.position.x + m.x, y: Math.max(0, actor.position.y + m.y), z: actor.position.z + m.z };
-    this.sync(actor);
+    const collider = this.bodies.get(actor.id)!.move;
+    const compute = (delta: Vec3) => {
+      this.controller.computeColliderMovement(collider, delta, RAPIER.QueryFilterFlags.EXCLUDE_SENSORS);
+      return this.controller.computedMovement();
+    };
+    const apply = (delta: Vec3) => {
+      actor.position = { x: actor.position.x + delta.x, y: Math.max(0, actor.position.y + delta.y), z: actor.position.z + delta.z };
+      this.sync(actor);
+    };
+    // Only ground-v1 opts in. Re-query support per actor/per move: no cached
+    // grounded flag outside snapshots, and no vertical suppression while airborne.
+    if (separateGrounded && translation.y < 0 && Math.hypot(translation.x, translation.z) > 0) {
+      compute({ x: 0, y: translation.y, z: 0 });
+      if (this.controller.computedGrounded()) {
+        apply(compute({ ...translation, y: 0 }));
+        // Refit broad phase after horizontal/autostep movement, then retain the
+        // original downward constraint at the destination (including ledge exit).
+        this.world.step();
+        apply(compute({ x: 0, y: translation.y, z: 0 }));
+        return;
+      }
+    }
+    apply(compute(translation));
   }
   wallDistance(origin: Vec3, dir: Vec3, max = 100) {
     const ray = new RAPIER.Ray(origin, dir);
