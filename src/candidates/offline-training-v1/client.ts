@@ -1,4 +1,4 @@
-import { frameBudget, TICK_MS, MAX_CATCHUP_STEPS } from './frame-budget.js';
+import { frameBudget, resumeFrameBudget, TICK_MS, MAX_CATCHUP_STEPS } from './frame-budget.js';
 import { trainingFeelEnabled } from '../../candidate-route.js';
 import { interpolateState } from './render/interpolation.js';
 import { squadsRequested, squadSpecs, squadBots } from './session/squads.js';
@@ -25,6 +25,7 @@ let previousState: GameState | null = null;
 const canvas = document.querySelector<HTMLCanvasElement>('#stage')!;
 let game: Game, nav: Navigation, bot: Bot, bots: Bot[] = [], view: View | CanvasView, controls: Controls;
 let ready = false, running = false, restarting = false, frameId = 0, simStart = 0, lastFrame = performance.now();
+let resumeWall: number | null = null;
 let startupCancelled = false;
 const startupCancellation = new Error('Scene startup cancelled by navigation');
 let resultRevealAt: number | null = null;
@@ -77,11 +78,18 @@ function frame(now: number) {
       const tickMs = TICK_MS;
       if (running) {
         if (!smokeEnabled) {
-          const budget = frameBudget(now, previousFrame, simStart, !document.hidden && document.hasFocus() && controls.locked);
+          const foreground = !document.hidden && document.hasFocus() && controls.locked;
+          const resuming = resumeWall !== null;
+          const budget = resuming
+            ? resumeFrameBudget(now, performance.now(), resumeWall!, foreground)
+            : frameBudget(now, previousFrame, simStart, foreground);
+          resumeWall = null;
           if (budget.pause) {
             running = false; previousState = null; controls.pause();
             hud.menu(true, game.state, player());
             hud.message('游戏已暂停：窗口失焦或发生长时间停顿。点击继续重新锁定鼠标。');
+          } else if (resuming) {
+            simStart = budget.start;
           } else if (budget.dropped) {
             controls.discardBefore(budget.start);
             simStart = budget.start;
@@ -150,7 +158,8 @@ try {
   controls = new Controls(canvas, locked => {
     // A delayed pointer-lock acquisition must not resume behind a new settings draft.
     if (locked && sensitivity.dirty) { controls.pause(); hud.message('灵敏度尚未应用，请先保存或取消修改。'); return; }
-    previousState = null; running = locked && game.state.phase === 'live'; simStart = performance.now(); lastFrame = simStart;
+    previousState = null; running = locked && game.state.phase === 'live';
+    resumeWall = running ? performance.now() : null;
     hud.menu(!running && resultRevealAt === null, game.state, player());
   }, text => hud.message(text), () => sensitivity.value);
   controls.reset(player());

@@ -1,4 +1,4 @@
-import { frameBudget, TICK_MS, MAX_CATCHUP_STEPS } from '../../src/candidates/offline-training-v1/frame-budget.js';
+import { frameBudget, resumeFrameBudget, TICK_MS, MAX_CATCHUP_STEPS } from '../../src/candidates/offline-training-v1/frame-budget.js';
 import { trainingFeelEnabled } from '../../src/candidate-route.js';
 import { interpolateState } from '../../src/candidates/offline-training-v1/render/interpolation.js';
 import { squadsRequested, squadSpecs, squadBots } from '../../src/candidates/offline-training-v1/session/squads.js';
@@ -24,7 +24,7 @@ function fixture(stage:'navigation'|'game'){
  class Hud{difficulty='hard';setBusy(){}menu(){}message(){}}
  class Controls{reset(){}pause(){events.push('controls.pause');}dispose(){events.push('controls.dispose');}}
  class Soundscape{dispose(){events.push('sound.dispose');}}
- const deps={frameBudget,TICK_MS,MAX_CATCHUP_STEPS,trainingFeelEnabled,interpolateState,squadsRequested,squadSpecs,squadBots,TrainingMatch,completeMatchRequested,MatchPanel:class{},Game:{async create(){events.push('game.create');if(stage==='game')await gate.promise;return game;}},Bot:class{},initNavigation:async()=>{events.push('nav.init');if(stage==='navigation')await gate.promise;},Navigation,Controls,MouseSensitivity:class{},View,CanvasView,Soundscape,RESULT_HOLD_MS:700,Hud,document,window,performance:{now:()=>0},requestAnimationFrame:()=>{events.push('raf');return 1;},cancelAnimationFrame:()=>events.push('cancelRaf'),console:{error:()=>events.push('fatal')}};
+ const deps={frameBudget,resumeFrameBudget,TICK_MS,MAX_CATCHUP_STEPS,trainingFeelEnabled,interpolateState,squadsRequested,squadSpecs,squadBots,TrainingMatch,completeMatchRequested,MatchPanel:class{},Game:{async create(){events.push('game.create');if(stage==='game')await gate.promise;return game;}},Bot:class{},initNavigation:async()=>{events.push('nav.init');if(stage==='navigation')await gate.promise;},Navigation,Controls,MouseSensitivity:class{},View,CanvasView,Soundscape,RESULT_HOLD_MS:700,Hud,document,window,performance:{now:()=>0},requestAnimationFrame:()=>{events.push('raf');return 1;},cancelAnimationFrame:()=>events.push('cancelRaf'),console:{error:()=>events.push('fatal')}};
  const done=new AsyncFunction(...Object.keys(deps),source)(...Object.values(deps));
  const hide=(persisted=false)=>{const event=new Event('pagehide');Object.defineProperty(event,'persisted',{value:persisted});window.dispatchEvent(event);};
  const settle=()=>new Promise<void>(r=>setImmediate(r));

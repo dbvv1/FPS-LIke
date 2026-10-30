@@ -9,3 +9,11 @@ export function frameBudget(now: number, lastFrame: number, simStart: number, fo
   const start = pause ? simStart : Math.max(simStart, now - MAX_CATCHUP_STEPS * TICK_MS);
   return { pause, start, dropped: start > simStart };
 }
+
+/** Resume events use performance.now(), while rAF timestamps can predate their
+ * delivery. Start the next frame in its own timestamp domain, but still reject
+ * a genuinely long wait after the resume gesture using wall time. */
+export function resumeFrameBudget(now: number, wallNow: number, resumeWall: number, foreground: boolean) {
+  const pause = !foreground || !Number.isFinite(now) || !Number.isFinite(wallNow) || wallNow < resumeWall || wallNow - resumeWall >= LONG_FRAME_PAUSE_MS;
+  return { pause, start: now, dropped: false };
+}

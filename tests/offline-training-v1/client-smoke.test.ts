@@ -1,4 +1,4 @@
-import { frameBudget, TICK_MS, MAX_CATCHUP_STEPS } from '../../src/candidates/offline-training-v1/frame-budget.js';
+import { frameBudget, resumeFrameBudget, TICK_MS, MAX_CATCHUP_STEPS } from '../../src/candidates/offline-training-v1/frame-budget.js';
 import { trainingFeelEnabled } from '../../src/candidate-route.js';
 import { interpolateState } from '../../src/candidates/offline-training-v1/render/interpolation.js';
 import { squadsRequested, squadSpecs, squadBots } from '../../src/candidates/offline-training-v1/session/squads.js';
@@ -29,17 +29,20 @@ for(const frameDelta of [17,433,1250]) for(const [ground, smoke] of [[false,"gro
  class Controls{locked=false;yaw=0.7;pitch=0.2;constructor(_canvas:unknown,private changed:(locked:boolean)=>void){}async lock(){this.locked=true;locks++;this.changed(true);}pause(){this.locked=false;this.changed(false);}reset(){}discardBefore(){}commands(){return [];}dispose(){}}
  class Soundscape{enabled=true;async unlock(){}update(){}reset(){}dispose(){}}
  class MatchPanel{update(_state:unknown,_player:unknown,summary:unknown){summaries.push(summary);}}
- const deps={frameBudget,TICK_MS,MAX_CATCHUP_STEPS,trainingFeelEnabled,interpolateState:interpolationSpy,squadsRequested,squadSpecs,squadBots,Game:{async create(seed:number,specs:any,rules:any,options:any){const g=await Game.create(seed,specs,rules,options);const step=g.step.bind(g);g.step=(commands=[])=>{for(const c of commands)if(c.actorId!=='player')botCommands.add(c.actorId);step(commands);};created.push(g);return g;}},Bot,initNavigation,Navigation,Controls,MouseSensitivity:class{dirty=false;value=1;},View,CanvasView:View,Soundscape,RESULT_HOLD_MS:700,Hud,TrainingMatch,completeMatchRequested,MatchPanel,document,window,performance:{now:()=>clock},requestAnimationFrame:(fn:(now:number)=>void)=>{raf=fn;return 1;},cancelAnimationFrame:()=>{},console:{error:(e:unknown)=>errors.push(e)}};
+ const deps={frameBudget,resumeFrameBudget,TICK_MS,MAX_CATCHUP_STEPS,trainingFeelEnabled,interpolateState:interpolationSpy,squadsRequested,squadSpecs,squadBots,Game:{async create(seed:number,specs:any,rules:any,options:any){const g=await Game.create(seed,specs,rules,options);const step=g.step.bind(g);g.step=(commands=[])=>{for(const c of commands)if(c.actorId!=='player')botCommands.add(c.actorId);step(commands);};created.push(g);return g;}},Bot,initNavigation,Navigation,Controls,MouseSensitivity:class{dirty=false;value=1;},View,CanvasView:View,Soundscape,RESULT_HOLD_MS:700,Hud,TrainingMatch,completeMatchRequested,MatchPanel,document,window,performance:{now:()=>clock},requestAnimationFrame:(fn:(now:number)=>void)=>{raf=fn;return 1;},cancelAnimationFrame:()=>{},console:{error:(e:unknown)=>errors.push(e)}};
  try{
  await new AsyncFunction(...Object.keys(deps),source)(...Object.values(deps));
  if(smoke !== 'ground-v1'){assert.equal(window.fpsClient.state().smoke,undefined);clock+=17;raf(clock);assert.equal(created[0]!.state.tick,0);assert.equal(locks,0);
  // Invalid/duplicate smoke stays ordinary play: sustained slow foreground frames advance, large jumps pause.
- start();await new Promise(r=>setImmediate(r));clock+=17;raf(clock);
+ start();await new Promise(r=>setImmediate(r));
+ // The resume event clock can be newer than the first delivered rAF stamp.
+ const resumeTick=created[0]!.state.tick;raf(clock-5);assert.equal(window.fpsClient.state().running,true);assert.equal(created[0]!.state.tick,resumeTick);
+ clock+=17;raf(clock);
  assert.equal(window.fpsClient.state().running,true);const before=created[0]!.state.tick;assert(before>0);
  for(let i=0;i<4;i++){const prior: number=created[0]!.state.tick;clock+=483;raf(clock);assert.equal(window.fpsClient.state().running,true);const advanced: number=created[0]!.state.tick-prior;assert.ok(advanced>=14 && advanced<=15);}
  const slowTick=created[0]!.state.tick;assert.ok(slowTick>before);
  clock+=2000;raf(clock);assert.equal(window.fpsClient.state().running,false);assert.equal(created[0]!.state.tick,slowTick);
- start();await new Promise(r=>setImmediate(r));clock+=17;raf(clock);assert.equal(window.fpsClient.state().running,true);assert.equal(created[0]!.state.tick,slowTick+1);
+ start();await new Promise(r=>setImmediate(r));raf(clock);assert.equal(created[0]!.state.tick,slowTick);clock+=17;raf(clock);assert.equal(window.fpsClient.state().running,true);assert.equal(created[0]!.state.tick,slowTick+1);
  document.hidden=true;const visibleTick=created[0]!.state.tick;clock+=17;raf(clock);assert.equal(window.fpsClient.state().running,false);assert.equal(created[0]!.state.tick,visibleTick);assert.deepEqual(errors,[]);return;}
  for(let frames=0;frames<500 && !window.fpsClient.state().smoke.complete;frames++){const before=created.at(-1)!.state.tick;clock+=frameDelta;raf(clock);assert(created.at(-1)!.state.tick<=before+1);await new Promise(r=>setImmediate(r));}
  const result=window.fpsClient.state().smoke;

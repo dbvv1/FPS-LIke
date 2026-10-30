@@ -1,4 +1,4 @@
-import { frameBudget, TICK_MS, MAX_CATCHUP_STEPS } from '../../src/candidates/offline-training-v1/frame-budget.js';
+import { frameBudget, resumeFrameBudget, TICK_MS, MAX_CATCHUP_STEPS } from '../../src/candidates/offline-training-v1/frame-budget.js';
 import { trainingFeelEnabled } from '../../src/candidate-route.js';
 import { interpolateState } from '../../src/candidates/offline-training-v1/render/interpolation.js';
 import { squadsRequested, squadSpecs, squadBots } from '../../src/candidates/offline-training-v1/session/squads.js';
@@ -23,12 +23,12 @@ test('actual client finishes six rounds, does not enter round seven, and next st
  class Controls{locked=false;yaw=0;pitch=0;constructor(_canvas:unknown,private changed:(locked:boolean)=>void){}async lock(){this.locked=true;locks++;this.changed(true);}pause(){this.locked=false;this.changed(false);}reset(){}discardBefore(){}commands(){return [];}dispose(){}}
  class Soundscape{enabled=true;async unlock(){}update(){}reset(){}dispose(){}}
  class MatchPanel{update(_state:unknown,_player:unknown,summary:unknown){summaries.push(summary);}}
- const deps={frameBudget,TICK_MS,MAX_CATCHUP_STEPS,trainingFeelEnabled,interpolateState,squadsRequested,squadSpecs,squadBots,Game:{async create(){const g=await Game.create(1,[{id:'player',team:'amber'},{id:'bot',team:'blue'}],{roundTicks:1});created.push(g);return g;}},Bot:class{commands(){return [];}},initNavigation:async()=>{},Navigation:class{dispose(){}},Controls,MouseSensitivity:class{dirty=false;value=1;},View,CanvasView:View,Soundscape,RESULT_HOLD_MS:700,Hud,TrainingMatch,completeMatchRequested,MatchPanel,document,window,performance:{now:()=>clock},requestAnimationFrame:(fn:(now:number)=>void)=>{raf=fn;return 1;},cancelAnimationFrame:()=>{},console:{error:(e:unknown)=>errors.push(e)}};
+ const deps={frameBudget,resumeFrameBudget,TICK_MS,MAX_CATCHUP_STEPS,trainingFeelEnabled,interpolateState,squadsRequested,squadSpecs,squadBots,Game:{async create(){const g=await Game.create(1,[{id:'player',team:'amber'},{id:'bot',team:'blue'}],{roundTicks:1});created.push(g);return g;}},Bot:class{commands(){return [];}},initNavigation:async()=>{},Navigation:class{dispose(){}},Controls,MouseSensitivity:class{dirty=false;value=1;},View,CanvasView:View,Soundscape,RESULT_HOLD_MS:700,Hud,TrainingMatch,completeMatchRequested,MatchPanel,document,window,performance:{now:()=>clock},requestAnimationFrame:(fn:(now:number)=>void)=>{raf=fn;return 1;},cancelAnimationFrame:()=>{},console:{error:(e:unknown)=>errors.push(e)}};
  try{
  await new AsyncFunction(...Object.keys(deps),source)(...Object.values(deps));
  start();await new Promise(r=>setImmediate(r));
  for(let round=1;round<=6;round++){
-   clock+=20;raf(clock);assert.equal(created[0]!.state.round,round);assert.equal(created[0]!.state.phase,'over');
+   clock+=20;raf(clock);clock+=20;raf(clock);assert.equal(created[0]!.state.round,round);assert.equal(created[0]!.state.phase,'over');
    const current=(window as any).fpsClient.state().match;assert.equal(current.rounds.length,round);assert.equal(current.complete,round===6);
    if(round<6){next();await new Promise(r=>setImmediate(r));}
  }
