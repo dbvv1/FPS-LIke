@@ -4,7 +4,19 @@
 
 ## 入口与生效确认
 
-`guard-materials` 是 URL 查询参数，必须挂在离线训练赛入口上；只有 `gameplay=offline-training-v1` 才会加载含本候选的训练客户端，在首页或其它入口单独加 `?guard-materials=continuous-v2` 会落到旧客户端（另一套 `src/render/scene.ts`），候选不生效。在训练赛已有参数后追加，例如 `/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&guard-materials=continuous-v2`；它可与既有 `lighting`、`environment`、`art`、`materials` 组合（`art`／`materials` 本身要求 `environment=courtyard-v1`）。生效确认读固定机位拍摄页的 `window.__shot.renderInfo.guardMaterials.active`（`id` 应为 `continuous-v2`）；普通训练入口的 `#debug-state` 不含该字段，不能用来判断候选是否开启。
+`guard-materials` 是 URL 查询参数，必须挂在离线训练赛入口上；只有 `gameplay=offline-training-v1` 才会加载含本候选的训练客户端，在首页或其它入口单独加 `?guard-materials=continuous-v2` 会落到旧客户端（另一套 `src/render/scene.ts`），候选不生效。在训练赛已有参数后追加即可，例如在当前默认路由上再加本开关：
+
+```text
+/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&guard-materials=continuous-v2
+```
+
+它可与既有 `lighting`、`environment`、`art`、`materials` 组合（`art`／`materials` 本身要求 `environment=courtyard-v1`）。生效确认须用固定机位拍摄页：该路由强制 `gameplay=offline-training-v1`、`match=complete-v1`、`squads=offline-v1`、`environment=courtyard-v1`、`art=standards-v1`，视口固定 1280×720、DPR 1，缺一项即报错。可直接复制（机位还可换 `gameplay` 或 `courtyard-gap`）：
+
+```text
+/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&qualityCapture=cross-lane&guard-materials=continuous-v2
+```
+
+其余参数与限制见[当前拍摄入口](quality/current-capture.md)。生效判据是 `window.__shot.renderInfo.guardMaterials.active`：只有 `active=true` 才算本候选已启用；`id` 恒为 `continuous-v2`，开关关闭时也返回该值，不能用来判断开关状态。普通训练入口的 `#debug-state` 不含该字段，不能用来判断候选是否开启。
 
 ## 分区、边界与优先级
 
