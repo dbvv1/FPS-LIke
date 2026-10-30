@@ -8,16 +8,18 @@ test('movement v2 requires one exact opt-in and combines with character/capture 
 
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-test('default simulation/content/HUD/input/render modules retain their pre-movement bytes', () => {
+// Only legacy client scheduling/input debt disposal changed by owner request on 2026-10-30.
+// All simulation, content, HUD and rendering hashes remain the frozen baseline.
+test('legacy modules retain frozen bytes except explicitly reviewed slow-frame scheduling revision', () => {
  const files = {
-  "src/client.ts": "281ef1af70f9fef6a978e26ce107e8d518a20a3a5dfa85491e9c064593dbfe79",
+  "src/client.ts": "43229bc71256b05182892cf7405b3f51be2fdbbe920035470da55ca38b9f9416",
   "src/render/scene.ts": "81f8ed6ac190ae33ca1fb98d6cda10e27a7c2765a2b29fef63031698191ea714",
   "src/content/difficulty.ts": "9ed2633b2dd9237a5b1940236a488690209cf619e4530c7f1434410dd03d9936",
   "src/content/freeze.ts": "35a31a790068d822e35110ff2d1a6c7a345f6aeeef9d5a256caa66336b3374ee",
   "src/content/map.ts": "2431dfef756bfddaa4893e058bdf59f38ac17f83d56e50712620e2707151a3af",
   "src/content/navigation.json": "bd3bbe9a5efbfbd1f1dfc68c0b950c160a7afc847e1c73b927c4915afda7f42a",
   "src/content/weapons.ts": "909d47bbb43d91fb18551d47428fab302fcf37409f3c8040a974a55f00080e3d",
-  "src/input/controls.ts": "b1f8f4d133a5bf89a6b698863264bdf68c72ce6353ce9b959c4676cb46f50d9c",
+  "src/input/controls.ts": "2466e371773b78d9aa6ef7c419f1c95406c53119dcf6d149af67ace23975561e",
   "src/input/sensitivity.ts": "fea34368ef71f88f6d855056a739181606d7ca9bb55f3407368021ff356e3d09",
   "src/render/arm.ts": "e5053cf75b9858118ec9c455221f7f621a21c34d9880e8afeb743cca85ba09d3",
   "src/render/audio.ts": "ca0d294cfc08d329d00428693e78a832c7acb2d09de337b5d72efad94b10bf76",

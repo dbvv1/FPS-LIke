@@ -1,3 +1,4 @@
+import { frameBudget, resumeFrameBudget, TICK_MS, MAX_CATCHUP_STEPS } from './candidates/offline-training-v1/frame-budget.js';
 import { Game } from './sim/game.js';
 import { Bot } from './sim/bot.js';
 import { initNavigation, Navigation } from './sim/navigation.js';
@@ -13,6 +14,7 @@ import type { GameState } from './sim/types.js';
 const canvas = document.querySelector<HTMLCanvasElement>('#stage')!;
 let game: Game, nav: Navigation, bot: Bot, view: View | CanvasView, controls: Controls;
 let ready = false, running = false, restarting = false, frameId = 0, simStart = 0, lastFrame = performance.now();
+let resumeWall: number | null = null;
 let startupCancelled = false;
 const startupCancellation = new Error('Scene startup cancelled by navigation');
 let resultRevealAt: number | null = null;
@@ -52,15 +54,28 @@ async function restart() {
   finally { restarting = false; if (!startupCancelled) hud.setBusy(false); }
 }
 function frame(now: number) {
+  const previousFrame = lastFrame;
   const dt = Math.min(0.1, Math.max(0, (now - lastFrame) / 1000)); lastFrame = now;
   try {
     if (ready) {
-      const tickMs = 1000 / 60;
+      const tickMs = TICK_MS;
       if (running) {
-        // A stalled tab pauses instead of skipping input timestamps or simulating hidden combat.
-        if (now - simStart > 250) { controls.pause(); running = false; }
+        const foreground = !document.hidden && document.hasFocus() && controls.locked;
+        const resuming = resumeWall !== null;
+        const budget = resuming
+          ? resumeFrameBudget(now, performance.now(), resumeWall!, foreground)
+          : frameBudget(now, previousFrame, simStart, foreground);
+        resumeWall = null;
+        if (budget.pause) {
+          running = false; controls.pause(); hud.menu(true, game.state, player());
+          hud.message('游戏已暂停：窗口失焦或发生长时间停顿。点击继续重新锁定鼠标。');
+        } else if (resuming) {
+          simStart = budget.start;
+        } else if (budget.dropped) {
+          controls.discardBefore(budget.start); simStart = budget.start;
+        }
         let steps = 0;
-        while (running && now >= simStart + tickMs && steps++ < 15) {
+        while (running && now >= simStart + tickMs && steps++ < MAX_CATCHUP_STEPS) {
           const actor = player();
           game.step([...controls.commands(actor, simStart, simStart + tickMs, game.state.time), ...bot.commands(game.observe('bot'))]); simStart += tickMs;
           if (game.state.phase === 'over') {
@@ -104,7 +119,8 @@ try {
   controls = new Controls(canvas, locked => {
     // A delayed pointer-lock acquisition must not resume behind a new settings draft.
     if (locked && sensitivity.dirty) { controls.pause(); hud.message('灵敏度尚未应用，请先保存或取消修改。'); return; }
-    running = locked && game.state.phase === 'live'; simStart = performance.now();
+    running = locked && game.state.phase === 'live';
+    resumeWall = running ? performance.now() : null;
     hud.menu(!running && resultRevealAt === null, game.state, player());
   }, text => hud.message(text), () => sensitivity.value);
   controls.reset(player());

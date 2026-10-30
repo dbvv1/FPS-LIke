@@ -192,3 +192,55 @@ test('pause drops historical trigger edges rather than replaying them after resu
   const state = await runTimedInput(50, [press(10), release(120), key(125, 'Escape'), { time: 160, type: 'resume' }], value => { now = value; });
   assert.deepEqual(state.shots.map(shot => shot.time), [600]);
 });
+
+test('discarded slow-frame interval drops one-shot bursts and carries released continuous states', async t => {
+ const env=environment(), canvas=new FakeCanvas(env.document), actor=actorFixture();
+ let now=0; t.mock.method(performance,'now',()=>now);
+ const controls=new Controls(canvas as unknown as HTMLCanvasElement,()=>{},()=>{});
+ try {
+  await controls.lock();
+  now=10; env.document.dispatchEvent(event('keydown',{code:'KeyW',repeat:false}));
+  env.document.dispatchEvent(event('keydown',{code:'KeyE',repeat:false}));
+  canvas.dispatchEvent(event('mousedown',{button:0}));
+  env.document.dispatchEvent(event('keydown',{code:'KeyR',repeat:false}));
+  now=20; env.document.dispatchEvent(event('keyup',{code:'KeyW'}));
+  env.document.dispatchEvent(event('keyup',{code:'KeyE'}));
+  env.document.dispatchEvent(event('mouseup',{button:0}));
+  now=30; env.document.dispatchEvent(event('mousemove',{movementX:25,movementY:0}));
+  controls.discardBefore(233);
+  const cmds=controls.commands(actor,233,250,0);
+  assert.equal(cmds.filter(c=>c.type==='shoot'||c.type==='reload').length,0);
+  assert.equal(cmds.filter(c=>c.type==='move').length,1);
+  assert.ok(cmds.some(c=>c.type==='move'&&c.x===0&&c.z===0));
+  assert.ok(cmds.some(c=>c.type==='interact'&&!c.held));
+  assert.ok(cmds.some(c=>c.type==='aim'&&c.yaw===0.05));
+  assert.equal(controls.commands(actor,250,267,1000).length,0);
+ } finally { controls.dispose();env.restore(); }
+});
+test('slow-frame carry retains held movement and later release ordering, pause/resume clears carry', async t => {
+ const env=environment(),canvas=new FakeCanvas(env.document),actor=actorFixture();
+ let now=0;t.mock.method(performance,'now',()=>now);
+ const controls=new Controls(canvas as unknown as HTMLCanvasElement,()=>{},()=>{});
+ try {
+  await controls.lock();now=10;env.document.dispatchEvent(event('keydown',{code:'KeyW',repeat:false}));
+  now=245;env.document.dispatchEvent(event('keyup',{code:'KeyW'}));
+  controls.discardBefore(233);
+  const cmds=controls.commands(actor,233,250,0).filter(c=>c.type==='move');
+  assert.equal(cmds.length,2);assert.equal(cmds[0]!.z,1);assert.equal(cmds[1]!.z,0);assert.ok(cmds[1]!.at!>cmds[0]!.at!);
+  now=300;env.document.dispatchEvent(event('keydown',{code:'KeyW',repeat:false}));
+  controls.discardBefore(533);controls.pause();now=10000;await controls.lock();
+  assert.ok(controls.commands(actor,10000,10017,0).every(c=>c.type!=='shoot'&&(c.type!=='move'||c.z===0)));
+ } finally {controls.dispose();env.restore();}
+});
+test('held trigger crossing discarded interval permits one due shot, then respects retained release', async t => {
+ const env=environment(),canvas=new FakeCanvas(env.document),actor=actorFixture();
+ let now=0;t.mock.method(performance,'now',()=>now);
+ const controls=new Controls(canvas as unknown as HTMLCanvasElement,()=>{},()=>{});
+ try {
+  await controls.lock();now=10;canvas.dispatchEvent(event('mousedown',{button:0}));
+  now=245;env.document.dispatchEvent(event('mouseup',{button:0}));
+  controls.discardBefore(233);
+  assert.equal(controls.commands(actor,233,250,0).filter(c=>c.type==='shoot').length,1,'held auto fire at current cooldown, not replay of old press');
+  assert.equal(controls.commands(actor,250,267,1000).filter(c=>c.type==='shoot').length,0,'retained release stops subsequent auto fire');
+ } finally {controls.dispose();env.restore();}
+});

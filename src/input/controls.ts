@@ -102,6 +102,20 @@ export class Controls {
     this.queue.splice(0, consumed);
     return result;
   }
+  /** Drop obsolete one-shot actions while carrying the last continuous state
+   * across a discarded wall-time interval. Later timestamped edges stay intact. */
+  discardBefore(time: number) {
+    const continuous = new Map<string, Queued>();
+    let consumed = 0;
+    for (const queued of this.queue) {
+      if (queued.time >= time) break;
+      const action = queued.action;
+      if (action.type === 'trigger') this.triggerHeld = action.held;
+      else if (action.type === 'move' || action.type === 'aim' || action.type === 'interact') continuous.set(action.type, { time, action });
+      consumed++;
+    }
+    this.queue.splice(0, consumed, ...continuous.values());
+  }
   clear() {
     this.held.clear(); this.shooting = false; this.triggerHeld = false; this.queue = [];
     this.add({ type: 'move', x: 0, z: 0 }); this.add({ type: 'interact', held: false });

@@ -1,3 +1,4 @@
+import { frameBudget, resumeFrameBudget, TICK_MS, MAX_CATCHUP_STEPS } from '../src/candidates/offline-training-v1/frame-budget.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -25,7 +26,7 @@ async function fixture(search: string, webgl = true) {
   class Controls { yaw = 0; pitch = 0; locked = false; reset() {} pause() {} dispose() {} }
   class Hud { difficulty = 'normal'; setBusy() {} menu() {} message() {} update() {} }
   class Soundscape { update() {} dispose() {} }
-  const deps = { contentSetDiagnostics, Game: { create: async () => ({ state, observe: () => ({ sounds: [] }), dispose() {} }) }, Bot: class {}, initNavigation: async () => {}, Navigation: class {},
+  const deps = { frameBudget, resumeFrameBudget, TICK_MS, MAX_CATCHUP_STEPS, contentSetDiagnostics, Game: { create: async () => ({ state, observe: () => ({ sounds: [] }), dispose() {} }) }, Bot: class {}, initNavigation: async () => {}, Navigation: class {},
     Controls, MouseSensitivity: class {}, View, CanvasView, Soundscape, RESULT_HOLD_MS: 700, Hud, window, document,
     performance: { now: () => 0 }, requestAnimationFrame: (callback: (now: number) => void) => { frame = callback; return 1; }, cancelAnimationFrame() {},
     console: { error: (error: unknown) => { throw error; } } };
