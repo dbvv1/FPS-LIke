@@ -8,7 +8,7 @@ import { KIT, environmentEnabled, makeKitWall, kitTexture, floorPixels, kitBudge
 import { groundLevels, groundUV } from './ground.js';
 import { YARD, wallStrip } from './yard.js';
 import { Feedback } from './feedback.js';
-import { targetTriangles, targetVertices, targetColor } from './target.js';
+import { targetTriangles, targetVertices, targetColor, targetGuardColor, GUARD_MATERIALS_ID, guardMaterialsEnabled } from './target.js';
 import { MAP } from '../content/map.js';
 import { eye } from '../sim/physics.js';
 import { type Actor, type GameState } from '../sim/types.js';
@@ -17,6 +17,9 @@ import { cameraPose, toThree } from './coordinates.js';
 export class View {
   readonly backend = 'three-webgl2';
   private lighting = lightingEnabled(globalThis.location?.search ?? '');
+  // Parsed once per View; the normal training client and fixed-camera capture
+  // both construct this class, so one query string selects the same materials.
+  private guard = guardMaterialsEnabled(globalThis.location?.search ?? '');
   private post: ReturnType<typeof createLightingPost> | undefined;
   private environment = environmentEnabled(globalThis.location?.search ?? '');
   private environmentPresented = false;
@@ -24,7 +27,7 @@ export class View {
   private aiMaterials: AiMaterials | undefined;
   private art: ArtStandards | undefined;
   private artSlots: ArtSlot[] = [];
-  get info() { return { ...(this.aiMaterials ? { materials: this.aiMaterials.info } : {}), lighting: { id:this.lighting?LIGHTING_ID:'baseline', environment:this.lighting?'hemisphere-and-ambient':'hemisphere', ao:this.lighting?'deterministic-ssao-half-resolution':'none', grade:this.lighting?'cool-shadows-warm-highlights':'none' }, ...(this.art ? { art: { ...this.art.info, active: this.artPresented } } : {}), ...(this.environment ? { environment: { id: KIT.id, active: this.environmentPresented, budget: kitBudget(MAP.walls.length), evidence: 'offline-estimate' } } : {}), memory: { ...this.renderer.info.memory }, calls: this.renderer.info.render.calls }; }
+  get info() { return { ...(this.aiMaterials ? { materials: this.aiMaterials.info } : {}), lighting: { id:this.lighting?LIGHTING_ID:'baseline', environment:this.lighting?'hemisphere-and-ambient':'hemisphere', ao:this.lighting?'deterministic-ssao-half-resolution':'none', grade:this.lighting?'cool-shadows-warm-highlights':'none' }, guardMaterials: { id: GUARD_MATERIALS_ID, active: this.guard }, ...(this.art ? { art: { ...this.art.info, active: this.artPresented } } : {}), ...(this.environment ? { environment: { id: KIT.id, active: this.environmentPresented, budget: kitBudget(MAP.walls.length), evidence: 'offline-estimate' } } : {}), memory: { ...this.renderer.info.memory }, calls: this.renderer.info.render.calls }; }
   readonly renderer: THREE.WebGLRenderer;
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera(80, 1, 0.05, 100);
@@ -157,7 +160,8 @@ export class View {
       if (!model) {
         const geometry=new THREE.BufferGeometry(),colors:number[]=[];
         geometry.setAttribute('position',new THREE.Float32BufferAttribute(new Float32Array(targetTriangles.length*9),3));
-        for(const face of targetTriangles){const color=new THREE.Color(targetColor(face.color,actor.team===player.team,face.region));for(let i=0;i<3;i++)colors.push(color.r,color.g,color.b);}
+        const friend=actor.team===player.team;
+        for(const face of targetTriangles){const color=new THREE.Color(this.guard?targetGuardColor(face,friend):targetColor(face.color,friend,face.region));for(let i=0;i<3;i++)colors.push(color.r,color.g,color.b);}
         geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
         const material=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.85,metalness:.08});
         model=new THREE.Mesh(geometry,material);model.frustumCulled=false;

@@ -1,5 +1,9 @@
 import data from '../../../../assets/characters/relay-guard/guard.json';
+import { guardColor, guardZone, type GuardZone } from './guard-materials.js';
 import type { Actor } from '../sim/types.js';
+// The View already consumes this module; keep the candidate switch on the same
+// dependency surface instead of adding a second parser import.
+export { GUARD_MATERIALS_ID, guardMaterialsEnabled } from './guard-materials.js';
 export const targetSource = data;
 const head=new Set(data.head),torso=new Set(data.torso);
 export type TargetRegion='helmet'|'carrier'|'detail';
@@ -40,4 +44,15 @@ export function targetColor(color:number,friend:boolean,region:TargetRegion='det
   if(color===0xcfaf7c)return friend?0x75b9b0:0xc46d4e;
   if(color===0x6b624b)return friend?0x426f6b:0x775142;
   return color;
+}
+export type GuardTriangle = { part: string; region: TargetRegion; color: number; indices: readonly number[] };
+// Candidate-only semantic pass. The default triangles, colours and geometry
+// above stay byte-identical; callers opt in through guardMaterialsEnabled.
+export function targetGuardZone(face: GuardTriangle): GuardZone | null {
+  const height=face.indices.reduce((sum,index)=>sum+data.vertices[index]![1]!,0)/face.indices.length;
+  return guardZone({part:face.part,region:face.region,color:face.color,height});
+}
+export function targetGuardColor(face: GuardTriangle, friend: boolean): number {
+  const zone=targetGuardZone(face);
+  return zone===null?targetColor(face.color,friend,face.region):guardColor(face.color,friend,zone);
 }
