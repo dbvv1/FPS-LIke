@@ -2,6 +2,10 @@
 
 固定源 `2b7ac87288f9595d3b1346b521a7eb456db108c9`。本次只增加离线训练赛的显式候选开关 `guard-materials=continuous-v2`；`guard-materials` 必须只出现一次且值精确匹配才启用，缺省、非法值或重复键都回原版，默认入口不变。训练赛普通入口与固定机位共用同一个 `View` 解析，`View.info.guardMaterials` 暴露 `{ id, active }`，`quality-client` 只把该字段随既有 `renderInfo` 写入 manifest，不改机位、推进、输入或 HUD。顶点、三角形、索引、姿态、碰撞、动画、灯光、模拟、地表和原资产文件均未改动；默认颜色数组与几何数据由测试固定哈希。
 
+## 入口与生效确认
+
+`guard-materials` 是 URL 查询参数，必须挂在离线训练赛入口上；只有 `gameplay=offline-training-v1` 才会加载含本候选的训练客户端，在首页或其它入口单独加 `?guard-materials=continuous-v2` 会落到旧客户端（另一套 `src/render/scene.ts`），候选不生效。在训练赛已有参数后追加，例如 `/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&guard-materials=continuous-v2`；它可与既有 `lighting`、`environment`、`art`、`materials` 组合（`art`／`materials` 本身要求 `environment=courtyard-v1`）。生效确认读固定机位拍摄页的 `window.__shot.renderInfo.guardMaterials.active`（`id` 应为 `continuous-v2`）；普通训练入口的 `#debug-state` 不含该字段，不能用来判断候选是否开启。
+
 ## 分区、边界与优先级
 
 - 只处理 `part=body` 且现有区域为 `detail` 的三角形。武器、蓝面罩、头盔和现有 carrier（平均高度 >1.05 m 的 torso 面）优先保留。
