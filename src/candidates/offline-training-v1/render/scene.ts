@@ -1,6 +1,7 @@
 type ObserverCamera = { position: { x: number; y: number; z: number }; yaw: number; pitch: number; fov: number };
 import * as THREE from 'three';
-import { AiMaterials, aiMaterialsEnabled } from './ai-materials.js';
+import { AiMaterials, FullAiMaterials, aiMaterialsEnabled } from './ai-materials.js';
+import { fullAiMaterialsEnabled, type KitSurface } from './ai-surface.js';
 import { createLightingPost } from './lighting-post.js';
 import { LIGHTING_ID, lightingEnabled, renderRole } from './lighting-style.js';
 import { ArtStandards, artEnabled, type ArtSlot } from './art-standards.js';
@@ -21,7 +22,7 @@ export class View {
   private environment = environmentEnabled(globalThis.location?.search ?? '');
   private environmentPresented = false;
   private artPresented = false;
-  private aiMaterials: AiMaterials | undefined;
+  private aiMaterials: AiMaterials | FullAiMaterials | undefined;
   private art: ArtStandards | undefined;
   private artSlots: ArtSlot[] = [];
   get info() { return { ...(this.aiMaterials ? { materials: this.aiMaterials.info } : {}), lighting: { id:this.lighting?LIGHTING_ID:'baseline', environment:this.lighting?'hemisphere-and-ambient':'hemisphere', ao:this.lighting?'deterministic-ssao-half-resolution':'none', grade:this.lighting?'cool-shadows-warm-highlights':'none' }, ...(this.art ? { art: { ...this.art.info, active: this.artPresented } } : {}), ...(this.environment ? { environment: { id: KIT.id, active: this.environmentPresented, budget: kitBudget(MAP.walls.length), evidence: 'offline-estimate' } } : {}), memory: { ...this.renderer.info.memory }, calls: this.renderer.info.render.calls }; }
@@ -67,10 +68,12 @@ export class View {
     const positions=floor.geometry.getAttribute('position'),uv=floor.geometry.getAttribute('uv');
     for(let i=0;i<positions.count;i++)uv.setXY(i,...(this.environment ? [positions.getX(i)/4,-positions.getZ(i)/4] as const : groundUV(positions.getX(i),-positions.getZ(i))));uv.needsUpdate=true;
     const material=floor.material as THREE.MeshStandardMaterial;material.map=texture;material.roughness=.95;material.metalness=0;
+    const aiWalls: KitSurface[] = [];
     let aiWall: THREE.Mesh<THREE.BufferGeometry,THREE.MeshStandardMaterial> | undefined;
     for (const wall of MAP.walls) {
       if (this.environment) {
         const piece = makeKitWall(wall);
+        aiWalls.push({ id: wall.id, mesh: piece.mesh });
         if(wall.id==='left-divider')aiWall=piece.mesh;
         this.scene.add(piece.mesh); this.geometries.add(piece.geometry); this.materials.add(piece.material); this.textures.add(piece.texture);
         if (wall.id === 'center-dogleg' || wall.id === 'site-cover') this.artSlots.push({ id: wall.id, position: toThree({ ...wall.center, y: wall.center.y - wall.half.y }), fallback: [piece.mesh] });
@@ -84,7 +87,8 @@ export class View {
       const mesh=new THREE.Mesh(geometry,[side,top]);
       mesh.position.set(...toThree(wall.center));this.scene.add(mesh);this.geometries.add(geometry);this.materials.add(side);this.materials.add(top);
     }
-    if(aiWall && aiMaterialsEnabled(globalThis.location?.search ?? '')) {this.aiMaterials=new AiMaterials();void this.aiMaterials.start(material,aiWall);}
+    if (fullAiMaterialsEnabled(globalThis.location?.search ?? '')) { this.aiMaterials = new FullAiMaterials(); void this.aiMaterials.start(material, aiWalls); }
+    else if(aiWall && aiMaterialsEnabled(globalThis.location?.search ?? '')) {this.aiMaterials=new AiMaterials();void this.aiMaterials.start(material,aiWall);}
     for (const [i, route] of MAP.routes.entries()) {
       const x = route[0]!.x;
       for (let z = -15; z < 8; z += 2.7) this.box(this.scene, toThree({ x, y: 0.015, z }), [0.12, 0.02, 1], i === 1 ? 0xf8b44c : 0x55bab2, true);
@@ -104,7 +108,7 @@ export class View {
     this.weapon.add(this.rifle, this.pistol, this.flash); this.flash.position.set(0.01, 0.03, -0.7); this.flash.visible = false;
     this.weapon.userData.lightingCue=true;
     this.camera.add(this.weapon); this.scene.add(this.camera);
-    if (artEnabled(globalThis.location?.search ?? '')) { this.art = new ArtStandards(this.scene, this.artSlots); void this.art.start(); }
+    if (artEnabled(globalThis.location?.search ?? '')) { this.art = new ArtStandards(this.scene, this.artSlots, undefined, undefined, this.aiMaterials instanceof FullAiMaterials ? this.aiMaterials.registerArt : undefined); void this.art.start(); }
     this.resize();
     this.scene.traverse(o => { if (o instanceof THREE.Mesh || o instanceof THREE.LineSegments) { this.geometries.add(o.geometry); for (const m of Array.isArray(o.material) ? o.material : [o.material]) this.materials.add(m); } });
   }

@@ -53,16 +53,18 @@ export class ArtStandards {
   private controller = new AbortController();
   private disposed = false;
   private roots: THREE.Object3D[] = [];
+  private detach: Array<() => void> = [];
+  private detachSurfaces() { for (const release of this.detach) release(); this.detach = []; }
   private timer: ReturnType<typeof setTimeout> | undefined;
   private started = false;
   private state = 'idle';
   private budget = { triangles: 0, calls: 0, bytes: 123604 };
   get info() { return { id: ART_ID, state: this.state, pieces: this.roots.length, budget: { ...this.budget }, evidence: 'runtime-geometry-only' }; }
-  constructor(private scene: THREE.Object3D, private slots: ArtSlot[], private load: Load = loadArt, private timeoutMs = 12000) {}
+  constructor(private scene: THREE.Object3D, private slots: ArtSlot[], private load: Load = loadArt, private timeoutMs = 12000, private registerSurface?: (id: string, root: THREE.Object3D) => () => void) {}
   async start() {
     if (this.started || this.disposed) return;
     this.started = true; this.state = 'loading';
-    this.timer = setTimeout(() => { this.controller.abort(); for (const root of this.roots) releaseArt(root); this.roots = []; this.budget.triangles = 0; this.budget.calls = 0; this.state = this.disposed ? 'disposed' : 'fallback'; }, this.timeoutMs);
+    this.timer = setTimeout(() => { this.controller.abort(); this.detachSurfaces(); for (const root of this.roots) releaseArt(root); this.roots = []; this.budget.triangles = 0; this.budget.calls = 0; this.state = this.disposed ? 'disposed' : 'fallback'; }, this.timeoutMs);
     try {
       for (const piece of ART_PIECES) {
         const root = await this.load(piece, this.controller.signal);
@@ -77,10 +79,11 @@ export class ArtStandards {
         return matches[0]!;
       });
       // Commit all three together. Original objects are retained for failure/teardown.
-      this.roots.forEach((root, i) => { const slot = slots[i]!; root.position.set(slot.position[0]!, slot.position[1]!, slot.position[2]!); this.scene.add(root); });
+      this.roots.forEach((root, i) => { const slot = slots[i]!; root.position.set(slot.position[0]!, slot.position[1]!, slot.position[2]!); this.scene.add(root); if (this.registerSurface) this.detach.push(this.registerSurface(slot.id, root)); });
       for (const slot of slots) for (const old of slot.fallback) old.visible = false;
       this.state = 'ready';
     } catch {
+      this.detachSurfaces();
       for (const root of this.roots) releaseArt(root);
       this.roots = []; this.budget.triangles = 0; this.budget.calls = 0;
       this.state = this.disposed ? 'disposed' : 'fallback';
@@ -89,6 +92,7 @@ export class ArtStandards {
   dispose() {
     if (this.disposed) return;
     this.disposed = true; this.controller.abort(); if (this.timer) clearTimeout(this.timer);
+    this.detachSurfaces();
     for (const root of this.roots) releaseArt(root);
     this.roots = []; this.budget.triangles = 0; this.budget.calls = 0;
     for (const slot of this.slots) for (const old of slot.fallback) old.visible = true;
