@@ -1,3 +1,4 @@
+import { frameBudget, TICK_MS, MAX_CATCHUP_STEPS } from './frame-budget.js';
 import { trainingFeelEnabled } from '../../candidate-route.js';
 import { interpolateState } from './render/interpolation.js';
 import { squadsRequested, squadSpecs, squadBots } from './session/squads.js';
@@ -69,19 +70,28 @@ async function restart() {
   finally { restarting = false; if (!startupCancelled) hud.setBusy(false); }
 }
 function frame(now: number) {
+  const previousFrame = lastFrame;
   const dt = Math.min(0.1, Math.max(0, (now - lastFrame) / 1000)); lastFrame = now;
   try {
     if (ready) {
-      const tickMs = 1000 / 60;
+      const tickMs = TICK_MS;
       if (running) {
-        // A stalled tab pauses instead of skipping input timestamps or simulating hidden combat.
-        if (!smokeEnabled && now - simStart > 250) { controls.pause(); running = false; }
-        // Explicit smoke advances exactly one real Game step per rendered frame.
-        // Wall-time stalls must not pause its built-in tape or create catch-up bursts.
-        // Normal play keeps timestamped input and the 250 ms stalled-tab protection.
+        if (!smokeEnabled) {
+          const budget = frameBudget(now, previousFrame, simStart, !document.hidden && document.hasFocus() && controls.locked);
+          if (budget.pause) {
+            running = false; previousState = null; controls.pause();
+            hud.menu(true, game.state, player());
+            hud.message('游戏已暂停：窗口失焦或发生长时间停顿。点击继续重新锁定鼠标。');
+          } else if (budget.dropped) {
+            controls.discardBefore(budget.start);
+            simStart = budget.start;
+          }
+        }
+        // Explicit smoke retains its own one-step tape. Normal foreground play
+        // uses wall time, bounded catch-up and no retained stale input bursts.
         const targetTime = smokeEnabled ? simStart + tickMs : now;
         let steps = 0;
-        while (running && targetTime >= simStart + tickMs && steps++ < (smokeEnabled ? 1 : 15)) {
+        while (running && targetTime >= simStart + tickMs && steps++ < (smokeEnabled ? 1 : MAX_CATCHUP_STEPS)) {
           const actor = player();
           if (feelEnabled) previousState = game.state;
           game.step([...(smokeEnabled ? [{ actorId: actor.id, type: 'move' as const, x: 0, z: smokeSteps < 60 ? -1 : smokeSteps >= 90 && smokeSteps < 114 ? 1 : 0 }] : controls.commands(actor, simStart, simStart + tickMs, game.state.time)), ...(squads ? bots.flatMap(b => b.commands(game.observe(b.id))) : bot.commands(game.observe('bot')))]); simStart += tickMs;
@@ -140,7 +150,7 @@ try {
   controls = new Controls(canvas, locked => {
     // A delayed pointer-lock acquisition must not resume behind a new settings draft.
     if (locked && sensitivity.dirty) { controls.pause(); hud.message('灵敏度尚未应用，请先保存或取消修改。'); return; }
-    previousState = null; running = locked && game.state.phase === 'live'; simStart = performance.now();
+    previousState = null; running = locked && game.state.phase === 'live'; simStart = performance.now(); lastFrame = simStart;
     hud.menu(!running && resultRevealAt === null, game.state, player());
   }, text => hud.message(text), () => sensitivity.value);
   controls.reset(player());

@@ -1,3 +1,4 @@
+import { frameBudget, TICK_MS, MAX_CATCHUP_STEPS } from '../../src/candidates/offline-training-v1/frame-budget.js';
 import { trainingFeelEnabled } from '../../src/candidate-route.js';
 import { interpolateState } from '../../src/candidates/offline-training-v1/render/interpolation.js';
 import { squadsRequested, squadSpecs, squadBots } from '../../src/candidates/offline-training-v1/session/squads.js';
@@ -15,7 +16,7 @@ async function fixture(){
  let resolve!:()=>void,reject!:(e:Error)=>void,restart!:()=>void,createCount=0;
  const pending=new Promise<void>((yes,no)=>{resolve=yes;reject=no;}),events:string[]=[],window=new EventTarget(),canvas=new EventTarget();
  const elements=new Map<string,{hidden:boolean;textContent:string}>();
- const document={querySelector:()=>canvas,createElement:()=>({getContext:()=>({getExtension:()=>({loseContext(){}})})}),getElementById:(id:string)=>{if(!elements.has(id))elements.set(id,{hidden:true,textContent:''});return elements.get(id)!;}};
+ const document={hidden:false,hasFocus:()=>true,querySelector:()=>canvas,createElement:()=>({getContext:()=>({getExtension:()=>({loseContext(){}})})}),getElementById:(id:string)=>{if(!elements.has(id))elements.set(id,{hidden:true,textContent:''});return elements.get(id)!;}};
  const resource=(id:string)=>({state:{actors:[{id:'player'}],phase:'live'},disposeCalls:0,dispose(){this.disposeCalls++;events.push(`${id}.dispose`);}});
  const initial=resource('initial'),replacement=resource('replacement');
  class View{backend='three-webgl2';dispose(){events.push('view.dispose');}reset(){events.push('view.reset');}resize(){}}
@@ -23,7 +24,7 @@ async function fixture(){
  class Controls{reset(){events.push('controls.reset');}pause(){}dispose(){events.push('controls.dispose');}}
  class Soundscape{reset(){events.push('sound.reset');}dispose(){events.push('sound.dispose');}}
  class Navigation{dispose(){events.push('nav.dispose');}}
- const deps={trainingFeelEnabled,interpolateState,squadsRequested,squadSpecs,squadBots,TrainingMatch,completeMatchRequested,MatchPanel:class{},Game:{async create(){createCount++;if(createCount===2)await pending;return createCount===1?initial:replacement;}},Bot:class{constructor(){events.push('bot.create');}},initNavigation:async()=>{},Navigation,Controls,MouseSensitivity:class{},View,CanvasView:class{},Soundscape,RESULT_HOLD_MS:700,Hud,document,window,performance:{now:()=>0},requestAnimationFrame:()=>1,cancelAnimationFrame:()=>{},console:{error:()=>events.push('fatal')}};
+ const deps={frameBudget,TICK_MS,MAX_CATCHUP_STEPS,trainingFeelEnabled,interpolateState,squadsRequested,squadSpecs,squadBots,TrainingMatch,completeMatchRequested,MatchPanel:class{},Game:{async create(){createCount++;if(createCount===2)await pending;return createCount===1?initial:replacement;}},Bot:class{constructor(){events.push('bot.create');}},initNavigation:async()=>{},Navigation,Controls,MouseSensitivity:class{},View,CanvasView:class{},Soundscape,RESULT_HOLD_MS:700,Hud,document,window,performance:{now:()=>0},requestAnimationFrame:()=>1,cancelAnimationFrame:()=>{},console:{error:()=>events.push('fatal')}};
  await new AsyncFunction(...Object.keys(deps),source)(...Object.values(deps));
  const hide=(persisted=false)=>{const event=new Event('pagehide');Object.defineProperty(event,'persisted',{value:persisted});window.dispatchEvent(event);};
  return{events,initial,replacement,resolve,reject,restart,hide,elements,createCount:()=>createCount,settle:()=>new Promise<void>(r=>setImmediate(r))};
