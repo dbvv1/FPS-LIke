@@ -1,12 +1,15 @@
 # FPS-Like
 
-原创网页第一人称射击：单个爆破点、三条进攻路线、步枪与手枪，1v1 回合制攻防，对手是机器人。
+原创网页第一人称射击：单个爆破点、三条进攻路线、步枪与手枪，1 人＋9 机器人的六回合训练赛，三回合后换边。
 
-**开发中的第一人称原型。** 在原创「中继场」与一名机器人交战；支持无画面批量模拟。
+**开发中的第一人称原型。** 在原创「中继场」参加离线训练赛；支持无画面批量模拟。
 
 ## 旁置试玩
 
-[在线试玩](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/)。默认入口保留原来的 1v1 操作与规则。以下入口可单独打开，也可随时去掉参数返回默认版本：
+[在线试玩](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/)。首页进入完整离线训练赛、庭院标准件与新灯光；移动仍用原训练赛模型。以下入口可单独打开，也可随时去掉参数返回默认训练赛：
+
+- [旧版 1v1](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=legacy-v1)：保留旧默认版本。
+- [加速度与摩擦手感候选](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&feel=ground-v1)：独立旁置，不随灯光切换默认。
 
 - [角色与第一人称武器内容](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?contentSet=characters-v1)：采用成套角色、武器与动作资源，需要 WebGL2。
 - [移动制动与连续射击](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=movement-v2)：加速、松键制动、反向急停和持续后坐力。
@@ -14,7 +17,7 @@
 
 ## 离线训练赛旁置试玩
 
-[在线试玩离线训练赛](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1)已开放，可进入 1 人＋9 机器人的六回合训练赛，三回合后换边，整场结算后重开。去掉参数返回原 1v1；此入口不组合角色或 movement-v2 参数。
+[在线试玩离线训练赛](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1)已开放，可进入 1 人＋9 机器人的六回合训练赛，三回合后换边，整场结算后重开。使用上方“旧版 1v1”返回原版；此入口不组合角色或 movement-v2 参数。
 
 ## 三件环境标准件旁置试玩
 

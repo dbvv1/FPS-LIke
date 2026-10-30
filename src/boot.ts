@@ -1,7 +1,12 @@
 import './ui/style.css';
+import { resolveHomeSearch } from './default-route.js';
 import { loadClient } from './startup.js';
 import { movementCandidateEnabled, offlineTrainingCandidateEnabled } from './candidate-route.js';
 import { isCaptureRequest } from './capture/route.js';
+
+// Resolve before lazy-loading clients: all existing option readers see one URL.
+const homeSearch = resolveHomeSearch(location.search);
+if (homeSearch !== location.search) history.replaceState(history.state, '', `${location.pathname}${homeSearch}${location.hash}`);
 
 const boot = document.getElementById('boot')!;
 const status = document.getElementById('boot-status')!;

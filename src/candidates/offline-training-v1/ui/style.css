@@ -25,3 +25,6 @@
 #match-rounds li{font-size:10px;padding:7px;background:#0b2028;color:#dbe9dd;border-left:2px solid #73bdb0}
 .complete-match .menu-card{width:390px}.complete-match .field{margin-top:12px}.complete-match .field-note{margin-bottom:14px}
 @media(max-width:620px){.complete-match .menu-card{width:min(390px,100%)}}
+
+.version-links a, .version-links a:visited { color: #a6e8dc; text-decoration: underline; }
+.version-links a:focus-visible { outline: 2px solid #edbc78; outline-offset: 3px; }
