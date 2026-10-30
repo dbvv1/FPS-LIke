@@ -40,9 +40,9 @@ try {
   view.resize();
   const replay = await prepareReplay(lifetime);
   const deadline = performance.now() + 15000;
-  while (view.info.art?.state !== 'ready') {
+  while (view.info.art?.state !== 'ready' || (view.info.materials && view.info.materials.state !== 'ready')) {
     lifetime.assertActive();
-    if (view.info.art?.state === 'fallback' || performance.now() > deadline) throw new Error('Art assets unavailable: capture not ready');
+    if (view.info.art?.state === 'fallback' || view.info.materials?.state === 'fallback' || performance.now() > deadline) throw new Error('Art assets unavailable: capture not ready');
     await new Promise(resolve => setTimeout(resolve, 25));
   }
   let frame = 0;

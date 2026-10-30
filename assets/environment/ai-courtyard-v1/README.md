@@ -1,0 +1,15 @@
+# Courtyard material sample
+
+Two original textures generated with the native image generation tool for the existing FPS courtyard: warm gray concrete ground and pale mineral plaster wall. Full prompts, original hashes and WebP conversion settings are in `generation.json`. No third-party image was supplied. These are generated source materials, not game screenshots or approved visual targets.
+
+Both originals are 1254 × 1254 RGB. Runtime WebP files retain that size, with quality 90 / method 6 compression and no pixel-content edits. Load albedo as sRGB, repeat at 4 world metres, use linear magnification and trilinear mip minification. Two RGBA8 full mip chains would require about 16 MiB; the actual GPU format and allocation remain unobserved. Runtime transfer totals 263,916 bytes.
+
+Initial 2 × 2 and 320 px inspections found no conspicuous hard seam, but both textures have periodic broad patches. Opposite-edge differences exceed internal adjacent-pixel differences: they are not mathematically periodic. The initial risk was repeating wall blotches distracting from characters; subsequent real-camera review below addresses this limited sample, without declaring the whole environment complete.
+
+The explicit sample scope is the existing floor and left divider wall only, through an explicit default-off material option. No geometry, collision, navigation, movement, lighting or actor materials are included.
+
+The three fixed game cameras passed duplicate pixel/state checks. Two independent reviewers preferred the sample in all three views, with only a small gain at courtyard-gap. This is a limited surface improvement, not a complete environment art pass. Other walls/cover retain the previous material treatment. Software rendering cost increased: the interleaved sample median was 20.8 to 21.8 ms and mean 23.18 to 26.94 ms; these are fixed-state Game+View measurements, not normal frame-rate or hardware benchmarks.
+
+The integration base is the validated foreground-scheduling candidate `1183340`. On runtime commit `481ebc4`, all 384 CPU tests and the production build passed; three six-round simulation seeds replayed identically. Normal UI start, forward/strafe movement, Escape pause, resume and reset were exercised twice for material/default movement, material/ground-v1, and material-off, at 960 × 540 without smoke mode. All had no page errors and owned browser/preview exits were observed. Cross-lane on/off duplicate RGBA hashes exactly match the earlier `997109e` sample. The unchanged renderer, capture code and texture bytes permit reuse of its other two fixed-camera comparisons; its four-route fixed-step smoke is historical evidence, not a substitute for this normal-UI run.
+
+Original-size moving video frames were independently inspected: no conspicuous material pop, moiré or unreadable boundaries were observed in the recorded software slow frames. This does not establish continuous high-frame-rate stability; small shimmer between recorded frames remains unexcluded. The explicit material option stays off by default. No rejected guard-material changes are included.

@@ -1,0 +1,54 @@
+{
+  "ground": {
+    "prompt": "Create ONE square 1024x1024 game-ready seamless tileable ALBEDO texture, full bleed, no labels, no border, no presentation scene. Material 1 of a coordinated original stylized tactical FPS industrial courtyard set: warm gray cast concrete paving surface. Orthographic directly overhead, completely flat neutral diffuse illumination, NO perspective, NO baked shadows, NO ambient occlusion, NO directional highlights. The entire square is one uninterrupted concrete material, no tile grid, no seams, no cracks, no markings, no props. Restrained hand-painted medium-scale mineral patches and broad trowel variations, low contrast and low saturation; warm gray base around #aaa99b, variations around #9e9f93 and #b6b4a5. Quiet readable surface at distance; absolutely avoid fine speckles, photoreal grit, random noise and high-frequency scratches. Edges must tile on all sides without visible joins, no strong unique focal stains. Visually coherent with a companion pale warm mineral plaster wall in the same muted gray-green/warm-gray palette. This is a reusable original game material texture, not a screenshot or concept scene.",
+    "path": "ground-source.png",
+    "actualSize": [
+      1254,
+      1254
+    ],
+    "mode": "RGB",
+    "bytes": 2358729,
+    "sha256": "05c0341913d8195fb0d681ec595b3694d6f5a0de784827b6d64d4ad664fbc1e4",
+    "compression": "Original lossless PNG retained; runtime WebP conversion below",
+    "colorSpace": "sRGB albedo intent; runtime must explicitly set SRGBColorSpace",
+    "runtime": {
+      "file": "ground.webp",
+      "size": [
+        1254,
+        1254
+      ],
+      "bytes": 174612,
+      "sha256": "8a45374142b195748cede9cba56e79267f5aeaaebe66ee977efa6c5cc97b49a3",
+      "compression": "WebP quality90 method6, RGB, no resize or content edits",
+      "colorSpace": "Three SRGBColorSpace for albedo; GPU internal format not observed"
+    }
+  },
+  "wall": {
+    "prompt": "Create ONE square 1024x1024 game-ready seamless tileable ALBEDO texture, full bleed, no labels, no border, no presentation scene. Material 2 of a coordinated original stylized tactical FPS industrial courtyard set: pale warm-gray mineral plaster painted wall, complementing muted warm gray concrete paving (#aaa99b). Orthographic straight-on, completely flat neutral diffuse illumination, NO perspective, NO baked shadows, NO ambient occlusion, NO directional highlights. Entire square is one uninterrupted plaster material; no panels, trim, seams, mortar lines, cracks, decals, signage, fixtures or props. Broad subtle hand-painted limewash/trowel transitions, large quiet shapes with restrained mid-scale wear, low contrast low saturation; base pale warm gray around #c2c0ae, sparse soft transitions around #b4b5a6 and #cdcab8. Smooth at distance, no fine grain, random speckles, harsh scratches, gritty photoreal noise or obvious unique stains. All edges seamless on repeat in both directions. Coordinated original stylized tactical shooter environment material that leaves characters readable, NOT a screenshot or concept scene.",
+    "path": "wall-source.png",
+    "actualSize": [
+      1254,
+      1254
+    ],
+    "mode": "RGB",
+    "bytes": 2003871,
+    "sha256": "4e8d42e301513059baf1d1625e3f57b66ca7e0136cbbb89b525349b4e17100b6",
+    "compression": "Original lossless PNG retained; runtime WebP conversion below",
+    "colorSpace": "sRGB albedo intent; runtime must explicitly set SRGBColorSpace",
+    "runtime": {
+      "file": "wall.webp",
+      "size": [
+        1254,
+        1254
+      ],
+      "bytes": 89304,
+      "sha256": "a4dd17c6b12cb18ea7be0907cc93859abae43a7c8007cce04015633f252494ed",
+      "compression": "WebP quality90 method6, RGB, no resize or content edits",
+      "colorSpace": "Three SRGBColorSpace for albedo; GPU internal format not observed"
+    }
+  },
+  "tool": "image_gen.imagegen",
+  "requestedResolution": "1024x1024; actual dimensions must inspect",
+  "source": "new generated assets; no source screenshots provided",
+  "status": "Opt-in limited surface sample; final-base normal UI and repeated cross-lane verified; prior three-camera visual evidence reused by byte identity. Recorded software movement showed no conspicuous material artifact; high-frame-rate temporal stability unverified. Default off."
+}

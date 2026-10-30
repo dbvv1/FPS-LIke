@@ -191,3 +191,14 @@ v13 的结果与运行限制见 [当轮 smoke 报告](quality/smoke/B-FPS-BACKLO
 2026-10-27 版只合入已审菜单与输入，保留原地面和实时渲染；木箱/新静态光照整合未进入本版。该组合此前的页面崩溃证据仍保留；本次无录像条件下通过，不能反推旧崩溃由录屏或任何单一原因造成。
 
 上述旧版的 85 项串行测试、生产构建/类型检查、无画面 smoke 与普通 UI 路线通过记录，仅对应当时版本；当前旁置版的功能验证见本页开头。
+
+
+## AI courtyard material sample — 2026-10-30
+
+Independent candidate on accepted `1183340`; explicit `materials=ai-courtyard-v1` plus the existing courtyard environment. Two native-generated albedo textures replace only the existing floor and divider plaster region, preserving geometry, trim, lighting, simulation and default behavior. See [source prompts, specification and validation](../assets/environment/ai-courtyard-v1/README.md).
+
+Two nonauthor reviewers preferred the earlier byte-identical material sample in three fixed views; courtyard-gap improvement was small. Final integration `481ebc4` repeated cross-lane with identical state/command and on/off RGBA hashes. Full 384-test suite, build, three six-round seeds with equal replay, and three normal production UI combinations each with two start/move/pause/resume/reset cycles passed. The four-route fixed-step smoke remains attributed to `997109e`, not relabeled as the new build.
+
+Movement review of original-size recorded software frames found no conspicuous texture pop, moiré or lost boundaries. Small between-frame shimmer and hardware/high-frame-rate behavior remain unverified. Software cost increased: interleaved median 20.8→21.8 ms (+4.8%), mean 23.18→26.94 ms (+16.2%); another batch had mean 24.41→34.11 ms. These fixed-state measurements do not measure normal UI FPS. Runtime texture transfer is 263,916 bytes; estimated full RGBA8 mip storage is 16,768,144 bytes, actual allocation unknown.
+
+This is a limited surface improvement, not completed scene art or a formal reference-anchor score. Existing angular figures, cover and untreated walls remain larger scene consistency gaps. Default material stays unchanged. Screenshots and motion evidence remain in the cloud execution workspace; no image evidence is published by this change.

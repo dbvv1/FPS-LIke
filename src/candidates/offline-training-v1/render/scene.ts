@@ -1,5 +1,6 @@
 type ObserverCamera = { position: { x: number; y: number; z: number }; yaw: number; pitch: number; fov: number };
 import * as THREE from 'three';
+import { AiMaterials, aiMaterialsEnabled } from './ai-materials.js';
 import { createLightingPost } from './lighting-post.js';
 import { LIGHTING_ID, lightingEnabled, renderRole } from './lighting-style.js';
 import { ArtStandards, artEnabled, type ArtSlot } from './art-standards.js';
@@ -20,9 +21,10 @@ export class View {
   private environment = environmentEnabled(globalThis.location?.search ?? '');
   private environmentPresented = false;
   private artPresented = false;
+  private aiMaterials: AiMaterials | undefined;
   private art: ArtStandards | undefined;
   private artSlots: ArtSlot[] = [];
-  get info() { return { lighting: { id:this.lighting?LIGHTING_ID:'baseline', environment:this.lighting?'hemisphere-and-ambient':'hemisphere', ao:this.lighting?'deterministic-ssao-half-resolution':'none', grade:this.lighting?'cool-shadows-warm-highlights':'none' }, ...(this.art ? { art: { ...this.art.info, active: this.artPresented } } : {}), ...(this.environment ? { environment: { id: KIT.id, active: this.environmentPresented, budget: kitBudget(MAP.walls.length), evidence: 'offline-estimate' } } : {}), memory: { ...this.renderer.info.memory }, calls: this.renderer.info.render.calls }; }
+  get info() { return { ...(this.aiMaterials ? { materials: this.aiMaterials.info } : {}), lighting: { id:this.lighting?LIGHTING_ID:'baseline', environment:this.lighting?'hemisphere-and-ambient':'hemisphere', ao:this.lighting?'deterministic-ssao-half-resolution':'none', grade:this.lighting?'cool-shadows-warm-highlights':'none' }, ...(this.art ? { art: { ...this.art.info, active: this.artPresented } } : {}), ...(this.environment ? { environment: { id: KIT.id, active: this.environmentPresented, budget: kitBudget(MAP.walls.length), evidence: 'offline-estimate' } } : {}), memory: { ...this.renderer.info.memory }, calls: this.renderer.info.render.calls }; }
   readonly renderer: THREE.WebGLRenderer;
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera(80, 1, 0.05, 100);
@@ -65,9 +67,11 @@ export class View {
     const positions=floor.geometry.getAttribute('position'),uv=floor.geometry.getAttribute('uv');
     for(let i=0;i<positions.count;i++)uv.setXY(i,...(this.environment ? [positions.getX(i)/4,-positions.getZ(i)/4] as const : groundUV(positions.getX(i),-positions.getZ(i))));uv.needsUpdate=true;
     const material=floor.material as THREE.MeshStandardMaterial;material.map=texture;material.roughness=.95;material.metalness=0;
+    let aiWall: THREE.Mesh<THREE.BufferGeometry,THREE.MeshStandardMaterial> | undefined;
     for (const wall of MAP.walls) {
       if (this.environment) {
         const piece = makeKitWall(wall);
+        if(wall.id==='left-divider')aiWall=piece.mesh;
         this.scene.add(piece.mesh); this.geometries.add(piece.geometry); this.materials.add(piece.material); this.textures.add(piece.texture);
         if (wall.id === 'center-dogleg' || wall.id === 'site-cover') this.artSlots.push({ id: wall.id, position: toThree({ ...wall.center, y: wall.center.y - wall.half.y }), fallback: [piece.mesh] });
         continue;
@@ -80,6 +84,7 @@ export class View {
       const mesh=new THREE.Mesh(geometry,[side,top]);
       mesh.position.set(...toThree(wall.center));this.scene.add(mesh);this.geometries.add(geometry);this.materials.add(side);this.materials.add(top);
     }
+    if(aiWall && aiMaterialsEnabled(globalThis.location?.search ?? '')) {this.aiMaterials=new AiMaterials();void this.aiMaterials.start(material,aiWall);}
     for (const [i, route] of MAP.routes.entries()) {
       const x = route[0]!.x;
       for (let z = -15; z < 8; z += 2.7) this.box(this.scene, toThree({ x, y: 0.015, z }), [0.12, 0.02, 1], i === 1 ? 0xf8b44c : 0x55bab2, true);
@@ -187,5 +192,5 @@ export class View {
     this.environmentPresented = this.environment; this.artPresented = this.art?.info.state === 'ready';
   }
   reset() {this.artPresented=false;this.environmentPresented=false;this.feedback.reset();for(const mesh of this.impacts)mesh.visible=false;}
-  dispose() { this.artPresented=false; this.art?.dispose(); this.post?.dispose(); if(this.lighting)this.scene.traverse(o=>{if(o instanceof THREE.DirectionalLight)o.shadow.dispose();}); this.environmentPresented=false;for (const g of this.geometries) g.dispose(); for (const m of this.materials) m.dispose(); for(const t of this.textures)t.dispose(); this.renderer.dispose(); }
+  dispose() { this.artPresented=false; this.art?.dispose(); this.aiMaterials?.dispose(); this.post?.dispose(); if(this.lighting)this.scene.traverse(o=>{if(o instanceof THREE.DirectionalLight)o.shadow.dispose();}); this.environmentPresented=false;for (const g of this.geometries) g.dispose(); for (const m of this.materials) m.dispose(); for(const t of this.textures)t.dispose(); this.renderer.dispose(); }
 }
