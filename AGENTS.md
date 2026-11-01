@@ -34,7 +34,7 @@
 ## 验收
 
 1. **自动**：`npm test` 通过；改动涉及武器、数值或 AI 时，跑 `npm run sim` 并对照 brief 的目标区间。
-2. **浏览器**：`npm run smoke` 通过：开一局后无控制台错误，画布内有非背景像素，页面暴露的调试状态显示对局在推进。云端没有 GPU 时保留 sandbox，仅以 `--use-angle=swiftshader` 走软件 WebGL；用 `ignoreDefaultArgs` 精确移除 Playwright 默认注入的 `--enable-unsafe-swiftshader`，不能只检查显式 `args`。报告启动配置与浏览器版本，实际 argv 通过 `DEBUG=pw:browser` 核对，仍断言真实 WebGL2 上下文。不可关闭 sandbox 或启用 unsafe 标志绕过阻断；失败保留具体原因，CPU 回退另验。
+2. **浏览器**：`npm run smoke` 通过：开一局后无控制台错误，画布内有非背景像素，页面暴露的调试状态显示对局在推进。云端软件 WebGL 默认保留 sandbox；自起的 headless 案例 preview 可在用户既有授权下显式设 `FPS_CLOUD_NO_SANDBOX=1`，仅关闭该 Chromium 自身的 sandbox。以 `--use-angle=swiftshader` 选择软件渲染；用 `ignoreDefaultArgs` 精确移除 Playwright 默认注入的 `--enable-unsafe-swiftshader`，不能只检查显式 `args`。报告启动配置与浏览器版本，实际 argv 通过 `DEBUG=pw:browser` 核对，仍断言真实 WebGL2 上下文。外层沙箱和 unsafe 标志保持原限制；明确拒绝不绕过，启动失败保留具体阶段与原因，CPU 回退另验。
 3. **人工**：手感、画面、声音需要人判断的，记入 a1dbv TASKS“待人工验收”，然后继续做其他工作。
 
 汇报只写实际跑过的结果；没跑的写“未验证”，一句即可。

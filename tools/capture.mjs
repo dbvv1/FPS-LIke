@@ -26,6 +26,8 @@ const names = values.shot === 'all' ? Object.keys(CAMERAS) : [values.shot];
 const repeat = Number(values.repeat);
 assert.ok(Number.isInteger(repeat) && repeat >= 1 && repeat <= 5, '--repeat must be 1–5');
 assert.ok(!(values.software && values['require-gpu']), '--software and --require-gpu are contradictory');
+const cloudNoSandbox = process.env.FPS_CLOUD_NO_SANDBOX === '1';
+assert.ok(!cloudNoSandbox || (!values.headed && !values.base), 'Cloud sandbox exception is limited to headless capture of this runner own preview');
 for (const shot of names) parseCaptureConfig(new URLSearchParams({ shot, seed: values.seed, t: values.t, input: values.input, frames: values.frames }).toString());
 const outputRoot = resolve(values.out);
 const root = fileURLToPath(new URL('..', import.meta.url));
@@ -51,9 +53,9 @@ try {
   if (values.base) report.sourceBinding = 'unverified external base; local sourceCommit does not attest served content';
   const allowedOrigin = new URL(base).origin;
   const args = ['--disable-background-timer-throttling', '--disable-renderer-backgrounding', '--disable-backgrounding-occluded-windows', ...(values.software ? ['--use-angle=swiftshader'] : [])];
-  const launch = { headless: !values.headed, chromiumSandbox: true, ignoreDefaultArgs: ['--enable-unsafe-swiftshader'], args,
+  const launch = { headless: !values.headed, chromiumSandbox: !cloudNoSandbox, ignoreDefaultArgs: ['--enable-unsafe-swiftshader'], args,
     ...(process.env.FPS_CAPTURE_CHROMIUM ? { executablePath: process.env.FPS_CAPTURE_CHROMIUM } : { channel: 'chromium' }) };
-  report.launch = launch; report.launchEvidence = 'Requested options; retain DEBUG=pw:browser log to verify actual argv. Sandbox remains enabled.';
+  report.launch = launch; report.launchEvidence = 'Requested options; retain DEBUG=pw:browser log to verify actual argv.';
   browser = await chromium.launch(launch); report.browserVersion = browser.version();
   const context = await browser.newContext({ viewport: CAPTURE_SIZE, deviceScaleFactor: 1, locale: 'en-US', timezoneId: 'UTC' });
   await context.route('**/*', route => new URL(route.request().url()).origin === allowedOrigin ? route.continue() : route.abort('blockedbyclient'));
