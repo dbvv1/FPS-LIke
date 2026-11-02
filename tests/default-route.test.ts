@@ -13,8 +13,12 @@ test('unparameterized home selects the complete visually reviewed training route
   }
 });
 test('legacy, ground, historical capture and all explicit queries preserve their exact meaning', () => {
-  for (const search of [legacySearch, groundCandidateSearch, '?shot=gameplay', '?contentSet=characters-v1', '?gameplay=movement-v2', '?gameplay=offline-training-v1', '?unknown=1', '?gameplay=offline-training-v1&gameplay=movement-v2']) assert.equal(resolveHomeSearch(search), search);
+  for (const search of [legacySearch, groundCandidateSearch, '?shot=gameplay', '?contentSet=characters-v1', '?gameplay=offline-training-v1', '?unknown=1']) assert.equal(resolveHomeSearch(search), search);
   assert.equal(offlineTrainingCandidateEnabled(legacySearch), false);
   assert.equal(movementCandidateEnabled(legacySearch), false);
   assert.equal(trainingFeelEnabled(groundCandidateSearch), true);
 });
+
+test('superseded movement and combined links return to default without activating old candidates',()=>{for(const q of ['?gameplay=movement-v2','?gameplay=movement-v2&contentSet=characters-v1','?gameplay=offline-training-v1&gameplay=movement-v2'])assert.equal(resolveHomeSearch(q),reviewedTrainingSearch);});
+
+test('minimal default browser tape only adds the existing smoke selector',()=>{assert.equal(resolveHomeSearch('?smoke=ground-v1'),reviewedTrainingSearch+'&smoke=ground-v1');assert.equal(resolveHomeSearch('?smoke=unknown'),'?smoke=unknown');});

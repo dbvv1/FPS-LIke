@@ -6,16 +6,18 @@ import { resolve, sep } from 'node:path';
 import { chromium } from 'playwright';
 import { preview } from 'vite';
 import { PNG } from 'pngjs';
-import { OFFLINE_QUERY, assertOfflineReady, assertMatchReset, finishOfflineRound, portClosed } from './smoke-offline-support.mjs';
+import { OFFLINE_QUERY, assertOfflineReady, assertMatchReset, finishOfflineMatch, verifyRestartPlayable, portClosed } from './smoke-offline-support.mjs';
 const output = process.env.FPS_SMOKE_OUTPUT ? pathToFileURL(resolve(process.env.FPS_SMOKE_OUTPUT) + sep) : new URL('../outputs/browser-smoke/', import.meta.url);
 const query = process.env.FPS_SMOKE_QUERY ?? '';
 if (query && !query.startsWith('?')) throw new Error('Smoke query must start with ?');
 await mkdir(output, { recursive: true });
 const report = { passed: false, errors: [], warnings: [], stages: [] };
-const artStandards = query === OFFLINE_QUERY + '&art=standards-v1';
+const litFullMaterials = query === OFFLINE_QUERY + '&art=standards-v1&lighting=courtyard-light-v1&materials=ai-courtyard-full-v1';
+const fullMaterials = query === OFFLINE_QUERY + '&art=standards-v1&materials=ai-courtyard-full-v1' || litFullMaterials;
+const artStandards = query === OFFLINE_QUERY + '&art=standards-v1' || fullMaterials;
 const offline = query === OFFLINE_QUERY || artStandards;
 if (new URLSearchParams(query).get('gameplay') === 'offline-training-v1' && !offline) throw new Error('Offline smoke requires the exact complete entry');
-if (offline) report.offlineCoverage = { fullMatchPlaythrough: false, completedRounds: [], restartScope: 'whole match via existing restart UI; no separate round-restart control', unverified: ['six-round completion UI', 'halftime transition', 'end-of-match replay', 'human visual/audio quality'] };
+if (offline) report.offlineCoverage = { fullMatchPlaythrough: false, completedRounds: [], restartScope: 'whole match via final next UI (再打一场); no separate round-restart control', unverified: ['six-round completion UI', 'halftime transition', 'end-of-match replay', 'human visual/audio quality'] };
 let server, browser, page, previewPort;
 try {
   server = await preview({ configFile: false, root: fileURLToPath(new URL('..', import.meta.url)), build: { outDir: 'web-dist' }, preview: { host: '127.0.0.1', port: 0, open: false } });
@@ -25,11 +27,13 @@ try {
   const origin = `http://127.0.0.1:${address.port}`;
   const executablePath = process.env.FPS_SMOKE_CHROMIUM;
   // Playwright 1.64 also inserts this switch in its defaults. Omitting it from
-  // args alone is insufficient; preserve every other default and the sandbox.
+  // args alone is insufficient; preserve every other default. The cloud exception is explicit.
   const ignoreDefaultArgs = ['--enable-unsafe-swiftshader'];
-  browser = await chromium.launch({ headless: true, chromiumSandbox: true, ignoreDefaultArgs, ...(executablePath ? { executablePath } : {}), args: process.env.FPS_SMOKE_RENDERER === 'native' ? [] : ['--use-angle=swiftshader'] });
-  report.requestedLaunch = { headless: true, chromiumSandbox: true, executablePath, ignoreDefaultArgs, args: process.env.FPS_SMOKE_RENDERER === 'native' ? [] : ['--use-angle=swiftshader'], browserVersion: browser.version() };
+  const launch = { headless: true, chromiumSandbox: process.env.FPS_CLOUD_NO_SANDBOX !== '1', ignoreDefaultArgs, ...(executablePath ? { executablePath } : {}), args: process.env.FPS_SMOKE_RENDERER === 'native' ? [] : ['--use-angle=swiftshader'] };
+  report.requestedLaunch = { ...launch };
   report.launchEvidence = 'Requested options only; verify final argv in DEBUG=pw:browser output.';
+  browser = await chromium.launch(launch);
+  report.requestedLaunch.browserVersion = browser.version();
   page = await browser.newPage({ viewport: { width: 1365, height: 900 } });
   page.on('pageerror', e => report.errors.push(String(e)));
   page.on('console', e => { if (e.type() === 'error') report.errors.push(e.text()); else if (e.type() === 'warning') report.warnings.push(e.text()); });
@@ -52,6 +56,19 @@ try {
     report.artStandards = await page.evaluate(() => window.fpsClient.state().art);
     assert.equal(report.artStandards.pieces, 3);
     assert.deepEqual(report.artStandards.budget, {triangles:2396,calls:4,bytes:123604});
+  }
+  if (litFullMaterials) {
+    report.lighting = await page.evaluate(() => window.fpsClient.state().lighting);
+    assert.deepEqual(report.lighting, { id: 'courtyard-light-v1', environment: 'hemisphere-and-ambient', ao: 'deterministic-ssao-half-resolution', grade: 'cool-shadows-warm-highlights' });
+  }
+  if (fullMaterials) {
+    await page.waitForFunction(() => ['ready', 'fallback'].includes(window.fpsClient.state().materials?.state));
+    report.materials = await page.evaluate(() => window.fpsClient.state().materials);
+    assert.equal(report.materials.id, 'ai-courtyard-full-v1');
+    assert.equal(report.materials.state, 'ready');
+    assert.equal(report.materials.scope, 'floor-and-all-courtyard-walls');
+    assert.equal(new Set(report.materials.wallIds).size, 10);
+    assert.deepEqual([...report.materials.authoredIds].sort(), ['center-dogleg', 'site-cover']);
   }
   if (offline) {
     await page.waitForFunction(() => window.fpsClient.state().environment?.active === true);
@@ -120,8 +137,8 @@ try {
   await page.waitForTimeout(200); assert.equal(await page.evaluate(() => window.fpsClient.snapshot().tick), paused);
   await page.locator('#start').click(); await page.waitForFunction(() => window.fpsClient.state().running);
   await page.keyboard.press('Escape'); await page.waitForFunction(() => !window.fpsClient.state().running);
-  if (offline) await finishOfflineRound(page, report);
-  await page.locator('#restart').click();
+  if (offline) await finishOfflineMatch(page, report);
+  else await page.locator('#restart').click();
   await page.waitForFunction(() => window.fpsClient.snapshot().tick === 0);
   assert.equal(await page.evaluate(() => window.fpsClient.snapshot().actors.find(a => a.id === 'player').weapons.pistol.ammo), 10);
   if (offline) {
@@ -129,6 +146,7 @@ try {
     assertMatchReset(reset.state, reset.snapshot);
     report.offlineReset = reset;
     report.stages.push('whole-match restart clears completed-round record and score');
+    await verifyRestartPlayable(page, report);
   }
   report.stages.push('pause freezes clock, resume and restart clear input/ammo state');
   assert.deepEqual(report.errors, []);

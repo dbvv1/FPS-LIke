@@ -22,7 +22,8 @@ let smokePass = 0, smokeSteps = 0, smokeComplete = false;
 const smokeRuns: { ticks: number; hash: string }[] = [];
 const feelEnabled = trainingFeelEnabled(window.location?.search ?? '');
 let previousState: GameState | null = null;
-const canvas = document.querySelector<HTMLCanvasElement>('#stage')!;
+let canvas = document.querySelector<HTMLCanvasElement>('#stage')!;
+let renderFallback: string | null = null;
 let game: Game, nav: Navigation, bot: Bot, bots: Bot[] = [], view: View | CanvasView, controls: Controls;
 let ready = false, running = false, restarting = false, frameId = 0, simStart = 0, lastFrame = performance.now();
 let resumeWall: number | null = null;
@@ -35,6 +36,10 @@ const sound = new Soundscape();
 const sensitivity = new MouseSensitivity(() => window.localStorage);
 const hud = new Hud(() => void resume(), () => next(), () => void restart(), enabled => { sound.enabled = enabled; if (enabled) void sound.unlock().catch(() => hud.message('当前浏览器未启用音频，画面与操作仍可继续。')); }, sensitivity);
 hud.setBusy(true);
+// Shared read-only receipt for DOM-only and programmatic consumers.
+function acceptanceState() {
+  return { ready, renderFallback, acceptance: { requiredTicksPerRun: 144, requiredRuns: 2, movement: feelEnabled ? 'ground-v1' : 'baseline' }, ...(smokeEnabled ? { smoke: { version: 'ground-v1', pass: smokePass, steps: smokeSteps, complete: smokeComplete, runs: smokeRuns.map(run => ({ ...run })) } } : {}) };
+}
 function player(state = game.state) { return state.actors.find(a => a.id === 'player')!; }
 function fail(error: unknown) {
   running = false; controls?.pause();
@@ -122,10 +127,15 @@ function frame(now: number) {
       const state = game.state, actor = player(state);
       if (resultRevealAt !== null && now >= resultRevealAt) { resultRevealAt = null; hud.menu(true, state, actor); }
       const visual = feelEnabled && running ? interpolateState(previousState, state, smokeEnabled ? 0.5 : (now - simStart) / tickMs) : state;
+      const materialState = (view.info as {materials?:{state:string}}).materials?.state;
+      if (materialState === 'fallback' && !renderFallback) {
+        renderFallback = '候选材质加载失败，已恢复默认材质；对局可继续。';
+        const notice = document.getElementById('render-mode')!; notice.textContent = renderFallback; notice.hidden = false;
+      }
       view.render(visual, visual.actors.find(a => a.id === actor.id)!, controls.yaw, controls.pitch, now, dt); hud.update(state, actor, now);
       if (match) matchPanel!.update(state, actor, match.summary);
       sound.update(state, actor, controls.yaw, game.observe(actor.id).sounds.map(s => s.id));
-      document.getElementById('debug-state')!.textContent = JSON.stringify({ backend: view.backend, running, locked: controls.locked, tick: state.tick, round: state.round, phase: state.phase, time: state.time, yaw: controls.yaw, pitch: controls.pitch, player: { position: actor.position, hp: actor.hp, weapon: actor.weapon, ammo: actor.weapons[actor.weapon].ammo, reload: actor.reload, input: actor.input }, score: state.score, result: state.result }, null, 2);
+      document.getElementById('debug-state')!.textContent = JSON.stringify({ ...acceptanceState(), backend: view.backend, running, locked: controls.locked, tick: state.tick, round: state.round, phase: state.phase, time: state.time, yaw: controls.yaw, pitch: controls.pitch, player: { position: actor.position, hp: actor.hp, weapon: actor.weapon, ammo: actor.weapons[actor.weapon].ammo, reload: actor.reload, input: actor.input }, score: state.score, result: state.result }, null, 2);
     }
   } catch (error) { fail(error); return; }
   frameId = requestAnimationFrame(frame);
@@ -147,9 +157,18 @@ try {
   if (completeMatchRequested(window.location?.search ?? '')) { match = new TrainingMatch(); matchPanel = new MatchPanel(); }
   const probe = document.createElement('canvas');
   const webgl = probe.getContext('webgl2');
-  if (webgl) { webgl.getExtension('WEBGL_lose_context')?.loseContext(); view = new View(canvas); }
-  else view = new CanvasView(canvas);
-  document.getElementById('render-mode')!.hidden = view.backend !== 'canvas2d-cpu';
+  if (webgl) {
+    webgl.getExtension('WEBGL_lose_context')?.loseContext();
+    try { view = new View(canvas); }
+    catch {
+      // A WebGL-bound canvas cannot acquire a 2D context. Replace it before input ownership starts.
+      const replacement = canvas.cloneNode(false) as HTMLCanvasElement;
+      canvas.replaceWith(replacement); canvas = replacement;
+      view = new CanvasView(canvas); renderFallback = '场景表现初始化失败，已退回默认 CPU 渲染；候选 3D 效果未启用。';
+    }
+  } else { view = new CanvasView(canvas); renderFallback = '此浏览器未启用 WebGL2，已退回默认 CPU 渲染；候选 3D 效果未启用。'; }
+  document.getElementById('render-mode')!.hidden = !renderFallback;
+  if (renderFallback) document.getElementById('render-mode')!.textContent = renderFallback;
   await initNavigation(); if (startupCancelled) throw startupCancellation;
   nav = new Navigation();
   game = await Game.create(1, squads ? squadSpecs(hud.difficulty) : [{ id: 'player', team: 'amber' }, { id: 'bot', team: 'blue', bot: hud.difficulty }], {}, { ...(squads ? { formation: 'squads-v1' as const } : {}), ...(feelEnabled ? { movement: 'ground-v1' as const } : {}) });
@@ -171,7 +190,7 @@ try {
   // Read-only observability for smoke tests; no command injection or simulation mutation.
   Object.defineProperty(window, 'fpsClient', { value: Object.freeze({
     snapshot: (): GameState => game.state,
-    state: () => ({ ...(smokeEnabled ? { smoke: { version: 'ground-v1', pass: smokePass, steps: smokeSteps, complete: smokeComplete, runs: smokeRuns.map(run => ({ ...run })) } } : {}), ...(squads ? { squads: { version: 'offline-v1', formation: game.options.formation, botIds: bots.map(b=>b.id) } } : {}), ...(match ? { match: match.summary } : {}), ready, running, locked: controls.locked, backend: view.backend, yaw: controls.yaw, pitch: controls.pitch, ...view.info }),
+    state: () => ({ ...acceptanceState(), ...(squads ? { squads: { version: 'offline-v1', formation: game.options.formation, botIds: bots.map(b=>b.id) } } : {}), ...(match ? { match: match.summary } : {}), running, locked: controls.locked, backend: view.backend, yaw: controls.yaw, pitch: controls.pitch, ...view.info }),
   }) });
   if (smokeEnabled) void resume();
   frameId = requestAnimationFrame(frame);

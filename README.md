@@ -11,9 +11,10 @@
 - [旧版 1v1](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=legacy-v1)：保留旧默认版本。
 - [加速度与摩擦手感候选](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&feel=ground-v1)：独立旁置，不随灯光切换默认。
 
+- [全场 AI 材质](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&materials=ai-courtyard-full-v1)：覆盖庭院全场墙面与标准件；可另加 `&feel=ground-v1` 组合手感。
 - [角色与第一人称武器内容](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?contentSet=characters-v1)：采用成套角色、武器与动作资源，需要 WebGL2。
-- [移动制动与连续射击](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=movement-v2)：加速、松键制动、反向急停和持续后坐力。
-- [组合试玩](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=movement-v2&contentSet=characters-v1)：同时开启以上两项。
+
+旧 movement-v2 及其组合入口已由 ground 候选取代，旧链接返回默认训练赛。
 
 ## 离线训练赛旁置试玩
 

@@ -56,3 +56,9 @@ test('sliding actors cannot plant until physically stopped',async()=>{
  for(let i=0;i<40;i++)g.step();assert.equal(g.state.interaction?.actorId,'a');
  }finally{g.dispose();}
 });
+
+test('side switches off and unknown values preserve the default replay hash at every tick',async()=>{
+ const searches=['?gameplay=offline-training-v1','?gameplay=offline-training-v1&feel=off&materials=off','?gameplay=offline-training-v1&feel=unknown&materials=unknown'];
+ const games=await Promise.all(searches.map(q=>Game.create(1,undefined,{},trainingFeelEnabled(q)?{movement:'ground-v1'}:{})));
+ try{for(let tick=0;tick<144;tick++) {for(const g of games)g.step([{actorId:g.state.actors[0]!.id,type:'move',x:0,z:tick<60?1:tick<90?0:-1}]);assert.equal(games[0]!.stateHash,games[1]!.stateHash);assert.equal(games[0]!.stateHash,games[2]!.stateHash);}}finally{for(const g of games)g.dispose();}
+});

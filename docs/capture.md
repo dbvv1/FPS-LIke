@@ -62,20 +62,22 @@ window.__shotNext(window.__shot.frame) // 截取后确认，前进一步；最�
 ```sh
 npm ci
 # 默认本次重建再起本地 preview，不复用来源未知的旧 web-dist。
-# DEBUG 日志保存实际 argv；不在脚本里关闭 sandbox。
+# DEBUG 日志保存实际 argv；默认保留 sandbox，显式例外见下文。
 DEBUG=pw:browser node --import tsx tools/capture.mjs \
-  --shot all --seed 1 --t 10 --repeat 2 --headed --require-gpu --check-live
+  --shot all --seed 1 --t 10 --repeat 2 --software --check-live
 
-# 云端没有 GPU，只能做构图与回归。不能用它决定光照／材质。
+# 云端软件图可按 a1dbv game-quality-pass §4 验收画面；仍须同机位对比、完整 smoke 和非作者盲评。
 DEBUG=pw:browser node --import tsx tools/capture.mjs \
   --shot all --seed 1 --t 10 --repeat 2 --software
 
 # 连续射击片段；每帧等消费者截取后再推进，输出 00000.png 起的序列。
 node --import tsx tools/capture.mjs --shot gameplay --seed 1 \
-  --input advance-fire --t 3 --frames 240 --repeat 2 --headed --require-gpu
+  --input advance-fire --t 3 --frames 240 --repeat 2 --software
 ffmpeg -framerate 60 -i 'outputs/capture/<本次run目录>/<本次序列目录>/%05d.png' \
   -c:v libx264 -pix_fmt yuv420p capture.mp4
 ```
+
+仅在用户已批准的云端自有案例预览中，可显式设 `FPS_CLOUD_NO_SANDBOX=1` 使用 `--no-sandbox`；默认保留浏览器 sandbox，不启用 unsafe 标志，不改外层沙箱。该开关在本拍摄入口仅支持它自起的 headless preview，不能与 `--headed` 或外部 `--base` 组合。当前 `qualityCapture` 材质候选另走其已有入口；本脚本的旧 `shot` 路径不能替代全场材质验收。此次 smoke 精确支持无 lighting 的全场材质 query，以及 `art=standards-v1&lighting=courtyard-light-v1&materials=ai-courtyard-full-v1` 的拟发布组合；后者额外断言真实 lighting 状态。两者尚未在本轮浏览器实跑，不能当成完整 smoke 已通过。 正式 smoke 已接入自然六回合、第三回合半场提示、第四回合实际换边和终局“再打一场”清空记录／比分，并实际重新开始推进、Esc 暂停冻结；每回合按 70 秒常规上限加至多 25 秒信标及渲染余量等待最多 180 秒，超时保留已完成回合，绝不注入模拟状态。该编排仅受控检查通过，真实浏览器范围仍待验。同机位 before／after 必须保留同一固定 lighting 参数，只切换 materials。
 
 Windows shell 可直接执行 `node --import tsx …` 并按该 shell 语法设置 DEBUG。本地构建在 Windows 通过显式 `cmd.exe /d /s /c` 调固定的 `npm.cmd run build`（`/d` 禁用 AutoRun），不把输出路径或用户参数拼进命令；其它平台仍直接执行 npm。依据 [Node 官方 .cmd 契约](https://nodejs.org/api/child_process.html#spawning-bat-and-cmd-files-on-windows)，不能直接用无 shell 的 execFile 启动 npm.cmd。Windows 分派已有 mock 回归，真实 Windows 构建仍待本机验证。可用 `FPS_CAPTURE_CHROMIUM` 指定已安装的 Chromium；不填则使用 Playwright `channel: chromium`。`--out` 改输出目录；`--base` 可连已有服务，但报告会明确标为**外部服务源 SHA 未证实**，不能用本地 SHA 冒充服务器版本。不要把私有服务地址、完整本机路径或浏览器启动日志提交公开仓库。
 

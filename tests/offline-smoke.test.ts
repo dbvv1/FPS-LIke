@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:net';
 import { readFileSync } from 'node:fs';
 // @ts-expect-error JavaScript orchestration helpers are intentionally browser-independent.
-import { OFFLINE_QUERY, assertOfflineReady, assertMatchReset, browserExitReceipt, portClosed, finishOfflineRound } from '../tools/smoke-offline-support.mjs';
+import { OFFLINE_QUERY, assertOfflineReady, assertMatchReset, browserExitReceipt, portClosed, finishOfflineRound, finishOfflineMatch, verifyRestartPlayable } from '../tools/smoke-offline-support.mjs';
 function fixture() {
   const actors = [{ id: 'player', team: 'amber', weapons: { pistol: { ammo: 10 } } }, ...Array.from({length:9}, (_,i)=>({ id:`bot-${i}`, team:i<4?'amber':'blue' }))];
   return { state: { ready: true, squads: { version:'offline-v1', formation:'squads-v1', botIds:actors.slice(1).map(a=>a.id) }, environment:{id:'courtyard-v1',active:true}, match:{complete:false,rounds:[]} }, snapshot:{actors,tick:0,round:1,score:{amber:0,blue:0}}, hud:{progress:'1 / 6 回合',goal:'存活 5:5',title:'回合 1 / 6'} };
@@ -44,4 +44,52 @@ test('standalone command is exact-entry only and bypasses old-entry capture',()=
   assert.equal(OFFLINE_QUERY,'?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1');
   const runner=readFileSync(new URL('../tools/smoke-backlog.mjs',import.meta.url),'utf8');
   assert.match(runner,/offline \? \[\['offline-training', OFFLINE_QUERY\]\]/);assert.match(runner,/if \(!offline\) \{/);
+});
+
+function completeMatchFixture() {
+  const reads = Array.from({length:6}, (_, i) => {
+    const n=i+1, side=n<=3?'attack':'defend';
+    return { state:{match:{rounds:Array.from({length:n},(_,j)=>({round:j+1,side:j<3?'attack':'defend'})),wins:n,losses:0,complete:n===6}},
+      snapshot:{round:n,phase:'over',result:{reason:'timeout'},score:{amber:n,blue:0},actors:[{id:'player',side}]},
+      hud:{title:n===3?'半场结束 · 交换攻守':n===6?'整场胜利':'进攻阶段',description:'最终比分',next:n===3?'交换攻守 · 第 4 回合':n===6?'再打一场':'下一回合',recap:Array.from({length:n},()=> '回合记录')} };
+  });
+  const reset=fixture();return [...reads,{state:{...reset.state,running:false},snapshot:reset.snapshot}];
+}
+test('complete match runner observes six natural rounds, halftime, final UI restart',async()=>{
+  const actions:string[]=[], waits:any[]=[];const reads:any[]=completeMatchFixture();
+  const page={locator:(s:string)=>({click:async()=>{actions.push(s);},waitFor:async()=>{}}),
+    waitForFunction:async(_f:unknown,arg:unknown,options:any)=>{waits.push({arg,options});},evaluate:async()=>reads.shift()};
+  const report:any={offlineCoverage:{fullMatchPlaythrough:false,completedRounds:[]},stages:[]};
+  await finishOfflineMatch(page,report);
+  assert.deepEqual(actions,['#start',...Array(6).fill('#next')]);
+  assert.equal(report.offlineCoverage.completedRounds.length,6);assert.equal(report.offlineCoverage.fullMatchPlaythrough,false);assert.equal(report.offlineCoverage.endRestartReset,true);
+  assert.deepEqual(report.offlineCoverage.sideSwitch,{before:'attack',after:'defend'});
+  assert.equal(report.offlineCoverage.endRestart.snapshot.tick,0);
+  assert.equal(waits.filter(w=>w.options?.timeout===180000).length,6);
+});
+test('complete match runner rejects wrong halftime side and preserves partial timeout scope',async()=>{
+  for(const mode of ['side','timeout','reset']) {
+    const actions:string[]=[];const reads:any[]=completeMatchFixture();let rounds=0;
+    if(mode==='side')reads[3].snapshot.actors[0].side='attack';
+    if(mode==='reset')reads[6].snapshot.score.amber=6;
+    const page={locator:(s:string)=>({click:async()=>{actions.push(s);},waitFor:async()=>{}}),
+      waitForFunction:async(_f:unknown,_a:unknown,o:any)=>{if(o&&++rounds===3&&mode==='timeout')throw Error('natural-round timeout');},evaluate:async()=>reads.shift()};
+    const report:any={offlineCoverage:{fullMatchPlaythrough:false,completedRounds:[]},stages:[]};
+    await assert.rejects(finishOfflineMatch(page,report));
+    assert.equal(report.offlineCoverage.fullMatchPlaythrough,false);assert.deepEqual(report.stages,[]);
+    if(mode==='timeout') {assert.equal(report.offlineCoverage.completedRounds.length,2);assert.equal(report.offlineCoverage.pendingRound,3);assert.deepEqual(actions,['#start','#next','#next']);}
+  }
+});
+
+test('new-match UI start must advance, then Escape must freeze before full coverage is claimed',async()=>{
+  for (const drifting of [false,true]) {
+    const actions:string[]=[];let reads=0;
+    const page={locator:(s:string)=>({click:async()=>{actions.push(s);}}),keyboard:{press:async(k:string)=>{actions.push(k);}},
+      waitForFunction:async()=>{},waitForTimeout:async(ms:number)=>{assert.equal(ms,200);},
+      evaluate:async()=>++reads===1?{state:{running:true,match:{rounds:[]}},snapshot:{round:1,tick:4}}:reads===2?5:drifting?6:5};
+    const report:any={offlineCoverage:{fullMatchPlaythrough:false},stages:[]};
+    if(drifting) {await assert.rejects(verifyRestartPlayable(page,report));assert.equal(report.offlineCoverage.fullMatchPlaythrough,false);}
+    else {await verifyRestartPlayable(page,report);assert.equal(report.offlineCoverage.fullMatchPlaythrough,true);assert.equal(report.offlineCoverage.restartedPlay.pausedTick,5);}
+    assert.deepEqual(actions,['#start','Escape']);
+  }
 });
