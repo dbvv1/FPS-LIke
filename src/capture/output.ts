@@ -4,7 +4,7 @@ import { CAPTURE_SIZE } from './cameras.js';
 export function createCaptureCanvas(document: Pick<Document, 'createElement'>) {
   const canvas = document.createElement('canvas');
   canvas.width = CAPTURE_SIZE.width; canvas.height = CAPTURE_SIZE.height;
-  if (!canvas.getContext('webgl2', { antialias: true, preserveDrawingBuffer: true, powerPreference: 'high-performance' })) throw new Error('Capture requires WebGL2; Canvas2D fallback is disabled');
+  if (!canvas.getContext('webgl2', { antialias: true, alpha: false, preserveDrawingBuffer: true, powerPreference: 'high-performance' })) throw new Error('Capture requires WebGL2; Canvas2D fallback is disabled');
   return canvas;
 }
 export function captureOutput(canvas: HTMLCanvasElement, gl: WebGL2RenderingContext) {

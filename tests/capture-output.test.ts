@@ -8,7 +8,7 @@ import { View as TrainingView } from '../src/candidates/offline-training-v1/rend
 test('detached capture ignores CSS/window size and exports its actual WebGL2 buffer', () => {
   const requests: string[] = [], gl = { isContextLost: () => false, finish() {} };
   const canvas = { width: 0, height: 0, clientWidth: 317, clientHeight: 233,
-    getContext(type: string) { requests.push(type); return type === 'webgl2' ? gl : null; },
+    getContext(type: string, options?: WebGLContextAttributes) { requests.push(type); if(options) assert.deepEqual(options, {antialias:true,alpha:false,preserveDrawingBuffer:true,powerPreference:'high-performance'}); return type === 'webgl2' ? gl : null; },
     toDataURL(type: string) { assert.equal(type, 'image/png'); return 'data:image/png;base64,AA=='; } };
   const document = { createElement(tag: string) { assert.equal(tag, 'canvas'); return canvas; } };
   const output = createCaptureCanvas(document as unknown as Document);
