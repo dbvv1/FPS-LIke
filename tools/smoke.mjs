@@ -6,7 +6,7 @@ import { resolve, sep } from 'node:path';
 import { chromium } from 'playwright';
 import { preview } from 'vite';
 import { PNG } from 'pngjs';
-import { OFFLINE_QUERY, assertOfflineReady, assertMatchReset, finishOfflineRound, portClosed } from './smoke-offline-support.mjs';
+import { OFFLINE_QUERY, assertOfflineReady, assertMatchReset, finishOfflineMatch, verifyRestartPlayable, portClosed } from './smoke-offline-support.mjs';
 const output = process.env.FPS_SMOKE_OUTPUT ? pathToFileURL(resolve(process.env.FPS_SMOKE_OUTPUT) + sep) : new URL('../outputs/browser-smoke/', import.meta.url);
 const query = process.env.FPS_SMOKE_QUERY ?? '';
 if (query && !query.startsWith('?')) throw new Error('Smoke query must start with ?');
@@ -17,7 +17,7 @@ const fullMaterials = query === OFFLINE_QUERY + '&art=standards-v1&materials=ai-
 const artStandards = query === OFFLINE_QUERY + '&art=standards-v1' || fullMaterials;
 const offline = query === OFFLINE_QUERY || artStandards;
 if (new URLSearchParams(query).get('gameplay') === 'offline-training-v1' && !offline) throw new Error('Offline smoke requires the exact complete entry');
-if (offline) report.offlineCoverage = { fullMatchPlaythrough: false, completedRounds: [], restartScope: 'whole match via existing restart UI; no separate round-restart control', unverified: ['six-round completion UI', 'halftime transition', 'end-of-match replay', 'human visual/audio quality'] };
+if (offline) report.offlineCoverage = { fullMatchPlaythrough: false, completedRounds: [], restartScope: 'whole match via final next UI (再打一场); no separate round-restart control', unverified: ['six-round completion UI', 'halftime transition', 'end-of-match replay', 'human visual/audio quality'] };
 let server, browser, page, previewPort;
 try {
   server = await preview({ configFile: false, root: fileURLToPath(new URL('..', import.meta.url)), build: { outDir: 'web-dist' }, preview: { host: '127.0.0.1', port: 0, open: false } });
@@ -137,8 +137,8 @@ try {
   await page.waitForTimeout(200); assert.equal(await page.evaluate(() => window.fpsClient.snapshot().tick), paused);
   await page.locator('#start').click(); await page.waitForFunction(() => window.fpsClient.state().running);
   await page.keyboard.press('Escape'); await page.waitForFunction(() => !window.fpsClient.state().running);
-  if (offline) await finishOfflineRound(page, report);
-  await page.locator('#restart').click();
+  if (offline) await finishOfflineMatch(page, report);
+  else await page.locator('#restart').click();
   await page.waitForFunction(() => window.fpsClient.snapshot().tick === 0);
   assert.equal(await page.evaluate(() => window.fpsClient.snapshot().actors.find(a => a.id === 'player').weapons.pistol.ammo), 10);
   if (offline) {
@@ -146,6 +146,7 @@ try {
     assertMatchReset(reset.state, reset.snapshot);
     report.offlineReset = reset;
     report.stages.push('whole-match restart clears completed-round record and score');
+    await verifyRestartPlayable(page, report);
   }
   report.stages.push('pause freezes clock, resume and restart clear input/ammo state');
   assert.deepEqual(report.errors, []);
