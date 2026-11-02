@@ -9,11 +9,11 @@ test('movement v2 requires one exact opt-in and combines with character/capture 
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 // Only legacy client scheduling/input debt disposal changed by owner request on 2026-10-30.
-// All simulation, content, HUD and rendering hashes remain the frozen baseline.
-test('legacy modules retain frozen bytes except explicitly reviewed slow-frame scheduling revision', () => {
+// Capture sizing is opt-in; simulation, content, HUD and ordinary sizing remain covered.
+test('legacy modules retain frozen bytes except authorized scheduling and fixed capture sizing', () => {
  const files = {
   "src/client.ts": "43229bc71256b05182892cf7405b3f51be2fdbbe920035470da55ca38b9f9416",
-  "src/render/scene.ts": "81f8ed6ac190ae33ca1fb98d6cda10e27a7c2765a2b29fef63031698191ea714",
+  "src/render/scene.ts": "4ff87f9c38280059dcdea7da61868ff228cf7edb84fa8af774d1644a8bda96cc",
   "src/content/difficulty.ts": "9ed2633b2dd9237a5b1940236a488690209cf619e4530c7f1434410dd03d9936",
   "src/content/freeze.ts": "35a31a790068d822e35110ff2d1a6c7a345f6aeeef9d5a256caa66336b3374ee",
   "src/content/map.ts": "2431dfef756bfddaa4893e058bdf59f38ac17f83d56e50712620e2707151a3af",

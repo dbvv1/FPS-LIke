@@ -17,7 +17,7 @@ const scriptUrl = new URL('../tools/capture.mjs', import.meta.url);
 const source = readFileSync(scriptUrl, 'utf8').replace(/^#!.*\n/, '').replace(/^import .*;\n/gm, '')
   .replaceAll('import.meta.url', JSON.stringify(scriptUrl.href));
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
-const image = new PNG({ width: 64, height: 64 });
+const image = new PNG({ ...CAPTURE_SIZE });
 for (let i = 0; i < image.data.length; i += 4) { image.data[i] = (i / 4) & 255; image.data[i + 1] = (i / 1024) & 255; image.data[i + 2] = 100; image.data[i + 3] = 255; }
 const png = PNG.sync.write(image);
 async function invoke(out: string, commit: string, input: string, frames: number, platform: NodeJS.Platform = 'linux') {
@@ -29,7 +29,7 @@ async function invoke(out: string, commit: string, input: string, frames: number
     const window: { __shot: Record<string, unknown>; __shotNext: (frame: number) => boolean } = { __shot: {}, __shotNext: () => false };
     return { on() {}, async goto(url: string) {
       const config = parseCaptureConfig(new URL(url).search)!;
-      window.__shot = { ready: true, frame: 0, t: 0, virtualTick: 0, backend: 'three-webgl2', ...config,
+      window.__shot = { ready: true, frame: 0, t: 0, virtualTick: 0, backend: 'webgl2', pngDataUrl: 'data:image/png;base64,' + png.toString('base64'), ...config,
         renderer: 'ANGLE (NVIDIA GeForce RTX 5070)', rendererClass: 'gpu', unmasked: true,
         camera: { name: 'gameplay' }, stateHash: 'mock-state-0', viewport: { ...CAPTURE_SIZE, pixelRatio: 1, bufferWidth: 1280, bufferHeight: 720 } };
       window.__shotNext = (frame: number) => {
@@ -41,7 +41,7 @@ async function invoke(out: string, commit: string, input: string, frames: number
     }, async waitForFunction() {}, locator: () => ({ async waitFor() {} }), async waitForTimeout() {},
     async evaluate(fn: Function, argument?: unknown) {
       return structuredClone(new Function('window', 'argument', `return (${fn.toString()})(argument)`)(window, argument));
-    }, async screenshot() { return png; }, async close() {} };
+    }, async screenshot() { throw new Error('Must export the internal buffer, not screenshot the window'); }, async close() {} };
   }
   const deps = { assert, parseArgs: () => ({ values }), mkdir, writeFile, resolve, join, basename, fileURLToPath, createHash, PNG, CAMERAS, CAPTURE_SIZE, parseCaptureConfig, createCaptureRun, captureBuildInvocation,
     process: processStub, console: { log: (value: string) => { printed = value; } },

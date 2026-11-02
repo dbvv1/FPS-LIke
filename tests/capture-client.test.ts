@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { stripTypeScriptTypes } from 'node:module';
+import { createCaptureCanvas, captureOutput } from '../src/capture/output.js';
 import { CaptureLifetime } from '../src/capture/lifetime.js';
 const source = stripTypeScriptTypes(readFileSync(new URL('../src/capture/client.ts', import.meta.url), 'utf8').replace(/^import .*;\n/gm, ''));
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
@@ -9,12 +10,13 @@ function fixture(stage: 'game' | 'fonts' | 'ready' | 'failure') {
   let resolve!: () => void; const gate = new Promise<void>(r => { resolve = r; });
   const events: string[] = [], window = new EventTarget() as EventTarget & { __shot?: { ready: boolean; error?: string }; __shotNext?: () => boolean };
   const canvas = new EventTarget(); Object.assign(canvas, { clientWidth: 1280, clientHeight: 720, width: 1280, height: 720 });
-  const document = { querySelector: () => canvas, getElementById: () => ({ inert: false, setAttribute() {} }), fonts: { ready: stage === 'fonts' ? gate : Promise.resolve() }, getAnimations: () => [] };
+  const document = { createElement: () => canvas, querySelector: () => canvas, getElementById: () => ({ inert: false, setAttribute() {} }), fonts: { ready: stage === 'fonts' ? gate : Promise.resolve() }, getAnimations: () => [] };
   const gl = { isContextLost: () => false, finish: () => events.push('finish') };
+  Object.assign(canvas, { getContext: () => gl, toDataURL: () => 'data:image/png;base64,AA==' });
   class View { renderer = { getContext: () => gl, getPixelRatio: () => 1 }; backend = 'three-webgl2'; render() { events.push('render'); } dispose() { events.push('view.dispose'); } }
   class Hud { setBusy() {} menu() {} update() {} }
   const session = { metadata: { frame: 0 }, async prepare(render: Function) { render({}, {}, 0, 0); }, next: () => false };
-  const deps = { View, Hud, MouseSensitivity: class {}, CaptureLifetime, parseCaptureConfig: () => ({ shot: 'gameplay' }), CAPTURE_SIZE: { width: 1280, height: 720 }, captureCamera: () => ({}),
+  const deps = { createCaptureCanvas, captureOutput, View, Hud, MouseSensitivity: class {}, CaptureLifetime, parseCaptureConfig: () => ({ shot: 'gameplay' }), CAPTURE_SIZE: { width: 1280, height: 720 }, captureCamera: () => ({}),
     rendererEvidence: () => ({ renderer: 'unknown', rendererClass: 'unknown' }),
     CaptureSession: { async create(_config: unknown, scope: CaptureLifetime) {
       scope.own({ dispose: () => events.push('nav.dispose') });

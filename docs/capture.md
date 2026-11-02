@@ -12,11 +12,11 @@
 - 显式 `?shot=…`：懒加载独立 `src/capture/client.ts`。不构造 Controls、不请求鼠标锁定、不启动 rAF、不读写真实用户设置，也不解锁音频。退出靠**移除参数并重新加载**，不能在同一局里切成作弊镜头。
 - 使用原 Game.step、原规则、原出生点、原默认 easy 机器人。种子 1 的机器人随机种子与正式客户端一致；其他 seed 以固定异或派生。不注入坐标、HP、弹药、敌方信息、无敌或冻结敌人。
 - 固定机位只覆盖渲染相机；不修改 Actor 或物理世界。观察机位不画本地第一人称枪体（本作也没有自己的第三人称模型）；`gameplay` 原样画枪和真实玩家眼高。全部保留原 80° 竖直 FOV。
-- 非 persisted 的 `pagehide` 立即撤销步进接口并释放 View／Game／Navigation。异步初始化晚到的资源会被立即释放；bfcache 的 persisted pagehide 保留已冻结状态，不启动循环。丢失 WebGL 上下文或改变拍摄视口会使结果失效，须重载，不冒用旧帧。
+- 非 persisted 的 `pagehide` 立即撤销步进接口并释放 View／Game／Navigation。异步初始化晚到的资源会被立即释放；bfcache 的 persisted pagehide 保留已冻结状态，不启动循环。丢失 WebGL 上下文会使结果失效，须重载；改变窗口大小不改变拍摄缓冲区。
 
 ## 命名机位
 
-统一推荐 **1280×720，deviceScaleFactor 1**。位置是模拟坐标（+Z 为 yaw 0 的前方），yaw/pitch 单位为弧度；渲染边界照常反射 Z。
+拍摄使用独立离屏画布，内部固定 **1280×720、DPR 1**，不要求设置浏览器窗口或设备 DPR。PNG 含 WebGL 场景及第一人称武器，不含 DOM HUD。位置是模拟坐标（+Z 为 yaw 0 的前方），yaw/pitch 单位为弧度；渲染边界照常反射 Z。
 
 | 名称 | 位置 / 朝向 | FOV | 目的 |
 |---|---|---|---|
@@ -95,4 +95,14 @@ renderer 分类先识别 SwiftShader、llvmpipe、softpipe、swrast、lavapipe�
 - 其中 16 项新增测试覆盖缺参数／非法参数、渲染器分类、机位不改模拟、固定带与原 Game/Bot 同状态、调度快慢无关、预热不加 tick、逐帧终止／重复确认、进入／离页／晚到资源／失败释放；另以实际截图脚本配 mock browser 覆盖同输出根不同版本／输入的长短序列，以及并发目录分配和 Windows 构建分派。这不是浏览器图片或 Windows 实机验收。
 - 200 局 seed 1 无画面模拟运行完成；进攻胜率 63.5%，属于既有平衡差距，本候选没有改玩法。
 - 软件 Chromium 尝试保留 `chromiumSandbox: true`、精确忽略 Playwright 默认 `--enable-unsafe-swiftshader`；实际启动在 `socket() failed: Operation not permitted` 处失败（同时有 crashpad 目录错误），**0 帧**。未关闭 sandbox、未加 unsafe 标志，未占用其它 GUI 浏览器。
-- **未验证：实际浏览器每机位两拍一致、正常浏览器启动／退出、真 GPU 基线、命名机位实际构图、参照配准与品质独立复评。** 下一步只需在有权限的接收环境 checkout 本候选固定 SHA，用上述有窗口 `--require-gpu` 命令取证；同一时间仅跑一个 GPU 任务。本单元不另下任务卡、不推 main、不发布网站。
+- **未验证：实际浏览器每机位两拍一致、正常浏览器启动／退出、真 GPU 基线、命名机位实际构图、参照配准与品质独立复评。** 云端接收环境 checkout 本候选固定 SHA 后，用上述软件 WebGL 命令取证；不在本机启动浏览器。本单元不另下任务卡、不推 main、不发布网站。
+
+## 固定内部 PNG 输出
+
+旧 `?shot=`、movement-v2 的 `?shot=` 和当前训练赛 `qualityCapture` 均输出 `window.__shot.pngDataUrl`。`backend` 为实际 `webgl2`，`image` 为 `{width:1280,height:720,dpr:1}`，机位沿原 `camera`／`name` 字段；没有 WebGL2 时 `ready:false` 并给出 `error`，未创建后端时 `backend:null`，没有 PNG，不尝试 Canvas2D。普通游玩回退不变。
+
+云端提供构建产物后，当前训练赛打开：
+```text
+/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&qualityCapture=gameplay
+```
+等 `__shot.ready || __shot.error`，成功时读取 `__shot.pngDataUrl` 保存为 PNG；逐帧仍调用 `__shotNext()`。光照／材质候选参数沿目标构建支持的原路由追加。`tools/capture.mjs` 的旧 `shot` 消费者也改为读取此 PNG，不再截取浏览器窗口。尺寸／后端／失败及 CPU 接线测试不替代云端实际像素与同机位复拍验收。

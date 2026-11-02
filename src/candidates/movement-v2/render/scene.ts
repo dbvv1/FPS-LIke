@@ -29,9 +29,11 @@ export class View {
   private geometries = new Set<THREE.BufferGeometry>();
   private materials = new Set<THREE.Material>();
   private textures = new Set<THREE.Texture>();
-  constructor(canvas: HTMLCanvasElement, candidate = contentSetEnabled(globalThis.location?.search ?? '')) {
-    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-    this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+  private readonly captureSize?: { width: number; height: number };
+  constructor(canvas: HTMLCanvasElement, candidate = contentSetEnabled(globalThis.location?.search ?? ''), captureSize?: { width: number; height: number }) {
+    this.captureSize = captureSize;
+    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: !!captureSize });
+    this.renderer.setPixelRatio(captureSize ? 1 : Math.min(devicePixelRatio, 1.5));
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.scene.background = new THREE.Color(YARD.sky);
     this.scene.fog = new THREE.Fog(YARD.sky, 32, 80);
@@ -93,7 +95,7 @@ export class View {
   }
   resize() {
     const canvas = this.renderer.domElement;
-    const w = canvas.clientWidth, h = canvas.clientHeight;
+    const w = this.captureSize?.width ?? canvas.clientWidth, h = this.captureSize?.height ?? canvas.clientHeight;
     this.renderer.setSize(w, h, false); this.camera.aspect = w / Math.max(1, h); this.camera.updateProjectionMatrix();
   }
   render(state: GameState, player: Actor, yaw: number, pitch: number, now: number, dt: number, capture?: CaptureCamera) {

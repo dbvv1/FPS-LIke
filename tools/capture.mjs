@@ -74,14 +74,16 @@ try {
       assert.equal(await page.evaluate(() => typeof window.fpsClient), 'undefined', 'Capture must not construct the live player client');
       for (let frame = 0; frame < Number(values.frames); frame++) {
         const meta = await page.evaluate(() => window.__shot);
-        assert.equal(meta.ready, true); assert.equal(meta.frame, frame); assert.equal(meta.backend, 'three-webgl2');
+        assert.equal(meta.ready, true); assert.equal(meta.frame, frame); assert.equal(meta.backend, 'webgl2');
         assert.deepEqual(meta.viewport, { ...CAPTURE_SIZE, pixelRatio: 1, bufferWidth: CAPTURE_SIZE.width, bufferHeight: CAPTURE_SIZE.height });
         if (values['require-gpu']) { assert.equal(meta.rendererClass, 'gpu', `Hardware renderer required; raw renderer: ${meta.renderer}`); assert.equal(meta.unmasked, true); }
         if (frame === 0) {
           // Verify wall-time waiting does not tick the sim, feedback or camera.
           await page.waitForTimeout(150); assert.deepEqual(await page.evaluate(() => window.__shot), meta);
         }
-        const png = await page.screenshot(), pixels = PNG.sync.read(png);
+        assert.match(meta.pngDataUrl, /^data:image\/png;base64,/);
+        const png = Buffer.from(meta.pngDataUrl.split(',')[1], 'base64'), pixels = PNG.sync.read(png);
+        assert.equal(pixels.width, CAPTURE_SIZE.width); assert.equal(pixels.height, CAPTURE_SIZE.height);
         const colors = new Set(); for (let i = 0; i < pixels.data.length; i += 16) colors.add(`${pixels.data[i] >> 3},${pixels.data[i + 1] >> 3},${pixels.data[i + 2] >> 3}`);
         assert.ok(colors.size > 32, 'Capture must contain a rendered scene, not a blank/loading frame');
         const rawHash = hash(Buffer.from(meta.renderer)).slice(0, 10);
