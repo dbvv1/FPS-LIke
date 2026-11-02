@@ -1,3 +1,4 @@
+import { createCaptureCanvas, captureOutput } from '../../../capture/output.js';
 import { qualityCaptureOptions, CAPTURE_SIZE } from './quality-route.js';
 import { prepareReplay, REPLAY } from './replay.js';
 import { eye } from '../sim/physics.js';
@@ -10,24 +11,21 @@ import { CaptureLifetime } from '../../../capture/lifetime.js';
 import { rendererEvidence } from '../../../capture/renderer.js';
 const options = qualityCaptureOptions(location.search);
 if (!options) throw new Error('Missing qualityCapture');
-const canvas = document.querySelector<HTMLCanvasElement>('#stage');
-if (!canvas) throw new Error('Missing stage');
+let canvas: HTMLCanvasElement | undefined;
 const lifetime = new CaptureLifetime();
-let status: Record<string, unknown> = { ready: false, mode: 'offline-quality-capture', build: import.meta.url };
+let status: Record<string, unknown> = { ready: false, backend: null, image: { ...CAPTURE_SIZE, dpr: 1 }, name: options.name, mode: 'offline-quality-capture', build: import.meta.url };
 Object.defineProperty(window, '__shot', { get: () => structuredClone(status) });
-const abort = (reason: string) => { status = { ...status, ready: false, error: reason }; lifetime.dispose(); };
+const abort = (reason: string) => { status = { ...status, pngDataUrl: undefined, ready: false, error: reason }; lifetime.dispose(); };
 const onHide = () => abort('pagehide');
-const onResize = () => abort('viewport changed; reload at fixed viewport');
 const onContextLost = () => abort('WebGL context lost');
 window.addEventListener('pagehide', onHide, { once: true });
-window.addEventListener('resize', onResize);
-canvas.addEventListener('webglcontextlost', onContextLost);
 lifetime.own({ dispose() {
-  window.removeEventListener('pagehide', onHide); window.removeEventListener('resize', onResize);
-  canvas.removeEventListener('webglcontextlost', onContextLost);
+  window.removeEventListener('pagehide', onHide);
+  canvas?.removeEventListener('webglcontextlost', onContextLost);
 } });
 try {
-  if (innerWidth !== CAPTURE_SIZE.width || innerHeight !== CAPTURE_SIZE.height || devicePixelRatio !== 1) throw new Error('qualityCapture requires viewport 1280x720 and DPR 1');
+  canvas = createCaptureCanvas(document);
+  canvas.addEventListener('webglcontextlost', onContextLost);
   // The production HUD and gun, not a screenshot-only substitute. No device handlers.
   const noop = () => {};
   const hud = new Hud(noop, noop, noop, noop, new MouseSensitivity(() => ({ getItem: () => null, setItem: noop, removeItem: noop })));
@@ -36,7 +34,7 @@ try {
   document.getElementById('hud')!.hidden = !!options.camera;
   document.getElementById('menu')!.hidden = true;
   document.getElementById('render-mode')!.hidden = true;
-  const view = lifetime.own(new View(canvas));
+  const view = lifetime.own(new View(canvas, CAPTURE_SIZE));
   view.resize();
   const replay = await prepareReplay(lifetime);
   const deadline = performance.now() + 15000;
@@ -63,9 +61,9 @@ try {
     const evidence = rendererEvidence(gl as WebGL2RenderingContext);
     status = { ...status, ready: true, name: options.name, camera: options.camera ?? { position: eye(player), yaw: player.yaw, pitch: player.pitch, fov: 80 }, cameraKind: options.camera ? 'observer' : 'player', observer: options.camera ?? null,
       actualPlayerPose: { position: player.position, yaw: player.yaw, pitch: player.pitch, crouch: player.input.crouch, hp: player.hp },
-      scope: options.camera ? 'fixed observer; player reachability not established; HUD and weapon omitted' : 'actual player eye, production weapon and HUD; idle replay, not feel evidence',
-      firstPersonWeapon: !options.camera && player.hp > 0, hud: !options.camera,
-      viewport: { width: innerWidth, height: innerHeight, dpr: devicePixelRatio },
+      scope: options.camera ? 'fixed observer; player reachability not established; HUD and weapon omitted' : 'actual player eye, production weapon; DOM HUD excluded from PNG; idle replay, not feel evidence',
+      firstPersonWeapon: !options.camera && player.hp > 0, hud: 'not-captured',
+      ...captureOutput(canvas!, gl as WebGL2RenderingContext),
       replay: REPLAY, botIds: replay.botIds, commands: replay.commands, state, stateHash: hash, match: match.summary,
       t, frame, hz: REPLAY.hz, warmFrames: 12, art: true,
       qualityParameters: { maxSamples: gl.getParameter((gl as WebGL2RenderingContext).MAX_SAMPLES), samples: gl.getParameter(gl.SAMPLES), maxAnisotropy: view.renderer.capabilities.getMaxAnisotropy(), compressedTextureFormatsSupported: Array.from(gl.getParameter(gl.COMPRESSED_TEXTURE_FORMATS) as Uint32Array), actualTextureFormats:'not-observed', lighting:view.info.lighting, toneMapping: view.renderer.toneMapping, exposure: view.renderer.toneMappingExposure, outputColorSpace: view.renderer.outputColorSpace, shadowEnabled: view.renderer.shadowMap.enabled, shadowType: view.renderer.shadowMap.type },
