@@ -13,3 +13,6 @@ web-dist/
 
 # Hosting account metadata stays outside the product repository.
 /.openai/
+
+# Python authoring-tool caches.
+__pycache__/
