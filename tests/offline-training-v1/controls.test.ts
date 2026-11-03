@@ -244,3 +244,46 @@ test('held trigger crossing discarded interval permits one due shot, then respec
   assert.equal(controls.commands(actor,250,267,1000).filter(c=>c.type==='shoot').length,0,'retained release stops subsequent auto fire');
  } finally {controls.dispose();env.restore();}
 });
+
+
+test('disposing during a pointer-lock request releases its delayed grant', async () => {
+  const env=environment(),canvas=new FakeCanvas(env.document),changes:boolean[]=[],messages:string[]=[];
+  let acquire!:()=>void;
+  canvas.requestPointerLock=()=>new Promise<void>(resolve=>{acquire=()=>{env.document.pointerLockElement=canvas;env.document.dispatchEvent(event('pointerlockchange'));resolve();};});
+  const controls=new Controls(canvas as unknown as HTMLCanvasElement,value=>changes.push(value),value=>messages.push(value));
+  try{const pending=controls.lock();controls.dispose();acquire();await pending;assert.equal(env.document.pointerLockElement,null);assert.equal(controls.locked,false);assert.deepEqual(changes,[]);assert.deepEqual(messages,[]);}
+  finally{controls.dispose();env.restore();}
+});
+
+
+test('disposed Controls cannot request a new pointer lock',async()=>{
+  const env=environment(),canvas=new FakeCanvas(env.document);
+  const controls=new Controls(canvas as unknown as HTMLCanvasElement,()=>{},()=>{});
+  try{controls.dispose();await controls.lock();assert.equal(canvas.calls,0);assert.equal(env.document.pointerLockElement,null);}
+  finally{env.restore();}
+});
+test('disposed request completion leaves another element lock untouched',async()=>{
+  const env=environment(),canvas=new FakeCanvas(env.document),other=new FakeCanvas(env.document);let finish!:()=>void;
+  canvas.requestPointerLock=()=>new Promise<void>(resolve=>{finish=resolve;});
+  const controls=new Controls(canvas as unknown as HTMLCanvasElement,()=>{},()=>{});
+  try{const pending=controls.lock();controls.dispose();env.document.pointerLockElement=other;finish();await pending;assert.equal(env.document.pointerLockElement,other);}
+  finally{env.document.exitPointerLock();env.restore();}
+});
+test('a disposed fallback rejection does not report into the old HUD',async()=>{
+  const env=environment(),canvas=new FakeCanvas(env.document),messages:string[]=[];let reject!:(error:unknown)=>void;
+  canvas.requestPointerLock=async(options?:{unadjustedMovement?:boolean})=>{canvas.calls++;if(options?.unadjustedMovement)throw new DOMException('unsupported','NotSupportedError');await new Promise<void>((_,fail)=>{reject=fail;});};
+  const controls=new Controls(canvas as unknown as HTMLCanvasElement,()=>{},value=>messages.push(value));
+  try{const pending=controls.lock();await Promise.resolve();assert.equal(canvas.calls,2);controls.dispose();reject(new Error('late denied'));await pending;assert.deepEqual(messages,[]);}
+  finally{controls.dispose();env.restore();}
+});
+
+
+for(const completion of ['resolve','reject'] as const)test(`old disposed ${completion} cannot unlock a new owner on the same canvas`,async()=>{
+  const env=environment(),canvas=new FakeCanvas(env.document);let finish!:()=>void;
+  const original=canvas.requestPointerLock.bind(canvas);
+  canvas.requestPointerLock=()=>new Promise<void>((resolve,reject)=>{finish=()=>completion==='resolve'?resolve():reject(new Error('late rejection'));});
+  const old=new Controls(canvas as unknown as HTMLCanvasElement,()=>{},()=>{throw new Error('old HUD callback');});
+  let current:Controls|undefined;
+  try{const pending=old.lock();old.dispose();canvas.requestPointerLock=original;current=new Controls(canvas as unknown as HTMLCanvasElement,()=>{},()=>{});await current.lock();assert.equal(current.locked,true);finish();await pending;assert.equal(env.document.pointerLockElement,canvas);assert.equal(current.locked,true);old.dispose();assert.equal(env.document.pointerLockElement,canvas);}
+  finally{current?.dispose();old.dispose();env.restore();}
+});

@@ -2,8 +2,11 @@ import type { Actor, Command } from '../sim/types.js';
 type Action = Command extends infer C ? C extends Command ? Omit<C, 'actorId' | 'at'> : never : never;
 type Trigger = { type: 'trigger'; held: boolean };
 type Queued = { time: number; action: Action | Trigger };
+// A new instance may reuse the canvas before an old request settles.
+const lockOwners = new WeakMap<HTMLCanvasElement, symbol>();
 export class Controls {
   yaw = 0; pitch = 0; locked = false; shooting = false;
+  private ownerToken = Symbol('controls');
   private held = new Set<string>();
   private queue: Queued[] = [];
   private triggerHeld = false;
@@ -11,8 +14,10 @@ export class Controls {
   private lockGeneration = 0;
   private abort = new AbortController();
   constructor(private canvas: HTMLCanvasElement, private changed: (locked: boolean) => void, private error: (message: string) => void, private sensitivity: () => number = () => 1) {
+    lockOwners.set(canvas, this.ownerToken);
     const signal = this.abort.signal;
     document.addEventListener('pointerlockchange', () => {
+      if (lockOwners.get(canvas) !== this.ownerToken) return;
       // A lock can arrive after blur/Escape canceled its asynchronous request.
       if (document.pointerLockElement === canvas && !this.requestPending && !this.locked) { document.exitPointerLock(); return; }
       this.locked = document.pointerLockElement === canvas;
@@ -64,15 +69,18 @@ export class Controls {
     this.add({ type: 'move', x: Math.sin(this.yaw) * forward + Math.cos(this.yaw) * right, z: Math.cos(this.yaw) * forward - Math.sin(this.yaw) * right, walk: this.held.has('ShiftLeft') || this.held.has('ShiftRight'), crouch: this.held.has('ControlLeft') || this.held.has('ControlRight') });
   }
   async lock() {
-    if (this.locked) return;
+    if (this.abort.signal.aborted || this.locked) return;
     this.clear();
     this.requestPending = true; const generation = ++this.lockGeneration;
     try { await this.canvas.requestPointerLock({ unadjustedMovement: true }); }
     catch (error) {
       if (generation !== this.lockGeneration) return;
       if (error instanceof DOMException && error.name === 'NotSupportedError') {
-        try { await this.canvas.requestPointerLock(); } catch (fallbackError) { this.error(`鼠标锁定失败（${fallbackError instanceof Error ? fallbackError.name + ': ' + fallbackError.message : String(fallbackError)}）。请将游戏窗口置于前台后再点击进入。`); }
+        try { await this.canvas.requestPointerLock(); } catch (fallbackError) { if (generation !== this.lockGeneration || this.abort.signal.aborted) return; this.error(`鼠标锁定失败（${fallbackError instanceof Error ? fallbackError.name + ': ' + fallbackError.message : String(fallbackError)}）。请将游戏窗口置于前台后再点击进入。`); }
       } else this.error(`鼠标锁定失败（${error instanceof Error ? error.name + ': ' + error.message : String(error)}）。请将游戏窗口置于前台后再点击进入。`);
+    } finally {
+      // Teardown removes event listeners; a pending promise can still acquire our canvas.
+      if (this.abort.signal.aborted && lockOwners.get(this.canvas) === this.ownerToken && document.pointerLockElement === this.canvas) document.exitPointerLock();
     }
   }
   commands(actor: Actor, start: number, end: number, simTime: number): Command[] {
@@ -121,6 +129,6 @@ export class Controls {
     this.add({ type: 'move', x: 0, z: 0 }); this.add({ type: 'interact', held: false });
   }
   reset(actor: Actor) { this.yaw = actor.yaw; this.pitch = actor.pitch; this.clear(); }
-  pause() { this.requestPending = false; this.lockGeneration++; this.clear(); if (document.pointerLockElement === this.canvas) document.exitPointerLock(); }
+  pause() { this.requestPending = false; this.lockGeneration++; this.clear(); if (lockOwners.get(this.canvas) === this.ownerToken && document.pointerLockElement === this.canvas) document.exitPointerLock(); }
   dispose() { this.pause(); this.abort.abort(); }
 }

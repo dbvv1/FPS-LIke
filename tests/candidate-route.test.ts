@@ -9,6 +9,7 @@ test('movement v2 requires one exact opt-in and combines with character/capture 
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 // Only legacy client scheduling/input debt disposal changed by owner request on 2026-10-30.
+// Reviewed 2026-11-03 input teardown also pins its exact bytes below.
 // Capture sizing is opt-in; simulation, content, HUD and ordinary sizing remain covered.
 test('legacy modules retain frozen bytes except authorized scheduling and fixed capture sizing', () => {
  const files = {
@@ -19,7 +20,7 @@ test('legacy modules retain frozen bytes except authorized scheduling and fixed 
   "src/content/map.ts": "2431dfef756bfddaa4893e058bdf59f38ac17f83d56e50712620e2707151a3af",
   "src/content/navigation.json": "bd3bbe9a5efbfbd1f1dfc68c0b950c160a7afc847e1c73b927c4915afda7f42a",
   "src/content/weapons.ts": "909d47bbb43d91fb18551d47428fab302fcf37409f3c8040a974a55f00080e3d",
-  "src/input/controls.ts": "2466e371773b78d9aa6ef7c419f1c95406c53119dcf6d149af67ace23975561e",
+  "src/input/controls.ts": "cb1fc6fd6c0c06896a5235ae135e5c86c694129ba4f61e1feb5659b4ab5458fd",
   "src/input/sensitivity.ts": "fea34368ef71f88f6d855056a739181606d7ca9bb55f3407368021ff356e3d09",
   "src/render/arm.ts": "e5053cf75b9858118ec9c455221f7f621a21c34d9880e8afeb743cca85ba09d3",
   "src/render/audio.ts": "ca0d294cfc08d329d00428693e78a832c7acb2d09de337b5d72efad94b10bf76",

@@ -26,8 +26,14 @@ const fixedCaptureRevision = {
   "src/candidates/movement-v2/capture/client.ts": "4b852c784cc1e88dc8761cab17d93640794513459991e19b5b72d92bc5225bda"
 };
 
+// Reviewed teardown repair only; historical fixture and simulation hashes remain unchanged.
+const reviewedLockDisposal = {
+  "src/input/controls.ts": "cb1fc6fd6c0c06896a5235ae135e5c86c694129ba4f61e1feb5659b4ab5458fd",
+  "src/candidates/movement-v2/input/controls.ts": "b18b0be72114f1a45074a6747d0e951b2d4868d943442bdf596f9212a76160fc"
+};
+
 test('v13 frozen modules plus authorized scheduling/capture changes retain their exact bytes', () => {
-  for (const [file, hash] of Object.entries({...hashes, ...reviewedLegacyScheduling, ...fixedCaptureRevision})) assert.equal(createHash('sha256').update(readFileSync(new URL('../'+file, import.meta.url))).digest('hex'), hash, file);
+  for (const [file, hash] of Object.entries({...hashes, ...reviewedLegacyScheduling, ...fixedCaptureRevision, ...reviewedLockDisposal})) assert.equal(createHash('sha256').update(readFileSync(new URL('../'+file, import.meta.url))).digest('hex'), hash, file);
 });
 test('offline client and stylesheet load only through the lazy candidate entry', () => {
   const boot = readFileSync(new URL('../src/boot.ts', import.meta.url), 'utf8');
