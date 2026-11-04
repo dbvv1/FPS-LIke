@@ -1,0 +1,381 @@
+{
+  "schemaVersion": 1,
+  "batchId": "B-FPS-MATCH-CUES-20261104",
+  "baseRef": "36fde4bb6a2e8f9652528fdea648d0a90190db79",
+  "license": "CC0-1.0",
+  "origin": "Original deterministic Python synthesis. No samples, recordings, model output, network source or commercial game audio.",
+  "format": {
+    "sampleRate": 48000,
+    "channels": 1,
+    "sampleFormat": "PCM16",
+    "edgeEnvelopeSeconds": 0.005
+  },
+  "levels": {
+    "firstPassPeakDbfs": -9.0,
+    "peakCeilingDbfs": -12.0,
+    "revisionGainDb": -3.0
+  },
+  "revision": {
+    "kind": "amplitude-only",
+    "appliedGainDb": -3.0,
+    "preserves": [
+      "eventId",
+      "durationSamples",
+      "seed",
+      "waveformShape"
+    ],
+    "description": "Whole batch regenerated with the same recipe, seeds and sample counts, then multiplied by -3 dB. Only amplitude changes; the final peak stays at or below the -12 dBFS ceiling."
+  },
+  "priorityIntent": {
+    "status": "Future integration intent only; this batch has no runtime consumer.",
+    "gunfireAndThreatPriority": [
+      "shot",
+      "reload",
+      "step",
+      "hit",
+      "head",
+      "kill",
+      "plant",
+      "bomb-warning",
+      "explosion",
+      "damage"
+    ],
+    "policy": "Gunfire and threat cues keep priority. The four candidates play in a lower UI/round tier and must not duck, delay, replace or schedule around combat audio. If a cue cannot be heard without masking combat, skip the cue instead of raising it.",
+    "mixOwnership": "Runtime mix levels remain open. This batch only fixes file peak at or below -12 dBFS.",
+    "concurrency": "At most one instance per cue event; a repeat of the same ID replaces the previous instance."
+  },
+  "cues": [
+    {
+      "id": "weapon-switch",
+      "file": "weapon-switch.wav",
+      "maxDurationSeconds": 0.14,
+      "durationSeconds": 0.13,
+      "seed": 1374772737,
+      "character": "Low-energy short mechanical latch: a filtered click, a small low body and one quieter spring tick. No tonal weapon report and no two-tone motif.",
+      "synthesis": {
+        "kind": "mechanical-switch",
+        "clickDecaySeconds": 0.0035,
+        "clickGain": 0.9,
+        "bodyStartHz": 185.0,
+        "bodySweepHzPerSecond": -55.0,
+        "bodyDecaySeconds": 0.02,
+        "bodyGain": 0.35,
+        "latchStartSeconds": 0.055,
+        "latchDecaySeconds": 0.0045,
+        "latchGain": 0.45,
+        "latchToneHz": 720.0,
+        "latchToneDecaySeconds": 0.01,
+        "latchToneGain": 0.08,
+        "springDecaySeconds": 0.03,
+        "springGain": 0.08
+      },
+      "event": {
+        "condition": "Play once when the simulation accepts a local weapon change: actor.weapon changes to the requested weapon.",
+        "trigger": "Authoritative switch acceptance, not keydown. Do not play on key repeat, on a rejected command, when the requested weapon already matches, or per rendered frame.",
+        "bindings": [
+          {
+            "repoPath": "src/input/controls.ts",
+            "line": 42,
+            "symbol": "Controls keydown Digit1/Digit2",
+            "role": "Input intent: queues { type: 'switch', weapon }."
+          },
+          {
+            "repoPath": "src/sim/game.ts",
+            "line": 116,
+            "symbol": "Game.command switch branch",
+            "role": "Authoritative acceptance: mutates only when c.weapon !== actor.weapon."
+          },
+          {
+            "repoPath": "src/candidates/offline-training-v1/input/controls.ts",
+            "line": 42,
+            "symbol": "Training Controls keydown Digit1/Digit2",
+            "role": "Training-match input intent."
+          },
+          {
+            "repoPath": "src/candidates/offline-training-v1/sim/game.ts",
+            "line": 125,
+            "symbol": "Training Game.command switch branch",
+            "role": "Authoritative acceptance on the training-match route."
+          }
+        ],
+        "forbiddenSources": [
+          "keydown without an accepted simulation weapon change",
+          "render-only weapon visibility toggle",
+          "repeating the cue while the key is held"
+        ]
+      },
+      "futurePriority": {
+        "tier": "object-feedback",
+        "maxVoices": 1,
+        "retrigger": "replace",
+        "duckCombat": false,
+        "below": [
+          "shot",
+          "threat",
+          "round-result"
+        ]
+      }
+    },
+    {
+      "id": "menu-confirm",
+      "file": "menu-confirm.wav",
+      "maxDurationSeconds": 0.1,
+      "durationSeconds": 0.09,
+      "seed": 1374772738,
+      "character": "Single soft pulse: one attack and one decay, no second click and no ascending/descending pair.",
+      "synthesis": {
+        "kind": "menu-pulse",
+        "pulseHz": 880.0,
+        "pulseDecaySeconds": 0.026,
+        "pulseGain": 0.7,
+        "harmonicRatio": 2.0,
+        "harmonicGain": 0.18
+      },
+      "event": {
+        "condition": "Play once per confirmed primary menu action, only after settings.canPlay() allows it.",
+        "trigger": "Unique trigger point: the start/next/restart onclick handlers in src/ui/hud.ts:22, training route src/candidates/offline-training-v1/ui/hud.ts:23. The resume(), next() and restart() functions in src/client.ts and src/candidates/offline-training-v1/client.ts are downstream handlers, not additional hook points. The training next() calls resume() at its end, and once match.summary.complete it calls restart() instead (src/candidates/offline-training-v1/client.ts:62); hooking next(), resume() or restart() separately would play the cue more than once per action. Do not play on hover, focus, menu open/close, a rejected settings draft, range input, or every UI click.",
+        "bindings": [
+          {
+            "repoPath": "src/ui/hud.ts",
+            "line": 22,
+            "symbol": "Hud start/next/restart onclick handlers",
+            "role": "Unique trigger point (main route): onclick runs only after settings.canPlay() returns true.",
+            "hookPoint": true
+          },
+          {
+            "repoPath": "src/client.ts",
+            "line": 33,
+            "symbol": "resume()",
+            "role": "Downstream handler only, not a hook point. Called by start and again at the end of next(); at most one cue per confirmed action.",
+            "hookPoint": false
+          },
+          {
+            "repoPath": "src/client.ts",
+            "line": 40,
+            "symbol": "next()",
+            "role": "Downstream handler only, not a hook point. Calls resume() at its end, so hooking next() and resume() would double the cue.",
+            "hookPoint": false
+          },
+          {
+            "repoPath": "src/client.ts",
+            "line": 45,
+            "symbol": "restart()",
+            "role": "Downstream handler only, not a hook point. Does not call resume().",
+            "hookPoint": false
+          },
+          {
+            "repoPath": "src/candidates/offline-training-v1/ui/hud.ts",
+            "line": 23,
+            "symbol": "Training Hud start/next/restart onclick handlers",
+            "role": "Unique trigger point (training route): onclick runs only after settings.canPlay() returns true.",
+            "hookPoint": true
+          },
+          {
+            "repoPath": "src/candidates/offline-training-v1/client.ts",
+            "line": 51,
+            "symbol": "resume()",
+            "role": "Downstream handler only, not a hook point. Called by start and again at the end of next(), except when next() transfers to restart().",
+            "hookPoint": false
+          },
+          {
+            "repoPath": "src/candidates/offline-training-v1/client.ts",
+            "line": 60,
+            "symbol": "next()",
+            "role": "Downstream handler only, not a hook point. Usually calls resume() at its end; once match.summary.complete it calls restart() instead (line 62), so hooking next(), resume() or restart() would play the cue more than once per action.",
+            "hookPoint": false
+          },
+          {
+            "repoPath": "src/candidates/offline-training-v1/client.ts",
+            "line": 67,
+            "symbol": "restart()",
+            "role": "Downstream handler only, not a hook point. Does not call resume(); also reached from next() when match.summary.complete (line 62), so it must not add its own cue.",
+            "hookPoint": false
+          }
+        ],
+        "forbiddenSources": [
+          "pointer hover or keyboard focus",
+          "opening or closing the pause menu",
+          "sensitivity range input events",
+          "menu title or description copy"
+        ]
+      },
+      "futurePriority": {
+        "tier": "ui-confirm",
+        "maxVoices": 1,
+        "retrigger": "replace",
+        "duckCombat": false,
+        "below": [
+          "shot",
+          "threat",
+          "round-result"
+        ]
+      }
+    },
+    {
+      "id": "round-win",
+      "file": "round-win.wav",
+      "maxDurationSeconds": 0.5,
+      "durationSeconds": 0.46,
+      "seed": 1374772739,
+      "character": "Two-tone ascending motif in the upper register: C5 to G5, the second tone ringing slightly longer. Original interval, not a quotation.",
+      "synthesis": {
+        "kind": "two-tone",
+        "notes": [
+          {
+            "startSeconds": 0.0,
+            "lengthSeconds": 0.15,
+            "frequencyHz": 523.25,
+            "decaySeconds": 0.07,
+            "gain": 0.55,
+            "harmonicRatio": 2.0,
+            "harmonicGain": 0.1
+          },
+          {
+            "startSeconds": 0.135,
+            "lengthSeconds": 0.3,
+            "frequencyHz": 783.99,
+            "decaySeconds": 0.11,
+            "gain": 0.65,
+            "harmonicRatio": 2.0,
+            "harmonicGain": 0.12
+          }
+        ]
+      },
+      "event": {
+        "condition": "Play once on the authoritative round-over transition when state.result.team === localPlayer.team.",
+        "trigger": "Read state.phase === 'over' and state.result.team from the simulation. Never infer the winner from menu-title or menu-description text, localized copy or screenshot OCR.",
+        "bindings": [
+          {
+            "repoPath": "src/sim/game.ts",
+            "line": 218,
+            "symbol": "Game.finish",
+            "role": "Main-route authoritative round result settlement."
+          },
+          {
+            "repoPath": "src/sim/game.ts",
+            "line": 221,
+            "symbol": "Game.finish result assignment",
+            "role": "Sets phase 'over' and result.team from the winning side."
+          },
+          {
+            "repoPath": "src/candidates/offline-training-v1/sim/game.ts",
+            "line": 232,
+            "symbol": "Training Game.finish",
+            "role": "Training-route authoritative round result settlement."
+          },
+          {
+            "repoPath": "src/candidates/offline-training-v1/sim/game.ts",
+            "line": 235,
+            "symbol": "Training Game.finish result assignment",
+            "role": "Sets phase 'over' and result.team from the winning side."
+          },
+          {
+            "repoPath": "src/candidates/offline-training-v1/session/match.ts",
+            "line": 14,
+            "symbol": "TrainingMatch.observe won field",
+            "role": "Derives won from state.result.team === player.team, never from UI copy."
+          }
+        ],
+        "forbiddenSources": [
+          "src/ui/hud.ts menu-title textContent",
+          "src/ui/hud.ts menu-description textContent",
+          "localized result strings or screenshot OCR"
+        ]
+      },
+      "futurePriority": {
+        "tier": "round-result",
+        "maxVoices": 1,
+        "exclusiveGroup": "round-result",
+        "retrigger": "once per round",
+        "duckCombat": false,
+        "below": [
+          "shot",
+          "threat"
+        ]
+      }
+    },
+    {
+      "id": "round-loss",
+      "file": "round-loss.wav",
+      "maxDurationSeconds": 0.5,
+      "durationSeconds": 0.46,
+      "seed": 1374772740,
+      "character": "Two-tone descending motif in the lower register: G4 to C4, with a slower decay than round-win. Original interval, not a quotation.",
+      "synthesis": {
+        "kind": "two-tone",
+        "notes": [
+          {
+            "startSeconds": 0.0,
+            "lengthSeconds": 0.17,
+            "frequencyHz": 392.0,
+            "decaySeconds": 0.08,
+            "gain": 0.6,
+            "harmonicRatio": 2.0,
+            "harmonicGain": 0.08
+          },
+          {
+            "startSeconds": 0.155,
+            "lengthSeconds": 0.275,
+            "frequencyHz": 261.63,
+            "decaySeconds": 0.13,
+            "gain": 0.65,
+            "harmonicRatio": 2.0,
+            "harmonicGain": 0.06
+          }
+        ]
+      },
+      "event": {
+        "condition": "Play once on the authoritative round-over transition when state.result.team !== localPlayer.team.",
+        "trigger": "Read state.phase === 'over' and state.result.team from the simulation. Never infer the winner from menu-title or menu-description text, localized copy or screenshot OCR.",
+        "bindings": [
+          {
+            "repoPath": "src/sim/game.ts",
+            "line": 218,
+            "symbol": "Game.finish",
+            "role": "Main-route authoritative round result settlement."
+          },
+          {
+            "repoPath": "src/sim/game.ts",
+            "line": 221,
+            "symbol": "Game.finish result assignment",
+            "role": "Sets phase 'over' and result.team from the winning side."
+          },
+          {
+            "repoPath": "src/candidates/offline-training-v1/sim/game.ts",
+            "line": 232,
+            "symbol": "Training Game.finish",
+            "role": "Training-route authoritative round result settlement."
+          },
+          {
+            "repoPath": "src/candidates/offline-training-v1/sim/game.ts",
+            "line": 235,
+            "symbol": "Training Game.finish result assignment",
+            "role": "Sets phase 'over' and result.team from the winning side."
+          },
+          {
+            "repoPath": "src/candidates/offline-training-v1/session/match.ts",
+            "line": 14,
+            "symbol": "TrainingMatch.observe won field",
+            "role": "Derives won from state.result.team === player.team, never from UI copy."
+          }
+        ],
+        "forbiddenSources": [
+          "src/ui/hud.ts menu-title textContent",
+          "src/ui/hud.ts menu-description textContent",
+          "localized result strings or screenshot OCR"
+        ]
+      },
+      "futurePriority": {
+        "tier": "round-result",
+        "maxVoices": 1,
+        "exclusiveGroup": "round-result",
+        "retrigger": "once per round",
+        "duckCombat": false,
+        "below": [
+          "shot",
+          "threat"
+        ]
+      }
+    }
+  ]
+}
