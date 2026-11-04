@@ -1,0 +1,258 @@
+{
+  "taskId": "B-FPS-FIXED-CAPTURE-20261104",
+  "passed": true,
+  "capturePassed": true,
+  "complete": false,
+  "status": "capture-complete, exit-baseline-incomplete",
+  "passedScope": "capture-only; not the whole task card",
+  "cleanExitBaseline": false,
+  "generatedAt": "2026-11-04T20:22:49.393Z",
+  "summary": "Six PNGs captured, decoded, and verified; each camera has two identical fresh-context takes. Clean-exit baseline incomplete: see cleanupDeviation.",
+  "acceptance": {
+    "sixDecodableNonBackgroundPngs": true,
+    "twoTakesPerCameraPixelAndStateIdentical": true,
+    "webgl2": true,
+    "resolution1280x720Dpr1": true,
+    "softwareRenderer": true,
+    "shotErrorsEmpty": true,
+    "buildExit0": true,
+    "reportPassed": true,
+    "harnessExit0": false,
+    "chromiumCleanExit": false,
+    "npmTestExit0": true
+  },
+  "checks": {
+    "buildExit0": true,
+    "sixShots": true,
+    "allShotValidationPassed": true,
+    "allTakesMatch": true,
+    "softwareRendererEveryShot": true,
+    "servedBundlesMatch": true,
+    "previewPortClosed": true,
+    "browserChildrenGone": true,
+    "chromiumExit0": false
+  },
+  "comparisons": [
+    {
+      "camera": "gameplay",
+      "same": {
+        "rgbaSha256": true,
+        "stateHash": true,
+        "stateStable": true,
+        "commandsStable": true,
+        "cameraStable": true,
+        "rendererStable": true,
+        "t": true,
+        "frame": true,
+        "tick": true
+      },
+      "passed": true
+    },
+    {
+      "camera": "courtyard-gap",
+      "same": {
+        "rgbaSha256": true,
+        "stateHash": true,
+        "stateStable": true,
+        "commandsStable": true,
+        "cameraStable": true,
+        "rendererStable": true,
+        "t": true,
+        "frame": true,
+        "tick": true
+      },
+      "passed": true
+    },
+    {
+      "camera": "cross-lane",
+      "same": {
+        "rgbaSha256": true,
+        "stateHash": true,
+        "stateStable": true,
+        "commandsStable": true,
+        "cameraStable": true,
+        "rendererStable": true,
+        "t": true,
+        "frame": true,
+        "tick": true
+      },
+      "passed": true
+    }
+  ],
+  "failure": null,
+  "cleanupDeviation": {
+    "observed": true,
+    "harnessExitCode": 1,
+    "chromiumExitCode": 1,
+    "chromiumExitSignal": null,
+    "cause": "The executed harness called browser.close() on a connect()ed browser, which only disconnects the client; after 15 s the harness force-killed the launched Chromium. All six captures and every validation check had already passed.",
+    "postRunFix": "The delivered harness now calls BrowserServer.close() for a launched server before any force-kill, and the review fixes make the output root configurable (FPS_CAPTURE_OUT_ROOT), create an exclusive preflight.json, ignore untracked files in the tracked-clean check, record httpServerListeningAfterClose with direct semantics, split self-reported vs observed exit codes, and print fatal errors to stderr. No capture or rerun was performed because the task forbids overwriting the exclusive output root or switching roots. A second review pass also distinguishes capture-failed from exit-baseline-incomplete, tees this process's stderr into PW_DEBUG_LOG, writes harness-fatal.json only after the output root is successfully claimed, and derives the local-evidence location note from the actual output root. A third review pass adds measured dependency verification before the build (package-lock.json SHA-256 plus the installed versions of vite/playwright/pngjs/three/typescript checked against the lock), with environment.dependencies and packageLockSha256 derived from those measurements.",
+    "harnessExecutedSha256": "2035a2d10874797e09fa151ff7d7ea1d20e690ca0e02b688899db25ca8f18d3e",
+    "harnessDeliveredSha256": "e838b270df1085170579129c5de38212b8838ad664ed4d91dcf059f87882e4d1"
+  },
+  "npmTest": {
+    "command": "npm test (node npm-cli.js test)",
+    "nodeVersion": "v24.22.1",
+    "startedAt": "2026-11-04T20:21:24Z",
+    "endedAt": "2026-11-04T20:21:51Z",
+    "exitCode": 0,
+    "tests": 430,
+    "pass": 430,
+    "fail": 0,
+    "log": "local-only (not published)"
+  },
+  "processRecords": {
+    "harness": {
+      "taskId": "B-FPS-FIXED-CAPTURE-20261104",
+      "pid": 25100,
+      "nodeVersion": "v24.22.1",
+      "startedAt": "2026-11-04T20:18:04.353Z",
+      "cwdIsRepo": true,
+      "debug": "pw:browser",
+      "endedAt": "2026-11-04T20:19:44.825Z",
+      "selfReportedExitCode": 0,
+      "observedExitCode": 1,
+      "exitCodeSource": "selfReportedExitCode is the executed harness's own exit intent (local executed report); observedExitCode is the OS-observed run exit (run-exit.json)"
+    },
+    "build": {
+      "pid": 110416,
+      "startedAt": "2026-11-04T20:18:09.627Z",
+      "endedAt": "2026-11-04T20:18:15.009Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    "preview": {
+      "sameProcess": true,
+      "pid": 25100,
+      "startedAt": "2026-11-04T20:18:17.455Z",
+      "closedAt": "2026-11-04T20:19:43.150Z",
+      "port": 4854,
+      "portClosed": true,
+      "httpServerListeningAfterClose": false
+    },
+    "chromium": {
+      "pid": 99376,
+      "parentPid": 25100,
+      "startedAt": "2026-11-04T20:18:18.441Z",
+      "endedAt": "2026-11-04T20:19:43.107Z",
+      "exitCode": 1,
+      "exitSignal": null,
+      "childrenAtLaunch": [
+        {
+          "pid": 58952,
+          "parentPid": 99376,
+          "createdAt": "2026-11-05T04:18:19.4037650+08:00",
+          "name": "chrome.exe",
+          "type": "crashpad-handler"
+        },
+        {
+          "pid": 38376,
+          "parentPid": 99376,
+          "createdAt": "2026-11-05T04:18:23.2756670+08:00",
+          "name": "chrome.exe",
+          "type": "gpu-process"
+        },
+        {
+          "pid": 111344,
+          "parentPid": 99376,
+          "createdAt": "2026-11-05T04:18:23.7438930+08:00",
+          "name": "chrome.exe",
+          "type": "utility"
+        },
+        {
+          "pid": 38160,
+          "parentPid": 99376,
+          "createdAt": "2026-11-05T04:18:25.2411100+08:00",
+          "name": "chrome.exe",
+          "type": "utility"
+        }
+      ],
+      "childrenRemaining": []
+    }
+  },
+  "cleanup": {
+    "startedAt": "2026-11-04T20:19:26.645Z",
+    "contextsClosed": true,
+    "browser": null,
+    "preview": {
+      "sameProcess": true,
+      "pid": 25100,
+      "closeCallbackAt": "2026-11-04T20:19:43.150Z",
+      "httpServerListeningAfterClose": false,
+      "closeInvoked": true
+    },
+    "childrenRemaining": [],
+    "portClosed": true,
+    "killRequestedAt": "2026-11-04T20:19:41.650Z",
+    "endedAt": "2026-11-04T20:19:44.817Z"
+  },
+  "artifactHashes": [
+    {
+      "file": "capture-gameplay-1.png",
+      "camera": "gameplay",
+      "take": 1,
+      "bytes": 306943,
+      "sha256": "54e3ee3adb5ffadc93f884ecadb05753ca1e0a47073a2406cf99e4f39181427b"
+    },
+    {
+      "file": "capture-gameplay-2.png",
+      "camera": "gameplay",
+      "take": 2,
+      "bytes": 306943,
+      "sha256": "54e3ee3adb5ffadc93f884ecadb05753ca1e0a47073a2406cf99e4f39181427b"
+    },
+    {
+      "file": "capture-courtyard-gap-1.png",
+      "camera": "courtyard-gap",
+      "take": 1,
+      "bytes": 216325,
+      "sha256": "1eed1336d78cd11b751ebd9ab200f0b46935f1d0f6936081a3ac4d218fc029c2"
+    },
+    {
+      "file": "capture-courtyard-gap-2.png",
+      "camera": "courtyard-gap",
+      "take": 2,
+      "bytes": 216325,
+      "sha256": "1eed1336d78cd11b751ebd9ab200f0b46935f1d0f6936081a3ac4d218fc029c2"
+    },
+    {
+      "file": "capture-cross-lane-1.png",
+      "camera": "cross-lane",
+      "take": 1,
+      "bytes": 276878,
+      "sha256": "b1c5d2e81073d2cf97459a61021f7c7795f57422d2ff4bd3ce61bce505035713"
+    },
+    {
+      "file": "capture-cross-lane-2.png",
+      "camera": "cross-lane",
+      "take": 2,
+      "bytes": 276878,
+      "sha256": "b1c5d2e81073d2cf97459a61021f7c7795f57422d2ff4bd3ce61bce505035713"
+    }
+  ],
+  "openIssues": [
+    "SwiftShader software rendering only; not a hardware-GPU baseline.",
+    "One fixed 120-tick state per camera, not a full six-round match.",
+    "Audio, feel, reference registration, and picture ranking are not verified by this capture.",
+    "Clean-exit baseline is incomplete: the executed harness exited 1 and Chromium was force-killed (exit code 1) after the connected-browser close path failed to terminate it. The delivered harness contains the post-run cleanup fix, but no rerun was performed. All six images were captured and verified before cleanup."
+  ],
+  "redaction": "Public copy omits machine username, absolute paths, full browser argv, CDP/debug endpoints, and raw debug logs. Local-only records remain in the gitignored outputs/ directory inside the repository worktree.",
+  "publicCopy": {
+    "sanitized": true,
+    "note": "Local-only evidence remains in the gitignored outputs/ directory inside the repository worktree, not outside it."
+  },
+  "processEvidenceLimits": [
+    "Individual exit codes/times of Chromium child processes were not captured; the launch snapshot and the final descendant scan (empty) are the available evidence.",
+    "Renderer/utility PIDs created when capture pages opened were not snapshotted during the run; only the immediate post-launch children snapshot and the final empty descendant scan are available.",
+    "DEBUG=pw:browser in this Playwright version logged ws connect/disconnect events but no explicit <launching>/<launched>/exit lines; actual argv was verified with Browser.getBrowserCommandLine over CDP instead of inferred from the debug log."
+  ],
+  "harnessExitObserved": 1,
+  "harnessRun": {
+    "startedAt": "2026-11-04T20:17:54Z",
+    "endedAt": "2026-11-04T20:19:53Z",
+    "exitCode": 1,
+    "signal": null,
+    "command": "node24 harness.mjs"
+  },
+  "passedMeaning": "passed means capturePassed: six decodable, non-background PNGs and all per-shot checks passed. It does NOT mean cleanExitBaseline: see cleanupDeviation and acceptance.harnessExit0."
+}

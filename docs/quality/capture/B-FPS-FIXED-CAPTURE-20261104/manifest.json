@@ -1,0 +1,2821 @@
+{
+  "taskId": "B-FPS-FIXED-CAPTURE-20261104",
+  "commit": "fa8740de3bf2f4ffaaabec5c8df09d9f4c9088c8",
+  "tree": "417652e69e45b06bb982cd5a0ca11265677f2fcd",
+  "passed": true,
+  "capturePassed": true,
+  "complete": false,
+  "status": "capture-complete, exit-baseline-incomplete",
+  "passedScope": "capture-only; not the whole task card",
+  "cleanExitBaseline": false,
+  "generatedAt": "2026-11-04T20:19:44.825Z",
+  "source": {
+    "headObserved": "fa8740de3bf2f4ffaaabec5c8df09d9f4c9088c8",
+    "treeObserved": "417652e69e45b06bb982cd5a0ca11265677f2fcd",
+    "headMatchesFixed": true,
+    "treeMatchesFixed": true,
+    "trackedCleanBeforeBuild": true,
+    "trackedCleanAfterBuild": true
+  },
+  "environment": {
+    "node": "v24.22.1",
+    "nodeOnPath": "v22.23.2",
+    "python": "3.13.5",
+    "chromium": {
+      "version": "156.0.8078.4",
+      "executableVersionInfo": "156.0.8078.4",
+      "executableSha256": "7f08161bbeb2853ffe1780a9ded4985087f52efb9725d7d8207aabdd42f7cfb9",
+      "versionSource": "VersionInfo and SHA-256 of the existing binary"
+    },
+    "dependencies": {
+      "vite": "8.3.5",
+      "playwright": "1.64.1",
+      "pngjs": "7.0.0",
+      "three": "0.186.1",
+      "typescript": "7.0.2"
+    },
+    "packageLockSha256": "390c5619c464e5b164be3bf472bb41d0bfd3cc63d0309e21909026addf7f5e3c"
+  },
+  "build": {
+    "command": "npm run build (node npm-cli.js run build)",
+    "nodeVersion": "v24.22.1",
+    "pid": 110416,
+    "startedAt": "2026-11-04T20:18:09.627Z",
+    "endedAt": "2026-11-04T20:18:15.009Z",
+    "exitCode": 0,
+    "signal": null,
+    "windowsHide": true,
+    "log": "build.log"
+  },
+  "webDist": {
+    "fileCount": 34,
+    "files": [
+      {
+        "file": "assets/cameras-ChKJAfpS.js",
+        "bytes": 775,
+        "sha256": "230b26451487e2f1ae79fccccb98cbf14c0469c46fb0e07acd6bf46916e795e0"
+      },
+      {
+        "file": "assets/candidate-route-SS3bEaxz.js",
+        "bytes": 526,
+        "sha256": "11e74533448fc8903c42ec9d27f8d8e84ca894c8493e191522b0398e2c6aae09"
+      },
+      {
+        "file": "assets/client-ADqdgF6c.js",
+        "bytes": 19126,
+        "sha256": "8871108cbd423188c34428c7f70890093cb2b3d2e841b1b2361c8be534245c50"
+      },
+      {
+        "file": "assets/client-BFX7xFLw.js",
+        "bytes": 18463,
+        "sha256": "58ba3375776e8f3de47fb8b8bb90e2cd8fa5048dc3eb1b0228738b5e9b153ef0"
+      },
+      {
+        "file": "assets/client-BV_2DDtN.js",
+        "bytes": 5231,
+        "sha256": "eb7e28dcc24438a35b2e90db51da3818ad2f990dba9b1b043b34e7be1bfa8203"
+      },
+      {
+        "file": "assets/client-CaN_vGtC.js",
+        "bytes": 21747,
+        "sha256": "2bdb679450667dbf19bb69e2c0b21ce81b2ca20bec94ea3ee2d23744f866dd70"
+      },
+      {
+        "file": "assets/client-CvwXRiEZ.js",
+        "bytes": 6856,
+        "sha256": "9b9b391bfb86285ae3d3ce5b783f09536284810a3c9e6c24f4933a82667a63d8"
+      },
+      {
+        "file": "assets/default-route-CkZGZv8p.js",
+        "bytes": 370,
+        "sha256": "74d3fe457e5fa427071eda62767450fb43fae27b1d0374fc89534fa63a61a85d"
+      },
+      {
+        "file": "assets/dist-CVkarZtm.js",
+        "bytes": 1178073,
+        "sha256": "63ddce5703dbf6872e812fbbcd85b598c20e454190b5493ca7b54c59e51157fc"
+      },
+      {
+        "file": "assets/enemy-relay-guard-CS-HTAkv.glb",
+        "bytes": 40388,
+        "sha256": "5b316a139cf48b21a6d6b7328ac1c8b58a73c4f41ce1a0de24f2a8ca74afbd74"
+      },
+      {
+        "file": "assets/entry-BH6Z3s4h.js",
+        "bytes": 1050,
+        "sha256": "117c73490bfadcecc4cf3caff80768fb521fdcd6487f6b344f273f31c81d84af"
+      },
+      {
+        "file": "assets/entry-e2Z0vRps.css",
+        "bytes": 10273,
+        "sha256": "74eab6441abf668406b3e4eb93ca0588e7e6a0ca70254114afc7e44050777f00"
+      },
+      {
+        "file": "assets/fp-arms-rx24-Csz61tNP.glb",
+        "bytes": 188088,
+        "sha256": "e672d06e30262f2575076f759645aa3d82d6734f0c26ef280a2a36870549b9e1"
+      },
+      {
+        "file": "assets/frame-budget-Bp0rdbDd.js",
+        "bytes": 281,
+        "sha256": "e40b32938b1e8af981dd6b6de2e4273f98e82f550c683df5d7fd0496cda79c63"
+      },
+      {
+        "file": "assets/ground-Cegpr579.webp",
+        "bytes": 174612,
+        "sha256": "8a45374142b195748cede9cba56e79267f5aeaaebe66ee977efa6c5cc97b49a3"
+      },
+      {
+        "file": "assets/index-BAPAz_fB.js",
+        "bytes": 2586,
+        "sha256": "a41fbf0d848e2a0dc8087c60a01b0af7d4010fc09fc4e2b61c5e088c5af1efd3"
+      },
+      {
+        "file": "assets/index-Lpyfeiio.css",
+        "bytes": 9471,
+        "sha256": "92c07a6a0976395fbf00aa36b0c9b7861c981b8cc7359128e68f222b65eeaed4"
+      },
+      {
+        "file": "assets/lamp-existing-DVeGWscy.glb",
+        "bytes": 10336,
+        "sha256": "09265db770ba91c8f81442c87468ec68b95e689011e8e2d7e2a66de4015500be"
+      },
+      {
+        "file": "assets/low-cover-site-DA3dcXAf.glb",
+        "bytes": 36492,
+        "sha256": "ca2f7dc220a403fc41905242b957f4110271bb085bcb5c61955d7ed3dc8d1930"
+      },
+      {
+        "file": "assets/match-panel-BiNUyxYp.js",
+        "bytes": 144212,
+        "sha256": "954090d22a5abdd9e5d4ea1cc78339889841cc9b4a6c8e397a4f7ee9fa71a009"
+      },
+      {
+        "file": "assets/navigation-DdDgzWcG.js",
+        "bytes": 94696,
+        "sha256": "c99f237cf1f077f4e4a2bfc72a955613bb724a5769a9276826357a2025c7a501"
+      },
+      {
+        "file": "assets/navigation-DHtDdhlh.js",
+        "bytes": 101957,
+        "sha256": "622d650d59ef535bded1ee59050a1b5525b2221095eaf2b96201c6f356ea2fc6"
+      },
+      {
+        "file": "assets/output-BoVdQSWt.js",
+        "bytes": 801,
+        "sha256": "f2f45013a4db7c43a45f306897ec7f7bf167facac3e7c97887394d00fc9c2fba"
+      },
+      {
+        "file": "assets/physics-D_zIYmY6.js",
+        "bytes": 4129,
+        "sha256": "0351145b1ffa1b0cc874f206c277fbb4026d2b4cd276bf1305ab2cc099e619ea"
+      },
+      {
+        "file": "assets/preload-helper-BLdHbfdN.js",
+        "bytes": 1519,
+        "sha256": "8aec9ff75ffa86a03d51268b63126abadb3754aa5a6b6c5bb16e4e2446a63dee"
+      },
+      {
+        "file": "assets/quality-client-CaIOJ2Zz.js",
+        "bytes": 4174,
+        "sha256": "03638f868b03a53ef8a1af594bf08fd0f310cedd5b0f1e9620731c9cbf35f8a3"
+      },
+      {
+        "file": "assets/quality-route-foNotyz7.js",
+        "bytes": 757,
+        "sha256": "d9f63ba6057e85ab89d637ceea463ded3e0e76d5b42ddc19abd5f936bb439bc5"
+      },
+      {
+        "file": "assets/quality-route-qehs-H0T.js",
+        "bytes": 98,
+        "sha256": "d67d3faad56349afccc50796bb61f0999905824150ab79a4820cc658918062d2"
+      },
+      {
+        "file": "assets/rapier-BR_-CEU_.js",
+        "bytes": 4332815,
+        "sha256": "a98b2b9d569daee4c17d3a51bbce1d55f41e6242395887291860dd10cc439c5e"
+      },
+      {
+        "file": "assets/recast-navigation.wasm-compat-Qa-X0_Ub.js",
+        "bytes": 726226,
+        "sha256": "32c03f6185eb21c7428f58164d12336ae1596d9187370e11aa9edea965ce0896"
+      },
+      {
+        "file": "assets/renderer-CPCC4Qy-.js",
+        "bytes": 1042,
+        "sha256": "7379311ddba4af6cb9be1aff0a4a28bd4f799c260ddec59646c2a4f78a1014ee"
+      },
+      {
+        "file": "assets/wall-9_xNUgQT.webp",
+        "bytes": 89304,
+        "sha256": "a4dd17c6b12cb18ea7be0907cc93859abae43a7c8007cce04015633f252494ed"
+      },
+      {
+        "file": "assets/wall-center-dogleg-DddcdcKC.glb",
+        "bytes": 76776,
+        "sha256": "2ca378155b3c5e7286167b56bbbed307e1f1eb80ac250d026e7a9bc094323a25"
+      },
+      {
+        "file": "index.html",
+        "bytes": 1604,
+        "sha256": "9f3a853899da6b5cba5cc426de44589da10df82fc1ee206c0713011a2e3ed03d"
+      }
+    ]
+  },
+  "server": {
+    "sameProcess": true,
+    "pid": 25100,
+    "host": "127.0.0.1",
+    "port": 4854,
+    "baseUrl": "http://127.0.0.1:4854",
+    "startedAt": "2026-11-04T20:18:17.455Z",
+    "exitCode": null,
+    "exitSignal": null,
+    "closedAt": "2026-11-04T20:19:43.150Z",
+    "httpServerListeningAfterClose": false,
+    "portClosed": true
+  },
+  "chromium": {
+    "version": "156.0.8078.4",
+    "executableSha256": "7f08161bbeb2853ffe1780a9ded4985087f52efb9725d7d8207aabdd42f7cfb9",
+    "executableVersionInfo": "156.0.8078.4",
+    "versionSource": "VersionInfo and SHA-256 of the existing binary",
+    "pid": 99376,
+    "parentPid": 25100,
+    "parentChain": [
+      {
+        "pid": 25100,
+        "role": "harness"
+      }
+    ],
+    "startedAt": "2026-11-04T20:18:18.441Z",
+    "creationDateFromOs": "2026-11-05T04:18:18.4513330+08:00",
+    "launch": {
+      "headless": true,
+      "chromiumSandbox": false,
+      "args": [
+        "--no-sandbox",
+        "--enable-unsafe-swiftshader",
+        "--use-angle=swiftshader",
+        "--enable-automation",
+        "--disable-background-timer-throttling",
+        "--disable-renderer-backgrounding",
+        "--disable-backgrounding-occluded-windows"
+      ],
+      "ignoreDefaultArgs": false
+    },
+    "childrenAtLaunch": [
+      {
+        "pid": 58952,
+        "parentPid": 99376,
+        "createdAt": "2026-11-05T04:18:19.4037650+08:00",
+        "name": "chrome.exe",
+        "type": "crashpad-handler"
+      },
+      {
+        "pid": 38376,
+        "parentPid": 99376,
+        "createdAt": "2026-11-05T04:18:23.2756670+08:00",
+        "name": "chrome.exe",
+        "type": "gpu-process"
+      },
+      {
+        "pid": 111344,
+        "parentPid": 99376,
+        "createdAt": "2026-11-05T04:18:23.7438930+08:00",
+        "name": "chrome.exe",
+        "type": "utility"
+      },
+      {
+        "pid": 38160,
+        "parentPid": 99376,
+        "createdAt": "2026-11-05T04:18:25.2411100+08:00",
+        "name": "chrome.exe",
+        "type": "utility"
+      }
+    ],
+    "exitCode": 1,
+    "exitSignal": null,
+    "endedAt": "2026-11-04T20:19:43.107Z",
+    "serverClosedAt": "2026-11-04T20:19:43.107Z",
+    "debugLog": {
+      "available": true,
+      "hasLaunchingEvent": false,
+      "hasLaunchedEvent": false,
+      "pidFromLog": null,
+      "pidMatches": false,
+      "exitEventCount": 0,
+      "redacted": "full launch argv and paths remain local only"
+    },
+    "actualCommandLine": {
+      "argumentCount": 57,
+      "headless": true,
+      "noSandbox": true,
+      "unsafeSwiftshader": true,
+      "angleSwiftshader": true,
+      "automation": true,
+      "backgroundTimerThrottlingDisabled": true,
+      "rendererBackgroundingDisabled": true,
+      "occludedBackgroundingDisabled": true,
+      "gpuDisabled": false,
+      "angleD3d11": false,
+      "source": "Browser.getBrowserCommandLine over CDP"
+    },
+    "exitImmediate": false
+  },
+  "processRecords": {
+    "harness": {
+      "taskId": "B-FPS-FIXED-CAPTURE-20261104",
+      "pid": 25100,
+      "nodeVersion": "v24.22.1",
+      "startedAt": "2026-11-04T20:18:04.353Z",
+      "cwdIsRepo": true,
+      "debug": "pw:browser",
+      "endedAt": "2026-11-04T20:19:44.825Z",
+      "selfReportedExitCode": 0,
+      "observedExitCode": 1,
+      "exitCodeSource": "selfReportedExitCode is the executed harness's own exit intent (local executed report); observedExitCode is the OS-observed run exit (run-exit.json)"
+    },
+    "build": {
+      "pid": 110416,
+      "startedAt": "2026-11-04T20:18:09.627Z",
+      "endedAt": "2026-11-04T20:18:15.009Z",
+      "exitCode": 0,
+      "signal": null
+    },
+    "preview": {
+      "sameProcess": true,
+      "pid": 25100,
+      "startedAt": "2026-11-04T20:18:17.455Z",
+      "closedAt": "2026-11-04T20:19:43.150Z",
+      "port": 4854,
+      "portClosed": true,
+      "httpServerListeningAfterClose": false
+    },
+    "chromium": {
+      "pid": 99376,
+      "parentPid": 25100,
+      "startedAt": "2026-11-04T20:18:18.441Z",
+      "endedAt": "2026-11-04T20:19:43.107Z",
+      "exitCode": 1,
+      "exitSignal": null,
+      "childrenAtLaunch": [
+        {
+          "pid": 58952,
+          "parentPid": 99376,
+          "createdAt": "2026-11-05T04:18:19.4037650+08:00",
+          "name": "chrome.exe",
+          "type": "crashpad-handler"
+        },
+        {
+          "pid": 38376,
+          "parentPid": 99376,
+          "createdAt": "2026-11-05T04:18:23.2756670+08:00",
+          "name": "chrome.exe",
+          "type": "gpu-process"
+        },
+        {
+          "pid": 111344,
+          "parentPid": 99376,
+          "createdAt": "2026-11-05T04:18:23.7438930+08:00",
+          "name": "chrome.exe",
+          "type": "utility"
+        },
+        {
+          "pid": 38160,
+          "parentPid": 99376,
+          "createdAt": "2026-11-05T04:18:25.2411100+08:00",
+          "name": "chrome.exe",
+          "type": "utility"
+        }
+      ],
+      "childrenRemaining": []
+    }
+  },
+  "shots": [
+    {
+      "camera": "gameplay",
+      "take": 1,
+      "url": "http://127.0.0.1:4854/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&qualityCapture=gameplay",
+      "relativeUrl": "/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&qualityCapture=gameplay",
+      "startedAt": "2026-11-04T20:18:30.289Z",
+      "completedAt": "2026-11-04T20:18:42.956Z",
+      "pngFile": "capture-gameplay-1.png",
+      "jsonFile": "capture-gameplay-1.json",
+      "pngSha256": "54e3ee3adb5ffadc93f884ecadb05753ca1e0a47073a2406cf99e4f39181427b",
+      "rgbaSha256": "ce08e98a58f70a5bb992ee28a8ff58fe753ce68dc5dc5b190e446e4780e11869",
+      "stateHash": "8f7d2286",
+      "stateStableSha256": "052b9a482cd719990f4d33f035ef8b85dd190a691b361e3295e0d960f928701a",
+      "commandsStableSha256": "76f2af1b2bcc776fa73d385a8447d4236e805c12da6a98e0f90d1f765b8ece68",
+      "cameraStableSha256": "32996b31eb9f50e0c32ff35feec12b66aacc54c8dc06c2972c90b236e6db6fb3",
+      "rendererStableSha256": "be36ea9271c0861fc8810efb8b0e7edbaf075912e23eb267e2a58b2c0321b736",
+      "t": 2,
+      "frame": 0,
+      "hz": 60,
+      "tick": 120,
+      "backend": "webgl2",
+      "image": {
+        "width": 1280,
+        "height": 720,
+        "dpr": 1
+      },
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "pixelRatio": 1,
+        "bufferWidth": 1280,
+        "bufferHeight": 720
+      },
+      "cameraInfo": {
+        "position": {
+          "x": -9.4,
+          "y": 1.62,
+          "z": -15.2
+        },
+        "yaw": 0,
+        "pitch": 0,
+        "fov": 80
+      },
+      "actualPlayerPose": {
+        "position": {
+          "x": -9.4,
+          "y": 0,
+          "z": -15.2
+        },
+        "yaw": 0,
+        "pitch": 0,
+        "crouch": false,
+        "hp": 100
+      },
+      "replay": {
+        "seed": 1,
+        "difficulty": "easy",
+        "ticks": 120,
+        "hz": 60,
+        "playerInput": "idle-zero-move"
+      },
+      "qualityParameters": {
+        "maxSamples": 4,
+        "samples": 4,
+        "maxAnisotropy": 16,
+        "compressedTextureFormatsSupported": [],
+        "actualTextureFormats": "not-observed",
+        "lighting": {
+          "id": "courtyard-light-v1",
+          "environment": "hemisphere-and-ambient",
+          "ao": "deterministic-ssao-half-resolution",
+          "grade": "cool-shadows-warm-highlights"
+        },
+        "toneMapping": 4,
+        "exposure": 1.05,
+        "outputColorSpace": "srgb",
+        "shadowEnabled": true,
+        "shadowType": 1
+      },
+      "rendererEvidence": {
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+        "vendor": "Google Inc. (Google)",
+        "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "unmasked": true,
+        "rendererClass": "software"
+      },
+      "renderInfo": {
+        "art": {
+          "id": "standards-v1",
+          "state": "ready",
+          "pieces": 3,
+          "budget": {
+            "triangles": 2396,
+            "calls": 4,
+            "bytes": 123604
+          },
+          "evidence": "runtime-geometry-only",
+          "active": true
+        },
+        "lighting": {
+          "id": "courtyard-light-v1",
+          "environment": "hemisphere-and-ambient",
+          "ao": "deterministic-ssao-half-resolution",
+          "grade": "cool-shadows-warm-highlights"
+        },
+        "render": {
+          "frame": 108,
+          "calls": 64,
+          "triangles": 3366,
+          "points": 0,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 89,
+          "textures": 19
+        }
+      },
+      "sampledColors5bit": 656,
+      "validation": {
+        "passed": true,
+        "checks": [
+          {
+            "name": "ready",
+            "ok": true,
+            "actual": true
+          },
+          {
+            "name": "errorEmpty",
+            "ok": true,
+            "actual": null
+          },
+          {
+            "name": "backendWebgl2",
+            "ok": true,
+            "actual": "webgl2"
+          },
+          {
+            "name": "imageSize",
+            "ok": true,
+            "actual": {
+              "width": 1280,
+              "height": 720,
+              "dpr": 1
+            }
+          },
+          {
+            "name": "viewportSize",
+            "ok": true,
+            "actual": {
+              "width": 1280,
+              "height": 720,
+              "pixelRatio": 1,
+              "bufferWidth": 1280,
+              "bufferHeight": 720
+            }
+          },
+          {
+            "name": "stateTick120",
+            "ok": true,
+            "actual": 120
+          },
+          {
+            "name": "frame0",
+            "ok": true,
+            "actual": 0
+          },
+          {
+            "name": "t2",
+            "ok": true,
+            "actual": 2
+          },
+          {
+            "name": "hz60",
+            "ok": true,
+            "actual": 60
+          },
+          {
+            "name": "replayFixed",
+            "ok": true,
+            "actual": {
+              "seed": 1,
+              "difficulty": "easy",
+              "ticks": 120,
+              "hz": 60,
+              "playerInput": "idle-zero-move"
+            }
+          },
+          {
+            "name": "artReady",
+            "ok": true,
+            "actual": {
+              "id": "standards-v1",
+              "state": "ready",
+              "pieces": 3,
+              "budget": {
+                "triangles": 2396,
+                "calls": 4,
+                "bytes": 123604
+              },
+              "evidence": "runtime-geometry-only",
+              "active": true
+            }
+          },
+          {
+            "name": "renderLighting",
+            "ok": true,
+            "actual": "courtyard-light-v1"
+          },
+          {
+            "name": "qualityLighting",
+            "ok": true,
+            "actual": "courtyard-light-v1"
+          },
+          {
+            "name": "bootHidden",
+            "ok": true,
+            "actual": true
+          },
+          {
+            "name": "softwareRenderer",
+            "ok": true,
+            "actual": {
+              "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+              "vendor": "Google Inc. (Google)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+              "unmasked": true,
+              "rendererClass": "software"
+            }
+          },
+          {
+            "name": "pngSignal",
+            "ok": true,
+            "actual": {
+              "colors": 656,
+              "sampledEvery": 4
+            }
+          },
+          {
+            "name": "playerPresent",
+            "ok": true,
+            "actual": "player"
+          },
+          {
+            "name": "actualPlayerPose",
+            "ok": true,
+            "actual": {
+              "actualPlayerPose": {
+                "position": {
+                  "x": -9.4,
+                  "y": 0,
+                  "z": -15.2
+                },
+                "yaw": 0,
+                "pitch": 0,
+                "crouch": false,
+                "hp": 100
+              },
+              "player": {
+                "position": {
+                  "x": -9.4,
+                  "y": 0,
+                  "z": -15.2
+                },
+                "yaw": 0,
+                "pitch": 0
+              }
+            }
+          },
+          {
+            "name": "cameraFov80",
+            "ok": true,
+            "actual": 80
+          },
+          {
+            "name": "cameraPlayerKind",
+            "ok": true,
+            "actual": {
+              "cameraKind": "player",
+              "firstPersonWeapon": true
+            }
+          },
+          {
+            "name": "frame0Waited150msStable",
+            "ok": true,
+            "actual": {
+              "stateHashSame": true,
+              "pngSame": true
+            }
+          },
+          {
+            "name": "pageErrorsEmpty",
+            "ok": true,
+            "actual": []
+          },
+          {
+            "name": "externalRequestsEmpty",
+            "ok": true,
+            "actual": []
+          },
+          {
+            "name": "servedBundlesMatch",
+            "ok": true,
+            "actual": []
+          },
+          {
+            "name": "entryServed",
+            "ok": true,
+            "actual": [
+              {
+                "url": "http://127.0.0.1:4854/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&qualityCapture=gameplay",
+                "status": 200,
+                "resourceType": "document",
+                "file": "index.html",
+                "servedSha256": "9f3a853899da6b5cba5cc426de44589da10df82fc1ee206c0713011a2e3ed03d",
+                "localFileExists": true,
+                "localSha256": "9f3a853899da6b5cba5cc426de44589da10df82fc1ee206c0713011a2e3ed03d",
+                "match": true,
+                "containsQualityCapture": false
+              }
+            ]
+          },
+          {
+            "name": "qualityChunkServed",
+            "ok": true,
+            "actual": [
+              "http://127.0.0.1:4854/assets/entry-BH6Z3s4h.js",
+              "http://127.0.0.1:4854/assets/quality-route-foNotyz7.js",
+              "http://127.0.0.1:4854/assets/quality-route-qehs-H0T.js",
+              "http://127.0.0.1:4854/assets/quality-client-CaIOJ2Zz.js"
+            ]
+          }
+        ]
+      },
+      "commit": "fa8740de3bf2f4ffaaabec5c8df09d9f4c9088c8",
+      "tree": "417652e69e45b06bb982cd5a0ca11265677f2fcd",
+      "sourceClean": {
+        "beforeBuild": true,
+        "afterBuild": true
+      },
+      "chromiumVersion": "156.0.8078.4",
+      "seed": 1,
+      "input": "idle-zero-move",
+      "servedBundles": {
+        "verified": true,
+        "count": 19,
+        "sha256": "0708257fa38105e90122b45cd28efa7165ef21f8d17a756b4df0bb309888f435"
+      },
+      "exitEvidence": "See processRecords/cleanup in report.json; clean-exit baseline incomplete (see cleanupDeviation)."
+    },
+    {
+      "camera": "gameplay",
+      "take": 2,
+      "url": "http://127.0.0.1:4854/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&qualityCapture=gameplay",
+      "relativeUrl": "/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&qualityCapture=gameplay",
+      "startedAt": "2026-11-04T20:18:44.738Z",
+      "completedAt": "2026-11-04T20:18:52.284Z",
+      "pngFile": "capture-gameplay-2.png",
+      "jsonFile": "capture-gameplay-2.json",
+      "pngSha256": "54e3ee3adb5ffadc93f884ecadb05753ca1e0a47073a2406cf99e4f39181427b",
+      "rgbaSha256": "ce08e98a58f70a5bb992ee28a8ff58fe753ce68dc5dc5b190e446e4780e11869",
+      "stateHash": "8f7d2286",
+      "stateStableSha256": "052b9a482cd719990f4d33f035ef8b85dd190a691b361e3295e0d960f928701a",
+      "commandsStableSha256": "76f2af1b2bcc776fa73d385a8447d4236e805c12da6a98e0f90d1f765b8ece68",
+      "cameraStableSha256": "32996b31eb9f50e0c32ff35feec12b66aacc54c8dc06c2972c90b236e6db6fb3",
+      "rendererStableSha256": "be36ea9271c0861fc8810efb8b0e7edbaf075912e23eb267e2a58b2c0321b736",
+      "t": 2,
+      "frame": 0,
+      "hz": 60,
+      "tick": 120,
+      "backend": "webgl2",
+      "image": {
+        "width": 1280,
+        "height": 720,
+        "dpr": 1
+      },
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "pixelRatio": 1,
+        "bufferWidth": 1280,
+        "bufferHeight": 720
+      },
+      "cameraInfo": {
+        "position": {
+          "x": -9.4,
+          "y": 1.62,
+          "z": -15.2
+        },
+        "yaw": 0,
+        "pitch": 0,
+        "fov": 80
+      },
+      "actualPlayerPose": {
+        "position": {
+          "x": -9.4,
+          "y": 0,
+          "z": -15.2
+        },
+        "yaw": 0,
+        "pitch": 0,
+        "crouch": false,
+        "hp": 100
+      },
+      "replay": {
+        "seed": 1,
+        "difficulty": "easy",
+        "ticks": 120,
+        "hz": 60,
+        "playerInput": "idle-zero-move"
+      },
+      "qualityParameters": {
+        "maxSamples": 4,
+        "samples": 4,
+        "maxAnisotropy": 16,
+        "compressedTextureFormatsSupported": [],
+        "actualTextureFormats": "not-observed",
+        "lighting": {
+          "id": "courtyard-light-v1",
+          "environment": "hemisphere-and-ambient",
+          "ao": "deterministic-ssao-half-resolution",
+          "grade": "cool-shadows-warm-highlights"
+        },
+        "toneMapping": 4,
+        "exposure": 1.05,
+        "outputColorSpace": "srgb",
+        "shadowEnabled": true,
+        "shadowType": 1
+      },
+      "rendererEvidence": {
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+        "vendor": "Google Inc. (Google)",
+        "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "unmasked": true,
+        "rendererClass": "software"
+      },
+      "renderInfo": {
+        "art": {
+          "id": "standards-v1",
+          "state": "ready",
+          "pieces": 3,
+          "budget": {
+            "triangles": 2396,
+            "calls": 4,
+            "bytes": 123604
+          },
+          "evidence": "runtime-geometry-only",
+          "active": true
+        },
+        "lighting": {
+          "id": "courtyard-light-v1",
+          "environment": "hemisphere-and-ambient",
+          "ao": "deterministic-ssao-half-resolution",
+          "grade": "cool-shadows-warm-highlights"
+        },
+        "render": {
+          "frame": 108,
+          "calls": 64,
+          "triangles": 3366,
+          "points": 0,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 89,
+          "textures": 19
+        }
+      },
+      "sampledColors5bit": 656,
+      "validation": {
+        "passed": true,
+        "checks": [
+          {
+            "name": "ready",
+            "ok": true,
+            "actual": true
+          },
+          {
+            "name": "errorEmpty",
+            "ok": true,
+            "actual": null
+          },
+          {
+            "name": "backendWebgl2",
+            "ok": true,
+            "actual": "webgl2"
+          },
+          {
+            "name": "imageSize",
+            "ok": true,
+            "actual": {
+              "width": 1280,
+              "height": 720,
+              "dpr": 1
+            }
+          },
+          {
+            "name": "viewportSize",
+            "ok": true,
+            "actual": {
+              "width": 1280,
+              "height": 720,
+              "pixelRatio": 1,
+              "bufferWidth": 1280,
+              "bufferHeight": 720
+            }
+          },
+          {
+            "name": "stateTick120",
+            "ok": true,
+            "actual": 120
+          },
+          {
+            "name": "frame0",
+            "ok": true,
+            "actual": 0
+          },
+          {
+            "name": "t2",
+            "ok": true,
+            "actual": 2
+          },
+          {
+            "name": "hz60",
+            "ok": true,
+            "actual": 60
+          },
+          {
+            "name": "replayFixed",
+            "ok": true,
+            "actual": {
+              "seed": 1,
+              "difficulty": "easy",
+              "ticks": 120,
+              "hz": 60,
+              "playerInput": "idle-zero-move"
+            }
+          },
+          {
+            "name": "artReady",
+            "ok": true,
+            "actual": {
+              "id": "standards-v1",
+              "state": "ready",
+              "pieces": 3,
+              "budget": {
+                "triangles": 2396,
+                "calls": 4,
+                "bytes": 123604
+              },
+              "evidence": "runtime-geometry-only",
+              "active": true
+            }
+          },
+          {
+            "name": "renderLighting",
+            "ok": true,
+            "actual": "courtyard-light-v1"
+          },
+          {
+            "name": "qualityLighting",
+            "ok": true,
+            "actual": "courtyard-light-v1"
+          },
+          {
+            "name": "bootHidden",
+            "ok": true,
+            "actual": true
+          },
+          {
+            "name": "softwareRenderer",
+            "ok": true,
+            "actual": {
+              "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+              "vendor": "Google Inc. (Google)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+              "unmasked": true,
+              "rendererClass": "software"
+            }
+          },
+          {
+            "name": "pngSignal",
+            "ok": true,
+            "actual": {
+              "colors": 656,
+              "sampledEvery": 4
+            }
+          },
+          {
+            "name": "playerPresent",
+            "ok": true,
+            "actual": "player"
+          },
+          {
+            "name": "actualPlayerPose",
+            "ok": true,
+            "actual": {
+              "actualPlayerPose": {
+                "position": {
+                  "x": -9.4,
+                  "y": 0,
+                  "z": -15.2
+                },
+                "yaw": 0,
+                "pitch": 0,
+                "crouch": false,
+                "hp": 100
+              },
+              "player": {
+                "position": {
+                  "x": -9.4,
+                  "y": 0,
+                  "z": -15.2
+                },
+                "yaw": 0,
+                "pitch": 0
+              }
+            }
+          },
+          {
+            "name": "cameraFov80",
+            "ok": true,
+            "actual": 80
+          },
+          {
+            "name": "cameraPlayerKind",
+            "ok": true,
+            "actual": {
+              "cameraKind": "player",
+              "firstPersonWeapon": true
+            }
+          },
+          {
+            "name": "frame0Waited150msStable",
+            "ok": true,
+            "actual": {
+              "stateHashSame": true,
+              "pngSame": true
+            }
+          },
+          {
+            "name": "pageErrorsEmpty",
+            "ok": true,
+            "actual": []
+          },
+          {
+            "name": "externalRequestsEmpty",
+            "ok": true,
+            "actual": []
+          },
+          {
+            "name": "servedBundlesMatch",
+            "ok": true,
+            "actual": []
+          },
+          {
+            "name": "entryServed",
+            "ok": true,
+            "actual": [
+              {
+                "url": "http://127.0.0.1:4854/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&qualityCapture=gameplay",
+                "status": 200,
+                "resourceType": "document",
+                "file": "index.html",
+                "servedSha256": "9f3a853899da6b5cba5cc426de44589da10df82fc1ee206c0713011a2e3ed03d",
+                "localFileExists": true,
+                "localSha256": "9f3a853899da6b5cba5cc426de44589da10df82fc1ee206c0713011a2e3ed03d",
+                "match": true,
+                "containsQualityCapture": false
+              }
+            ]
+          },
+          {
+            "name": "qualityChunkServed",
+            "ok": true,
+            "actual": [
+              "http://127.0.0.1:4854/assets/entry-BH6Z3s4h.js",
+              "http://127.0.0.1:4854/assets/quality-route-foNotyz7.js",
+              "http://127.0.0.1:4854/assets/quality-route-qehs-H0T.js",
+              "http://127.0.0.1:4854/assets/quality-client-CaIOJ2Zz.js"
+            ]
+          }
+        ]
+      },
+      "commit": "fa8740de3bf2f4ffaaabec5c8df09d9f4c9088c8",
+      "tree": "417652e69e45b06bb982cd5a0ca11265677f2fcd",
+      "sourceClean": {
+        "beforeBuild": true,
+        "afterBuild": true
+      },
+      "chromiumVersion": "156.0.8078.4",
+      "seed": 1,
+      "input": "idle-zero-move",
+      "servedBundles": {
+        "verified": true,
+        "count": 19,
+        "sha256": "d87e75b093bf6b120002c7ed077ed3eb1160ba3b1e9e1ada60a1a5fad5cdadf8"
+      },
+      "exitEvidence": "See processRecords/cleanup in report.json; clean-exit baseline incomplete (see cleanupDeviation)."
+    },
+    {
+      "camera": "courtyard-gap",
+      "take": 1,
+      "url": "http://127.0.0.1:4854/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&qualityCapture=courtyard-gap",
+      "relativeUrl": "/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&qualityCapture=courtyard-gap",
+      "startedAt": "2026-11-04T20:18:52.315Z",
+      "completedAt": "2026-11-04T20:19:00.228Z",
+      "pngFile": "capture-courtyard-gap-1.png",
+      "jsonFile": "capture-courtyard-gap-1.json",
+      "pngSha256": "1eed1336d78cd11b751ebd9ab200f0b46935f1d0f6936081a3ac4d218fc029c2",
+      "rgbaSha256": "5fba85c60b99bb81d2f89a5abc1a1869c5084d1159eccdda37b55f663aff3efd",
+      "stateHash": "8f7d2286",
+      "stateStableSha256": "052b9a482cd719990f4d33f035ef8b85dd190a691b361e3295e0d960f928701a",
+      "commandsStableSha256": "76f2af1b2bcc776fa73d385a8447d4236e805c12da6a98e0f90d1f765b8ece68",
+      "cameraStableSha256": "4464fe1503df58a6dca231b856eef6960cf8076bdd395a5a43df636aaaf80562",
+      "rendererStableSha256": "be36ea9271c0861fc8810efb8b0e7edbaf075912e23eb267e2a58b2c0321b736",
+      "t": 2,
+      "frame": 0,
+      "hz": 60,
+      "tick": 120,
+      "backend": "webgl2",
+      "image": {
+        "width": 1280,
+        "height": 720,
+        "dpr": 1
+      },
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "pixelRatio": 1,
+        "bufferWidth": 1280,
+        "bufferHeight": 720
+      },
+      "cameraInfo": {
+        "kind": "fixed",
+        "purpose": "Maximum-gap view: near ground, divider faces, site and far wall together",
+        "position": {
+          "x": 2.6,
+          "y": 1.62,
+          "z": 6.4
+        },
+        "yaw": -0.28,
+        "pitch": -0.04,
+        "fov": 80,
+        "weapon": false
+      },
+      "actualPlayerPose": {
+        "position": {
+          "x": -9.4,
+          "y": 0,
+          "z": -15.2
+        },
+        "yaw": 0,
+        "pitch": 0,
+        "crouch": false,
+        "hp": 100
+      },
+      "replay": {
+        "seed": 1,
+        "difficulty": "easy",
+        "ticks": 120,
+        "hz": 60,
+        "playerInput": "idle-zero-move"
+      },
+      "qualityParameters": {
+        "maxSamples": 4,
+        "samples": 4,
+        "maxAnisotropy": 16,
+        "compressedTextureFormatsSupported": [],
+        "actualTextureFormats": "not-observed",
+        "lighting": {
+          "id": "courtyard-light-v1",
+          "environment": "hemisphere-and-ambient",
+          "ao": "deterministic-ssao-half-resolution",
+          "grade": "cool-shadows-warm-highlights"
+        },
+        "toneMapping": 4,
+        "exposure": 1.05,
+        "outputColorSpace": "srgb",
+        "shadowEnabled": true,
+        "shadowType": 1
+      },
+      "rendererEvidence": {
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+        "vendor": "Google Inc. (Google)",
+        "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "unmasked": true,
+        "rendererClass": "software"
+      },
+      "renderInfo": {
+        "art": {
+          "id": "standards-v1",
+          "state": "ready",
+          "pieces": 3,
+          "budget": {
+            "triangles": 2396,
+            "calls": 4,
+            "bytes": 123604
+          },
+          "evidence": "runtime-geometry-only",
+          "active": true
+        },
+        "lighting": {
+          "id": "courtyard-light-v1",
+          "environment": "hemisphere-and-ambient",
+          "ao": "deterministic-ssao-half-resolution",
+          "grade": "cool-shadows-warm-highlights"
+        },
+        "render": {
+          "frame": 108,
+          "calls": 2,
+          "triangles": 108,
+          "points": 0,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 28,
+          "textures": 15
+        }
+      },
+      "sampledColors5bit": 385,
+      "validation": {
+        "passed": true,
+        "checks": [
+          {
+            "name": "ready",
+            "ok": true,
+            "actual": true
+          },
+          {
+            "name": "errorEmpty",
+            "ok": true,
+            "actual": null
+          },
+          {
+            "name": "backendWebgl2",
+            "ok": true,
+            "actual": "webgl2"
+          },
+          {
+            "name": "imageSize",
+            "ok": true,
+            "actual": {
+              "width": 1280,
+              "height": 720,
+              "dpr": 1
+            }
+          },
+          {
+            "name": "viewportSize",
+            "ok": true,
+            "actual": {
+              "width": 1280,
+              "height": 720,
+              "pixelRatio": 1,
+              "bufferWidth": 1280,
+              "bufferHeight": 720
+            }
+          },
+          {
+            "name": "stateTick120",
+            "ok": true,
+            "actual": 120
+          },
+          {
+            "name": "frame0",
+            "ok": true,
+            "actual": 0
+          },
+          {
+            "name": "t2",
+            "ok": true,
+            "actual": 2
+          },
+          {
+            "name": "hz60",
+            "ok": true,
+            "actual": 60
+          },
+          {
+            "name": "replayFixed",
+            "ok": true,
+            "actual": {
+              "seed": 1,
+              "difficulty": "easy",
+              "ticks": 120,
+              "hz": 60,
+              "playerInput": "idle-zero-move"
+            }
+          },
+          {
+            "name": "artReady",
+            "ok": true,
+            "actual": {
+              "id": "standards-v1",
+              "state": "ready",
+              "pieces": 3,
+              "budget": {
+                "triangles": 2396,
+                "calls": 4,
+                "bytes": 123604
+              },
+              "evidence": "runtime-geometry-only",
+              "active": true
+            }
+          },
+          {
+            "name": "renderLighting",
+            "ok": true,
+            "actual": "courtyard-light-v1"
+          },
+          {
+            "name": "qualityLighting",
+            "ok": true,
+            "actual": "courtyard-light-v1"
+          },
+          {
+            "name": "bootHidden",
+            "ok": true,
+            "actual": true
+          },
+          {
+            "name": "softwareRenderer",
+            "ok": true,
+            "actual": {
+              "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+              "vendor": "Google Inc. (Google)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+              "unmasked": true,
+              "rendererClass": "software"
+            }
+          },
+          {
+            "name": "pngSignal",
+            "ok": true,
+            "actual": {
+              "colors": 385,
+              "sampledEvery": 4
+            }
+          },
+          {
+            "name": "playerPresent",
+            "ok": true,
+            "actual": "player"
+          },
+          {
+            "name": "actualPlayerPose",
+            "ok": true,
+            "actual": {
+              "actualPlayerPose": {
+                "position": {
+                  "x": -9.4,
+                  "y": 0,
+                  "z": -15.2
+                },
+                "yaw": 0,
+                "pitch": 0,
+                "crouch": false,
+                "hp": 100
+              },
+              "player": {
+                "position": {
+                  "x": -9.4,
+                  "y": 0,
+                  "z": -15.2
+                },
+                "yaw": 0,
+                "pitch": 0
+              }
+            }
+          },
+          {
+            "name": "cameraFov80",
+            "ok": true,
+            "actual": 80
+          },
+          {
+            "name": "cameraObserverKind",
+            "ok": true,
+            "actual": {
+              "cameraKind": "observer",
+              "firstPersonWeapon": false
+            }
+          },
+          {
+            "name": "cameraObserverPose",
+            "ok": true,
+            "actual": {
+              "actual": {
+                "kind": "fixed",
+                "purpose": "Maximum-gap view: near ground, divider faces, site and far wall together",
+                "position": {
+                  "x": 2.6,
+                  "y": 1.62,
+                  "z": 6.4
+                },
+                "yaw": -0.28,
+                "pitch": -0.04,
+                "fov": 80,
+                "weapon": false
+              },
+              "expected": {
+                "position": {
+                  "x": 2.6,
+                  "y": 1.62,
+                  "z": 6.4
+                },
+                "yaw": -0.28,
+                "pitch": -0.04,
+                "fov": 80
+              }
+            }
+          },
+          {
+            "name": "frame0Waited150msStable",
+            "ok": true,
+            "actual": {
+              "stateHashSame": true,
+              "pngSame": true
+            }
+          },
+          {
+            "name": "pageErrorsEmpty",
+            "ok": true,
+            "actual": []
+          },
+          {
+            "name": "externalRequestsEmpty",
+            "ok": true,
+            "actual": []
+          },
+          {
+            "name": "servedBundlesMatch",
+            "ok": true,
+            "actual": []
+          },
+          {
+            "name": "entryServed",
+            "ok": true,
+            "actual": [
+              {
+                "url": "http://127.0.0.1:4854/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&qualityCapture=courtyard-gap",
+                "status": 200,
+                "resourceType": "document",
+                "file": "index.html",
+                "servedSha256": "9f3a853899da6b5cba5cc426de44589da10df82fc1ee206c0713011a2e3ed03d",
+                "localFileExists": true,
+                "localSha256": "9f3a853899da6b5cba5cc426de44589da10df82fc1ee206c0713011a2e3ed03d",
+                "match": true,
+                "containsQualityCapture": false
+              }
+            ]
+          },
+          {
+            "name": "qualityChunkServed",
+            "ok": true,
+            "actual": [
+              "http://127.0.0.1:4854/assets/entry-BH6Z3s4h.js",
+              "http://127.0.0.1:4854/assets/quality-route-qehs-H0T.js",
+              "http://127.0.0.1:4854/assets/quality-route-foNotyz7.js",
+              "http://127.0.0.1:4854/assets/quality-client-CaIOJ2Zz.js"
+            ]
+          }
+        ]
+      },
+      "commit": "fa8740de3bf2f4ffaaabec5c8df09d9f4c9088c8",
+      "tree": "417652e69e45b06bb982cd5a0ca11265677f2fcd",
+      "sourceClean": {
+        "beforeBuild": true,
+        "afterBuild": true
+      },
+      "chromiumVersion": "156.0.8078.4",
+      "seed": 1,
+      "input": "idle-zero-move",
+      "servedBundles": {
+        "verified": true,
+        "count": 19,
+        "sha256": "e6312618d2af4c0af270fa5d5ceaed9123ec0a87c127f11e68131e39c583b5c1"
+      },
+      "exitEvidence": "See processRecords/cleanup in report.json; clean-exit baseline incomplete (see cleanupDeviation)."
+    },
+    {
+      "camera": "courtyard-gap",
+      "take": 2,
+      "url": "http://127.0.0.1:4854/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&qualityCapture=courtyard-gap",
+      "relativeUrl": "/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&qualityCapture=courtyard-gap",
+      "startedAt": "2026-11-04T20:19:00.266Z",
+      "completedAt": "2026-11-04T20:19:07.960Z",
+      "pngFile": "capture-courtyard-gap-2.png",
+      "jsonFile": "capture-courtyard-gap-2.json",
+      "pngSha256": "1eed1336d78cd11b751ebd9ab200f0b46935f1d0f6936081a3ac4d218fc029c2",
+      "rgbaSha256": "5fba85c60b99bb81d2f89a5abc1a1869c5084d1159eccdda37b55f663aff3efd",
+      "stateHash": "8f7d2286",
+      "stateStableSha256": "052b9a482cd719990f4d33f035ef8b85dd190a691b361e3295e0d960f928701a",
+      "commandsStableSha256": "76f2af1b2bcc776fa73d385a8447d4236e805c12da6a98e0f90d1f765b8ece68",
+      "cameraStableSha256": "4464fe1503df58a6dca231b856eef6960cf8076bdd395a5a43df636aaaf80562",
+      "rendererStableSha256": "be36ea9271c0861fc8810efb8b0e7edbaf075912e23eb267e2a58b2c0321b736",
+      "t": 2,
+      "frame": 0,
+      "hz": 60,
+      "tick": 120,
+      "backend": "webgl2",
+      "image": {
+        "width": 1280,
+        "height": 720,
+        "dpr": 1
+      },
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "pixelRatio": 1,
+        "bufferWidth": 1280,
+        "bufferHeight": 720
+      },
+      "cameraInfo": {
+        "kind": "fixed",
+        "purpose": "Maximum-gap view: near ground, divider faces, site and far wall together",
+        "position": {
+          "x": 2.6,
+          "y": 1.62,
+          "z": 6.4
+        },
+        "yaw": -0.28,
+        "pitch": -0.04,
+        "fov": 80,
+        "weapon": false
+      },
+      "actualPlayerPose": {
+        "position": {
+          "x": -9.4,
+          "y": 0,
+          "z": -15.2
+        },
+        "yaw": 0,
+        "pitch": 0,
+        "crouch": false,
+        "hp": 100
+      },
+      "replay": {
+        "seed": 1,
+        "difficulty": "easy",
+        "ticks": 120,
+        "hz": 60,
+        "playerInput": "idle-zero-move"
+      },
+      "qualityParameters": {
+        "maxSamples": 4,
+        "samples": 4,
+        "maxAnisotropy": 16,
+        "compressedTextureFormatsSupported": [],
+        "actualTextureFormats": "not-observed",
+        "lighting": {
+          "id": "courtyard-light-v1",
+          "environment": "hemisphere-and-ambient",
+          "ao": "deterministic-ssao-half-resolution",
+          "grade": "cool-shadows-warm-highlights"
+        },
+        "toneMapping": 4,
+        "exposure": 1.05,
+        "outputColorSpace": "srgb",
+        "shadowEnabled": true,
+        "shadowType": 1
+      },
+      "rendererEvidence": {
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+        "vendor": "Google Inc. (Google)",
+        "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "unmasked": true,
+        "rendererClass": "software"
+      },
+      "renderInfo": {
+        "art": {
+          "id": "standards-v1",
+          "state": "ready",
+          "pieces": 3,
+          "budget": {
+            "triangles": 2396,
+            "calls": 4,
+            "bytes": 123604
+          },
+          "evidence": "runtime-geometry-only",
+          "active": true
+        },
+        "lighting": {
+          "id": "courtyard-light-v1",
+          "environment": "hemisphere-and-ambient",
+          "ao": "deterministic-ssao-half-resolution",
+          "grade": "cool-shadows-warm-highlights"
+        },
+        "render": {
+          "frame": 108,
+          "calls": 2,
+          "triangles": 108,
+          "points": 0,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 28,
+          "textures": 15
+        }
+      },
+      "sampledColors5bit": 385,
+      "validation": {
+        "passed": true,
+        "checks": [
+          {
+            "name": "ready",
+            "ok": true,
+            "actual": true
+          },
+          {
+            "name": "errorEmpty",
+            "ok": true,
+            "actual": null
+          },
+          {
+            "name": "backendWebgl2",
+            "ok": true,
+            "actual": "webgl2"
+          },
+          {
+            "name": "imageSize",
+            "ok": true,
+            "actual": {
+              "width": 1280,
+              "height": 720,
+              "dpr": 1
+            }
+          },
+          {
+            "name": "viewportSize",
+            "ok": true,
+            "actual": {
+              "width": 1280,
+              "height": 720,
+              "pixelRatio": 1,
+              "bufferWidth": 1280,
+              "bufferHeight": 720
+            }
+          },
+          {
+            "name": "stateTick120",
+            "ok": true,
+            "actual": 120
+          },
+          {
+            "name": "frame0",
+            "ok": true,
+            "actual": 0
+          },
+          {
+            "name": "t2",
+            "ok": true,
+            "actual": 2
+          },
+          {
+            "name": "hz60",
+            "ok": true,
+            "actual": 60
+          },
+          {
+            "name": "replayFixed",
+            "ok": true,
+            "actual": {
+              "seed": 1,
+              "difficulty": "easy",
+              "ticks": 120,
+              "hz": 60,
+              "playerInput": "idle-zero-move"
+            }
+          },
+          {
+            "name": "artReady",
+            "ok": true,
+            "actual": {
+              "id": "standards-v1",
+              "state": "ready",
+              "pieces": 3,
+              "budget": {
+                "triangles": 2396,
+                "calls": 4,
+                "bytes": 123604
+              },
+              "evidence": "runtime-geometry-only",
+              "active": true
+            }
+          },
+          {
+            "name": "renderLighting",
+            "ok": true,
+            "actual": "courtyard-light-v1"
+          },
+          {
+            "name": "qualityLighting",
+            "ok": true,
+            "actual": "courtyard-light-v1"
+          },
+          {
+            "name": "bootHidden",
+            "ok": true,
+            "actual": true
+          },
+          {
+            "name": "softwareRenderer",
+            "ok": true,
+            "actual": {
+              "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+              "vendor": "Google Inc. (Google)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+              "unmasked": true,
+              "rendererClass": "software"
+            }
+          },
+          {
+            "name": "pngSignal",
+            "ok": true,
+            "actual": {
+              "colors": 385,
+              "sampledEvery": 4
+            }
+          },
+          {
+            "name": "playerPresent",
+            "ok": true,
+            "actual": "player"
+          },
+          {
+            "name": "actualPlayerPose",
+            "ok": true,
+            "actual": {
+              "actualPlayerPose": {
+                "position": {
+                  "x": -9.4,
+                  "y": 0,
+                  "z": -15.2
+                },
+                "yaw": 0,
+                "pitch": 0,
+                "crouch": false,
+                "hp": 100
+              },
+              "player": {
+                "position": {
+                  "x": -9.4,
+                  "y": 0,
+                  "z": -15.2
+                },
+                "yaw": 0,
+                "pitch": 0
+              }
+            }
+          },
+          {
+            "name": "cameraFov80",
+            "ok": true,
+            "actual": 80
+          },
+          {
+            "name": "cameraObserverKind",
+            "ok": true,
+            "actual": {
+              "cameraKind": "observer",
+              "firstPersonWeapon": false
+            }
+          },
+          {
+            "name": "cameraObserverPose",
+            "ok": true,
+            "actual": {
+              "actual": {
+                "kind": "fixed",
+                "purpose": "Maximum-gap view: near ground, divider faces, site and far wall together",
+                "position": {
+                  "x": 2.6,
+                  "y": 1.62,
+                  "z": 6.4
+                },
+                "yaw": -0.28,
+                "pitch": -0.04,
+                "fov": 80,
+                "weapon": false
+              },
+              "expected": {
+                "position": {
+                  "x": 2.6,
+                  "y": 1.62,
+                  "z": 6.4
+                },
+                "yaw": -0.28,
+                "pitch": -0.04,
+                "fov": 80
+              }
+            }
+          },
+          {
+            "name": "frame0Waited150msStable",
+            "ok": true,
+            "actual": {
+              "stateHashSame": true,
+              "pngSame": true
+            }
+          },
+          {
+            "name": "pageErrorsEmpty",
+            "ok": true,
+            "actual": []
+          },
+          {
+            "name": "externalRequestsEmpty",
+            "ok": true,
+            "actual": []
+          },
+          {
+            "name": "servedBundlesMatch",
+            "ok": true,
+            "actual": []
+          },
+          {
+            "name": "entryServed",
+            "ok": true,
+            "actual": [
+              {
+                "url": "http://127.0.0.1:4854/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&qualityCapture=courtyard-gap",
+                "status": 200,
+                "resourceType": "document",
+                "file": "index.html",
+                "servedSha256": "9f3a853899da6b5cba5cc426de44589da10df82fc1ee206c0713011a2e3ed03d",
+                "localFileExists": true,
+                "localSha256": "9f3a853899da6b5cba5cc426de44589da10df82fc1ee206c0713011a2e3ed03d",
+                "match": true,
+                "containsQualityCapture": false
+              }
+            ]
+          },
+          {
+            "name": "qualityChunkServed",
+            "ok": true,
+            "actual": [
+              "http://127.0.0.1:4854/assets/entry-BH6Z3s4h.js",
+              "http://127.0.0.1:4854/assets/quality-route-qehs-H0T.js",
+              "http://127.0.0.1:4854/assets/quality-route-foNotyz7.js",
+              "http://127.0.0.1:4854/assets/quality-client-CaIOJ2Zz.js"
+            ]
+          }
+        ]
+      },
+      "commit": "fa8740de3bf2f4ffaaabec5c8df09d9f4c9088c8",
+      "tree": "417652e69e45b06bb982cd5a0ca11265677f2fcd",
+      "sourceClean": {
+        "beforeBuild": true,
+        "afterBuild": true
+      },
+      "chromiumVersion": "156.0.8078.4",
+      "seed": 1,
+      "input": "idle-zero-move",
+      "servedBundles": {
+        "verified": true,
+        "count": 19,
+        "sha256": "370b0d46bbb6076a525227808b0ad9569ac06c99a25102fcb85ba4ac8bd07423"
+      },
+      "exitEvidence": "See processRecords/cleanup in report.json; clean-exit baseline incomplete (see cleanupDeviation)."
+    },
+    {
+      "camera": "cross-lane",
+      "take": 1,
+      "url": "http://127.0.0.1:4854/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&qualityCapture=cross-lane",
+      "relativeUrl": "/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&qualityCapture=cross-lane",
+      "startedAt": "2026-11-04T20:19:08.005Z",
+      "completedAt": "2026-11-04T20:19:19.107Z",
+      "pngFile": "capture-cross-lane-1.png",
+      "jsonFile": "capture-cross-lane-1.json",
+      "pngSha256": "b1c5d2e81073d2cf97459a61021f7c7795f57422d2ff4bd3ce61bce505035713",
+      "rgbaSha256": "280bd466bab149708547791a731658b9cb6ebf6089cfe5f44c921c4d87c33a25",
+      "stateHash": "8f7d2286",
+      "stateStableSha256": "052b9a482cd719990f4d33f035ef8b85dd190a691b361e3295e0d960f928701a",
+      "commandsStableSha256": "76f2af1b2bcc776fa73d385a8447d4236e805c12da6a98e0f90d1f765b8ece68",
+      "cameraStableSha256": "9ef8c297fbe7e3898dcc15e70cb0995bfcfa2a9b8b160d505af63f1124e8e84a",
+      "rendererStableSha256": "be36ea9271c0861fc8810efb8b0e7edbaf075912e23eb267e2a58b2c0321b736",
+      "t": 2,
+      "frame": 0,
+      "hz": 60,
+      "tick": 120,
+      "backend": "webgl2",
+      "image": {
+        "width": 1280,
+        "height": 720,
+        "dpr": 1
+      },
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "pixelRatio": 1,
+        "bufferWidth": 1280,
+        "bufferHeight": 720
+      },
+      "cameraInfo": {
+        "kind": "fixed",
+        "purpose": "Oblique contrast check: outer wall, cover and long material boundaries",
+        "position": {
+          "x": -7.5,
+          "y": 1.62,
+          "z": -9.5
+        },
+        "yaw": 0.32,
+        "pitch": -0.03,
+        "fov": 80,
+        "weapon": false
+      },
+      "actualPlayerPose": {
+        "position": {
+          "x": -9.4,
+          "y": 0,
+          "z": -15.2
+        },
+        "yaw": 0,
+        "pitch": 0,
+        "crouch": false,
+        "hp": 100
+      },
+      "replay": {
+        "seed": 1,
+        "difficulty": "easy",
+        "ticks": 120,
+        "hz": 60,
+        "playerInput": "idle-zero-move"
+      },
+      "qualityParameters": {
+        "maxSamples": 4,
+        "samples": 4,
+        "maxAnisotropy": 16,
+        "compressedTextureFormatsSupported": [],
+        "actualTextureFormats": "not-observed",
+        "lighting": {
+          "id": "courtyard-light-v1",
+          "environment": "hemisphere-and-ambient",
+          "ao": "deterministic-ssao-half-resolution",
+          "grade": "cool-shadows-warm-highlights"
+        },
+        "toneMapping": 4,
+        "exposure": 1.05,
+        "outputColorSpace": "srgb",
+        "shadowEnabled": true,
+        "shadowType": 1
+      },
+      "rendererEvidence": {
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+        "vendor": "Google Inc. (Google)",
+        "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "unmasked": true,
+        "rendererClass": "software"
+      },
+      "renderInfo": {
+        "art": {
+          "id": "standards-v1",
+          "state": "ready",
+          "pieces": 3,
+          "budget": {
+            "triangles": 2396,
+            "calls": 4,
+            "bytes": 123604
+          },
+          "evidence": "runtime-geometry-only",
+          "active": true
+        },
+        "lighting": {
+          "id": "courtyard-light-v1",
+          "environment": "hemisphere-and-ambient",
+          "ao": "deterministic-ssao-half-resolution",
+          "grade": "cool-shadows-warm-highlights"
+        },
+        "render": {
+          "frame": 108,
+          "calls": 22,
+          "triangles": 348,
+          "points": 0,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 48,
+          "textures": 19
+        }
+      },
+      "sampledColors5bit": 496,
+      "validation": {
+        "passed": true,
+        "checks": [
+          {
+            "name": "ready",
+            "ok": true,
+            "actual": true
+          },
+          {
+            "name": "errorEmpty",
+            "ok": true,
+            "actual": null
+          },
+          {
+            "name": "backendWebgl2",
+            "ok": true,
+            "actual": "webgl2"
+          },
+          {
+            "name": "imageSize",
+            "ok": true,
+            "actual": {
+              "width": 1280,
+              "height": 720,
+              "dpr": 1
+            }
+          },
+          {
+            "name": "viewportSize",
+            "ok": true,
+            "actual": {
+              "width": 1280,
+              "height": 720,
+              "pixelRatio": 1,
+              "bufferWidth": 1280,
+              "bufferHeight": 720
+            }
+          },
+          {
+            "name": "stateTick120",
+            "ok": true,
+            "actual": 120
+          },
+          {
+            "name": "frame0",
+            "ok": true,
+            "actual": 0
+          },
+          {
+            "name": "t2",
+            "ok": true,
+            "actual": 2
+          },
+          {
+            "name": "hz60",
+            "ok": true,
+            "actual": 60
+          },
+          {
+            "name": "replayFixed",
+            "ok": true,
+            "actual": {
+              "seed": 1,
+              "difficulty": "easy",
+              "ticks": 120,
+              "hz": 60,
+              "playerInput": "idle-zero-move"
+            }
+          },
+          {
+            "name": "artReady",
+            "ok": true,
+            "actual": {
+              "id": "standards-v1",
+              "state": "ready",
+              "pieces": 3,
+              "budget": {
+                "triangles": 2396,
+                "calls": 4,
+                "bytes": 123604
+              },
+              "evidence": "runtime-geometry-only",
+              "active": true
+            }
+          },
+          {
+            "name": "renderLighting",
+            "ok": true,
+            "actual": "courtyard-light-v1"
+          },
+          {
+            "name": "qualityLighting",
+            "ok": true,
+            "actual": "courtyard-light-v1"
+          },
+          {
+            "name": "bootHidden",
+            "ok": true,
+            "actual": true
+          },
+          {
+            "name": "softwareRenderer",
+            "ok": true,
+            "actual": {
+              "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+              "vendor": "Google Inc. (Google)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+              "unmasked": true,
+              "rendererClass": "software"
+            }
+          },
+          {
+            "name": "pngSignal",
+            "ok": true,
+            "actual": {
+              "colors": 496,
+              "sampledEvery": 4
+            }
+          },
+          {
+            "name": "playerPresent",
+            "ok": true,
+            "actual": "player"
+          },
+          {
+            "name": "actualPlayerPose",
+            "ok": true,
+            "actual": {
+              "actualPlayerPose": {
+                "position": {
+                  "x": -9.4,
+                  "y": 0,
+                  "z": -15.2
+                },
+                "yaw": 0,
+                "pitch": 0,
+                "crouch": false,
+                "hp": 100
+              },
+              "player": {
+                "position": {
+                  "x": -9.4,
+                  "y": 0,
+                  "z": -15.2
+                },
+                "yaw": 0,
+                "pitch": 0
+              }
+            }
+          },
+          {
+            "name": "cameraFov80",
+            "ok": true,
+            "actual": 80
+          },
+          {
+            "name": "cameraObserverKind",
+            "ok": true,
+            "actual": {
+              "cameraKind": "observer",
+              "firstPersonWeapon": false
+            }
+          },
+          {
+            "name": "cameraObserverPose",
+            "ok": true,
+            "actual": {
+              "actual": {
+                "kind": "fixed",
+                "purpose": "Oblique contrast check: outer wall, cover and long material boundaries",
+                "position": {
+                  "x": -7.5,
+                  "y": 1.62,
+                  "z": -9.5
+                },
+                "yaw": 0.32,
+                "pitch": -0.03,
+                "fov": 80,
+                "weapon": false
+              },
+              "expected": {
+                "position": {
+                  "x": -7.5,
+                  "y": 1.62,
+                  "z": -9.5
+                },
+                "yaw": 0.32,
+                "pitch": -0.03,
+                "fov": 80
+              }
+            }
+          },
+          {
+            "name": "frame0Waited150msStable",
+            "ok": true,
+            "actual": {
+              "stateHashSame": true,
+              "pngSame": true
+            }
+          },
+          {
+            "name": "pageErrorsEmpty",
+            "ok": true,
+            "actual": []
+          },
+          {
+            "name": "externalRequestsEmpty",
+            "ok": true,
+            "actual": []
+          },
+          {
+            "name": "servedBundlesMatch",
+            "ok": true,
+            "actual": []
+          },
+          {
+            "name": "entryServed",
+            "ok": true,
+            "actual": [
+              {
+                "url": "http://127.0.0.1:4854/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&qualityCapture=cross-lane",
+                "status": 200,
+                "resourceType": "document",
+                "file": "index.html",
+                "servedSha256": "9f3a853899da6b5cba5cc426de44589da10df82fc1ee206c0713011a2e3ed03d",
+                "localFileExists": true,
+                "localSha256": "9f3a853899da6b5cba5cc426de44589da10df82fc1ee206c0713011a2e3ed03d",
+                "match": true,
+                "containsQualityCapture": false
+              }
+            ]
+          },
+          {
+            "name": "qualityChunkServed",
+            "ok": true,
+            "actual": [
+              "http://127.0.0.1:4854/assets/entry-BH6Z3s4h.js",
+              "http://127.0.0.1:4854/assets/quality-route-foNotyz7.js",
+              "http://127.0.0.1:4854/assets/quality-route-qehs-H0T.js",
+              "http://127.0.0.1:4854/assets/quality-client-CaIOJ2Zz.js"
+            ]
+          }
+        ]
+      },
+      "commit": "fa8740de3bf2f4ffaaabec5c8df09d9f4c9088c8",
+      "tree": "417652e69e45b06bb982cd5a0ca11265677f2fcd",
+      "sourceClean": {
+        "beforeBuild": true,
+        "afterBuild": true
+      },
+      "chromiumVersion": "156.0.8078.4",
+      "seed": 1,
+      "input": "idle-zero-move",
+      "servedBundles": {
+        "verified": true,
+        "count": 19,
+        "sha256": "0f276fb2b62e007333bec918f9532cfcdea7f19eae99a61ad8e20da04393620b"
+      },
+      "exitEvidence": "See processRecords/cleanup in report.json; clean-exit baseline incomplete (see cleanupDeviation)."
+    },
+    {
+      "camera": "cross-lane",
+      "take": 2,
+      "url": "http://127.0.0.1:4854/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&qualityCapture=cross-lane",
+      "relativeUrl": "/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&qualityCapture=cross-lane",
+      "startedAt": "2026-11-04T20:19:19.176Z",
+      "completedAt": "2026-11-04T20:19:26.602Z",
+      "pngFile": "capture-cross-lane-2.png",
+      "jsonFile": "capture-cross-lane-2.json",
+      "pngSha256": "b1c5d2e81073d2cf97459a61021f7c7795f57422d2ff4bd3ce61bce505035713",
+      "rgbaSha256": "280bd466bab149708547791a731658b9cb6ebf6089cfe5f44c921c4d87c33a25",
+      "stateHash": "8f7d2286",
+      "stateStableSha256": "052b9a482cd719990f4d33f035ef8b85dd190a691b361e3295e0d960f928701a",
+      "commandsStableSha256": "76f2af1b2bcc776fa73d385a8447d4236e805c12da6a98e0f90d1f765b8ece68",
+      "cameraStableSha256": "9ef8c297fbe7e3898dcc15e70cb0995bfcfa2a9b8b160d505af63f1124e8e84a",
+      "rendererStableSha256": "be36ea9271c0861fc8810efb8b0e7edbaf075912e23eb267e2a58b2c0321b736",
+      "t": 2,
+      "frame": 0,
+      "hz": 60,
+      "tick": 120,
+      "backend": "webgl2",
+      "image": {
+        "width": 1280,
+        "height": 720,
+        "dpr": 1
+      },
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "pixelRatio": 1,
+        "bufferWidth": 1280,
+        "bufferHeight": 720
+      },
+      "cameraInfo": {
+        "kind": "fixed",
+        "purpose": "Oblique contrast check: outer wall, cover and long material boundaries",
+        "position": {
+          "x": -7.5,
+          "y": 1.62,
+          "z": -9.5
+        },
+        "yaw": 0.32,
+        "pitch": -0.03,
+        "fov": 80,
+        "weapon": false
+      },
+      "actualPlayerPose": {
+        "position": {
+          "x": -9.4,
+          "y": 0,
+          "z": -15.2
+        },
+        "yaw": 0,
+        "pitch": 0,
+        "crouch": false,
+        "hp": 100
+      },
+      "replay": {
+        "seed": 1,
+        "difficulty": "easy",
+        "ticks": 120,
+        "hz": 60,
+        "playerInput": "idle-zero-move"
+      },
+      "qualityParameters": {
+        "maxSamples": 4,
+        "samples": 4,
+        "maxAnisotropy": 16,
+        "compressedTextureFormatsSupported": [],
+        "actualTextureFormats": "not-observed",
+        "lighting": {
+          "id": "courtyard-light-v1",
+          "environment": "hemisphere-and-ambient",
+          "ao": "deterministic-ssao-half-resolution",
+          "grade": "cool-shadows-warm-highlights"
+        },
+        "toneMapping": 4,
+        "exposure": 1.05,
+        "outputColorSpace": "srgb",
+        "shadowEnabled": true,
+        "shadowType": 1
+      },
+      "rendererEvidence": {
+        "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+        "vendor": "Google Inc. (Google)",
+        "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "unmasked": true,
+        "rendererClass": "software"
+      },
+      "renderInfo": {
+        "art": {
+          "id": "standards-v1",
+          "state": "ready",
+          "pieces": 3,
+          "budget": {
+            "triangles": 2396,
+            "calls": 4,
+            "bytes": 123604
+          },
+          "evidence": "runtime-geometry-only",
+          "active": true
+        },
+        "lighting": {
+          "id": "courtyard-light-v1",
+          "environment": "hemisphere-and-ambient",
+          "ao": "deterministic-ssao-half-resolution",
+          "grade": "cool-shadows-warm-highlights"
+        },
+        "render": {
+          "frame": 108,
+          "calls": 22,
+          "triangles": 348,
+          "points": 0,
+          "lines": 0
+        },
+        "memory": {
+          "geometries": 48,
+          "textures": 19
+        }
+      },
+      "sampledColors5bit": 496,
+      "validation": {
+        "passed": true,
+        "checks": [
+          {
+            "name": "ready",
+            "ok": true,
+            "actual": true
+          },
+          {
+            "name": "errorEmpty",
+            "ok": true,
+            "actual": null
+          },
+          {
+            "name": "backendWebgl2",
+            "ok": true,
+            "actual": "webgl2"
+          },
+          {
+            "name": "imageSize",
+            "ok": true,
+            "actual": {
+              "width": 1280,
+              "height": 720,
+              "dpr": 1
+            }
+          },
+          {
+            "name": "viewportSize",
+            "ok": true,
+            "actual": {
+              "width": 1280,
+              "height": 720,
+              "pixelRatio": 1,
+              "bufferWidth": 1280,
+              "bufferHeight": 720
+            }
+          },
+          {
+            "name": "stateTick120",
+            "ok": true,
+            "actual": 120
+          },
+          {
+            "name": "frame0",
+            "ok": true,
+            "actual": 0
+          },
+          {
+            "name": "t2",
+            "ok": true,
+            "actual": 2
+          },
+          {
+            "name": "hz60",
+            "ok": true,
+            "actual": 60
+          },
+          {
+            "name": "replayFixed",
+            "ok": true,
+            "actual": {
+              "seed": 1,
+              "difficulty": "easy",
+              "ticks": 120,
+              "hz": 60,
+              "playerInput": "idle-zero-move"
+            }
+          },
+          {
+            "name": "artReady",
+            "ok": true,
+            "actual": {
+              "id": "standards-v1",
+              "state": "ready",
+              "pieces": 3,
+              "budget": {
+                "triangles": 2396,
+                "calls": 4,
+                "bytes": 123604
+              },
+              "evidence": "runtime-geometry-only",
+              "active": true
+            }
+          },
+          {
+            "name": "renderLighting",
+            "ok": true,
+            "actual": "courtyard-light-v1"
+          },
+          {
+            "name": "qualityLighting",
+            "ok": true,
+            "actual": "courtyard-light-v1"
+          },
+          {
+            "name": "bootHidden",
+            "ok": true,
+            "actual": true
+          },
+          {
+            "name": "softwareRenderer",
+            "ok": true,
+            "actual": {
+              "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+              "vendor": "Google Inc. (Google)",
+              "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+              "unmasked": true,
+              "rendererClass": "software"
+            }
+          },
+          {
+            "name": "pngSignal",
+            "ok": true,
+            "actual": {
+              "colors": 496,
+              "sampledEvery": 4
+            }
+          },
+          {
+            "name": "playerPresent",
+            "ok": true,
+            "actual": "player"
+          },
+          {
+            "name": "actualPlayerPose",
+            "ok": true,
+            "actual": {
+              "actualPlayerPose": {
+                "position": {
+                  "x": -9.4,
+                  "y": 0,
+                  "z": -15.2
+                },
+                "yaw": 0,
+                "pitch": 0,
+                "crouch": false,
+                "hp": 100
+              },
+              "player": {
+                "position": {
+                  "x": -9.4,
+                  "y": 0,
+                  "z": -15.2
+                },
+                "yaw": 0,
+                "pitch": 0
+              }
+            }
+          },
+          {
+            "name": "cameraFov80",
+            "ok": true,
+            "actual": 80
+          },
+          {
+            "name": "cameraObserverKind",
+            "ok": true,
+            "actual": {
+              "cameraKind": "observer",
+              "firstPersonWeapon": false
+            }
+          },
+          {
+            "name": "cameraObserverPose",
+            "ok": true,
+            "actual": {
+              "actual": {
+                "kind": "fixed",
+                "purpose": "Oblique contrast check: outer wall, cover and long material boundaries",
+                "position": {
+                  "x": -7.5,
+                  "y": 1.62,
+                  "z": -9.5
+                },
+                "yaw": 0.32,
+                "pitch": -0.03,
+                "fov": 80,
+                "weapon": false
+              },
+              "expected": {
+                "position": {
+                  "x": -7.5,
+                  "y": 1.62,
+                  "z": -9.5
+                },
+                "yaw": 0.32,
+                "pitch": -0.03,
+                "fov": 80
+              }
+            }
+          },
+          {
+            "name": "frame0Waited150msStable",
+            "ok": true,
+            "actual": {
+              "stateHashSame": true,
+              "pngSame": true
+            }
+          },
+          {
+            "name": "pageErrorsEmpty",
+            "ok": true,
+            "actual": []
+          },
+          {
+            "name": "externalRequestsEmpty",
+            "ok": true,
+            "actual": []
+          },
+          {
+            "name": "servedBundlesMatch",
+            "ok": true,
+            "actual": []
+          },
+          {
+            "name": "entryServed",
+            "ok": true,
+            "actual": [
+              {
+                "url": "http://127.0.0.1:4854/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&qualityCapture=cross-lane",
+                "status": 200,
+                "resourceType": "document",
+                "file": "index.html",
+                "servedSha256": "9f3a853899da6b5cba5cc426de44589da10df82fc1ee206c0713011a2e3ed03d",
+                "localFileExists": true,
+                "localSha256": "9f3a853899da6b5cba5cc426de44589da10df82fc1ee206c0713011a2e3ed03d",
+                "match": true,
+                "containsQualityCapture": false
+              }
+            ]
+          },
+          {
+            "name": "qualityChunkServed",
+            "ok": true,
+            "actual": [
+              "http://127.0.0.1:4854/assets/entry-BH6Z3s4h.js",
+              "http://127.0.0.1:4854/assets/quality-route-foNotyz7.js",
+              "http://127.0.0.1:4854/assets/quality-route-qehs-H0T.js",
+              "http://127.0.0.1:4854/assets/quality-client-CaIOJ2Zz.js"
+            ]
+          }
+        ]
+      },
+      "commit": "fa8740de3bf2f4ffaaabec5c8df09d9f4c9088c8",
+      "tree": "417652e69e45b06bb982cd5a0ca11265677f2fcd",
+      "sourceClean": {
+        "beforeBuild": true,
+        "afterBuild": true
+      },
+      "chromiumVersion": "156.0.8078.4",
+      "seed": 1,
+      "input": "idle-zero-move",
+      "servedBundles": {
+        "verified": true,
+        "count": 19,
+        "sha256": "633c9c776b0045f24b28d71586eb21b2d0c114c719a5e77d6cc3c6e5007ce88d"
+      },
+      "exitEvidence": "See processRecords/cleanup in report.json; clean-exit baseline incomplete (see cleanupDeviation)."
+    }
+  ],
+  "comparisons": [
+    {
+      "camera": "gameplay",
+      "same": {
+        "rgbaSha256": true,
+        "stateHash": true,
+        "stateStable": true,
+        "commandsStable": true,
+        "cameraStable": true,
+        "rendererStable": true,
+        "t": true,
+        "frame": true,
+        "tick": true
+      },
+      "passed": true
+    },
+    {
+      "camera": "courtyard-gap",
+      "same": {
+        "rgbaSha256": true,
+        "stateHash": true,
+        "stateStable": true,
+        "commandsStable": true,
+        "cameraStable": true,
+        "rendererStable": true,
+        "t": true,
+        "frame": true,
+        "tick": true
+      },
+      "passed": true
+    },
+    {
+      "camera": "cross-lane",
+      "same": {
+        "rgbaSha256": true,
+        "stateHash": true,
+        "stateStable": true,
+        "commandsStable": true,
+        "cameraStable": true,
+        "rendererStable": true,
+        "t": true,
+        "frame": true,
+        "tick": true
+      },
+      "passed": true
+    }
+  ],
+  "cleanup": {
+    "startedAt": "2026-11-04T20:19:26.645Z",
+    "contextsClosed": true,
+    "browser": null,
+    "preview": {
+      "sameProcess": true,
+      "pid": 25100,
+      "closeCallbackAt": "2026-11-04T20:19:43.150Z",
+      "httpServerListeningAfterClose": false,
+      "closeInvoked": true
+    },
+    "childrenRemaining": [],
+    "portClosed": true,
+    "killRequestedAt": "2026-11-04T20:19:41.650Z",
+    "endedAt": "2026-11-04T20:19:44.817Z"
+  },
+  "failure": null,
+  "openIssues": [
+    "SwiftShader software rendering only; not a hardware-GPU baseline.",
+    "One fixed 120-tick state per camera, not a full six-round match.",
+    "Audio, feel, reference registration, and picture ranking are not verified by this capture.",
+    "Clean-exit baseline is incomplete: the executed harness exited 1 and Chromium was force-killed (exit code 1) after the connected-browser close path failed to terminate it. The delivered harness contains the post-run cleanup fix, but no rerun was performed. All six images were captured and verified before cleanup."
+  ],
+  "redaction": "Public copy omits machine username, absolute paths, full browser argv, CDP/debug endpoints, and raw debug logs. Local-only records remain in the gitignored outputs/ directory inside the repository worktree.",
+  "acceptance": {
+    "sixDecodableNonBackgroundPngs": true,
+    "twoTakesPerCameraPixelAndStateIdentical": true,
+    "webgl2": true,
+    "resolution1280x720Dpr1": true,
+    "softwareRenderer": true,
+    "shotErrorsEmpty": true,
+    "buildExit0": true,
+    "reportPassed": true,
+    "harnessExit0": false,
+    "chromiumCleanExit": false,
+    "npmTestExit0": true
+  },
+  "harness": {
+    "executedSha256": "2035a2d10874797e09fa151ff7d7ea1d20e690ca0e02b688899db25ca8f18d3e",
+    "deliveredSha256": "e838b270df1085170579129c5de38212b8838ad664ed4d91dcf059f87882e4d1",
+    "executedExitCode": 1,
+    "executedAt": "2026-11-04T20:17:54Z..2026-11-04T20:19:53Z",
+    "note": "The delivered harness now calls BrowserServer.close() for a launched server before any force-kill, and the review fixes make the output root configurable (FPS_CAPTURE_OUT_ROOT), create an exclusive preflight.json, ignore untracked files in the tracked-clean check, record httpServerListeningAfterClose with direct semantics, split self-reported vs observed exit codes, and print fatal errors to stderr. No capture or rerun was performed because the task forbids overwriting the exclusive output root or switching roots. A second review pass also distinguishes capture-failed from exit-baseline-incomplete, tees this process's stderr into PW_DEBUG_LOG, writes harness-fatal.json only after the output root is successfully claimed, and derives the local-evidence location note from the actual output root. A third review pass adds measured dependency verification before the build: it reads package-lock.json, hashes it, compares the installed vite/playwright/pngjs/three/typescript versions with the lock entries, fails on any mismatch, and derives environment.dependencies/packageLockSha256 from the measured values instead of hardcoded or caller-supplied ones."
+  },
+  "npmTest": {
+    "command": "npm test (node npm-cli.js test)",
+    "nodeVersion": "v24.22.1",
+    "startedAt": "2026-11-04T20:21:24Z",
+    "endedAt": "2026-11-04T20:21:51Z",
+    "exitCode": 0,
+    "tests": 430,
+    "pass": 430,
+    "fail": 0,
+    "log": "npm-test.log"
+  },
+  "cleanupDeviation": {
+    "observed": true,
+    "harnessExitCode": 1,
+    "chromiumExitCode": 1,
+    "chromiumExitSignal": null,
+    "cause": "The executed harness called browser.close() on a connect()ed browser, which only disconnects the client; after 15 s the harness force-killed the launched Chromium. All six captures and every validation check had already passed.",
+    "postRunFix": "The delivered harness now calls BrowserServer.close() for a launched server before any force-kill. No rerun was performed because the task forbids overwriting the exclusive output root or switching roots. A second review pass also distinguishes capture-failed from exit-baseline-incomplete, tees this process's stderr into PW_DEBUG_LOG, writes harness-fatal.json only after the output root is successfully claimed, and derives the local-evidence location note from the actual output root. A third review pass adds measured dependency verification before the build (package-lock.json SHA-256 plus the installed versions of vite/playwright/pngjs/three/typescript checked against the lock), with environment.dependencies and packageLockSha256 derived from those measurements.",
+    "harnessExecutedSha256": "2035a2d10874797e09fa151ff7d7ea1d20e690ca0e02b688899db25ca8f18d3e",
+    "harnessDeliveredSha256": "e838b270df1085170579129c5de38212b8838ad664ed4d91dcf059f87882e4d1"
+  },
+  "artifactHashes": [
+    {
+      "file": "capture-gameplay-1.png",
+      "camera": "gameplay",
+      "take": 1,
+      "bytes": 306943,
+      "sha256": "54e3ee3adb5ffadc93f884ecadb05753ca1e0a47073a2406cf99e4f39181427b"
+    },
+    {
+      "file": "capture-gameplay-2.png",
+      "camera": "gameplay",
+      "take": 2,
+      "bytes": 306943,
+      "sha256": "54e3ee3adb5ffadc93f884ecadb05753ca1e0a47073a2406cf99e4f39181427b"
+    },
+    {
+      "file": "capture-courtyard-gap-1.png",
+      "camera": "courtyard-gap",
+      "take": 1,
+      "bytes": 216325,
+      "sha256": "1eed1336d78cd11b751ebd9ab200f0b46935f1d0f6936081a3ac4d218fc029c2"
+    },
+    {
+      "file": "capture-courtyard-gap-2.png",
+      "camera": "courtyard-gap",
+      "take": 2,
+      "bytes": 216325,
+      "sha256": "1eed1336d78cd11b751ebd9ab200f0b46935f1d0f6936081a3ac4d218fc029c2"
+    },
+    {
+      "file": "capture-cross-lane-1.png",
+      "camera": "cross-lane",
+      "take": 1,
+      "bytes": 276878,
+      "sha256": "b1c5d2e81073d2cf97459a61021f7c7795f57422d2ff4bd3ce61bce505035713"
+    },
+    {
+      "file": "capture-cross-lane-2.png",
+      "camera": "cross-lane",
+      "take": 2,
+      "bytes": 276878,
+      "sha256": "b1c5d2e81073d2cf97459a61021f7c7795f57422d2ff4bd3ce61bce505035713"
+    }
+  ],
+  "audit": {
+    "generatedAt": "2026-11-04T20:22:49.393Z",
+    "sourceFiles": [
+      "manifest.json",
+      "report.json",
+      "run-exit.json",
+      "npm-test-exit.json",
+      "npm-test.log",
+      "harness.mjs"
+    ],
+    "executedReportPreservedAs": "local output root only (not published)",
+    "description": "Post-run audit derived from the executed harness evidence; no capture or build was rerun.",
+    "publicReport": "This report.json is the post-run audit; the executed harness report is retained locally.",
+    "reviewAmendments": {
+      "appliedAt": "2026-11-05",
+      "captureRerun": false,
+      "deliveredHarnessSha256": "e838b270df1085170579129c5de38212b8838ad664ed4d91dcf059f87882e4d1",
+      "note": "Review fixes applied to README, harness, manifest and report without rerunning capture: configurable output root with harness-created preflight.json, untracked-ignoring tracked-clean check, direct-semantics httpServerListeningAfterClose in all five published occurrences, split selfReportedExitCode/observedExitCode, top-level complete=false with status, corrected local-evidence location to the gitignored outputs/ inside the worktree, and surfaced per-camera usage/comparison conditions. A second review pass fixed the remaining README comparison preconditions, the match fields, dead manifest URLs (shots now carry relativeUrl), rerun prerequisites, debug-log capture, output-root-safe fatal handling, conditional status, and output-root-derived redaction text. A third review pass added the dependency verification described in harness.note, so the rerun prerequisites now state exactly what is checked; the delivered harness hash above refers to the file after this change."
+    }
+  },
+  "publicCopy": {
+    "sanitized": true,
+    "removed": [
+      "externalProcessesObserved",
+      "local process files",
+      "debug log",
+      "full browser argv",
+      "machine paths",
+      "username"
+    ],
+    "note": "Local-only evidence remains in the gitignored outputs/ directory inside the repository worktree, not outside it."
+  },
+  "processEvidenceLimits": [
+    "Individual exit codes/times of Chromium child processes were not captured; the launch snapshot and the final descendant scan (empty) are the available evidence.",
+    "Renderer/utility PIDs created when capture pages opened were not snapshotted during the run; only the immediate post-launch children snapshot and the final empty descendant scan are available.",
+    "DEBUG=pw:browser in this Playwright version logged ws connect/disconnect events but no explicit <launching>/<launched>/exit lines; actual argv was verified with Browser.getBrowserCommandLine over CDP instead of inferred from the debug log."
+  ],
+  "harnessExitObserved": 1,
+  "harnessRun": {
+    "startedAt": "2026-11-04T20:17:54Z",
+    "endedAt": "2026-11-04T20:19:53Z",
+    "exitCode": 1,
+    "signal": null,
+    "command": "node24 harness.mjs"
+  },
+  "passedMeaning": "passed means capturePassed: six decodable, non-background PNGs and all per-shot checks passed. It does NOT mean cleanExitBaseline: see cleanupDeviation and acceptance.harnessExit0."
+}
