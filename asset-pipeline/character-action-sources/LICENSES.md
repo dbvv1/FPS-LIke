@@ -17,8 +17,9 @@ CC0 1.0 允许复制、修改、商用与再分发，不要求署名。本仓保
 ## 其他候选的许可状态
 
 - **Quaternius**：包页多标 CC0，OGA 作者上传包内含 CC0 1.0 `License.txt`；但 `quaternius.com/license.html` 自 2026-08-28 起为 QAL v1.0，禁止把素材本身（含修改后）作为独立 asset pack/stock file 再分发。**冲突未解决**，入公开仓库前必须由 dot 决定或向作者确认。
+- **Operation Steel Tide（BAMEN/Viper）**：网格与逐资产许可为 CC BY 4.0/CC0，但 BAMEN/Viper 的 reload/shoot 等动作来自 Quaternius UAL1/2（`reload=Pistol_Reload`、`shoot=Pistol_Shoot`），仍受 QAL v1.0 再分发冲突约束；未澄清前整套不能判定为可随公开仓库提交。
 - **Kenney**：CC0。
-- **Mesh2Motion**：代码 MIT；美术 `LICENSE-CC0.MD` 覆盖 `models/blend/rigs/animations`。
+- **Mesh2Motion**：代码 MIT；美术 `LICENSE-CC0.MD` 覆盖 `models/blend/rigs/animations`。本卡只临时下载 `model.glb` + 14 个动画 GLB 做字节级核验（见 `sources.md` 8.1），未入库；仓库内小样只有 KayKit。
 - **Microsoft Rocketbox**：MIT（`LICENSE.md`）。
 - **100STYLE**：CC BY 4.0，需署名。
 - **CMU Motion Capture**：原始页写 “free for all uses”；再分发条款需复核。
