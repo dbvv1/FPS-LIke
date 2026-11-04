@@ -176,8 +176,8 @@ for review and are not copied into the sampling code.
 
 ## Missing actions (reload / switch)
 
-The accepted GLB exports only `idle`, `walk`, `fire`, `hit` and `death`. These
-gaps are source-content gaps, not adapter bugs:
+The accepted GLB exports only `idle`, `walk`, `fire`, `hit` and `death`. The
+following are source-content gaps, not adapter bugs:
 
 - **Reload** is contract-only in the content set. The enemy weapon is its own
   `weapon` node with a separate `guard-weapon` mesh (228 vertices), not merged
@@ -188,15 +188,57 @@ gaps are source-content gaps, not adapter bugs:
   separating a magazine (and bolt) node from the `guard-weapon` mesh and
   exporting a new clip, then re-running the source build and hashing the new
   accepted bytes.
-- **Switch** has no clip and no node in this source. `switch` commands still
-  change `actor.weapon`; the adapter requires `shot.weapon === actor.weapon`,
-  so a previous weapon's fire clip does not replay after the switch. It shows
-  `walk` / `idle` in the meantime. A switch animation needs a new accepted
-  source action.
+- **Switch clip** has no clip and no node in this source, so a switch animation
+  needs a new accepted source action. Bots still issue switch commands and the
+  adapter shows `walk` / `idle` in the meantime. This content gap is separate
+  from the missing switch history described in the next section: it is about a
+  clip that does not exist, not about an old fire event that cannot be
+  identified.
 - There is no skin, finger articulation, upper-body mask or foot-contact IK;
   `walk` is rigid hip/spine motion on a fixed 0.9 s loop and is not stride- or
   speed-matched. Contact and silhouette still need the real game camera and are
   not claimed as quality-passed.
+
+## Switch history is not in the snapshot
+
+`shot.weapon === actor.weapon` only filters the other gun's events at the
+instant a pose is chosen. It is not a switch generation. `state.shots` keeps
+every older shot, and neither the snapshot nor the shot record says that the
+weapon was put away after that shot. So:
+
+- while another weapon is current, the old fire tail is not selected;
+- switching back selects the same older `fire` clip for the rest of its parsed
+  duration. Its event age does not reset — it is not replayed from time 0 — but
+  that does not mean the old fire presentation will not reappear after the
+  switch.
+
+Real `Game` coverage in `adapter.test.ts` pins this behavior down instead of
+claiming a clearing guarantee:
+
+- rifle shot, switch to pistol, switch back: the third frame has no new shot
+  and selects `fire` at 50 ms, identical to the no-switch control, even though
+  the pistol frame in between selected `idle`.
+- pistol shot, switch to rifle, switch back: the final `GameState` is
+  `deepEqual` to the no-switch control (`time = 16000`, one shot at `13000`,
+  `nextShot = 28000`), and both select `fire` at 50 ms. Because the final
+  snapshots are identical, a snapshot-only consumer cannot infer that a switch
+  happened.
+- several switches in one tick (`shoot`, `switch`, `switch`) still select the
+  pre-switch shot at 16.67 ms.
+- switching cancels an in-progress reload (the engine clears `actor.reload`);
+  the adapter follows that state and stops suppressing fire. That is reload
+  behavior, not evidence that old fire events were cleared.
+
+Clearing all old fire accurately requires a read-only switch event or switch
+generation fact from the simulation/wiring scope (a later card). This adapter
+does not add one: it adds no simulation state, wall clock, arbitrary wait or
+presentation-frame memory, and it does not use `nextShot` as a switch marker.
+The gap remains open.
+
+Do not conflate the missing reload/switch source clips with this missing
+switch-history fact: the first is a content gap (no animation to play), the
+second is a read-only contract gap (the snapshot cannot tell when the weapon was
+switched).
 
 ## Commands
 
@@ -209,8 +251,8 @@ npx tsc -p asset-pipeline/training-character-adapter
 
 The root `npm test` is unchanged and does not include this directory. The
 adapter tests load the real GLB for every case and use the real
-`offline-training-v1` `Game` and `Feedback` for the settled death tail. They
-cover:
+`offline-training-v1` `Game` and `Feedback` both for the settled death tail and
+for the switch/reload command scenarios. They cover:
 
 - accepted bytes/hash, real clip names and source durations;
 - fetch success, HTTP failure and byte-integrity rejection;
@@ -223,7 +265,11 @@ cover:
   without replay, plus next-round reset;
 - deterministic poses for the same simulation time and presentation age;
 - shared template resources, untouched source palette and transform state;
-- reload/switch fallback without invented motion;
+- reload/switch fallback without invented motion in the synthetic actor;
+- real `Game` rifle and pistol switch-away-and-back, several switches in one
+  tick, switch-cancelled reload and their no-switch controls; these document
+  the unresolved switch-history gap rather than asserting that old fire is
+  cleared;
 - owner detach/reset, stale and late loads, post-dispose completion, failure
   fallback, and exactly-once disposal of owned resources.
 
@@ -233,5 +279,9 @@ cover:
   seam. No browser, headless browser, GPU, screenshot or first-person visual
   check is part of this unit.
 - No real reload or switch clip exists to validate.
+- The snapshot carries no switch history, so an old fire tail can be selected
+  again after switching back. A read-only switch event or generation fact from
+  a later wiring scope is required to clear it; this adapter stays read-only
+  and does not guess from `nextShot`.
 - Foot contact, gait readability, death silhouette and screen coverage still
   need a non-author real-camera review; this adapter is not a quality pass.

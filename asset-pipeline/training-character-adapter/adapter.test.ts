@@ -455,6 +455,156 @@ test('reload and switch have no source clip; presentation falls back without inv
   }
 });
 
+// Read one real snapshot and the motion selected from that same snapshot. The
+// adapter is presentation-only, so repeated observations never advance the game.
+function observed(game: Game, character: TrainingCharacter, feedback: Feedback, id = 'a') {
+  const state = game.state;
+  const actor = state.actors.find(value => value.id === id)!;
+  return { state, actor, motion: character.selectMotion(state, actor, feedback.update(state, state.time)) };
+}
+
+test('real Game: rifle fire is selected again after switching away and back', async () => {
+  const gltf = await accepted(), character = new TrainingCharacter(gltf);
+  const control = await Game.create(1, duel), switched = await Game.create(1, duel);
+  const controlFeedback = new Feedback(), switchedFeedback = new Feedback();
+  try {
+    for (const game of [control, switched]) game.step([{ actorId: 'a', type: 'shoot', yaw: 0, pitch: 0 }]);
+
+    // Frame 2: the rifle is put away, so its event is not selected. The
+    // no-switch control is still inside the same fire clip.
+    control.step();
+    switched.step([{ actorId: 'a', type: 'switch', weapon: 'pistol' }]);
+    assert.equal(observed(control, character, controlFeedback).motion?.clip, 'fire');
+    const away = observed(switched, character, switchedFeedback);
+    assert.equal(away.actor.weapon, 'pistol');
+    assert.equal(away.motion?.clip, 'idle');
+
+    // Frame 3: switching back selects the pre-switch shot again. No new shot
+    // was fired; the event age simply never reset and the snapshot has no
+    // switch history that could clear it.
+    control.step();
+    switched.step([{ actorId: 'a', type: 'switch', weapon: 'rifle' }]);
+    const back = observed(switched, character, switchedFeedback);
+    const untouched = observed(control, character, controlFeedback);
+    assert.equal(back.state.shots.length, 1);
+    assert.equal(back.state.shots[0]!.time, 0);
+    assert.equal(back.motion?.clip, 'fire');
+    assert.ok(Math.abs(back.motion!.seconds - .05) < 1e-12);
+    assert.deepEqual(back.motion, untouched.motion);
+    // The snapshots differ in nextShot, so identical presentation on both
+    // sides is not an identical-snapshot coincidence.
+    assert.equal(back.actor.nextShot, 14000);
+    assert.equal(untouched.actor.nextShot, 6000);
+  } finally {
+    control.dispose(); switched.dispose();
+    character.detach();
+    disposeTrainingCharacter(gltf.scene);
+  }
+});
+
+test('real Game: pistol switch-away/back leaves the final snapshot equal to the no-switch control', async () => {
+  const gltf = await accepted(), character = new TrainingCharacter(gltf);
+  const control = await Game.create(1, duel), switched = await Game.create(1, duel);
+  const controlFeedback = new Feedback(), switchedFeedback = new Feedback();
+  try {
+    for (const game of [control, switched]) game.step([{ actorId: 'a', type: 'switch', weapon: 'pistol' }]);
+    for (let tick = 0; tick < 12; tick++) for (const game of [control, switched]) game.step();
+    for (const game of [control, switched]) game.step([{ actorId: 'a', type: 'shoot', yaw: 0, pitch: 0.6 }]);
+
+    // Same simulation time, different presentation: the control still shows the
+    // pistol's fire tail, the switched run dropped it while the rifle is current.
+    control.step();
+    switched.step([{ actorId: 'a', type: 'switch', weapon: 'rifle' }]);
+    const controlMid = observed(control, character, controlFeedback);
+    const switchedMid = observed(switched, character, switchedFeedback);
+    assert.equal(controlMid.state.time, 15000);
+    assert.equal(switchedMid.state.time, 15000);
+    assert.equal(controlMid.motion?.clip, 'fire');
+    assert.equal(switchedMid.actor.weapon, 'rifle');
+    assert.equal(switchedMid.motion?.clip, 'idle');
+
+    // Switching back to the pistol recreates a final state equal to the
+    // no-switch control: the pistol cooldown was already longer than the
+    // switch cooldown, so the two switches leave no trace in the snapshot.
+    control.step();
+    switched.step([{ actorId: 'a', type: 'switch', weapon: 'pistol' }]);
+    const controlEnd = observed(control, character, controlFeedback);
+    const switchedEnd = observed(switched, character, switchedFeedback);
+    assert.deepEqual(switchedEnd.state, controlEnd.state);
+    assert.equal(switchedEnd.state.time, 16000);
+    assert.equal(switchedEnd.state.shots.length, 1);
+    assert.equal(switchedEnd.state.shots[0]!.weapon, 'pistol');
+    assert.equal(switchedEnd.state.shots[0]!.time, 13000);
+    assert.equal(switchedEnd.actor.nextShot, 28000);
+    // Both sides present the old shot at the same age; the switched run cannot
+    // prove from this snapshot that a switch ever happened.
+    assert.equal(switchedEnd.motion?.clip, 'fire');
+    assert.ok(Math.abs(switchedEnd.motion!.seconds - .05) < 1e-12);
+    assert.deepEqual(switchedEnd.motion, controlEnd.motion);
+  } finally {
+    control.dispose(); switched.dispose();
+    character.detach();
+    disposeTrainingCharacter(gltf.scene);
+  }
+});
+
+test('real Game: several switches in one tick still select the pre-switch shot', async () => {
+  const gltf = await accepted(), character = new TrainingCharacter(gltf);
+  const game = await Game.create(1, duel), feedback = new Feedback();
+  try {
+    game.step([
+      { actorId: 'a', type: 'shoot', yaw: 0, pitch: 0, at: 0 },
+      { actorId: 'a', type: 'switch', weapon: 'pistol', at: 1 },
+      { actorId: 'a', type: 'switch', weapon: 'rifle', at: 2 },
+    ]);
+    const end = observed(game, character, feedback);
+    assert.equal(end.state.time, 1000);
+    assert.equal(end.actor.weapon, 'rifle');
+    assert.equal(end.state.shots.length, 1);
+    assert.equal(end.state.shots[0]!.time, 0);
+    // Both switches fit inside one tick; the snapshot exposes only the final
+    // weapon and the cooldown, never the two intermediate switch commands.
+    assert.equal(end.actor.nextShot, 12002);
+    assert.equal(end.motion?.clip, 'fire');
+    assert.ok(Math.abs(end.motion!.seconds - 1 / 60) < 1e-12);
+  } finally {
+    game.dispose();
+    character.detach();
+    disposeTrainingCharacter(gltf.scene);
+  }
+});
+
+test('real Game: a switch cancels an in-progress reload and the adapter follows the state', async () => {
+  const gltf = await accepted(), character = new TrainingCharacter(gltf);
+  const game = await Game.create(1, duel), feedback = new Feedback();
+  try {
+    game.step([{ actorId: 'a', type: 'shoot', yaw: 0, pitch: 0 }]);
+    game.step([{ actorId: 'a', type: 'reload' }]);
+    const reloading = observed(game, character, feedback);
+    assert.deepEqual(reloading.actor.reload, { weapon: 'rifle', end: 115000 });
+    assert.equal(reloading.actor.weapons.rifle.ammo, 23);
+    // The shot is still inside its fire clip, but reload suppresses fire.
+    assert.equal(reloading.motion?.clip, 'idle');
+
+    game.step([{ actorId: 'a', type: 'switch', weapon: 'pistol' }]);
+    const canceled = observed(game, character, feedback);
+    assert.equal(canceled.actor.weapon, 'pistol');
+    assert.equal(canceled.actor.reload, null);
+    assert.equal(canceled.motion?.clip, 'idle'); // no pistol shot exists to present
+
+    // Advance past the original reload end: a canceled reload does not finish.
+    for (let tick = 0; tick < 115; tick++) game.step();
+    const later = observed(game, character, feedback);
+    assert.equal(later.state.time, 118000);
+    assert.equal(later.actor.reload, null);
+    assert.equal(later.actor.weapons.rifle.ammo, 23);
+  } finally {
+    game.dispose();
+    character.detach();
+    disposeTrainingCharacter(gltf.scene);
+  }
+});
+
 test('owner detaches instances without disposing shared template resources', async () => {
   const gltfs: GLTF[] = [], counts: ReturnType<typeof resources>[] = [];
   const owner = new TrainingCharacterSet(async () => {

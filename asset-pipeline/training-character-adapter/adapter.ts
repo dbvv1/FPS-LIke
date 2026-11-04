@@ -188,6 +188,11 @@ export class TrainingCharacter {
       if (age < this.duration('hit') * 1000) return { clip: 'hit', seconds: age / 1000, loop: false };
     }
     if (state.phase === 'live' && !actor.reload) {
+      // Matching the current weapon excludes the other gun at this instant. It
+      // cannot see that this weapon was switched away and back: state.shots has
+      // no switch history, so an older fire tail can be selected again. Clearing
+      // that needs a read-only switch event/generation fact from the wiring
+      // scope; nextShot is a cooldown, not a switch marker.
       let shot: GameState['shots'][number] | undefined;
       for (let index = state.shots.length - 1; index >= 0; index--) {
         const candidate = state.shots[index]!;
