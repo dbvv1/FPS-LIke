@@ -89,6 +89,18 @@ def recipe_with(mutate) -> dict:
     return recipe
 
 
+def write_recipe_variant(directory: Path, mutate) -> Path:
+    recipe = json.loads(RECIPE_PATH.read_text(encoding="utf-8"))
+    mutate(recipe)
+    path = directory / "recipe.json"
+    path.write_text(
+        json.dumps(recipe, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    return path
+
+
 class WavContractTests(unittest.TestCase):
     def test_exact_cue_set_and_bare_filenames(self) -> None:
         manifest = read_manifest()
@@ -200,6 +212,11 @@ class WavContractTests(unittest.TestCase):
         self.assertEqual(manifest["levels"]["peakCeilingDbfs"], -12.0)
         self.assertEqual(manifest["levels"]["appliedGainDb"], -3.0)
         self.assertEqual(manifest["levels"]["revision"]["appliedGainDb"], -3.0)
+        self.assertLessEqual(
+            manifest["levels"]["firstPassPeakDbfs"]
+            + manifest["levels"]["appliedGainDb"],
+            manifest["levels"]["peakCeilingDbfs"],
+        )
         self.assertIs(manifest["runtimeWired"], False)
         for cue in manifest["cues"]:
             path = HERE / cue["file"]
@@ -445,6 +462,15 @@ class InvalidInputTests(unittest.TestCase):
             ),
             "wrong revision gain": lambda r: r["revision"].__setitem__("appliedGainDb", -2.0),
             "ceiling too high": lambda r: r["levels"].__setitem__("peakCeilingDbfs", -9.0),
+            "default gain exceeds ceiling": lambda r: r["levels"].__setitem__(
+                "firstPassPeakDbfs", -8.0
+            ),
+            "missing batchId": lambda r: r.pop("batchId"),
+            "missing baseRef": lambda r: r.pop("baseRef"),
+            "missing license": lambda r: r.pop("license"),
+            "missing origin": lambda r: r.pop("origin"),
+            "blank license": lambda r: r.__setitem__("license", "   "),
+            "non-string batchId": lambda r: r.__setitem__("batchId", 7),
             "missing priority protection": lambda r: r["priorityIntent"].__setitem__(
                 "gunfireAndThreatPriority", ["reload"]
             ),
@@ -483,6 +509,94 @@ class InvalidInputTests(unittest.TestCase):
             result = run_generator("--recipe", str(missing), "--out", temp)
             self.assertEqual(result.returncode, 2)
             self.assertIn("error:", result.stderr)
+
+
+class OutputSafetyTests(unittest.TestCase):
+    def assert_rejected_without_touching_outputs(self, mutate, expected: str) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            recipe_path = write_recipe_variant(root, mutate)
+            out = root / "out"
+            out.mkdir()
+            for name in (*CUE_FILES.values(), "manifest.json"):
+                (out / name).write_bytes(f"sentinel:{name}".encode("ascii"))
+            before = {path.name: path.read_bytes() for path in out.iterdir()}
+
+            result = run_generator("--recipe", str(recipe_path), "--out", str(out))
+
+            self.assertEqual(result.returncode, 2, result.stderr)
+            self.assertIn("error:", result.stderr)
+            self.assertIn(expected, result.stderr)
+            after = {path.name: path.read_bytes() for path in out.iterdir()}
+            self.assertEqual(before, after, "rejected recipe modified existing output")
+
+    def test_default_gain_above_ceiling_is_rejected_before_writing(self) -> None:
+        # Regression: lowering firstPassPeakDbfs from -9 to -8 used to exit 0
+        # with four -11 dBFS files while the manifest still claimed -12.
+        self.assert_rejected_without_touching_outputs(
+            lambda recipe: recipe["levels"].__setitem__("firstPassPeakDbfs", -8.0),
+            "peakCeilingDbfs",
+        )
+
+    def test_missing_metadata_is_rejected_before_writing(self) -> None:
+        cases = {
+            "missing batchId": lambda recipe: recipe.pop("batchId"),
+            "missing baseRef": lambda recipe: recipe.pop("baseRef"),
+            "missing license": lambda recipe: recipe.pop("license"),
+            "missing origin": lambda recipe: recipe.pop("origin"),
+        }
+        for name, mutate in cases.items():
+            with self.subTest(case=name):
+                self.assert_rejected_without_touching_outputs(mutate, "recipe.")
+
+    def test_illegal_metadata_is_rejected_before_writing(self) -> None:
+        cases = {
+            "blank license": lambda recipe: recipe.__setitem__("license", "   "),
+            "non-string batchId": lambda recipe: recipe.__setitem__("batchId", 7),
+            "empty baseRef": lambda recipe: recipe.__setitem__("baseRef", ""),
+        }
+        for name, mutate in cases.items():
+            with self.subTest(case=name):
+                self.assert_rejected_without_touching_outputs(mutate, "recipe.")
+
+    def test_rejected_recipe_does_not_create_output_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            recipe_path = write_recipe_variant(root, lambda recipe: recipe.pop("license"))
+            out = root / "new-out"
+            result = run_generator("--recipe", str(recipe_path), "--out", str(out))
+            self.assertEqual(result.returncode, 2, result.stderr)
+            self.assertFalse(out.exists(), "rejected recipe created the output directory")
+
+    def test_synthesis_failure_is_rejected_before_writing(self) -> None:
+        # Regression: build() used to create the output directory and write each
+        # WAV as it went, so a cue that passes recipe validation but fails
+        # during synthesis exited 2 after overwriting the earlier WAVs.
+        cases = {
+            "too short for the edge envelope": (
+                lambda recipe: recipe["cues"][1].__setitem__("durationSeconds", 0.001),
+                "too short",
+            ),
+            "silent synthesis": (
+                lambda recipe: recipe["cues"][1]["synthesis"].__setitem__("pulseGain", 0.0),
+                "silence",
+            ),
+        }
+        for name, (mutate, expected) in cases.items():
+            with self.subTest(case=name):
+                self.assert_rejected_without_touching_outputs(mutate, expected)
+
+    def test_synthesis_failure_does_not_create_output_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            recipe_path = write_recipe_variant(
+                root,
+                lambda recipe: recipe["cues"][1].__setitem__("durationSeconds", 0.001),
+            )
+            out = root / "new-out"
+            result = run_generator("--recipe", str(recipe_path), "--out", str(out))
+            self.assertEqual(result.returncode, 2, result.stderr)
+            self.assertFalse(out.exists(), "failed synthesis created the output directory")
 
 
 if __name__ == "__main__":

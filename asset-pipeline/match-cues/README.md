@@ -29,9 +29,17 @@ python asset-pipeline/match-cues/test_generate.py
 ```
 
 `generate.py` reads `recipe.json` and rewrites the four WAV files plus
-`manifest.json` in this directory. `--out` redirects a build elsewhere.
-`--gain-db 0` reproduces the pre-revision batch for an amplitude comparison; it
-is not the final candidate because its peak is above the -12 dBFS ceiling.
+`manifest.json` in this directory. `--out` redirects a build elsewhere. The
+recipe is validated in full, and every cue is synthesized and level-checked,
+before any file is written: a recipe missing `batchId`, `baseRef`, `license`
+or `origin`, or whose default first-pass peak plus revision gain would exceed
+the -12 dBFS ceiling, exits with status 2 and leaves existing outputs
+untouched. `--gain-db 0` reproduces the pre-revision batch (-9 dBFS) for an
+amplitude comparison; it is not the final candidate because its peak is above
+the -12 dBFS ceiling. Any explicit gain override other than the default -3 dB
+is a revision/comparison build: overrides above -3 dB exceed the -12 dBFS
+ceiling, while overrides at or below -3 dB stay within it. Only the default
+-3 dB build is the final candidate.
 
 The tests check WAV format, duration limits, peak, first/last samples, the 5 ms
 envelope, cue shape, deterministic bytes, the -3 dB amplitude-only revision,

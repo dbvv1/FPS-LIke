@@ -67,6 +67,17 @@ def _finite_number(value: Any, path: str) -> float:
     return float(value)
 
 
+def _text(mapping: dict[str, Any], key: str, path: str) -> str:
+    _require(isinstance(mapping, dict), f"{path} must be an object")
+    _require(key in mapping, f"{path}.{key} is required")
+    value = mapping[key]
+    _require(
+        isinstance(value, str) and bool(value.strip()),
+        f"{path}.{key} must be a non-empty string",
+    )
+    return value
+
+
 def _number(
     mapping: dict[str, Any],
     key: str,
@@ -197,6 +208,8 @@ def validate_recipe(recipe: Any) -> dict[str, Any]:
     _require(isinstance(recipe, dict), "recipe must be a JSON object")
     _walk_numbers(recipe, "recipe")
     _require(recipe.get("schemaVersion") == 1, "recipe.schemaVersion must be 1")
+    for key in ("batchId", "baseRef", "license", "origin"):
+        _text(recipe, key, "recipe")
 
     fmt = recipe.get("format")
     _require(isinstance(fmt, dict), "recipe.format is required")
@@ -227,6 +240,14 @@ def validate_recipe(recipe: Any) -> dict[str, Any]:
     _require(
         abs(applied - EXPECTED_REVISION_GAIN_DB) < 1e-9,
         "revision.appliedGainDb must be -3",
+    )
+    # The default build uses this gain. Reject a recipe whose final result would
+    # sit above the ceiling before anything is written; explicit --gain-db
+    # overrides remain available for amplitude comparison batches.
+    _require(
+        first_peak + applied <= ceiling + 1e-9,
+        "levels.firstPassPeakDbfs plus the default revision gain must not exceed "
+        f"levels.peakCeilingDbfs ({ceiling})",
     )
     _require(revision.get("kind") == "amplitude-only", "revision.kind must be amplitude-only")
     preserves = revision.get("preserves")
@@ -522,15 +543,23 @@ def build(recipe: dict[str, Any], out_dir: Path, gain_db: float, recipe_path: Pa
     rate = int(fmt["sampleRate"])
     first_peak = float(levels["firstPassPeakDbfs"])
     target_peak = first_peak + gain_db
+
+    # Phase 1: synthesize, normalize and quantize every cue in memory. Any
+    # synthesis or level error (silence, or a cue too short for the edge
+    # envelope) must surface before the output directory or any WAV is touched,
+    # so a rejected build never leaves a partially updated batch behind.
+    rendered: list[tuple[dict[str, Any], list[int]]] = []
+    for spec in recipe["cues"]:
+        samples = _normalize_peak(synthesize_cue(spec, rate), first_peak)
+        samples = [sample * amp_from_db(gain_db) for sample in samples]
+        rendered.append((spec, _quantize(samples, target_peak)))
+
+    # Phase 2: every cue rendered successfully; publish the batch.
     out_dir.mkdir(parents=True, exist_ok=True)
 
     cue_rows: list[dict[str, Any]] = []
-    for spec in recipe["cues"]:
+    for spec, integers in rendered:
         cue_id = spec["id"]
-        duration = float(spec["durationSeconds"])
-        samples = _normalize_peak(synthesize_cue(spec, rate), first_peak)
-        samples = [sample * amp_from_db(gain_db) for sample in samples]
-        integers = _quantize(samples, target_peak)
         peak = max(abs(value) for value in integers)
         rms = math.sqrt(sum(value * value for value in integers) / len(integers))
         wav_path = out_dir / spec["file"]

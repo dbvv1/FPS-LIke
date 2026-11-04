@@ -7,7 +7,7 @@
   "scope": "Source-only listening candidates. Nothing in this directory is wired to the game runtime, audio graph, HUD, simulation or build.",
   "generator": {
     "path": "asset-pipeline/match-cues/generate.py",
-    "sha256": "884550b3683815102bf6d34292eaaea70824cdad7f7b56d40d8a940b79e939e3"
+    "sha256": "8fa2eb89659e3562820b07ac4139c2caac8e0e4b545bc081ae5cb21a74d6c6b0"
   },
   "recipe": {
     "path": "asset-pipeline/match-cues/recipe.json",
