@@ -118,6 +118,14 @@ function latestEffect(effects: readonly ShotEffect[], actorId: string, killed: b
   return undefined;
 }
 
+// A fire belongs to the actor's current weapon only when both sides expose a
+// generation and they agree. Snapshots where neither side carries one keep the
+// legacy behavior; a one-sided field is mixed history and must not be guessed.
+function matchingWeaponGeneration(shot: number | undefined, actor: number | undefined): boolean {
+  if (shot === undefined && actor === undefined) return true;
+  return shot !== undefined && actor !== undefined && shot === actor;
+}
+
 export class TrainingCharacter {
   readonly mount = new THREE.Group();
   readonly scene: THREE.Group;
@@ -188,15 +196,18 @@ export class TrainingCharacter {
       if (age < this.duration('hit') * 1000) return { clip: 'hit', seconds: age / 1000, loop: false };
     }
     if (state.phase === 'live' && !actor.reload) {
-      // Matching the current weapon excludes the other gun at this instant. It
-      // cannot see that this weapon was switched away and back: state.shots has
-      // no switch history, so an older fire tail can be selected again. Clearing
-      // that needs a read-only switch event/generation fact from the wiring
-      // scope; nextShot is a cooldown, not a switch marker.
+      // Matching the current weapon excludes the other gun at this instant.
+      // Under the optional generation-v1 presentation fact, a shot also has to
+      // come from the actor's current switch generation; otherwise an old fire
+      // tail would reappear after switching away and back. Legacy snapshots
+      // where neither side carries a generation keep the old behavior, and a
+      // one-sided field is treated as unusable rather than guessed.
       let shot: GameState['shots'][number] | undefined;
       for (let index = state.shots.length - 1; index >= 0; index--) {
         const candidate = state.shots[index]!;
-        if (candidate.actorId === actor.id && candidate.weapon === actor.weapon && candidate.time <= state.time) { shot = candidate; break; }
+        if (candidate.actorId !== actor.id || candidate.weapon !== actor.weapon || candidate.time > state.time) continue;
+        if (!matchingWeaponGeneration(candidate.weaponGeneration, actor.weaponGeneration)) continue;
+        shot = candidate; break;
       }
       if (shot) {
         const seconds = (state.time - shot.time) / SECOND;

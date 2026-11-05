@@ -298,6 +298,17 @@ const duel: PlayerSpec[] = [
   { id: 'a', team: 'amber', position: { x: 0, y: 0, z: 0 } },
   { id: 'd', team: 'blue', position: { x: 0, y: 0, z: 5 } },
 ];
+const generation = { weaponPresentation: 'generation-v1' } as const;
+
+// Compare gameplay only: the optional generations are the presentation facts
+// this card adds, so the real-Game controls must be equal once they are removed.
+function withoutGeneration(state: GameState): GameState {
+  return {
+    ...state,
+    actors: state.actors.map(({ weaponGeneration: _weaponGeneration, ...actor }) => actor),
+    shots: state.shots.map(({ weaponGeneration: _weaponGeneration, ...shot }) => shot),
+  };
+}
 
 test('settled death advances on the existing Feedback tail after simulation stops, then expires without replay', async () => {
   const gltf = await accepted(), character = new TrainingCharacter(gltf);
@@ -601,6 +612,244 @@ test('real Game: a switch cancels an in-progress reload and the adapter follows 
   } finally {
     game.dispose();
     character.detach();
+    disposeTrainingCharacter(gltf.scene);
+  }
+});
+
+test('real Game with generation: rifle fire is not selected again after switching away and back', async () => {
+  const gltf = await accepted(), character = new TrainingCharacter(gltf);
+  const control = await Game.create(1, duel, {}, generation), switched = await Game.create(1, duel, {}, generation);
+  const controlFeedback = new Feedback(), switchedFeedback = new Feedback();
+  try {
+    for (const game of [control, switched]) game.step([{ actorId: 'a', type: 'shoot', yaw: 0, pitch: 0 }]);
+
+    control.step();
+    switched.step([{ actorId: 'a', type: 'switch', weapon: 'pistol' }]);
+    assert.equal(observed(control, character, controlFeedback).motion?.clip, 'fire');
+    const away = observed(switched, character, switchedFeedback);
+    assert.equal(away.actor.weapon, 'pistol');
+    assert.equal(away.actor.weaponGeneration, 1);
+    assert.equal(away.motion?.clip, 'idle');
+
+    // Switching back now changes the actor generation, so the pre-switch shot
+    // stays in the snapshot but no longer matches the current weapon history.
+    control.step();
+    switched.step([{ actorId: 'a', type: 'switch', weapon: 'rifle' }]);
+    const back = observed(switched, character, switchedFeedback);
+    const untouched = observed(control, character, controlFeedback);
+    assert.equal(back.state.shots.length, 1);
+    assert.equal(back.state.shots[0]!.time, 0);
+    assert.equal(back.state.shots[0]!.weaponGeneration, 0);
+    assert.equal(back.actor.weaponGeneration, 2);
+    assert.equal(back.motion?.clip, 'idle');
+    assert.equal(untouched.motion?.clip, 'fire');
+    assert.notDeepEqual(back.motion, untouched.motion);
+  } finally {
+    control.dispose(); switched.dispose();
+    character.detach();
+    disposeTrainingCharacter(gltf.scene);
+  }
+});
+
+test('real Game with generation: pistol switch-away/back keeps gameplay but suppresses the old fire', async () => {
+  const gltf = await accepted(), character = new TrainingCharacter(gltf);
+  const control = await Game.create(1, duel, {}, generation), switched = await Game.create(1, duel, {}, generation);
+  const controlFeedback = new Feedback(), switchedFeedback = new Feedback();
+  try {
+    for (const game of [control, switched]) game.step([{ actorId: 'a', type: 'switch', weapon: 'pistol' }]);
+    for (let tick = 0; tick < 12; tick++) for (const game of [control, switched]) game.step();
+    for (const game of [control, switched]) game.step([{ actorId: 'a', type: 'shoot', yaw: 0, pitch: 0.6 }]);
+
+    control.step();
+    switched.step([{ actorId: 'a', type: 'switch', weapon: 'rifle' }]);
+    assert.equal(observed(control, character, controlFeedback).motion?.clip, 'fire');
+
+    control.step();
+    switched.step([{ actorId: 'a', type: 'switch', weapon: 'pistol' }]);
+    const controlEnd = observed(control, character, controlFeedback);
+    const switchedEnd = observed(switched, character, switchedFeedback);
+    // Gameplay is untouched: only the presentation facts differ.
+    assert.notDeepEqual(switchedEnd.state, controlEnd.state);
+    assert.deepEqual(withoutGeneration(switchedEnd.state), withoutGeneration(controlEnd.state));
+    assert.equal(switchedEnd.actor.weaponGeneration, 3);
+    assert.equal(switchedEnd.state.shots[0]!.weaponGeneration, 1);
+    assert.equal(controlEnd.actor.weaponGeneration, 1);
+    // Same final time, weapon and shot age, but the switched run does not replay
+    // the pistol tail from a generation the actor has already left.
+    assert.equal(controlEnd.motion?.clip, 'fire');
+    assert.ok(Math.abs(controlEnd.motion!.seconds - .05) < 1e-12);
+    assert.equal(switchedEnd.motion?.clip, 'idle');
+    assert.notDeepEqual(switchedEnd.motion, controlEnd.motion);
+  } finally {
+    control.dispose(); switched.dispose();
+    character.detach();
+    disposeTrainingCharacter(gltf.scene);
+  }
+});
+
+test('real Game with generation: several switches in one tick leave the shot on an older generation', async () => {
+  const gltf = await accepted(), character = new TrainingCharacter(gltf);
+  const game = await Game.create(1, duel, {}, generation), feedback = new Feedback();
+  try {
+    game.step([
+      { actorId: 'a', type: 'shoot', yaw: 0, pitch: 0, at: 0 },
+      { actorId: 'a', type: 'switch', weapon: 'pistol', at: 1 },
+      { actorId: 'a', type: 'switch', weapon: 'rifle', at: 2 },
+    ]);
+    const end = observed(game, character, feedback);
+    assert.equal(end.state.time, 1000);
+    assert.equal(end.actor.weapon, 'rifle');
+    assert.equal(end.actor.weaponGeneration, 2);
+    assert.equal(end.state.shots[0]!.weaponGeneration, 0);
+    assert.equal(end.motion?.clip, 'idle');
+  } finally {
+    game.dispose();
+    character.detach();
+    disposeTrainingCharacter(gltf.scene);
+  }
+});
+
+test('real Game with generation: a same-weapon request does not invalidate the current fire', async () => {
+  const gltf = await accepted(), character = new TrainingCharacter(gltf);
+  const game = await Game.create(1, duel, {}, generation), feedback = new Feedback();
+  try {
+    game.step([{ actorId: 'a', type: 'shoot', yaw: 0, pitch: 0 }]);
+    game.step([{ actorId: 'a', type: 'switch', weapon: 'rifle' }]);
+    const current = observed(game, character, feedback);
+    assert.equal(current.actor.weapon, 'rifle');
+    assert.equal(current.actor.weaponGeneration, 0);
+    assert.equal(current.state.shots[0]!.weaponGeneration, 0);
+    assert.equal(current.motion?.clip, 'fire');
+  } finally {
+    game.dispose();
+    character.detach();
+    disposeTrainingCharacter(gltf.scene);
+  }
+});
+
+test('real Game with generation: rejected shots and dead or settled actors add no fact', async () => {
+  const gltf = await accepted(), character = new TrainingCharacter(gltf);
+  const specs: PlayerSpec[] = [
+    { id: 'a', team: 'amber', position: { x: 0, y: 0, z: 0 } },
+    { id: 'd', team: 'blue', position: { x: 0, y: 0, z: 5 } },
+    { id: 'e', team: 'blue', position: { x: 6, y: 0, z: 5 } },
+  ];
+  const live = await Game.create(1, specs, {}, generation), feedback = new Feedback();
+  try {
+    live.step([{ actorId: 'a', type: 'shoot', yaw: 0, pitch: 0 }, { actorId: 'a', type: 'shoot', yaw: 0, pitch: 0 }]);
+    assert.equal(live.state.shots.length, 1, 'cooldown rejection is not a shot');
+    assert.equal(live.state.shots[0]!.weaponGeneration, 0);
+    for (let tick = 0; tick < 6; tick++) live.step();
+    live.step([{ actorId: 'a', type: 'shoot', yaw: 0, pitch: 0 }]);
+    assert.equal(live.state.phase, 'live');
+    const dead = live.state.actors.find(actor => actor.id === 'd')!;
+    assert.equal(dead.hp, 0);
+    assert.equal(dead.weaponGeneration, 0);
+    const state = live.state, effects = feedback.update(state, state.time);
+    assert.equal(character.selectMotion(state, dead, effects)?.clip, 'death');
+    live.step([{ actorId: 'd', type: 'switch', weapon: 'pistol' }]);
+    assert.equal(live.state.actors.find(actor => actor.id === 'd')!.weapon, 'rifle');
+    assert.equal(live.state.actors.find(actor => actor.id === 'd')!.weaponGeneration, 0);
+  } finally {
+    live.dispose();
+  }
+
+  const settled = await Game.create(1, duel, { roundTicks: 1 }, generation);
+  try {
+    settled.step();
+    assert.equal(settled.state.phase, 'over');
+    settled.step([{ actorId: 'a', type: 'switch', weapon: 'pistol' }]);
+    assert.equal(settled.state.actors.find(actor => actor.id === 'a')!.weaponGeneration, 0);
+    settled.nextRound();
+    const next = settled.state;
+    assert.deepEqual(next.actors.map(actor => actor.weaponGeneration), [0, 0]);
+    assert.equal(next.shots.length, 0);
+  } finally {
+    settled.dispose();
+    character.detach();
+    disposeTrainingCharacter(gltf.scene);
+  }
+});
+
+test('real Game with generation: a real shot with the newly selected weapon still presents fire', async () => {
+  const gltf = await accepted(), character = new TrainingCharacter(gltf);
+  const game = await Game.create(1, duel, {}, generation), feedback = new Feedback();
+  try {
+    game.step([{ actorId: 'a', type: 'switch', weapon: 'pistol' }]);
+    for (let tick = 0; tick < 13; tick++) game.step();
+    game.step([{ actorId: 'a', type: 'shoot', yaw: 0, pitch: 0 }]);
+    const state = game.state, actor = state.actors.find(value => value.id === 'a')!;
+    assert.equal(actor.weapon, 'pistol');
+    assert.equal(actor.weaponGeneration, 1);
+    assert.equal(state.shots.at(-1)!.weapon, 'pistol');
+    assert.equal(state.shots.at(-1)!.weaponGeneration, 1);
+    const motion = character.selectMotion(state, actor, feedback.update(state, state.time));
+    assert.equal(motion?.clip, 'fire');
+    assert.ok(Math.abs(motion!.seconds - 1 / 60) < 1e-12);
+  } finally {
+    game.dispose();
+    character.detach();
+    disposeTrainingCharacter(gltf.scene);
+  }
+});
+
+test('adapter fire needs both generations present and equal; mixed legacy fields are not guessed', async () => {
+  const gltf = await accepted(), character = new TrainingCharacter(gltf);
+  try {
+    const a = actor(), s = state(a);
+    s.time = .05 * SECOND;
+    s.shots = [shot(a.id, 0)];
+    assert.equal(character.selectMotion(s, a, [])!.clip, 'fire', 'both missing keeps legacy behavior');
+
+    a.weaponGeneration = 1;
+    assert.equal(character.selectMotion(s, a, [])!.clip, 'idle', 'one-sided actor generation is not guessed');
+    a.weaponGeneration = undefined;
+
+    s.shots = [{ ...shot(a.id, 0), weaponGeneration: 0 }];
+    assert.equal(character.selectMotion(s, a, [])!.clip, 'idle', 'one-sided shot generation is not guessed');
+    a.weaponGeneration = 0;
+    assert.equal(character.selectMotion(s, a, [])!.clip, 'fire', 'equal generations select fire');
+    a.weaponGeneration = 1;
+    assert.equal(character.selectMotion(s, a, [])!.clip, 'idle', 'a stale generation does not select fire');
+
+    // Hit and death priority stay independent of the generation fact.
+    a.hp = 0; a.weaponGeneration = 4;
+    a.input.z = 1;
+    assert.equal(character.selectMotion(s, a, [hitEvent(a.id, 0, 50, true)])!.clip, 'death');
+  } finally {
+    character.detach();
+    disposeTrainingCharacter(gltf.scene);
+  }
+});
+
+test('generation-aware pose is identical at the same state and age regardless of presentation cadence', async () => {
+  const gltf = await accepted(), first = new TrainingCharacter(gltf), second = new TrainingCharacter(gltf);
+  const game = await Game.create(1, duel, {}, generation);
+  const firstFeedback = new Feedback(), secondFeedback = new Feedback();
+  try {
+    game.step([{ actorId: 'a', type: 'shoot', yaw: 0, pitch: 0 }]);
+    game.step([{ actorId: 'a', type: 'switch', weapon: 'pistol' }]);
+    game.step([{ actorId: 'a', type: 'switch', weapon: 'rifle' }]);
+    const state = game.state, a = state.actors.find(value => value.id === 'a')!;
+    const firstEffects = firstFeedback.update(state, state.time);
+    const secondEffects = secondFeedback.update(state, state.time);
+
+    // A paused/repeated pose must not accumulate, and an intermediate frame at
+    // another presentation cadence must not change the final selected pose.
+    const intermediate = structuredClone(state);
+    intermediate.time = state.time - 1000;
+    first.pose(intermediate, a, firstEffects, true);
+    first.pose(intermediate, a, firstEffects, true);
+    first.pose(state, a, firstEffects, true);
+    second.pose(state, a, secondEffects, true);
+    assert.deepEqual(first.selectMotion(state, a, firstEffects), second.selectMotion(state, a, secondEffects));
+    assert.deepEqual(transforms(first.mount), transforms(second.mount));
+    const frozen = transforms(first.mount);
+    first.pose(state, a, firstEffects, true);
+    assert.deepEqual(transforms(first.mount), frozen);
+  } finally {
+    game.dispose();
+    first.detach(); second.detach();
     disposeTrainingCharacter(gltf.scene);
   }
 });
