@@ -1,13 +1,19 @@
+import { pathToFileURL } from 'node:url';
 import { Game } from '../../src/candidates/offline-training-v1/sim/game.js';
 import { Navigation, initNavigation } from '../../src/candidates/offline-training-v1/sim/navigation.js';
 import { squadSpecs, squadBots } from '../../src/candidates/offline-training-v1/session/squads.js';
 import { TrainingMatch } from '../../src/candidates/offline-training-v1/session/match.js';
 import { squadPlan } from '../../src/candidates/offline-training-v1/sim/squads.js';
-import { SECOND } from '../../src/candidates/offline-training-v1/sim/types.js';
+import { SECOND, type Command, type GameState } from '../../src/candidates/offline-training-v1/sim/types.js';
+
+// Read-only per-step facts for census tools. The arrays and state are detached
+// copies, so an observer cannot mutate the running match or its command tape.
+export type SquadMatchObservation = { round: number; tick: number; commands: Command[]; state: GameState; stateHash: string };
+export type SquadMatchObserver = (record: SquadMatchObservation) => void;
 
 // CPU evidence for the actual offline roster: the human slot deliberately has
 // no commands, rather than quietly replacing the player with a tenth bot.
-export async function runSquadMatch(seed: number, ground = false) {
+export async function runSquadMatch(seed: number, ground = false, observe?: SquadMatchObserver) {
   await initNavigation();
   const nav = new Navigation();
   const game = await Game.create(seed, squadSpecs('normal'), {}, { formation: 'squads-v1', ...(ground ? {movement:'ground-v1' as const} : {}) });
@@ -26,6 +32,7 @@ export async function runSquadMatch(seed: number, ground = false) {
         });
         game.step(commands);
         const current = game.state;
+        if (observe) observe({ round: current.round, tick: current.tick, commands: structuredClone(commands), state: structuredClone(current), stateHash: game.stateHash });
         for (const actor of current.actors) {
           const a = activity[actor.id]; if (!a) continue;
           const old = previous.actors.find(v => v.id === actor.id)!;
@@ -48,7 +55,7 @@ export async function runSquadMatch(seed: number, ground = false) {
   } finally { game.dispose(); nav.dispose(); }
 }
 
-if (process.argv[1]?.endsWith('/squads-sim.ts')) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const args = process.argv.slice(2), seedAt = args.indexOf('--seed'), seedsAt = args.indexOf('--seeds');
   const seed = seedAt < 0 ? 1 : Number(args[seedAt + 1]), count = seedsAt < 0 ? 3 : Number(args[seedsAt + 1]);
   if (!Number.isSafeInteger(seed) || seed < 0 || seed > 0xffffffff || !Number.isInteger(count) || count < 1 || count > 100) throw new Error('Use --seed <uint32> --seeds <1..100> [--replay]');
