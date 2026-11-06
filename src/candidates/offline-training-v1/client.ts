@@ -160,7 +160,7 @@ function frame(now: number) {
         renderFallback = '候选材质加载失败，已恢复默认材质；对局可继续。';
         const notice = document.getElementById('render-mode')!; notice.textContent = renderFallback; notice.hidden = false;
       }
-      view.render(visual, visual.actors.find(a => a.id === actor.id)!, controls.yaw, controls.pitch, now, dt); hud.update(state, actor, now);
+      view.render(visual, visual.actors.find(a => a.id === actor.id)!, controls.yaw, controls.pitch, now, dt); hud.update(state, actor, now, (view.info as { hitSource?: Parameters<Hud['update']>[3] }).hitSource);
       if (match) matchPanel!.update(state, actor, match.summary);
       sound.update(state, actor, controls.yaw, game.observe(actor.id).sounds.map(s => s.id), (view.info as { rifleSource?: Parameters<Soundscape['update']>[4] }).rifleSource);
       document.getElementById('debug-state')!.textContent = JSON.stringify({ ...acceptanceState(), backend: view.backend, running, locked: controls.locked, tick: state.tick, round: state.round, phase: state.phase, time: state.time, yaw: controls.yaw, pitch: controls.pitch, player: { position: actor.position, hp: actor.hp, weapon: actor.weapon, ammo: actor.weapons[actor.weapon].ammo, reload: actor.reload, input: actor.input }, score: state.score, result: state.result }, null, 2);

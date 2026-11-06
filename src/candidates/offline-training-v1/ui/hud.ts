@@ -1,3 +1,4 @@
+import type { MarkerReceipt } from '../render/source-hit.js';
 import { legacySearch, groundCandidateSearch } from '../../../default-route.js';
 import { MouseSensitivity } from '../input/sensitivity.js';
 import { SensitivityMenu } from './sensitivity-menu.js';
@@ -57,14 +58,16 @@ export class Hud {
     const action = element<HTMLButtonElement>(element('next').hidden ? 'start' : 'next');
     if (!action.disabled) action.focus({preventScroll:true});
   }
-  update(state: GameState, player: Actor, now: number) {
+  update(state: GameState, player: Actor, now: number, marker?: MarkerReceipt) {
     if (state.round !== this.round) { this.round = state.round; this.lastHp = player.hp; }
     const result = localShotResult(state, player), pose = weaponPose(state, player);
-    const resultVisible = !!result && result.kind !== 'miss' && result.age < (result.kind === 'kill' ? .8 : .32);
-    element('hitmarker').classList.toggle('show', resultVisible);
-    element('hitmarker').dataset.kind = result?.kind ?? '';
-    element('shot-result').textContent = resultVisible ? result!.kind === 'kill' ? '击倒确认' : result!.kind === 'head' ? '要害命中' : result!.kind === 'friendly' ? '友军命中' : '' : '';
-    element('shot-result').dataset.kind = result?.kind ?? '';
+    const sourceOwnsMarker = marker?.ownsMarker === true && marker.round === state.round && marker.shotTime === (result?.shot.time ?? null);
+    const kind = sourceOwnsMarker ? marker.kind : result?.kind;
+    const resultVisible = sourceOwnsMarker ? !!kind : !!result && result.kind !== 'miss' && result.age < (result.kind === 'kill' ? .8 : .32);
+    element('hitmarker').classList.toggle('show', resultVisible && !sourceOwnsMarker);
+    element('hitmarker').dataset.kind = kind ?? '';
+    element('shot-result').textContent = resultVisible ? kind === 'kill' ? '击倒确认' : kind === 'head' ? '要害命中' : kind === 'friendly' ? '友军命中' : '' : '';
+    element('shot-result').dataset.kind = kind ?? '';
     const moving = Math.hypot(player.input.x, player.input.z) > .01;
     element('crosshair').style.setProperty('--spread', `${5 + pose.kick * 9 + (moving ? 10 : 0)}px`);
     element('crosshair').classList.toggle('reloading', !!player.reload);

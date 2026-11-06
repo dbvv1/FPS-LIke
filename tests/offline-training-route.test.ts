@@ -32,8 +32,16 @@ const reviewedLockDisposal = {
   "src/candidates/movement-v2/input/controls.ts": "b18b0be72114f1a45074a6747d0e951b2d4868d943442bdf596f9212a76160fc"
 };
 
+// Extract the same verified loader for the training marker without expanding the
+// legacy two-character set; the asset README now records the separate consumer.
+// The historical fixture remains intact.
+const reviewedHitSourceLoader = {
+  "assets/content-set/README.md": "6ff3efb5a936d0d8816fbcdf020d956da2279660ca94adc3bde419c6ee8b2518",
+  "src/render/content-set-assets.ts": "92a6ffffedcbec86dd8850d15cd27e4c84fc120a279b48464c2a3418ec79b2ba"
+};
+
 test('v13 frozen modules plus authorized scheduling/capture changes retain their exact bytes', () => {
-  for (const [file, hash] of Object.entries({...hashes, ...reviewedLegacyScheduling, ...fixedCaptureRevision, ...reviewedLockDisposal})) assert.equal(createHash('sha256').update(readFileSync(new URL('../'+file, import.meta.url))).digest('hex'), hash, file);
+  for (const [file, hash] of Object.entries({...hashes, ...reviewedLegacyScheduling, ...fixedCaptureRevision, ...reviewedLockDisposal, ...reviewedHitSourceLoader})) assert.equal(createHash('sha256').update(readFileSync(new URL('../'+file, import.meta.url))).digest('hex'), hash, file);
 });
 test('offline client and stylesheet load only through the lazy candidate entry', () => {
   const boot = readFileSync(new URL('../src/boot.ts', import.meta.url), 'utf8');

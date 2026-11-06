@@ -9,6 +9,7 @@ import * as THREE from 'three';
 import { Game } from '../../src/candidates/offline-training-v1/sim/game.js';
 import { TrainingCharacterSet, parseTrainingCharacter } from '../../asset-pipeline/training-character-adapter/adapter.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { TrainingHitAssets } from '../../src/candidates/offline-training-v1/render/source-hit.js';
 import { TrainingRifleAssets } from '../../src/candidates/offline-training-v1/render/source-rifle.js';
 import { weaponPose } from '../../src/candidates/offline-training-v1/render/weapon.js';
 import { WEAPONS } from '../../src/candidates/offline-training-v1/content/weapons.js';
@@ -21,12 +22,14 @@ const sourceBytes = readFileSync(new URL('../../assets/content-set/enemy-relay-g
 const load = () => parseTrainingCharacter(Uint8Array.from(sourceBytes).buffer);
 const rifleBytes = readFileSync(new URL('../../assets/content-set/fp-arms-rx24.glb', import.meta.url));
 const loadRifle = () => new GLTFLoader().parseAsync(Uint8Array.from(rifleBytes).buffer, '');
+const hitBytes = readFileSync(new URL('../../assets/content-set/hit-feedback.glb', import.meta.url));
+const loadHit = () => new GLTFLoader().parseAsync(Uint8Array.from(hitBytes).buffer, '');
 const sceneUrl = new URL('../../src/candidates/offline-training-v1/render/scene.ts', import.meta.url);
 const sceneSource = readFileSync(sceneUrl, 'utf8');
 // Execute the actual View constructor/render/reset/dispose with real Three CPU
 // objects and GLTFLoader. The fixture supplies original local asset bytes and
 // replaces WebGLRenderer; this is not GPU QA.
-async function viewFixture(loader = load, rifleLoader = loadRifle) {
+async function viewFixture(loader = load, rifleLoader = loadRifle, hitLoader = loadHit) {
   const deps: Record<string, unknown> = { devicePixelRatio: 1 };
   for (const match of sceneSource.matchAll(/^import (.+) from '(.+)';$/gm)) {
     const path = match[2]!;
@@ -51,10 +54,15 @@ async function viewFixture(loader = load, rifleLoader = loadRifle) {
     constructor() { super(rifleLoader); }
     override start() { this.started = super.start(); return this.started; }
   };
+  deps.TrainingHitAssets = class extends TrainingHitAssets {
+    started: Promise<void> | null = null;
+    constructor() { super(hitLoader); }
+    override start() { this.started = super.start(); return this.started; }
+  };
   const body = stripTypeScriptTypes(sceneSource.replace(/^import .+;\n/gm, '').replace('export class View', 'class View'));
   const View = new Function(...Object.keys(deps), `${body}\nreturn View;`)(...Object.values(deps));
   const view = new View({});
-  const settle = async () => { await Promise.all([view.characters.started, view.sourceRifle.started]); };
+  const settle = async () => { await Promise.all([view.characters.started, view.sourceRifle.started, view.hitSource.started]); };
   return { view, settle };
 }
 const specs = [{ id: 'player', team: 'amber' as const }, { id: 'ally', team: 'amber' as const }, { id: 'enemy', team: 'blue' as const }];
@@ -495,4 +503,44 @@ test('reload begun during a switch keeps the existing baseline audio choice afte
     assert.deepEqual(f.audio.events.map(event=>event.cue),['reload-out','reload-in','bolt']);
     assert.equal(f.actor().weapons.rifle.ammo,24);
   }finally{f.close();}
+});
+
+test('actual training View adopts source marker only after load and successful render, then clears tail/reset/observer', async () => {
+  let release!: () => void;
+  const pending = new Promise<void>(resolve => { release = resolve; });
+  const { view, settle } = await viewFixture(load, loadRifle, async () => { await pending; return loadHit(); });
+  const game = await Game.create(1, [{ id:'player',team:'amber',position:{x:0,y:0,z:0} }, { id:'enemy',team:'blue',position:{x:0,y:0,z:5} }]);
+  try {
+    game.step([{ actorId:'player',type:'shoot',yaw:0,pitch:0 }]);
+    draw(view,game,1000); assert.equal(view.info.hitSource.state,'loading'); assert.equal(view.info.hitSource.ownsMarker,false);
+    release(); await settle();
+    assert.equal(view.info.hitSource.state,'ready'); assert.equal(view.info.hitSource.ownsMarker,false);
+    draw(view,game,1000);
+    assert.equal(view.info.hitSource.ownsMarker,true); assert.equal(view.info.hitSource.kind,'head');
+    assert.equal(view.info.hitSource.shotTime,game.state.shots.at(-1)!.time);
+    assert.equal(view.hitSource.marker.mount.parent,view.camera); assert.equal(view.hitSource.marker.mount.visible,true);
+    const goodRender=view.renderer.render; view.renderer.render=()=>{throw new Error('synthetic submission failure');};
+    assert.throws(()=>draw(view,game,1000),/submission failure/); assert.equal(view.info.hitSource.ownsMarker,false);
+    view.renderer.render=goodRender;
+    view.render(game.state,game.state.actors[0],0,0,1000,1/60,{position:{x:0,y:2,z:0},yaw:0,pitch:0,fov:80});
+    assert.equal(view.info.hitSource.ownsMarker,false); assert.equal(view.hitSource.marker.mount.visible,false);
+    view.reset(); assert.equal(view.hitSource.marker.mount.parent,null); assert.equal(view.info.hitSource.ownsMarker,false);
+    draw(view,game,1000); assert.equal(view.info.hitSource.kind,'head');
+    for(let i=0;i<12;i++)game.step();game.step([{actorId:'player',type:'shoot',yaw:0,pitch:0}]);
+    draw(view,game,1200); assert.equal(view.info.hitSource.kind,'kill');
+    draw(view,game,1901); assert.equal(view.info.hitSource.ownsMarker,true); assert.equal(view.info.hitSource.kind,null);
+    game.nextRound(); view.reset(); draw(view,game,2000); assert.equal(view.info.hitSource.kind,null);
+    view.dispose(); assert.equal(view.info.hitSource.state,'disposed'); assert.equal(view.info.hitSource.ownsMarker,false);
+  } finally {release();game.dispose();view.dispose();}
+});
+
+test('actual training View keeps CSS ownership available when hit source fails without disabling characters/rifle', async () => {
+  const {view,settle}=await viewFixture(load,loadRifle,async()=>{throw new Error('source unavailable');});
+  const game=await Game.create(1,specs);
+  try {
+    await settle(); draw(view,game);
+    assert.equal(view.info.hitSource.state,'fallback');assert.equal(view.info.hitSource.ownsMarker,false);
+    assert.equal(view.info.characters.state,'ready');assert.equal(view.info.rifleSource.state,'ready');
+    assert.equal(view.renderer.info.render.calls,1);
+  } finally {game.dispose();view.dispose();}
 });

@@ -348,3 +348,22 @@ test('integrated HUD follows nine real bots through six natural rounds and a fre
     console.log(JSON.stringify({ evidence: 'Actual Game, nine bots and HUD; DOM substitute, no browser/layout acceptance', rounds }));
   } finally { game.dispose(); nav.dispose(); dom.restore(); }
 });
+
+test('actual HUD suppresses CSS only for the current successful source receipt and shares its terminal expiry', async () => {
+  const dom=installDocument(),hud=createHud();
+  const game=await Game.create(1,[{id:'player',team:'amber',position:{x:0,y:0,z:0}},{id:'enemy',team:'blue',position:{x:0,y:0,z:5}}]);
+  let shown=false;
+  dom.element('hitmarker').classList.toggle=(name,force)=>{if(name==='show')shown=!!force;};
+  try {
+    game.step([{actorId:'player',type:'shoot',yaw:0,pitch:0}]);
+    const state=game.state,player=actor(game,'player'),shotTime=state.shots[0]!.time;
+    hud.update(state,player,1000); assert.equal(shown,true); assert.equal(dom.element('shot-result').textContent,'要害命中');
+    hud.update(state,player,1000,{ownsMarker:false,kind:'head',round:state.round,shotTime}); assert.equal(shown,true);
+    hud.update(state,player,1000,{ownsMarker:true,kind:'head',round:state.round,shotTime}); assert.equal(shown,false); assert.equal(dom.element('shot-result').textContent,'要害命中');
+    hud.update(state,player,1000,{ownsMarker:true,kind:null,round:state.round,shotTime}); assert.equal(shown,false); assert.equal(dom.element('shot-result').textContent,'');
+    hud.update(state,player,1000,{ownsMarker:true,kind:null,round:state.round+1,shotTime}); assert.equal(shown,true);
+    hud.update(state,player,1000,{ownsMarker:true,kind:null,round:state.round,shotTime:shotTime-1}); assert.equal(shown,true);
+    hud.update(state,player,1000); assert.equal(shown,true,'Canvas or absent receipt retains CSS');
+    assert.equal(dom.element('crosshair').style.width,'','source marker does not replace aiming UI');
+  } finally {game.dispose();dom.restore();}
+});

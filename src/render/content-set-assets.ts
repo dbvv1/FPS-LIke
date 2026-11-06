@@ -51,7 +51,9 @@ export function contentNode(scene: THREE.Object3D, name: string) {
   return matches[0]!;
 }
 export async function loadContentPiece(id: ContentPiece, signal: AbortSignal): Promise<GLTF> {
-  const spec = CONTENT_PIECES[id];
+  return loadVerifiedContent(id, CONTENT_PIECES[id], signal);
+}
+export async function loadVerifiedContent(id: string, spec: { url: string; bytes: number; sha256: string }, signal: AbortSignal): Promise<GLTF> {
   const response = await fetch(spec.url, { signal });
   if (!response.ok) throw new Error(`Content ${id}: HTTP ${response.status}`);
   const bytes = await response.arrayBuffer();

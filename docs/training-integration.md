@@ -12,7 +12,17 @@
 - 固定 `bb8827c` 的失败出口同包接入：不可恢复失败终止并清理，replacement 创建失败保留旧局。
 - 固定 `bec249c2` 的结果音频同包保留。`/?gameplay=offline-training-v1&match=complete-v1&matchAudio=result-cues-v1` 是候选构建内的真实训练赛入口；用户手势解锁后，胜负两声依原策略消费。默认仍 baseline，不把音频自动启用，不给旧线上站加参数冒充已部署。
 
-源 GLB、WAV、配方与许可字节不变。不纳入未验证 R2 材质 `9b3ec49`，已接固定HUD差量；收举与命中受伤进入原View／Canvas，本轮另补squad机器人目标前友方挡线决策；不改原HUD文件或在途反馈时间线的测试／文稿。
+源 GLB、WAV、配方与许可字节不变。不纳入未验证 R2 材质 `9b3ec49`，已接固定HUD差量；收举与命中受伤进入原View／Canvas，本轮另补squad机器人目标前友方挡线决策；不改默认1v1的HUD或在途反馈时间线的测试／文稿；训练Hud只补下述源标记回执。
+
+## 已有命中标准件的训练接入
+
+同一训练候选原样接收固定 b198df62 的 `hit-feedback.glb`（6,760B、CC0），只采用屏幕刻度／要害强调和 hit-body／head／kill 三段 scale 键；world burst 与现有八面体重复，本轮不接。四件源包因此是角色／步枪已接、命中部分已接、通路未接，不用资源数量推品质。旧 characters-v1 两件集合、模拟、音频、地图和导航不变。
+
+实际 View 在相机前0.5m挂源标记，使用源调色板的无光照材质，不与顶点色重复相乘，不受深度遮挡。身体／要害保持原320ms读取窗口，源120／180ms只管弹跳；击杀按源700ms及既有Feedback终局尾帧结束。最新本地一枪为落空就清前次命中，友军优先于要害／击杀，不加敌方强调；非本地、缺impact、零伤害与未知目标不产生确认。
+
+View完成本帧render后才给出 `hitSource.ownsMarker`、round／shotTime／kind；Hud匹配当前回合与枪事件才隐藏CSS标记，并共享文字到期时刻。ready不等于已提交；失败、迟到、Canvas仍留原CSS，reset／observer／dispose清回执。源几何由模板释放，新增UI材质另有唯一所有者。
+
+真实Game、实际GLTFLoader和View／Hud方法的CPU回归覆盖命中类型、源关键帧、暂停、终局尾帧、新落空、加载失败、提交失败、旁观、跨回合与清理；Renderer／DOM仍为替身。生产构建含原hash的GLB，未运行浏览器／GPU／听验。CPU投影显示完整accent在1080p／80°约17.5px，不能称名义14px或可读性已达标。既有浏览器拒绝与恢复条件仍在，产品main／Site未变。
 
 ## 哪些动作真的存在
 
