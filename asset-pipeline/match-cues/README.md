@@ -2,8 +2,14 @@
 
 Four original synthesized sound sources for the training match: weapon switch,
 menu confirmation, round win and round loss. They are editable listening
-candidates only. Nothing here is wired into the game, audio graph, HUD,
-simulation or build, and no runtime file is replaced.
+candidates. The later [optional round-result consumer](../../docs/round-result-audio.md)
+connects the unchanged win/loss WAVs to the training Soundscape and build, behind
+`matchAudio=result-cues-v1`; the default remains baseline. Switch and menu cues
+are still unconnected. No waveform or existing combat cue is replaced.
+
+The generator manifest records the original source-only delivery (`runtimeWired:
+false`), not live integration status. The linked consumer document owns the later
+runtime scope and remaining browser/listening acceptance.
 
 | ID | File | Duration | Peak | Character |
 |---|---|---|---|---|
@@ -62,7 +68,7 @@ from the short hit overlays.
 - Noise comes from a per-cue seeded xorshift32 stream. The generator does not
   read the clock, use Python's `random` module or depend on platform state.
 
-## Event bindings and future priority
+## Event bindings and consumer priority
 
 `manifest.json` is the authoritative mapping. In summary:
 
@@ -77,12 +83,14 @@ Win/loss must be read from `state.result.team`, never from `menu-title`,
 `menu-description`, localized copy or screenshot OCR. The manifest records both
 the positive bindings and the forbidden UI-text sources.
 
-Future priority is intent only. Gunfire and threat sounds (`shot`, `reload`,
+The round-result consumer follows this priority; for switch/menu it remains
+future intent. Gunfire and threat sounds (`shot`, `reload`,
 `step`, `hit`, `head`, `kill`, `plant`, bomb warning, explosion, damage) keep
 priority. These four cues belong to a lower UI/round tier: they must not duck,
 delay, replace or schedule around combat audio, and a cue should be skipped
-rather than raised over a threat. Actual mix levels remain open; this batch
-only fixes file peak.
+rather than raised over a threat. Actual mix levels remain open; the source batch
+only fixes file peak. The optional round consumer starts at gain 0.18 without a
+listening claim and skips a result entirely while any combat voice remains active.
 
 ## Listening questions
 
@@ -119,8 +127,9 @@ audio change.
 
 ## Boundaries
 
-- No listening test, CS2 comparison, browser playback, game integration or
-  device check has been run.
+- No listening test, CS2 comparison, browser playback or device check has been
+  run. The later round-only code/build integration is documented above; it is
+  not deployed or listening-approved.
 - No sound card, audio device, GUI or browser is opened by this pipeline.
 - No commercial game audio, samples, recordings or model-generated audio are
   used.
