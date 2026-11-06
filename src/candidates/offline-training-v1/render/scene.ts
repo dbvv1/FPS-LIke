@@ -1,5 +1,6 @@
 type ObserverCamera = { position: { x: number; y: number; z: number }; yaw: number; pitch: number; fov: number };
 import * as THREE from 'three';
+import { TrainingRifleAssets, RIFLE_RELOAD_SOURCE } from './source-rifle.js';
 import { TrainingCharacterSet } from '../../../../asset-pipeline/training-character-adapter/adapter.js';
 import { AiMaterials, FullAiMaterials, aiMaterialsEnabled } from './ai-materials.js';
 import { fullAiMaterialsEnabled, type KitSurface } from './ai-surface.js';
@@ -26,12 +27,17 @@ export class View {
   private aiMaterials: AiMaterials | FullAiMaterials | undefined;
   private art: ArtStandards | undefined;
   private artSlots: ArtSlot[] = [];
-  get info() { return { characters: { source: 'enemy-relay-guard', state: this.characters.status, activeIds: [...this.characterIds], error: this.characters.error, clips: ['idle', 'walk', 'fire', 'hit', 'death'] }, ...(this.aiMaterials ? { materials: this.aiMaterials.info } : {}), lighting: { id:this.lighting?LIGHTING_ID:'baseline', environment:this.lighting?'hemisphere-and-ambient':'hemisphere', ao:this.lighting?'deterministic-ssao-half-resolution':'none', grade:this.lighting?'cool-shadows-warm-highlights':'none' }, ...(this.art ? { art: { ...this.art.info, active: this.artPresented } } : {}), ...(this.environment ? { environment: { id: KIT.id, active: this.environmentPresented, budget: kitBudget(MAP.walls.length), evidence: 'offline-estimate' } } : {}), memory: { ...this.renderer.info.memory }, calls: this.renderer.info.render.calls }; }
+  get info() { return { rifleSource: { id: RIFLE_RELOAD_SOURCE.id, clips: RIFLE_RELOAD_SOURCE.clips, state: this.sourceRifle.status, error: this.sourceRifle.error, active: this.riflePresented, progress: this.rifleProgress, reloadEnd: this.rifleReloadEnd, weaponGeneration: this.rifleGeneration, cuePhases: this.sourceRifle.rifle?.cuePhases ?? null }, characters: { source: 'enemy-relay-guard', state: this.characters.status, activeIds: [...this.characterIds], error: this.characters.error, clips: ['idle', 'walk', 'fire', 'hit', 'death'] }, ...(this.aiMaterials ? { materials: this.aiMaterials.info } : {}), lighting: { id:this.lighting?LIGHTING_ID:'baseline', environment:this.lighting?'hemisphere-and-ambient':'hemisphere', ao:this.lighting?'deterministic-ssao-half-resolution':'none', grade:this.lighting?'cool-shadows-warm-highlights':'none' }, ...(this.art ? { art: { ...this.art.info, active: this.artPresented } } : {}), ...(this.environment ? { environment: { id: KIT.id, active: this.environmentPresented, budget: kitBudget(MAP.walls.length), evidence: 'offline-estimate' } } : {}), memory: { ...this.renderer.info.memory }, calls: this.renderer.info.render.calls }; }
   readonly renderer!: THREE.WebGLRenderer;
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera(80, 1, 0.05, 100);
   private feedback = new Feedback();
   private characters = new TrainingCharacterSet();
+  private sourceRifle = new TrainingRifleAssets();
+  private riflePresented = false;
+  private rifleProgress = 0;
+  private rifleReloadEnd: number | null = null;
+  private rifleGeneration: number | undefined;
   private characterIds: string[] = [];
   private impacts: THREE.Mesh[] = [];
   private actors = new Map<string, THREE.Mesh<THREE.BufferGeometry,THREE.MeshStandardMaterial>>();
@@ -122,6 +128,7 @@ export class View {
     this.scene.traverse(o => { if (o instanceof THREE.Mesh || o instanceof THREE.LineSegments) { this.geometries.add(o.geometry); for (const m of Array.isArray(o.material) ? o.material : [o.material]) this.materials.add(m); } });
     // Load after registering static resources: the template owns shared clone resources.
     void this.characters.start();
+    void this.sourceRifle.start();
   }
   private box(parent: THREE.Object3D, pos: readonly number[], scale: readonly number[], color: number, emissive = false) {
     const mesh = new THREE.Mesh(new THREE.BoxGeometry(scale[0]!, scale[1]!, scale[2]!), emissive ? new THREE.MeshBasicMaterial({ color }) : new THREE.MeshStandardMaterial({ color, roughness: 0.8, metalness: 0.15 }));
@@ -146,8 +153,11 @@ export class View {
     this.post?.resize(w,h,this.renderer.getPixelRatio());
   }
   render(state: GameState, player: Actor, yaw: number, pitch: number, now: number, dt: number, observer?: ObserverCamera) {
-    this.environmentPresented = false; this.artPresented = false;
-    const pose = weaponPose(state, player), effects=this.feedback.update(state,now);
+    this.environmentPresented = false; this.artPresented = false; this.riflePresented = false;
+    const basePose = weaponPose(state, player), effects=this.feedback.update(state,now);
+    const sourceRifle = this.sourceRifle.rifle;
+    const pose = sourceRifle && player.weapon === 'rifle' ? sourceRifle.pose(basePose) : basePose;
+    if (sourceRifle && sourceRifle.scene.parent !== this.rifle) this.rifle.add(sourceRifle.scene);
     cameraPose(this.camera, observer?.position ?? eye(player), observer?.yaw ?? yaw, observer?.pitch ?? pitch);
     const fov = observer?.fov ?? 80;
     if (this.camera.fov !== fov) { this.camera.fov = fov; this.camera.updateProjectionMatrix(); }
@@ -157,6 +167,8 @@ export class View {
     this.rifle.visible = player.weapon === 'rifle'; this.pistol.visible = player.weapon === 'pistol';
     for (const group of [this.rifle, this.pistol]) for (const part of group.children) {
       const source=part.userData.part;
+      if (!source) continue; // Verified source scene owns its own rigid nodes.
+      part.visible = group !== this.rifle || !sourceRifle || !!source.arm;
       part.position.set(...weaponPartPosition(source,pose));
       if(source.arm){
         const mesh=part as THREE.Mesh, data=weaponMesh(source,pose), positions=mesh.geometry.getAttribute('position');let n=0;
@@ -218,7 +230,9 @@ export class View {
       this.post.render();
     }else this.renderer.render(this.scene, this.camera);
     this.environmentPresented = this.environment; this.artPresented = this.art?.info.state === 'ready';
+    this.riflePresented = !!sourceRifle && !observer && player.hp > 0 && player.weapon === 'rifle';
+    this.rifleProgress = pose.progress; this.rifleReloadEnd = player.reload?.end ?? null; this.rifleGeneration = player.weaponGeneration;
   }
-  reset() {this.characters.reset();this.characterIds=[];this.artPresented=false;this.environmentPresented=false;this.feedback.reset();for(const mesh of this.impacts)mesh.visible=false;}
-  dispose() { this.artPresented=false; this.art?.dispose(); this.characters.dispose();this.characterIds=[]; this.aiMaterials?.dispose(); this.post?.dispose(); if(this.lighting)this.scene.traverse(o=>{if(o instanceof THREE.DirectionalLight)o.shadow.dispose();}); this.environmentPresented=false;for (const g of this.geometries) g.dispose(); for (const m of this.materials) m.dispose(); for(const t of this.textures)t.dispose(); this.renderer?.dispose(); }
+  reset() {this.sourceRifle.reset();this.riflePresented=false;this.characters.reset();this.characterIds=[];this.artPresented=false;this.environmentPresented=false;this.feedback.reset();for(const mesh of this.impacts)mesh.visible=false;}
+  dispose() { this.artPresented=false; this.art?.dispose(); this.sourceRifle.dispose();this.riflePresented=false;this.characters.dispose();this.characterIds=[]; this.aiMaterials?.dispose(); this.post?.dispose(); if(this.lighting)this.scene.traverse(o=>{if(o instanceof THREE.DirectionalLight)o.shadow.dispose();}); this.environmentPresented=false;for (const g of this.geometries) g.dispose(); for (const m of this.materials) m.dispose(); for(const t of this.textures)t.dispose(); this.renderer?.dispose(); }
 }

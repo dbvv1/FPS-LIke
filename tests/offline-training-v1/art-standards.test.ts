@@ -92,7 +92,7 @@ test('actual View constructor installs exact world slots, leaves other five lamp
   source = stripTypeScriptTypes(source.replace(/^import .*;\n/gm, '').replace('export class View', 'class View'));
   const make = (search: string) => new Function(...Object.keys(deps), 'globalThis', 'devicePixelRatio', source + '\nreturn View;')(...Object.values(deps), { location: { search } }, 1);
   const previousFetch = globalThis.fetch; const requests: string[] = [];
-  const artRequests = () => requests.filter(url => !url.endsWith('/enemy-relay-guard.glb')).length;
+  const artRequests = () => requests.filter(url => !url.endsWith('/enemy-relay-guard.glb') && !url.endsWith('/fp-arms-rx24.glb')).length;
   globalThis.fetch = (async (input: string) => { requests.push(input); return new Response(await readFile(new URL(input))); }) as typeof fetch;
   const before = JSON.stringify(MAP);
   try {
@@ -100,7 +100,7 @@ test('actual View constructor installs exact world slots, leaves other five lamp
     const Current = make('?environment=courtyard-v1'), currentView = new Current({}); currentView.dispose(); assert.equal(artRequests(), 0);
     const Candidate = make('?environment=courtyard-v1&art=standards-v1'), view = new Candidate({});
     for (let i = 0; i < 100 && view.info.art.state === 'loading'; i++) await new Promise(r => setTimeout(r, 5));
-    assert.equal(view.info.art.state, 'ready'); assert.equal(artRequests(), 3); assert.equal(requests.filter(url => url.endsWith('/enemy-relay-guard.glb')).length, 3);
+    assert.equal(view.info.art.state, 'ready'); assert.equal(artRequests(), 3); assert.equal(requests.filter(url => url.endsWith('/enemy-relay-guard.glb')).length, 3); assert.equal(requests.filter(url => url.endsWith('/fp-arms-rx24.glb')).length, 3);
     assert.equal(view.artSlots.length, 3);
     for (const slot of view.artSlots) {
       if (slot.id === 'lamp-existing') assert.deepEqual(slot.position, [-11.5, 0, 13]);

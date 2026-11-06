@@ -1,10 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { Soundscape, reloadAudioPolicyFromSearch } from '../../src/candidates/offline-training-v1/render/audio.js';
+import { synthesize, type Cue } from '../../src/candidates/offline-training-v1/render/synth.js';
 import { readFileSync } from 'node:fs';
 import { stripTypeScriptTypes } from 'node:module';
 import * as THREE from 'three';
 import { Game } from '../../src/candidates/offline-training-v1/sim/game.js';
 import { TrainingCharacterSet, parseTrainingCharacter } from '../../asset-pipeline/training-character-adapter/adapter.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { TrainingRifleAssets } from '../../src/candidates/offline-training-v1/render/source-rifle.js';
 import { weaponPose } from '../../src/candidates/offline-training-v1/render/weapon.js';
 import { WEAPONS } from '../../src/candidates/offline-training-v1/content/weapons.js';
 import { TrainingMatch } from '../../src/candidates/offline-training-v1/session/match.js';
@@ -14,12 +19,14 @@ import { SUBTICKS } from '../../src/candidates/offline-training-v1/sim/types.js'
 
 const sourceBytes = readFileSync(new URL('../../assets/content-set/enemy-relay-guard.glb', import.meta.url));
 const load = () => parseTrainingCharacter(Uint8Array.from(sourceBytes).buffer);
+const rifleBytes = readFileSync(new URL('../../assets/content-set/fp-arms-rx24.glb', import.meta.url));
+const loadRifle = () => new GLTFLoader().parseAsync(Uint8Array.from(rifleBytes).buffer, '');
 const sceneUrl = new URL('../../src/candidates/offline-training-v1/render/scene.ts', import.meta.url);
 const sceneSource = readFileSync(sceneUrl, 'utf8');
 // Execute the actual View constructor/render/reset/dispose with real Three CPU
 // objects and GLTFLoader. The fixture supplies original local asset bytes and
 // replaces WebGLRenderer; this is not GPU QA.
-async function viewFixture(loader = load) {
+async function viewFixture(loader = load, rifleLoader = loadRifle) {
   const deps: Record<string, unknown> = { devicePixelRatio: 1 };
   for (const match of sceneSource.matchAll(/^import (.+) from '(.+)';$/gm)) {
     const path = match[2]!;
@@ -39,10 +46,15 @@ async function viewFixture(loader = load) {
     constructor() { super(loader); }
     override start() { this.started = super.start(); return this.started; }
   };
+  deps.TrainingRifleAssets = class extends TrainingRifleAssets {
+    started: Promise<void> | null = null;
+    constructor() { super(rifleLoader); }
+    override start() { this.started = super.start(); return this.started; }
+  };
   const body = stripTypeScriptTypes(sceneSource.replace(/^import .+;\n/gm, '').replace('export class View', 'class View'));
   const View = new Function(...Object.keys(deps), `${body}\nreturn View;`)(...Object.values(deps));
   const view = new View({});
-  const settle = async () => { await view.characters.started; };
+  const settle = async () => { await Promise.all([view.characters.started, view.sourceRifle.started]); };
   return { view, settle };
 }
 const specs = [{ id: 'player', team: 'amber' as const }, { id: 'ally', team: 'amber' as const }, { id: 'enemy', team: 'blue' as const }];
@@ -204,4 +216,168 @@ test('actual nine-bot six-round match drives the integrated View through combat,
     assert.equal(match.summary.complete, false);
     console.log(JSON.stringify({ evidence: 'CPU actual Game + GLTFLoader + View; WebGLRenderer substituted, no browser/audio/device', rounds, motions: [...motions].sort(), score: game.state.score }));
   } finally { view.dispose(); game.dispose(); nav.dispose(); }
+});
+
+
+test('actual View consumes source rifle tracks, keeps only procedural sleeves, and restores on interrupted reload', async () => {
+  const { view, settle } = await viewFixture();
+  const game = await Game.create(1, specs, {}, { weaponPresentation: 'generation-v1' });
+  try {
+    await settle(); draw(view, game);
+    assert.equal(view.info.rifleSource.active, true);
+    assert.equal(view.sourceRifle.rifle.scene.parent, view.rifle);
+    const procedural = view.rifle.children.filter((part: THREE.Object3D) => part.userData.part);
+    assert.equal(procedural.filter((part: THREE.Object3D) => part.visible).length, 2);
+    assert.ok(procedural.every((part: THREE.Object3D) => part.visible === !!part.userData.part.arm));
+    game.step([{ actorId: 'player', type: 'shoot', yaw: 0, pitch: 0 }]);
+    game.step([{ actorId: 'player', type: 'reload' }]);
+    for (let tick = 0; tick < 35; tick++) game.step([]);
+    draw(view, game);
+    const magazine = view.sourceRifle.rifle.scene.getObjectByName('rifle-magazine_1') ?? view.sourceRifle.rifle.scene.getObjectByName('rifle-magazine');
+    assert.ok(magazine.position.y < -.3);
+    game.step([{ actorId: 'player', type: 'switch', weapon: 'pistol' }]); draw(view, game);
+    assert.equal(view.info.rifleSource.active, false); assert.equal(view.rifle.visible, false); assert.equal(view.pistol.visible, true);
+    assert.ok(view.pistol.children.every((part: THREE.Object3D) => part.visible));
+    game.step([{ actorId: 'player', type: 'switch', weapon: 'rifle' }]); draw(view, game);
+    assert.equal(view.info.rifleSource.active, true); assert.ok(Math.abs(magazine.position.y + .1284) < 1e-6);
+    view.reset(); assert.equal(view.info.rifleSource.active, false); assert.equal(view.sourceRifle.rifle.scene.parent, null);
+    draw(view, game); assert.equal(view.info.rifleSource.active, true);
+  } finally { view.dispose(); game.dispose(); }
+});
+
+test('rifle source failure is independent of enemy source and retains all original rifle parts', async () => {
+  const { view, settle } = await viewFixture(load, async () => { throw new Error('rifle unavailable'); });
+  const game = await Game.create(1, specs);
+  try {
+    await settle(); draw(view, game);
+    assert.equal(view.info.rifleSource.state, 'fallback'); assert.equal(view.info.rifleSource.active, false);
+    assert.equal(view.info.characters.state, 'ready');
+    assert.ok(view.rifle.children.every((part: THREE.Object3D) => part.visible));
+  } finally { view.dispose(); game.dispose(); }
+});
+
+// Real Soundscape playback dispatch with an AudioContext device substitute.
+// This checks waveform selection and event timing, not speakers or listening.
+function audioFixture() {
+  const original = globalThis.AudioContext;
+  const events: { cue: string; progress: number }[] = [];
+  let progress = 0;
+  const hash = (samples: Float32Array) => createHash('sha256').update(new Uint8Array(samples.buffer, samples.byteOffset, samples.byteLength)).digest('hex');
+  const cues = new Map<string, string>();
+  for (const weapon of ['rifle', 'pistol'] as const) for (const cue of ['shot', 'reload-out', 'reload-in', 'bolt', 'hit', 'head', 'kill'] as Cue[]) cues.set(hash(synthesize(cue, weapon, 48000)), cue);
+  class Context {
+    state = 'running'; sampleRate = 48000; destination = {};
+    createBuffer() { return { cue: '', copyToChannel(samples: Float32Array) { this.cue = cues.get(hash(samples)) ?? 'other'; } }; }
+    createBufferSource() { return { buffer: null as null | { cue: string }, onended: null as null | (() => void), connect() { return this; }, disconnect() {}, start() { events.push({ cue: this.buffer!.cue, progress }); this.onended?.(); }, stop() { this.onended?.(); } }; }
+    createGain() { return { gain: { value: 0 }, connect() { return this; }, disconnect() {} }; }
+    createStereoPanner() { return { pan: { value: 0 }, connect() { return this; }, disconnect() {} }; }
+    async close() { this.state = 'closed'; }
+  }
+  globalThis.AudioContext = Context as unknown as typeof AudioContext;
+  return { events, setProgress(value: number) { progress = value; }, restore() { globalThis.AudioContext = original; } };
+}
+async function reloadAudioFixture(policy: 'baseline' | 'source-rifle-v1' = 'source-rifle-v1', ready = true) {
+  const audio = audioFixture(), { view, settle } = await viewFixture();
+  const game = await Game.create(1, specs, {}, { weaponPresentation: 'generation-v1' });
+  const sound = new Soundscape('baseline', policy);
+  await sound.unlock(); if (ready) await settle();
+  const actor = () => game.state.actors.find(a => a.id === 'player')!;
+  const update = (present = true) => {
+    draw(view, game); const receipt = view.info.rifleSource;
+    audio.setProgress(weaponPose(game.state, actor()).progress);
+    sound.update(game.state, actor(), 0, [], present ? receipt : undefined);
+  };
+  update(); game.step([{ actorId: 'player', type: 'shoot', yaw: 0, pitch: 0 }]); update();
+  audio.events.length = 0;
+  return { audio, view, game, sound, actor, update, settle,
+    start(present = true) { game.step([{ actorId: 'player', type: 'reload' }]); update(present); },
+    close() { sound.dispose(); view.dispose(); game.dispose(); audio.restore(); } };
+}
+
+test('source reload audio requires one explicit known opt-in value', () => {
+  for (const search of ['', '?reloadAudio=other', '?reloadAudio=source-rifle-v1&reloadAudio=source-rifle-v1', '?reloadAudio=source-rifle-v1&reloadAudio=baseline']) assert.equal(reloadAudioPolicyFromSearch(search), 'baseline');
+  assert.equal(reloadAudioPolicyFromSearch('?reloadAudio=source-rifle-v1&matchAudio=result-cues-v1'), 'source-rifle-v1');
+});
+test('actual View + Soundscape follow three source motion onsets once, within one simulation tick', async () => {
+  const f = await reloadAudioFixture();
+  try {
+    f.start(); assert.equal(f.audio.events.length, 0); assert.equal(f.sound.reloadAudioState.sourceTimeline, true);
+    const phases = f.view.info.rifleSource.cuePhases;
+    assert.ok(Math.abs(phases.out * 1.9 - .38) < 1e-6);
+    assert.ok(Math.abs(phases.in * 1.9 - 1) < 1e-6);
+    assert.ok(Math.abs(phases.bolt * 1.9 - 1.44) < 1e-6);
+    while (f.actor().reload) { f.game.step(); const before = f.game.stateHash; f.update(); f.update(); assert.equal(f.game.stateHash, before); }
+    assert.deepEqual(f.audio.events.map(event => event.cue), ['reload-out', 'reload-in', 'bolt']);
+    for (const [index, threshold] of [phases.out, phases.in, phases.bolt].entries()) {
+      const delta = (f.audio.events[index]!.progress - threshold) * 1.9;
+      assert.ok(delta >= 0 && delta <= 1 / 60 + 1e-6, `source onset delta=${delta}`);
+    }
+    assert.equal(f.actor().weapons.rifle.ammo, 24);
+  } finally { f.close(); }
+});
+test('default audio and absent rendered source receipt keep the original timeline', async () => {
+  for (const [policy, presented] of [['baseline', true], ['source-rifle-v1', false]] as const) {
+    const f = await reloadAudioFixture(policy);
+    try {
+      f.start(presented); assert.deepEqual(f.audio.events.map(event => event.cue), ['reload-out']);
+      while (f.actor().reload) { f.game.step(); f.update(presented); }
+      assert.deepEqual(f.audio.events.map(event => event.cue), ['reload-out', 'reload-in', 'bolt']);
+      assert.equal(f.sound.reloadAudioState.sourceTimeline, false);
+      assert.ok(Math.abs(f.audio.events[1]!.progress - .56) < .01);
+    } finally { f.close(); }
+  }
+});
+test('late source availability cannot switch or replay a reload selected on baseline', async () => {
+  const f = await reloadAudioFixture();
+  try {
+    f.start(false); while (weaponPose(f.game.state, f.actor()).progress < .3) { f.game.step(); f.update(false); }
+    while (f.actor().reload) { f.game.step(); f.update(true); }
+    assert.deepEqual(f.audio.events.map(event => event.cue), ['reload-out', 'reload-in', 'bolt']);
+    assert.ok(f.audio.events[0]!.progress < .02); assert.ok(Math.abs(f.audio.events[1]!.progress - .56) < .01);
+  } finally { f.close(); }
+});
+test('source cues crossed while muted or without a rendered receipt are consumed, not replayed', async () => {
+  for (const missing of [false, true]) {
+    const f = await reloadAudioFixture();
+    try {
+      f.start(); if (!missing) f.sound.enabled = false;
+      while (weaponPose(f.game.state, f.actor()).progress < .32) { f.game.step(); f.update(!missing); }
+      f.sound.enabled = true; f.update(); assert.equal(f.audio.events.length, 0);
+      while (f.actor().reload) { f.game.step(); f.update(); }
+      assert.deepEqual(f.audio.events.map(event => event.cue), ['reload-in', 'bolt']);
+    } finally { f.close(); }
+  }
+});
+test('switch cancellation clears source timeline and no future cue leaks into pistol or next reload', async () => {
+  const f = await reloadAudioFixture();
+  try {
+    f.start(); f.game.step([{ actorId: 'player', type: 'switch', weapon: 'pistol' }]); f.update();
+    for (let i = 0; i < 120; i++) { f.game.step(); f.update(); }
+    assert.equal(f.audio.events.length, 0); assert.equal(f.sound.reloadAudioState.sourceTimeline, false);
+    f.game.step([{ actorId: 'player', type: 'switch', weapon: 'rifle' }]); f.update(); f.start();
+    while (f.actor().reload) { f.game.step(); f.update(); }
+    assert.deepEqual(f.audio.events.map(event => event.cue), ['reload-out', 'reload-in', 'bolt']);
+    f.sound.reset(); f.update(); assert.equal(f.audio.events.length, 3);
+  } finally { f.close(); }
+});
+test('a delayed source update consumes missed onsets instead of emitting a burst', async () => {
+  const f = await reloadAudioFixture();
+  try {
+    f.start(); while (weaponPose(f.game.state, f.actor()).progress < .82) f.game.step();
+    f.update(); assert.equal(f.audio.events.length, 0);
+    while (f.actor().reload) { f.game.step(); f.update(); }
+    assert.equal(f.audio.events.length, 0);
+  } finally { f.close(); }
+});
+
+
+test('reload then one or two switches within the same tick cannot sound a canceled source reload', async () => {
+  for (const returnToRifle of [false, true]) {
+    const f = await reloadAudioFixture();
+    try {
+      f.game.step([{ actorId: 'player', type: 'reload', at: 1 }, { actorId: 'player', type: 'switch', weapon: 'pistol', at: 2 }, ...(returnToRifle ? [{ actorId: 'player', type: 'switch' as const, weapon: 'rifle' as const, at: 3 }] : [])]);
+      assert.equal(f.actor().reload, null); f.update();
+      assert.equal(f.audio.events.length, 0); assert.equal(f.sound.reloadAudioState.sourceTimeline, false);
+    } finally { f.close(); }
+  }
 });

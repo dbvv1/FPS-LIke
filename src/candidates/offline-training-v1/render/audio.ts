@@ -1,7 +1,15 @@
+import type { RifleReloadReceipt } from './source-rifle.js';
+import { WEAPONS } from '../content/weapons.js';
+import { SUBTICKS } from '../sim/types.js';
 import type { Actor, GameState, WeaponId } from '../sim/types.js';
 import { localShotResult, weaponPose } from './weapon.js';
 import { synthesize, type Cue } from './synth.js';
 import { resultAudioPolicyFromSearch, resultCueUrls, settledResultCue, type ResultAudioPolicy, type ResultCue } from './result-audio.js';
+export type ReloadAudioPolicy = 'baseline' | 'source-rifle-v1';
+export function reloadAudioPolicyFromSearch(search: string): ReloadAudioPolicy {
+  const values = new URLSearchParams(search).getAll('reloadAudio');
+  return values.length === 1 && values[0] === 'source-rifle-v1' ? 'source-rifle-v1' : 'baseline';
+}
 export class Soundscape {
   private context: AudioContext | null = null;
   private lastSound = -1;
@@ -9,6 +17,7 @@ export class Soundscape {
   private round = 0;
   private reloadEnd: number | null = null;
   private reloadStage = 0;
+  private sourceReload: { end: number; generation?: number; progress: number } | null = null;
   private buffers = new Map<string, AudioBuffer>();
   private voices = new Set<AudioBufferSourceNode>();
   private active = true;
@@ -19,7 +28,8 @@ export class Soundscape {
   private resultAbort: AbortController | null = null;
   private resultLoadFailed = false;
   private resultDecision: 'none' | 'inactive' | 'not-ready' | 'combat' | 'played' = 'none';
-  constructor(private readonly resultPolicy: ResultAudioPolicy = resultAudioPolicyFromSearch(globalThis.location?.search ?? '')) {}
+  constructor(private readonly resultPolicy: ResultAudioPolicy = resultAudioPolicyFromSearch(globalThis.location?.search ?? ''), private readonly reloadPolicy: ReloadAudioPolicy = reloadAudioPolicyFromSearch(globalThis.location?.search ?? '')) {}
+  get reloadAudioState() { return { policy: this.reloadPolicy, sourceTimeline: this.sourceReload !== null }; }
   get resultAudioState() {
     return { policy: this.resultPolicy, ready: this.resultBuffers.size === 2, loadFailed: this.resultLoadFailed, decision: this.resultDecision };
   }
@@ -36,7 +46,7 @@ export class Soundscape {
     if (this.disposed || this.context !== context) return;
     if (this.resultPolicy === 'result-cues-v1') await this.loadResultCues(context);
   }
-  update(state: GameState, player: Actor, yaw: number, audibleIds: number[]) {
+  update(state: GameState, player: Actor, yaw: number, audibleIds: number[], rifle?: RifleReloadReceipt) {
     if (this.disposed) return;
     if (state.round !== this.round) { this.reset(); this.round = state.round; }
     const result = this.resultPolicy === 'result-cues-v1' ? settledResultCue(state, player) : null;
@@ -50,6 +60,26 @@ export class Soundscape {
     const previousEnd = this.reloadEnd, previousStage = this.reloadStage;
     this.reloadEnd = player.reload?.end ?? null;
     this.reloadStage = player.reload ? pose.progress >= .78 ? 2 : pose.progress >= .56 ? 1 : 0 : 0;
+    const reloadStart = player.reload ? player.reload.end - WEAPONS[player.reload.weapon].reload * SUBTICKS : null;
+    const sourceReady = this.reloadPolicy === 'source-rifle-v1' && !!rifle?.active && !!rifle.cuePhases && player.hp > 0 && player.weapon === 'rifle' && !!player.reload && rifle.reloadEnd === player.reload.end && rifle.weaponGeneration === player.weaponGeneration;
+    if (!player.reload || player.weapon !== 'rifle' || player.hp <= 0 || this.sourceReload?.generation !== player.weaponGeneration) this.sourceReload = null;
+    // Choose once at the real reload event. A model arriving halfway through
+    // a reload never switches timelines or repeats a previously played cue.
+    if (previousEnd !== this.reloadEnd) {
+      this.sourceReload = sourceReady && fresh.some(event => event.actorId === player.id && event.kind === 'reload' && event.time === reloadStart) && pose.progress <= rifle!.cuePhases!.out && rifle!.progress <= rifle!.cuePhases!.out
+        ? { end: player.reload!.end, generation: player.weaponGeneration, progress: rifle!.progress } : null;
+    }
+    const sourceCues: Cue[] = [];
+    if (this.sourceReload) {
+      const progress = sourceReady ? rifle!.progress : pose.progress;
+      if (sourceReady) {
+        for (const [cue, threshold] of [['reload-out', rifle!.cuePhases!.out], ['reload-in', rifle!.cuePhases!.in], ['bolt', rifle!.cuePhases!.bolt]] as const) {
+          // Consume missed phases rather than burst/replay them after a stall.
+          if (this.sourceReload.progress < threshold && progress >= threshold && progress - threshold <= .05) sourceCues.push(cue);
+        }
+      }
+      this.sourceReload.progress = Math.max(this.sourceReload.progress, progress);
+    }
     if (!this.enabled || !this.context || this.context.state !== 'running') {
       if (freshResult) this.resultDecision = 'inactive';
       return;
@@ -62,9 +92,11 @@ export class Soundscape {
       const volume = (self ? event.kind==='shot' ? .35 : .22 : .15) * Math.max(0, 1 - d / event.radius);
       const angle = Math.atan2(event.position.x - player.position.x, event.position.z - player.position.z) - yaw;
       const weapon = state.shots.find(s=>s.actorId===event.actorId && s.time===event.time)?.weapon ?? state.actors.find(a=>a.id===event.actorId)?.weapon ?? 'rifle';
+      if (self && event.kind === 'reload' && (this.sourceReload || (this.reloadPolicy === 'source-rifle-v1' && event.time !== reloadStart))) continue;
       this.play(event.kind === 'reload' ? 'reload-out' : event.kind, weapon, volume, self ? 0 : Math.sin(angle));
     }
-    if (player.reload && previousEnd === this.reloadEnd && this.reloadStage > previousStage) this.play(this.reloadStage===1 ? 'reload-in' : 'bolt', player.weapon, .19, 0);
+    for (const cue of sourceCues) this.play(cue, 'rifle', cue === 'reload-out' ? .22 : .19, 0);
+    if (!this.sourceReload && player.reload && previousEnd === this.reloadEnd && this.reloadStage > previousStage) this.play(this.reloadStage===1 ? 'reload-in' : 'bolt', player.weapon, .19, 0);
     for (const shot of ownNewShots) {
       const result = localShotResult(state,player,shot);
       if(result && ['body','head','kill'].includes(result.kind)) this.play(result.kind==='body'?'hit':result.kind as 'head'|'kill',player.weapon,.12,0);
@@ -121,6 +153,6 @@ export class Soundscape {
     source.connect(gain).connect(panner).connect(c.destination); this.voices.add(source);
     source.onended=()=>{this.voices.delete(source);source.disconnect();gain.disconnect();panner.disconnect();};source.start();
   }
-  reset() { for(const voice of this.voices) voice.stop(); this.voices.clear(); this.lastSound=-1;this.shotCount=0;this.reloadEnd=null;this.reloadStage=0;this.resultSeen=null;this.resultDecision='none'; }
+  reset() { for(const voice of this.voices) voice.stop(); this.voices.clear(); this.lastSound=-1;this.shotCount=0;this.reloadEnd=null;this.reloadStage=0;this.sourceReload=null;this.resultSeen=null;this.resultDecision='none'; }
   dispose() { if(this.disposed)return; this.disposed=true;this.resultAbort?.abort();this.resultAbort=null;this.reset();this.buffers.clear();this.resultBuffers.clear();void this.context?.close().catch(()=>{});this.context=null; }
 }

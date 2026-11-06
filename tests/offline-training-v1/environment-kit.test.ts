@@ -68,6 +68,7 @@ test('actual View construction owns kit resources; active requires a completed r
   const THREE=await import('three');
   const {readFileSync}=await import('node:fs');
   const {stripTypeScriptTypes}=await import('node:module');
+  const sourceRifle=await import('../../src/candidates/offline-training-v1/render/source-rifle.js');
   const characters=await import('../../asset-pipeline/training-character-adapter/adapter.js');
   const aiSurface=await import('../../src/candidates/offline-training-v1/render/ai-surface.js');
   const ai=await import('../../src/candidates/offline-training-v1/render/ai-materials.js');
@@ -88,7 +89,7 @@ test('actual View construction owns kit resources; active requires a completed r
     setPixelRatio(){}setSize(){}render(){if(throwRender)throw new Error('render fixture');}dispose(){disposed++;}
   }
   const source=stripTypeScriptTypes(readFileSync(new URL('../../src/candidates/offline-training-v1/render/scene.ts',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace('export class View','class View'));
-  const deps={THREE:{...THREE,WebGLRenderer:Renderer},...characters,...ai,...aiSurface,...lighting,...art,...kit,...ground,...yard,...feedback,...target,...physics,...weapon,...coordinates,MAP,devicePixelRatio:1,globalThis:{location:{search:'?environment=courtyard-v1'}}};
+  const deps={THREE:{...THREE,WebGLRenderer:Renderer},...sourceRifle,...characters,...ai,...aiSurface,...lighting,...art,...kit,...ground,...yard,...feedback,...target,...physics,...weapon,...coordinates,MAP,devicePixelRatio:1,globalThis:{location:{search:'?environment=courtyard-v1'}}};
   const View=new Function(...Object.keys(deps),`${source};return View;`)(...Object.values(deps));
   const view=new View({}),events={geometry:0,material:0,texture:0};
   const watched=new Set();

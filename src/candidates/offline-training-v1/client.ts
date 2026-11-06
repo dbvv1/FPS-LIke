@@ -162,7 +162,7 @@ function frame(now: number) {
       }
       view.render(visual, visual.actors.find(a => a.id === actor.id)!, controls.yaw, controls.pitch, now, dt); hud.update(state, actor, now);
       if (match) matchPanel!.update(state, actor, match.summary);
-      sound.update(state, actor, controls.yaw, game.observe(actor.id).sounds.map(s => s.id));
+      sound.update(state, actor, controls.yaw, game.observe(actor.id).sounds.map(s => s.id), (view.info as { rifleSource?: Parameters<Soundscape['update']>[4] }).rifleSource);
       document.getElementById('debug-state')!.textContent = JSON.stringify({ ...acceptanceState(), backend: view.backend, running, locked: controls.locked, tick: state.tick, round: state.round, phase: state.phase, time: state.time, yaw: controls.yaw, pitch: controls.pitch, player: { position: actor.position, hp: actor.hp, weapon: actor.weapon, ammo: actor.weapons[actor.weapon].ammo, reload: actor.reload, input: actor.input }, score: state.score, result: state.result }, null, 2);
     }
   } catch (error) { fail(error); return; }
@@ -217,7 +217,7 @@ try {
   // Read-only observability for smoke tests; no command injection or simulation mutation.
   Object.defineProperty(window, 'fpsClient', { value: Object.freeze({
     snapshot: (): GameState => game.state,
-    state: () => ({ ...acceptanceState(), ...(squads ? { squads: { version: 'offline-v1', formation: game.options.formation, botIds: bots.map(b=>b.id) } } : {}), ...(match ? { match: match.summary } : {}), running, locked: controls.locked, backend: view.backend, yaw: controls.yaw, pitch: controls.pitch, ...view.info }),
+    state: () => ({ ...acceptanceState(), ...(squads ? { squads: { version: 'offline-v1', formation: game.options.formation, botIds: bots.map(b=>b.id) } } : {}), ...(match ? { match: match.summary } : {}), running, locked: controls.locked, backend: view.backend, yaw: controls.yaw, pitch: controls.pitch, ...view.info, reloadAudio: sound.reloadAudioState }),
   }) });
   if (smokeEnabled) void resume();
   frameId = requestAnimationFrame(frame);

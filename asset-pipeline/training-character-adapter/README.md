@@ -356,7 +356,10 @@ for the switch/reload command scenarios. They cover:
 - The adapter is now wired into the consolidated candidate `src/`; the recipe above describes the
   seam. No browser, headless browser, GPU, screenshot or first-person visual
   check is part of this unit.
-- No real reload or switch clip exists to validate.
+- No enemy reload or switch clip exists to validate. The existing first-person
+  GLB has two rigid reload component tracks, now consumed separately by the
+  [training rifle](../../docs/training-integration.md); these are not complete
+  character reload/switch animations.
 - Default snapshots carry no switch history, so an old fire tail can still be
   selected again after switching back. The optional
   `weaponPresentation: 'generation-v1'` fact fixes that for consumers that opt
