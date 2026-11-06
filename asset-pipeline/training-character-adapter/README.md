@@ -2,8 +2,10 @@
 
 Offline CPU adapter that connects the accepted `enemy-relay-guard` GLB from the
 old 1v1 character candidate to the current `offline-training-v1` read-only
-Actor / GameState / Feedback contract. It is the only new artifact of this unit:
-`src/`, `tests/`, the GLBs and the old guard branch are not modified.
+Actor / GameState / Feedback contract. The adapter directory owns no `src/`
+wiring: the GLBs, the old guard branch and the first-person consumers are not
+modified. The optional switch-generation fact used by the fire selector is
+implemented in the simulation files described under "Weapon switch history".
 
 The adapter prepares the missing gait gap for running opponents. It does not
 create a new character, retime a source clip, recolor a waist/leg material, or
@@ -32,11 +34,12 @@ SHA-256 before parsing and rejects a mismatch without activating a replacement.
 `TrainingCharacter.pose(state, actor, effects, visible)` is presentation-only.
 
 - **Read-only inputs.** It reads `actor.position`, `actor.yaw`, `actor.hp`,
-  `actor.input.crouch`, movement amount (`actor.velocity` when the movement
-  option supplies it, otherwise `actor.input.x/z`), `state.time`,
-  `state.phase`, `state.shots`, and the `ShotEffect` list returned by the
-  existing `Feedback.update`. It never mutates state, actor, effects or the
-  simulation clock.
+  `actor.input.crouch`, `actor.weaponGeneration` when the optional presentation
+  fact supplies it, movement amount (`actor.velocity` when the movement option
+  supplies it, otherwise `actor.input.x/z`), `state.time`, `state.phase`,
+  `state.shots` (including each shot's optional `weaponGeneration`), and the
+  `ShotEffect` list returned by the existing `Feedback.update`. It never mutates
+  state, actor, effects or the simulation clock.
 - **Rest TRS first.** Every pose restores each authored node position,
   quaternion and scale, then samples one absolute clip. No AnimationMixer,
   incremental transform or accumulated delta is introduced.
@@ -98,6 +101,12 @@ instances on `reset()`, and disposes the shared template exactly once on
 `dispose()`, a stale generation or a failed validation.
 
 ## Wiring location
+
+The current consolidated candidate wires this adapter into the real training
+View and enables generation-v1 in both client Game creation paths. See
+[training integration](../../docs/training-integration.md) for the exact
+accepted scope and outstanding browser/source-action gates. The recipe below
+remains the description of that boundary, not a browser acceptance claim.
 
 The intended seam is the existing enemy actor loop in
 `src/candidates/offline-training-v1/render/scene.ts`:
@@ -199,12 +208,13 @@ following are source-content gaps, not adapter bugs:
   speed-matched. Contact and silhouette still need the real game camera and are
   not claimed as quality-passed.
 
-## Switch history is not in the snapshot
+## Weapon switch history
 
 `shot.weapon === actor.weapon` only filters the other gun's events at the
-instant a pose is chosen. It is not a switch generation. `state.shots` keeps
-every older shot, and neither the snapshot nor the shot record says that the
-weapon was put away after that shot. So:
+instant a pose is chosen. On its own it is not a switch generation: `state.shots`
+keeps every older shot, and neither the default snapshot nor the default shot
+record says that the weapon was put away after that shot. In the default
+gameplay state:
 
 - while another weapon is current, the old fire tail is not selected;
 - switching back selects the same older `fire` clip for the rest of its parsed
@@ -212,33 +222,98 @@ weapon was put away after that shot. So:
   that does not mean the old fire presentation will not reappear after the
   switch.
 
-Real `Game` coverage in `adapter.test.ts` pins this behavior down instead of
-claiming a clearing guarantee:
+The optional `GameOptions.weaponPresentation: 'generation-v1'` adds a read-only
+fact for consumers that need to distinguish these histories. It is absent and
+inert by default; enabling it is the only way to get the fields. The fact is
+implemented in `src/candidates/offline-training-v1/sim/{types,game}.ts`;
+`tests/training-weapon-generation.test.ts` covers the option, switch counting,
+rejected/dead/settled paths, next-round reset and three-seed per-tick hash
+equivalence.
 
-- rifle shot, switch to pistol, switch back: the third frame has no new shot
-  and selects `fire` at 50 ms, identical to the no-switch control, even though
-  the pistol frame in between selected `idle`.
-- pistol shot, switch to rifle, switch back: the final `GameState` is
+To enable it, pass the option where the `Game` is created; there is no URL
+flag, settings toggle or other runtime entry. The adapter needs no extra
+configuration: `new TrainingCharacter(gltf)` and
+`pose(state, actor, effects)` take the same arguments as before and read the
+generation from the snapshots they are already given.
+
+```ts
+const game = await Game.create(
+  seed,
+  specs,
+  {},
+  {
+    ...(squads ? { formation: 'squads-v1' as const } : {}),
+    ...(feelEnabled ? { movement: 'ground-v1' as const } : {}),
+    weaponPresentation: 'generation-v1',
+  },
+);
+```
+
+Both `Game.create` calls in `src/candidates/offline-training-v1/client.ts` must
+make the same change: the initial load and `restart()`. Changing only one
+leaves a half-enabled build — the first match records generations, a restart
+falls back to the old behavior. If a capture replay should carry the same
+presentation history, pass the option at the `Game.create` in
+`src/candidates/offline-training-v1/capture/replay.ts` too; the replay state
+hash is unaffected either way.
+
+Do not enable it in only one of those creation sites, and do not combine a
+generation-bearing actor snapshot with an older shot snapshot. The adapter
+selects `fire` only when both generations are present and equal, so a
+one-sided field selects no fire at all — that is the expected diagnosis, not
+a sign that switch counting failed.
+
+- Every `Actor` starts at `weaponGeneration: 0` at spawn and on each new round.
+  A living actor's successful switch to the other weapon increments it once;
+  same-weapon requests, dead actors, post-settlement commands and rejected
+  switches do not. Same-tick commands count in the existing `at`/input order.
+- A successful `Shot` records the actor's `weaponGeneration` at commit time.
+  Rejected shots create no record.
+- Both fields are presentation-only: they do not change ammunition, cooldown,
+  reload cancellation, damage, movement, sounds or command order. `stateHash`
+  removes them (and the option) so default and enabled runs keep identical
+  per-tick gameplay hashes and identical stripped states.
+
+The adapter selects `fire` only when both sides expose a generation and they are
+equal. When both are missing it keeps the legacy snapshot behavior above; when
+only one side is present it does not guess and does not select that fire. Hit
+and death priority, the original ages and the 700 ms Feedback tail are unchanged.
+
+Real `Game` coverage in `adapter.test.ts` pins the default counterexample and
+the opt-in fix:
+
+- default: rifle shot, switch to pistol, switch back: the third frame has no new
+  shot and selects `fire` at 50 ms, identical to the no-switch control, even
+  though the pistol frame in between selected `idle`.
+- default: pistol shot, switch to rifle, switch back: the final `GameState` is
   `deepEqual` to the no-switch control (`time = 16000`, one shot at `13000`,
-  `nextShot = 28000`), and both select `fire` at 50 ms. Because the final
-  snapshots are identical, a snapshot-only consumer cannot infer that a switch
-  happened.
-- several switches in one tick (`shoot`, `switch`, `switch`) still select the
-  pre-switch shot at 16.67 ms.
+  `nextShot = 28000`), and both select `fire` at 50 ms. A snapshot-only consumer
+  cannot infer that a switch happened.
+- default: several switches in one tick (`shoot`, `switch`, `switch`) still
+  select the pre-switch shot at 16.67 ms.
+- generation: the same rifle and pistol sequences leave the final gameplay state
+  unchanged once the new fields are removed, but the switched run selects `idle`
+  instead of replaying the shot's older generation. A real shot fired after the
+  switch still selects `fire`.
+- generation: a same-weapon request keeps the current fire; same-tick
+  `shoot`/`switch`/`switch` records generation 0 on the shot and 2 on the actor;
+  rejected shots, dead actors and settled rounds add no fact; the next round
+  resets to 0.
+- generation: mixed legacy snapshots (only the actor or only the shot carries a
+  field) never select that fire, and repeated poses at one state and age are
+  identical regardless of presentation cadence.
 - switching cancels an in-progress reload (the engine clears `actor.reload`);
   the adapter follows that state and stops suppressing fire. That is reload
-  behavior, not evidence that old fire events were cleared.
+  behavior, not evidence about switch history.
 
-Clearing all old fire accurately requires a read-only switch event or switch
-generation fact from the simulation/wiring scope (a later card). This adapter
-does not add one: it adds no simulation state, wall clock, arbitrary wait or
-presentation-frame memory, and it does not use `nextShot` as a switch marker.
-The gap remains open.
+Clearing old fire for default snapshots still requires opting into
+`weaponPresentation: 'generation-v1'`. The adapter adds no simulation state,
+wall clock, arbitrary wait or presentation-frame memory, and it does not use
+`nextShot` as a switch marker.
 
-Do not conflate the missing reload/switch source clips with this missing
-switch-history fact: the first is a content gap (no animation to play), the
-second is a read-only contract gap (the snapshot cannot tell when the weapon was
-switched).
+Do not conflate the missing reload/switch source clips with this switch history:
+the first is a content gap (no animation to play), the second is an optional
+read-only contract fact.
 
 ## Commands
 
@@ -267,21 +342,24 @@ for the switch/reload command scenarios. They cover:
 - shared template resources, untouched source palette and transform state;
 - reload/switch fallback without invented motion in the synthetic actor;
 - real `Game` rifle and pistol switch-away-and-back, several switches in one
-  tick, switch-cancelled reload and their no-switch controls; these document
-  the unresolved switch-history gap rather than asserting that old fire is
-  cleared;
+  tick, switch-cancelled reload and their no-switch controls; the default runs
+  document the unresolved switch-history gap, while the
+  `weaponPresentation: 'generation-v1'` runs prove the opt-in fix;
+- generation-aware same-tick and same-weapon requests, rejected shots,
+  dead/settled no-ops, next-round reset, mixed legacy fields and
+  cadence-independent repeated poses;
 - owner detach/reset, stale and late loads, post-dispose completion, failure
   fallback, and exactly-once disposal of owned resources.
 
 ## Scope and remaining gaps
 
-- The adapter is not wired into `src/` yet; the wiring above is the intended
+- The adapter is now wired into the consolidated candidate `src/`; the recipe above describes the
   seam. No browser, headless browser, GPU, screenshot or first-person visual
   check is part of this unit.
 - No real reload or switch clip exists to validate.
-- The snapshot carries no switch history, so an old fire tail can be selected
-  again after switching back. A read-only switch event or generation fact from
-  a later wiring scope is required to clear it; this adapter stays read-only
-  and does not guess from `nextShot`.
+- Default snapshots carry no switch history, so an old fire tail can still be
+  selected again after switching back. The optional
+  `weaponPresentation: 'generation-v1'` fact fixes that for consumers that opt
+  in; this adapter adds no state, guess or timer of its own.
 - Foot contact, gait readability, death silhouette and screen coverage still
   need a non-author real-camera review; this adapter is not a quality pass.

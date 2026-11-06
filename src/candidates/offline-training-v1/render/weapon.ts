@@ -54,6 +54,9 @@ export function weaponPose(state: GameState, actor: Actor) {
     const age = (state.time - shot.time) / SECOND;
     if (age > .55) break;
     if (shot.actorId !== actor.id || shot.weapon !== actor.weapon || age < 0) continue;
+    // A switched-away shot must not revive recoil or flash when returning to
+    // the same weapon, including two switches within one simulation tick.
+    if (shot.weaponGeneration !== actor.weaponGeneration) continue;
     kick += (1 - Math.exp(-age / .006)) * Math.exp(-age / .075) * 1.4;
     flash = Math.max(flash, Math.max(0, 1 - age / .065));
   }

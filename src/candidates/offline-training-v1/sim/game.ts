@@ -6,7 +6,7 @@ import { distance, flatDistance, hash, nextRandom } from './math.js';
 import { Physics, eye, initPhysics } from './physics.js';
 import { SECOND, SUBTICKS, type Actor, type Command, type GameState, type PlayerSpec, type Rules, type Side, type Sound, type Team, type Vec3, type WeaponId } from './types.js';
 export const DEFAULT_RULES: Readonly<Rules> = Object.freeze({ roundTicks: 60 * 70, plantTicks: 60 * 3, defuseTicks: 60 * 5, bombTicks: 60 * 25, swapEvery: 3 });
-export type GameOptions = { formation?: 'squads-v1'; movement?: 'ground-v1' };
+export type GameOptions = { formation?: 'squads-v1'; movement?: 'ground-v1'; weaponPresentation?: 'generation-v1' };
 export type VisibleEnemy = Pick<Actor, 'id' | 'team' | 'side' | 'position'> & { crouch: boolean };
 export type Observation = {
   time: number; round: number; phase: GameState['phase']; self: Actor;
@@ -27,8 +27,9 @@ export class Game {
     return new Game(seed, specs, rules, options);
   }
   private constructor(seed: number, specs: PlayerSpec[], rules: Partial<Rules>, options: GameOptions) {
-    if (Object.keys(options).some(k=>k!=='formation' && k!=='movement') || (options.formation !== undefined && options.formation !== 'squads-v1')) throw new Error('Invalid formation version');
+    if (Object.keys(options).some(k=>k!=='formation' && k!=='movement' && k!=='weaponPresentation') || (options.formation !== undefined && options.formation !== 'squads-v1')) throw new Error('Invalid formation version');
     if (options.movement !== undefined && options.movement !== 'ground-v1') throw new Error('Invalid movement version');
+    if (options.weaponPresentation !== undefined && options.weaponPresentation !== 'generation-v1') throw new Error('Invalid weapon presentation version');
     this.options = Object.freeze({...options});
     const capacity = options.formation === 'squads-v1' ? 5 : 3;
     if (!Number.isSafeInteger(seed) || seed < 0 || seed > 0xffffffff) throw new Error('seed must be a uint32');
@@ -52,9 +53,17 @@ export class Game {
   get state(): GameState { return structuredClone(this.current); }
   get stateHash() {
     // Preserve the v1 gameplay replay hash. Presentation facts are derived from the
-    // same trace, not input/state used by future gameplay, and are excluded.
-    const state = { ...this.current, shots: this.current.shots.map(({ impact: _impact, ...shot }) => shot) };
-    return hash({ state, rules: this.rules, ...((this.options.formation || this.options.movement) ? { options: this.options } : {}) });
+    // same trace, not input/state used by future gameplay, and are excluded. The
+    // opt-in weapon generation and its option are presentation-only as well, so
+    // default and generation-enabled runs hash identically for the same inputs.
+    const state = {
+      ...this.current,
+      actors: this.current.actors.map(({ weaponGeneration: _weaponGeneration, ...actor }) => actor),
+      shots: this.current.shots.map(({ impact: _impact, weaponGeneration: _weaponGeneration, ...shot }) => shot),
+    };
+    const options: GameOptions = { ...this.options };
+    delete options.weaponPresentation;
+    return hash({ state, rules: this.rules, ...((options.formation || options.movement) ? { options } : {}) });
   }
   private resetActors() {
     const swapped = Math.floor((this.current.round - 1) / this.rules.swapEvery) % 2 === 1;
@@ -64,7 +73,7 @@ export class Game {
       const position = this.current.round === 1 && spec.position ? { ...spec.position } : this.options.formation === 'squads-v1' ? squadSpawn(side, counts[side]) : { ...MAP.spawns[side], x: MAP.spawns[side].x + counts[side] * 1.1 };
       counts[side]++;
       const weapons = Object.fromEntries((['rifle', 'pistol'] as const).map(id => [id, { ammo: WEAPONS[id].magazine, reserve: WEAPONS[id].reserve, shots: 0, lastShot: -SECOND }])) as Actor['weapons'];
-      return { ...(this.options.movement ? { velocity: { x: 0, z: 0 } } : {}), id: spec.id, team: spec.team, side, hp: 100, position, yaw: side === 'attack' ? 0 : Math.PI, pitch: 0, input: { x: 0, z: 0, walk: false, crouch: false, interact: false }, weapon: 'rifle', weapons, reload: null, nextShot: 0, nextFootstep: 0, bot: spec.bot ?? null };
+      return { ...(this.options.movement ? { velocity: { x: 0, z: 0 } } : {}), id: spec.id, team: spec.team, side, hp: 100, position, yaw: side === 'attack' ? 0 : Math.PI, pitch: 0, input: { x: 0, z: 0, walk: false, crouch: false, interact: false }, weapon: 'rifle', weapons, reload: null, nextShot: 0, nextFootstep: 0, bot: spec.bot ?? null, ...(this.options.weaponPresentation === 'generation-v1' ? { weaponGeneration: 0 } : {}) };
     });
     const carrier = this.current.actors.find(a => a.side === 'attack')!;
     this.current.bomb = { carrier: carrier.id, position: { ...carrier.position }, planted: false, explodeAt: null };
@@ -122,7 +131,7 @@ export class Game {
       actor.input.crouch = (c.crouch ?? false) || (actor.input.crouch && !this.physics.canStand(actor));
       this.physics.sync(actor);
     } else if (c.type === 'aim') { actor.yaw = c.yaw; actor.pitch = c.pitch; }
-    else if (c.type === 'switch') { if (c.weapon !== actor.weapon) { actor.weapon = c.weapon; actor.reload = null; actor.input.interact = false; actor.nextShot = Math.max(actor.nextShot, this.current.time + 12 * SUBTICKS); } }
+    else if (c.type === 'switch') { if (c.weapon !== actor.weapon) { actor.weapon = c.weapon; actor.reload = null; actor.input.interact = false; actor.nextShot = Math.max(actor.nextShot, this.current.time + 12 * SUBTICKS); if (this.options.weaponPresentation === 'generation-v1') actor.weaponGeneration = (actor.weaponGeneration ?? 0) + 1; } }
     else if (c.type === 'reload') {
       const mag = actor.weapons[actor.weapon];
       if (!actor.reload && mag.ammo < WEAPONS[actor.weapon].magazine && mag.reserve > 0) {
@@ -159,7 +168,7 @@ export class Game {
         this.physics.sync(hit.actor);
       }
     }
-    this.current.shots.push({ actorId: actor.id, weapon: actor.weapon, time: now, yaw: shotYaw, pitch: shotPitch, hit: hit?.actor.id ?? null, part: hit?.part ?? null, damage, visible, targetId: targetId ?? null, targetVisible, impact: { origin: trace.origin, end: trace.end, kind: trace.kind, killed: !!hit && hit.actor.hp === 0 } });
+    this.current.shots.push({ actorId: actor.id, weapon: actor.weapon, time: now, yaw: shotYaw, pitch: shotPitch, hit: hit?.actor.id ?? null, part: hit?.part ?? null, damage, visible, targetId: targetId ?? null, targetVisible, impact: { origin: trace.origin, end: trace.end, kind: trace.kind, killed: !!hit && hit.actor.hp === 0 }, ...(this.options.weaponPresentation === 'generation-v1' ? { weaponGeneration: actor.weaponGeneration ?? 0 } : {}) });
     this.sound(actor, 'shot', 40);
   }
   private sound(actor: Actor, kind: Sound['kind'], radius: number) {

@@ -45,7 +45,7 @@ for(const ground of [false,true]) test(`actual offline squad client drives nine 
  assert.equal((window as any).fpsClient.state().squads.botIds.length,9);
  const lockCount=locks;next();await new Promise(r=>setTimeout(r,10));
  assert.equal(created.length,2);assert.equal(locks,lockCount,'new match returns to deployment instead of silently relocking');
- assert.equal(created[1]!.state.round,1);assert.equal(created[1]!.state.actors.length,10);assert.deepEqual(created[1]!.options,{formation:'squads-v1',...(ground?{movement:'ground-v1'}:{})});assert.deepEqual(created[1]!.state.score,{amber:0,blue:0});
+ assert.equal(created[1]!.state.round,1);assert.equal(created[1]!.state.actors.length,10);assert.deepEqual(created[1]!.options,{weaponPresentation:'generation-v1',formation:'squads-v1',...(ground?{movement:'ground-v1'}:{})});assert.deepEqual(created[1]!.state.score,{amber:0,blue:0});
  assert.equal((window as any).fpsClient.state().match.rounds.length,0);assert.deepEqual(errors,[]);
  }finally{for(const game of created)game.dispose();}
 });

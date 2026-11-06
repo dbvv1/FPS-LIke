@@ -1,5 +1,6 @@
 type ObserverCamera = { position: { x: number; y: number; z: number }; yaw: number; pitch: number; fov: number };
 import * as THREE from 'three';
+import { TrainingCharacterSet } from '../../../../asset-pipeline/training-character-adapter/adapter.js';
 import { AiMaterials, FullAiMaterials, aiMaterialsEnabled } from './ai-materials.js';
 import { fullAiMaterialsEnabled, type KitSurface } from './ai-surface.js';
 import { createLightingPost } from './lighting-post.js';
@@ -25,11 +26,13 @@ export class View {
   private aiMaterials: AiMaterials | FullAiMaterials | undefined;
   private art: ArtStandards | undefined;
   private artSlots: ArtSlot[] = [];
-  get info() { return { ...(this.aiMaterials ? { materials: this.aiMaterials.info } : {}), lighting: { id:this.lighting?LIGHTING_ID:'baseline', environment:this.lighting?'hemisphere-and-ambient':'hemisphere', ao:this.lighting?'deterministic-ssao-half-resolution':'none', grade:this.lighting?'cool-shadows-warm-highlights':'none' }, ...(this.art ? { art: { ...this.art.info, active: this.artPresented } } : {}), ...(this.environment ? { environment: { id: KIT.id, active: this.environmentPresented, budget: kitBudget(MAP.walls.length), evidence: 'offline-estimate' } } : {}), memory: { ...this.renderer.info.memory }, calls: this.renderer.info.render.calls }; }
+  get info() { return { characters: { source: 'enemy-relay-guard', state: this.characters.status, activeIds: [...this.characterIds], error: this.characters.error, clips: ['idle', 'walk', 'fire', 'hit', 'death'] }, ...(this.aiMaterials ? { materials: this.aiMaterials.info } : {}), lighting: { id:this.lighting?LIGHTING_ID:'baseline', environment:this.lighting?'hemisphere-and-ambient':'hemisphere', ao:this.lighting?'deterministic-ssao-half-resolution':'none', grade:this.lighting?'cool-shadows-warm-highlights':'none' }, ...(this.art ? { art: { ...this.art.info, active: this.artPresented } } : {}), ...(this.environment ? { environment: { id: KIT.id, active: this.environmentPresented, budget: kitBudget(MAP.walls.length), evidence: 'offline-estimate' } } : {}), memory: { ...this.renderer.info.memory }, calls: this.renderer.info.render.calls }; }
   readonly renderer!: THREE.WebGLRenderer;
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera(80, 1, 0.05, 100);
   private feedback = new Feedback();
+  private characters = new TrainingCharacterSet();
+  private characterIds: string[] = [];
   private impacts: THREE.Mesh[] = [];
   private actors = new Map<string, THREE.Mesh<THREE.BufferGeometry,THREE.MeshStandardMaterial>>();
   private weapon = new THREE.Group();
@@ -117,6 +120,8 @@ export class View {
     this.resize();
     } catch (error) { this.dispose(); throw error; }
     this.scene.traverse(o => { if (o instanceof THREE.Mesh || o instanceof THREE.LineSegments) { this.geometries.add(o.geometry); for (const m of Array.isArray(o.material) ? o.material : [o.material]) this.materials.add(m); } });
+    // Load after registering static resources: the template owns shared clone resources.
+    void this.characters.start();
   }
   private box(parent: THREE.Object3D, pos: readonly number[], scale: readonly number[], color: number, emissive = false) {
     const mesh = new THREE.Mesh(new THREE.BoxGeometry(scale[0]!, scale[1]!, scale[2]!), emissive ? new THREE.MeshBasicMaterial({ color }) : new THREE.MeshStandardMaterial({ color, roughness: 0.8, metalness: 0.15 }));
@@ -161,8 +166,21 @@ export class View {
     }
     this.flash.position.set(...weaponMuzzle(player.weapon));
     this.flash.visible = pose.flash > 0; this.flash.scale.setScalar(.6 + pose.flash * .7);
+    this.characterIds = [];
+    this.characters.retainActors(new Set(state.actors.filter(actor => actor.team !== player.team).map(actor => actor.id)));
     for (const actor of state.actors) {
       if (!observer && actor.id === player.id) continue;
+      // Preserve the existing friendly silhouette/colour. Only enemies use the
+      // accepted source; loading/failure keeps the procedural actor visible.
+      const character = actor.team !== player.team ? this.characters.character(actor.id) : null;
+      if (character) {
+        if (character.mount.parent !== this.scene) this.scene.add(character.mount);
+        character.pose(state, actor, effects);
+        if (character.mount.visible) this.characterIds.push(actor.id);
+        const fallback = this.actors.get(actor.id);
+        if (fallback) fallback.visible = false;
+        continue;
+      }
       let model = this.actors.get(actor.id);
       if (!model) {
         const geometry=new THREE.BufferGeometry(),colors:number[]=[];
@@ -201,6 +219,6 @@ export class View {
     }else this.renderer.render(this.scene, this.camera);
     this.environmentPresented = this.environment; this.artPresented = this.art?.info.state === 'ready';
   }
-  reset() {this.artPresented=false;this.environmentPresented=false;this.feedback.reset();for(const mesh of this.impacts)mesh.visible=false;}
-  dispose() { this.artPresented=false; this.art?.dispose(); this.aiMaterials?.dispose(); this.post?.dispose(); if(this.lighting)this.scene.traverse(o=>{if(o instanceof THREE.DirectionalLight)o.shadow.dispose();}); this.environmentPresented=false;for (const g of this.geometries) g.dispose(); for (const m of this.materials) m.dispose(); for(const t of this.textures)t.dispose(); this.renderer?.dispose(); }
+  reset() {this.characters.reset();this.characterIds=[];this.artPresented=false;this.environmentPresented=false;this.feedback.reset();for(const mesh of this.impacts)mesh.visible=false;}
+  dispose() { this.artPresented=false; this.art?.dispose(); this.characters.dispose();this.characterIds=[]; this.aiMaterials?.dispose(); this.post?.dispose(); if(this.lighting)this.scene.traverse(o=>{if(o instanceof THREE.DirectionalLight)o.shadow.dispose();}); this.environmentPresented=false;for (const g of this.geometries) g.dispose(); for (const m of this.materials) m.dispose(); for(const t of this.textures)t.dispose(); this.renderer?.dispose(); }
 }
