@@ -236,9 +236,13 @@ test('actual View consumes source rifle tracks, keeps only procedural sleeves, a
     const magazine = view.sourceRifle.rifle.scene.getObjectByName('rifle-magazine_1') ?? view.sourceRifle.rifle.scene.getObjectByName('rifle-magazine');
     assert.ok(magazine.position.y < -.3);
     game.step([{ actorId: 'player', type: 'switch', weapon: 'pistol' }]); draw(view, game);
-    assert.equal(view.info.rifleSource.active, false); assert.equal(view.rifle.visible, false); assert.equal(view.pistol.visible, true);
+    assert.equal(view.info.rifleSource.active, false); assert.equal(view.rifle.visible, true); assert.equal(view.pistol.visible, false);
+    assert.equal(view.info.weaponTransition.phase, 'lower', 'outgoing source remains until the below-screen exchange');
+    while (game.state.time < game.state.actors.find(actor => actor.id === 'player')!.nextShot) { game.step(); draw(view, game); }
+    assert.equal(view.rifle.visible, false); assert.equal(view.pistol.visible, true);
     assert.ok(view.pistol.children.every((part: THREE.Object3D) => part.visible));
     game.step([{ actorId: 'player', type: 'switch', weapon: 'rifle' }]); draw(view, game);
+    while (game.state.time < game.state.actors.find(actor => actor.id === 'player')!.nextShot) { game.step(); draw(view, game); }
     assert.equal(view.info.rifleSource.active, true); assert.ok(Math.abs(magazine.position.y + .1284) < 1e-6);
     view.reset(); assert.equal(view.info.rifleSource.active, false); assert.equal(view.sourceRifle.rifle.scene.parent, null);
     draw(view, game); assert.equal(view.info.rifleSource.active, true);
@@ -422,4 +426,73 @@ test('actual View damage cue remains outside aim across resize, expires after fa
     view.damageFrame.geometry.addEventListener('dispose',()=>geometryDisposed++);view.damageFrame.material.addEventListener('dispose',()=>materialDisposed++);view.confirmedGeometry.addEventListener('dispose',()=>impactDisposed++);
     view.dispose();disposed=true;assert.deepEqual([geometryDisposed,materialDisposed,impactDisposed],[1,1,1]);assert.equal(view.info.combatFeedback.damageActive,false);
   } finally {game.dispose();if(!disposed)view.dispose();}
+});
+
+test('actual View exchanges both source and fallback weapons only below frame and restores current gun by fire eligibility',async()=>{
+  for(const fallback of [false,true]){
+    const {view,settle}=await viewFixture(load,fallback?async()=>{throw new Error('rifle absent');}:loadRifle);
+    const game=await Game.create(1,specs,{}, {weaponPresentation:'generation-v1'});
+    try{
+      await settle();draw(view,game);const camera=view.camera.position.clone();
+      for(const target of ['pistol','rifle'] as const){
+        const outgoing=game.state.actors.find(actor=>actor.id==='player')!.weapon;
+        game.step([{actorId:'player',type:'switch',weapon:target}]);draw(view,game);
+        const state=game.state,actor=state.actors.find(a=>a.id==='player')!,hash=game.stateHash;
+        assert.equal(view.info.weaponTransition.weapon,outgoing);assert.equal(view.info.weaponTransition.phase,'lower');assert.equal(view.flash.visible,false);
+        const switchEnd=Math.min(state.time+12*SUBTICKS,actor.nextShot);
+        const middle={...state,time:(state.time+switchEnd)/2};view.render(middle,actor,0,0,1000,1/60);
+        assert.equal(view.info.weaponTransition.weapon,target);assert.equal(view.info.weaponTransition.phase,'raise');assert.equal(view.weaponMount.position.y,-1.6);
+        assert.equal(view.info.rifleSource.active,false,'no source reload audio receipt while the gun is off screen');
+        view.camera.updateMatrixWorld(true);view.scene.updateMatrixWorld(true);
+        let vertices=0,maxY=-Infinity;
+        view.weapon.traverseVisible((node:THREE.Object3D)=>{
+          if(!(node instanceof THREE.Mesh))return;
+          const positions=node.geometry.getAttribute('position');
+          for(let i=0;i<positions.count;i++){
+            const point=new THREE.Vector3().fromBufferAttribute(positions,i).applyMatrix4(node.matrixWorld).project(view.camera);
+            maxY=Math.max(maxY,point.y);vertices++;
+          }
+        });
+        assert.ok(vertices>100);assert.ok(maxY < -1,`all ${vertices} submitted vertices below frame; max NDC y=${maxY}`);
+        assert.equal(game.stateHash,hash,'rendered interpolation must not mutate the real Game');
+        // Advance the real simulation past the sampled midpoint before drawing again.
+        while(game.state.time<actor.nextShot)game.step();draw(view,game);
+        assert.equal(view.info.weaponTransition.phase,'ready');assert.equal(view.info.weaponTransition.weapon,target);assert.equal(Math.abs(view.weaponMount.position.y),0);
+        assert.equal(view.rifle.visible,target==='rifle');assert.equal(view.pistol.visible,target==='pistol');assert.deepEqual(view.camera.position,camera);
+        assert.notEqual(game.stateHash,hash,'simulation advanced only through Game.step');
+        game.step([{actorId:'player',type:'shoot',yaw:0,pitch:0}]);draw(view,game);assert.ok(view.flash.visible);assert.equal(view.info.weaponTransition.weapon,target);
+      }
+    }finally{view.dispose();game.dispose();}
+  }
+});
+
+test('actual View clears switch presentation on observer, reset, death and failed rendering',async()=>{
+  const {view,settle}=await viewFixture();const game=await Game.create(1,specs,{}, {weaponPresentation:'generation-v1'});
+  try{
+    await settle();draw(view,game);game.step([{actorId:'player',type:'switch',weapon:'pistol'}]);draw(view,game);
+    assert.equal(view.info.weaponTransition.phase,'lower');
+    let state=game.state,actor=state.actors.find(a=>a.id==='player')!;
+    view.render(state,actor,0,0,9000,1/60,{position:{x:0,y:4,z:0},yaw:0,pitch:0,fov:60});assert.equal(view.info.weaponTransition,null);
+    draw(view,game);assert.equal(view.info.weaponTransition.phase,'ready','observer exit does not replay an old switch');
+    game.step([{actorId:'player',type:'switch',weapon:'rifle'}]);draw(view,game);assert.equal(view.info.weaponTransition.phase,'lower');
+    view.reset();assert.equal(view.info.weaponTransition,null);assert.equal(Math.abs(view.weaponMount.position.y),0);draw(view,game);assert.equal(view.info.weaponTransition.phase,'ready');
+    state=game.state;actor=state.actors.find(a=>a.id==='player')!;
+    view.render(state,{...actor,hp:0},0,0,0,1/60);assert.equal(view.info.weaponTransition,null);assert.equal(view.weapon.visible,false);
+    const render=view.renderer.render;view.renderer.render=()=>{throw new Error('render failed');};assert.throws(()=>draw(view,game),/render failed/);assert.equal(view.info.weaponTransition,null);
+    view.renderer.render=render;draw(view,game);assert.equal(view.info.weaponTransition.phase,'ready');view.dispose();assert.equal(view.info.weaponTransition,null);
+  }finally{view.dispose();game.dispose();}
+});
+
+test('reload begun during a switch keeps the existing baseline audio choice after source rifle becomes ready',async()=>{
+  const f=await reloadAudioFixture();
+  try{
+    f.game.step([{actorId:'player',type:'switch',weapon:'pistol'}]);f.update();
+    f.game.step([{actorId:'player',type:'switch',weapon:'rifle'},{actorId:'player',type:'reload'}]);f.update();
+    assert.ok(f.actor().reload);assert.equal(f.view.info.rifleSource.active,false);assert.equal(f.sound.reloadAudioState.sourceTimeline,false);
+    assert.deepEqual(f.audio.events.map(event=>event.cue),['reload-out']);
+    while(f.actor().reload){f.game.step();f.update();assert.equal(f.sound.reloadAudioState.sourceTimeline,false);}
+    assert.equal(f.view.info.weaponTransition.phase,'ready');assert.equal(f.view.info.rifleSource.active,true);
+    assert.deepEqual(f.audio.events.map(event=>event.cue),['reload-out','reload-in','bolt']);
+    assert.equal(f.actor().weapons.rifle.ammo,24);
+  }finally{f.close();}
 });

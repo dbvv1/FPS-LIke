@@ -18,6 +18,7 @@ import { MAP } from '../content/map.js';
 import { eye } from '../sim/physics.js';
 import { type Actor, type GameState } from '../sim/types.js';
 import { weaponParts, weaponPose, weaponMesh, weaponPartPosition, weaponMuzzle } from './weapon.js';
+import { WeaponTransition, readyWeapon, WEAPON_DROP, type WeaponFrame } from './weapon-transition.js';
 import { cameraPose, toThree } from './coordinates.js';
 export class View {
   readonly backend = 'three-webgl2';
@@ -29,7 +30,7 @@ export class View {
   private aiMaterials: AiMaterials | FullAiMaterials | undefined;
   private art: ArtStandards | undefined;
   private artSlots: ArtSlot[] = [];
-  get info() { return { combatFeedback: { damageActive: this.damagePresented, enemyImpactSubmissions: this.enemyImpactSubmissions }, rifleSource: { id: RIFLE_RELOAD_SOURCE.id, clips: RIFLE_RELOAD_SOURCE.clips, state: this.sourceRifle.status, error: this.sourceRifle.error, active: this.riflePresented, progress: this.rifleProgress, reloadEnd: this.rifleReloadEnd, weaponGeneration: this.rifleGeneration, cuePhases: this.sourceRifle.rifle?.cuePhases ?? null }, characters: { source: 'enemy-relay-guard', state: this.characters.status, activeIds: [...this.characterIds], error: this.characters.error, clips: ['idle', 'walk', 'fire', 'hit', 'death'] }, ...(this.aiMaterials ? { materials: this.aiMaterials.info } : {}), lighting: { id:this.lighting?LIGHTING_ID:'baseline', environment:this.lighting?'hemisphere-and-ambient':'hemisphere', ao:this.lighting?'deterministic-ssao-half-resolution':'none', grade:this.lighting?'cool-shadows-warm-highlights':'none' }, ...(this.art ? { art: { ...this.art.info, active: this.artPresented } } : {}), ...(this.environment ? { environment: { id: KIT.id, active: this.environmentPresented, budget: kitBudget(MAP.walls.length), evidence: 'offline-estimate' } } : {}), memory: { ...this.renderer.info.memory }, calls: this.renderer.info.render.calls }; }
+  get info() { return { weaponTransition: this.weaponPresented, combatFeedback: { damageActive: this.damagePresented, enemyImpactSubmissions: this.enemyImpactSubmissions }, rifleSource: { id: RIFLE_RELOAD_SOURCE.id, clips: RIFLE_RELOAD_SOURCE.clips, state: this.sourceRifle.status, error: this.sourceRifle.error, active: this.riflePresented, progress: this.rifleProgress, reloadEnd: this.rifleReloadEnd, weaponGeneration: this.rifleGeneration, cuePhases: this.sourceRifle.rifle?.cuePhases ?? null }, characters: { source: 'enemy-relay-guard', state: this.characters.status, activeIds: [...this.characterIds], error: this.characters.error, clips: ['idle', 'walk', 'fire', 'hit', 'death'] }, ...(this.aiMaterials ? { materials: this.aiMaterials.info } : {}), lighting: { id:this.lighting?LIGHTING_ID:'baseline', environment:this.lighting?'hemisphere-and-ambient':'hemisphere', ao:this.lighting?'deterministic-ssao-half-resolution':'none', grade:this.lighting?'cool-shadows-warm-highlights':'none' }, ...(this.art ? { art: { ...this.art.info, active: this.artPresented } } : {}), ...(this.environment ? { environment: { id: KIT.id, active: this.environmentPresented, budget: kitBudget(MAP.walls.length), evidence: 'offline-estimate' } } : {}), memory: { ...this.renderer.info.memory }, calls: this.renderer.info.render.calls }; }
   readonly renderer!: THREE.WebGLRenderer;
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera(80, 1, 0.05, 100);
@@ -48,6 +49,9 @@ export class View {
   private impacts: THREE.Mesh[] = [];
   private actors = new Map<string, THREE.Mesh<THREE.BufferGeometry,THREE.MeshStandardMaterial>>();
   private weapon = new THREE.Group();
+  private weaponMount = new THREE.Group();
+  private weaponTransition = new WeaponTransition();
+  private weaponPresented: Pick<WeaponFrame, 'weapon' | 'phase' | 'progress'> | null = null;
   private rifle = new THREE.Group();
   private pistol = new THREE.Group();
   private flash = new THREE.Mesh(new THREE.SphereGeometry(0.065, 6, 4), new THREE.MeshBasicMaterial({ color: 0xffda73, depthTest: false }));
@@ -129,7 +133,7 @@ export class View {
     this.weapon.add(this.rifle, this.pistol, this.flash); this.flash.position.set(0.01, 0.03, -0.7); this.flash.visible = false;
     this.weapon.userData.lightingCue=true;
     this.camera.add(this.damageFrame.mesh);
-    this.camera.add(this.weapon); this.scene.add(this.camera);
+    this.weaponMount.add(this.weapon); this.camera.add(this.weaponMount); this.scene.add(this.camera);
     if (artEnabled(globalThis.location?.search ?? '')) { this.art = new ArtStandards(this.scene, this.artSlots, undefined, undefined, this.aiMaterials instanceof FullAiMaterials ? this.aiMaterials.registerArt : undefined); void this.art.start(); }
     this.resize();
     } catch (error) { this.dispose(); throw error; }
@@ -161,10 +165,13 @@ export class View {
     this.post?.resize(w,h,this.renderer.getPixelRatio());
   }
   render(state: GameState, player: Actor, yaw: number, pitch: number, now: number, dt: number, observer?: ObserverCamera) {
-    this.environmentPresented = false; this.artPresented = false; this.riflePresented = false; this.damagePresented = false; this.enemyImpactSubmissions = 0;
+    this.environmentPresented = false; this.artPresented = false; this.riflePresented = false; this.weaponPresented = null; this.damagePresented = false; this.enemyImpactSubmissions = 0;
     const basePose = weaponPose(state, player), effects=this.feedback.update(state,now);
+    if (observer) this.weaponTransition.reset();
+    const frame = observer ? readyWeapon(player, basePose) : this.weaponTransition.sample(state, player, basePose);
     const sourceRifle = this.sourceRifle.rifle;
-    const pose = sourceRifle && player.weapon === 'rifle' ? sourceRifle.pose(basePose) : basePose;
+    const pose = sourceRifle && frame.weapon === 'rifle' ? sourceRifle.pose(frame.pose) : frame.pose;
+    this.weaponMount.position.y = -WEAPON_DROP * frame.drop;
     if (sourceRifle && sourceRifle.scene.parent !== this.rifle) this.rifle.add(sourceRifle.scene);
     cameraPose(this.camera, observer?.position ?? eye(player), observer?.yaw ?? yaw, observer?.pitch ?? pitch);
     const fov = observer?.fov ?? 80;
@@ -173,7 +180,7 @@ export class View {
     this.weapon.position.set(pose.x, pose.y, pose.z);
     this.weapon.rotation.set(pose.pitch, 0, pose.roll, 'ZYX');
     this.weapon.visible = !observer && player.hp > 0;
-    this.rifle.visible = player.weapon === 'rifle'; this.pistol.visible = player.weapon === 'pistol';
+    this.rifle.visible = frame.weapon === 'rifle'; this.pistol.visible = frame.weapon === 'pistol';
     for (const group of [this.rifle, this.pistol]) for (const part of group.children) {
       const source=part.userData.part;
       if (!source) continue; // Verified source scene owns its own rigid nodes.
@@ -185,7 +192,7 @@ export class View {
         positions.needsUpdate=true;mesh.geometry.computeVertexNormals();mesh.geometry.computeBoundingSphere();
       }
     }
-    this.flash.position.set(...weaponMuzzle(player.weapon));
+    this.flash.position.set(...weaponMuzzle(frame.weapon));
     this.flash.visible = pose.flash > 0; this.flash.scale.setScalar(.6 + pose.flash * .7);
     this.characterIds = [];
     this.characters.retainActors(new Set(state.actors.filter(actor => actor.team !== player.team).map(actor => actor.id)));
@@ -245,10 +252,11 @@ export class View {
       this.post.render();
     }else this.renderer.render(this.scene, this.camera);
     this.environmentPresented = this.environment; this.artPresented = this.art?.info.state === 'ready';
-    this.riflePresented = !!sourceRifle && !observer && player.hp > 0 && player.weapon === 'rifle';
+    this.riflePresented = !!sourceRifle && !observer && player.hp > 0 && frame.weapon === 'rifle' && frame.phase === 'ready';
+    if (this.weapon.visible) this.weaponPresented = { weapon: frame.weapon, phase: frame.phase, progress: frame.progress };
     this.damagePresented = this.damageFrame.mesh.visible; this.enemyImpactSubmissions = enemyImpactSubmissions;
     this.rifleProgress = pose.progress; this.rifleReloadEnd = player.reload?.end ?? null; this.rifleGeneration = player.weaponGeneration;
   }
-  reset() {this.damageFrame.reset();this.damagePresented=false;this.enemyImpactSubmissions=0;this.sourceRifle.reset();this.riflePresented=false;this.characters.reset();this.characterIds=[];this.artPresented=false;this.environmentPresented=false;this.feedback.reset();for(const mesh of this.impacts)mesh.visible=false;}
-  dispose() { this.artPresented=false; this.art?.dispose(); this.damageFrame.reset();this.damagePresented=false;this.enemyImpactSubmissions=0; this.sourceRifle.dispose();this.riflePresented=false;this.characters.dispose();this.characterIds=[]; this.aiMaterials?.dispose(); this.post?.dispose(); if(this.lighting)this.scene.traverse(o=>{if(o instanceof THREE.DirectionalLight)o.shadow.dispose();}); this.environmentPresented=false;for (const g of this.geometries) g.dispose(); for (const m of this.materials) m.dispose(); for(const t of this.textures)t.dispose(); this.renderer?.dispose(); }
+  reset() {this.weaponTransition.reset();this.weaponPresented=null;this.weaponMount.position.y=0;this.damageFrame.reset();this.damagePresented=false;this.enemyImpactSubmissions=0;this.sourceRifle.reset();this.riflePresented=false;this.characters.reset();this.characterIds=[];this.artPresented=false;this.environmentPresented=false;this.feedback.reset();for(const mesh of this.impacts)mesh.visible=false;}
+  dispose() { this.artPresented=false; this.art?.dispose(); this.weaponTransition.reset();this.weaponPresented=null; this.damageFrame.reset();this.damagePresented=false;this.enemyImpactSubmissions=0; this.sourceRifle.dispose();this.riflePresented=false;this.characters.dispose();this.characterIds=[]; this.aiMaterials?.dispose(); this.post?.dispose(); if(this.lighting)this.scene.traverse(o=>{if(o instanceof THREE.DirectionalLight)o.shadow.dispose();}); this.environmentPresented=false;for (const g of this.geometries) g.dispose(); for (const m of this.materials) m.dispose(); for(const t of this.textures)t.dispose(); this.renderer?.dispose(); }
 }

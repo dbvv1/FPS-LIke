@@ -1,16 +1,17 @@
 import type { Actor, GameState } from '../sim/types.js';
 import { weaponParts, weaponPose, weaponMesh, weaponPartPosition, weaponMuzzle } from './weapon.js';
+import { readyWeapon, WEAPON_DROP, type WeaponFrame } from './weapon-transition.js';
 type Point = [number, number, number];
-export function drawWeapon(c: CanvasRenderingContext2D, w: number, h: number, state: GameState, actor: Actor) {
+export function drawWeapon(c: CanvasRenderingContext2D, w: number, h: number, state: GameState, actor: Actor, frame: WeaponFrame = readyWeapon(actor, weaponPose(state, actor))) {
   if (actor.hp <= 0) return;
-  const pose = weaponPose(state, actor), focal = h / (2 * Math.tan(40 * Math.PI / 180));
+  const pose = frame.pose, focal = h / (2 * Math.tan(40 * Math.PI / 180));
   const rotate = ([x, y, z]: Point): Point => {
     const y1 = y * Math.cos(pose.pitch) - z * Math.sin(pose.pitch), z1 = y * Math.sin(pose.pitch) + z * Math.cos(pose.pitch);
-    return [pose.x + x * Math.cos(pose.roll) - y1 * Math.sin(pose.roll), pose.y + x * Math.sin(pose.roll) + y1 * Math.cos(pose.roll), pose.z + z1];
+    return [pose.x + x * Math.cos(pose.roll) - y1 * Math.sin(pose.roll), pose.y - frame.drop * WEAPON_DROP + x * Math.sin(pose.roll) + y1 * Math.cos(pose.roll), pose.z + z1];
   };
   const project = ([x, y, z]: Point) => [w / 2 + x * focal / -z, h / 2 - y * focal / -z];
   const faces: { points: Point[]; depth: number; color: string; outline:boolean }[] = [];
-  for (const part of weaponParts(actor.weapon)) {
+  for (const part of weaponParts(frame.weapon)) {
     const [px,py,pz]=weaponPartPosition(part,pose), mesh=weaponMesh(part,pose), tilt=part.tilt??0;
     const vertices: Point[]=mesh.vertices.map(([x,y,z])=>rotate([px+x,py+y*Math.cos(tilt)-z*Math.sin(tilt),pz+y*Math.sin(tilt)+z*Math.cos(tilt)]));
     for (const [index,indices] of mesh.faces.entries()) {
@@ -36,7 +37,7 @@ export function drawWeapon(c: CanvasRenderingContext2D, w: number, h: number, st
     c.closePath(); c.fill(); if(face.outline)c.stroke();
   }
   if (pose.flash > 0) {
-    const p = project(rotate([...weaponMuzzle(actor.weapon)]));
+    const p = project(rotate([...weaponMuzzle(frame.weapon)]));
     const radius = (12 + pose.flash * 16) * h / 360;
     c.fillStyle = '#ffecc0'; c.beginPath();
     for (let i=0;i<12;i++) { const a=i*Math.PI/6, r=i%2 ? radius*.25 : radius; const x=p[0]!+Math.sin(a)*r,y=p[1]!+Math.cos(a)*r; if(i===0)c.moveTo(x,y);else c.lineTo(x,y); }

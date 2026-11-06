@@ -5,6 +5,8 @@ import { targetTriangles, targetVertices, targetColor } from './target.js';
 import { YARD, wallPaint, rgb, css } from './yard.js';
 import type { Box } from '../content/map.js';
 import { MAP } from '../content/map.js';
+import { WeaponTransition, type WeaponFrame } from './weapon-transition.js';
+import { weaponPose } from './weapon.js';
 import { drawWeapon } from './canvas-weapon.js';
 import { eye } from '../sim/physics.js';
 import type { Actor, GameState } from '../sim/types.js';
@@ -13,6 +15,8 @@ type Occluder = { depth: number; top: number; bottom: number };
 export class CanvasView {
   readonly backend = 'canvas2d-cpu';
   private feedback=new Feedback();
+  private weaponTransition = new WeaponTransition();
+  private weaponPresented: Pick<WeaponFrame, 'weapon' | 'phase' | 'progress'> | null = null;
   private damagePresented = false;
   private enemyImpactSubmissions = 0;
   private context: CanvasRenderingContext2D;
@@ -23,16 +27,16 @@ export class CanvasView {
     if (!context) throw new Error('Canvas2D is unavailable');
     this.context = context; this.resize();
   }
-  get info() { return { combatFeedback: { damageActive: this.damagePresented, enemyImpactSubmissions: this.enemyImpactSubmissions }, memory: { geometries: 0, textures: 0 }, calls: 1 }; }
+  get info() { return { weaponTransition: this.weaponPresented, combatFeedback: { damageActive: this.damagePresented, enemyImpactSubmissions: this.enemyImpactSubmissions }, memory: { geometries: 0, textures: 0 }, calls: 1 }; }
   resize() {
     this.width = Math.min(800, this.canvas.clientWidth);
     this.height = Math.max(240, Math.round(this.width * this.canvas.clientHeight / this.canvas.clientWidth));
     this.canvas.width = this.width; this.canvas.height = this.height;
     this.ground=this.context.createImageData(this.width,this.height);
   }
-  reset() {this.feedback.reset();this.damagePresented=false;this.enemyImpactSubmissions=0;}
+  reset() {this.weaponTransition.reset();this.weaponPresented=null;this.feedback.reset();this.damagePresented=false;this.enemyImpactSubmissions=0;}
   render(state: GameState, player: Actor, yaw: number, pitch: number, now: number, _dt: number) {
-    this.damagePresented=false;this.enemyImpactSubmissions=0;
+    this.damagePresented=false;this.enemyImpactSubmissions=0;this.weaponPresented=null;
     const effects=this.feedback.update(state,now);
     let enemyImpactSubmissions = 0;
     const c = this.context, w = this.width, h = this.height, e = eye(player);
@@ -132,7 +136,8 @@ export class CanvasView {
         for(let row=0;row<rows;row++){const span=size*(1-Math.abs((row+.5)/rows*2-1));rectangle(p.x-span/2,p.y-size/2+row*size/rows,span,size/rows,p.depth,color);}
       } else rectangle(p.x-size/2,p.y-size/2,size,size,p.depth,color);
     }
-    drawWeapon(c, w, h, state, player);
+    const frame = this.weaponTransition.sample(state, player, weaponPose(state, player));
+    drawWeapon(c, w, h, state, player, frame);
     const strength = damageCue(effects, player);
     if (strength > 0) {
       c.save(); c.globalAlpha = strength * .55; c.fillStyle = css(DAMAGE_CUE_COLOR);
@@ -140,6 +145,7 @@ export class CanvasView {
       c.restore();
     }
     c.fillStyle = '#b5d3d0'; c.font = '9px monospace'; c.fillText('CPU / CANVAS2D', 10, h - 8);
+    if (player.hp > 0) this.weaponPresented = { weapon: frame.weapon, phase: frame.phase, progress: frame.progress };
     this.damagePresented = strength > 0; this.enemyImpactSubmissions = enemyImpactSubmissions;
   }
   dispose() { this.reset(); this.ground=null; this.context.clearRect(0, 0, this.width, this.height); }
