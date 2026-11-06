@@ -381,3 +381,45 @@ test('reload then one or two switches within the same tick cannot sound a cancel
     } finally { f.close(); }
   }
 });
+
+test('actual training View separates incoming damage brackets from outgoing enemy impact and source hit animation', async () => {
+  const { view, settle } = await viewFixture();
+  const game = await Game.create(1, [{ id:'player',team:'amber',position:{x:0,y:0,z:0} },{id:'enemy',team:'blue',position:{x:0,y:0,z:5}}]);
+  try {
+    await settle();game.step([{actorId:'player',type:'shoot',yaw:0,pitch:0,at:100},{actorId:'enemy',type:'shoot',yaw:Math.PI,pitch:0,at:500}]);
+    const hash=game.stateHash;draw(view,game,1000);
+    assert.deepEqual(view.info.combatFeedback,{damageActive:true,enemyImpactSubmissions:1});
+    assert.equal(view.damageFrame.mesh.parent,view.camera);
+    assert.equal(view.impacts.filter((mesh:THREE.Mesh)=>mesh.visible).length,1,'incoming head hit uses screen brackets, never a sphere at the camera');
+    assert.equal(view.impacts[0].geometry,view.confirmedGeometry);
+    assert.equal(view.characters.character('enemy').selectMotion(game.state,game.state.actors.find(a=>a.id==='enemy'),view.feedback.update(game.state,1000)).clip,'hit');
+    assert.equal(view.camera.rotation.x,0);assert.equal(Math.abs(view.camera.rotation.y),0);assert.equal(game.stateHash,hash);
+    const opacity=view.damageFrame.material.opacity;draw(view,game,10000);assert.equal(view.damageFrame.material.opacity,opacity,'paused state keeps the same effect age');
+    view.render(game.state,game.state.actors.find(a=>a.id==='player'),0,0,10001,1/60,{position:{x:0,y:2,z:-5},yaw:0,pitch:0,fov:80});
+    assert.deepEqual(view.info.combatFeedback,{damageActive:false,enemyImpactSubmissions:0});
+    assert.equal(view.damageFrame.mesh.visible,false);
+    assert.equal(view.impacts[0].geometry,view.impacts[0].userData.ordinaryGeometry,'observer does not inherit local confirmation geometry');
+  } finally {game.dispose();view.dispose();}
+});
+
+test('actual View damage cue remains outside aim across resize, expires after fatal settlement, and owns disposal', async () => {
+  const { view, settle } = await viewFixture();
+  const game = await Game.create(1, [{ id:'player',team:'amber',position:{x:0,y:0,z:0} },{id:'enemy',team:'blue',position:{x:0,y:0,z:5}}]);
+  let disposed=false;
+  try {
+    await settle();game.step([{actorId:'enemy',type:'shoot',yaw:Math.PI,pitch:0}]);draw(view,game,0);
+    for(const [width,height] of [[360,800],[1600,600]]){
+      view.renderer.domElement.clientWidth=width;view.renderer.domElement.clientHeight=height;view.resize();draw(view,game,1);
+      view.camera.updateMatrixWorld(true);view.damageFrame.mesh.updateMatrixWorld(true);
+      const points=view.damageFrame.geometry.getAttribute('position');
+      for(let i=0;i<points.count;i++){const p=new THREE.Vector3().fromBufferAttribute(points,i).applyMatrix4(view.damageFrame.mesh.matrixWorld).project(view.camera);assert.ok(Math.abs(p.x)>.83&&Math.abs(p.x)<.97);assert.ok(Math.abs(p.y)>.52&&Math.abs(p.y)<.67);}
+    }
+    for(let i=0;i<30;i++)game.step();game.step([{actorId:'enemy',type:'shoot',yaw:Math.PI,pitch:0}]);assert.equal(game.state.phase,'over');
+    draw(view,game,1000);assert.equal(view.weapon.visible,false);assert.equal(view.info.combatFeedback.damageActive,true);
+    draw(view,game,1401);assert.equal(view.info.combatFeedback.damageActive,false);
+    view.reset();game.nextRound();draw(view,game,1500);assert.deepEqual(view.info.combatFeedback,{damageActive:false,enemyImpactSubmissions:0});
+    let geometryDisposed=0,materialDisposed=0,impactDisposed=0;
+    view.damageFrame.geometry.addEventListener('dispose',()=>geometryDisposed++);view.damageFrame.material.addEventListener('dispose',()=>materialDisposed++);view.confirmedGeometry.addEventListener('dispose',()=>impactDisposed++);
+    view.dispose();disposed=true;assert.deepEqual([geometryDisposed,materialDisposed,impactDisposed],[1,1,1]);assert.equal(view.info.combatFeedback.damageActive,false);
+  } finally {game.dispose();if(!disposed)view.dispose();}
+});

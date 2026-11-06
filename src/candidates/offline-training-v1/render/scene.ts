@@ -11,6 +11,8 @@ import { KIT, environmentEnabled, makeKitWall, kitTexture, floorPixels, kitBudge
 import { groundLevels, groundUV } from './ground.js';
 import { YARD, wallStrip } from './yard.js';
 import { Feedback } from './feedback.js';
+import { damageCue, impactAppearance } from './combat-feedback.js';
+import { createDamageFrame } from './damage-frame.js';
 import { targetTriangles, targetVertices, targetColor } from './target.js';
 import { MAP } from '../content/map.js';
 import { eye } from '../sim/physics.js';
@@ -27,11 +29,15 @@ export class View {
   private aiMaterials: AiMaterials | FullAiMaterials | undefined;
   private art: ArtStandards | undefined;
   private artSlots: ArtSlot[] = [];
-  get info() { return { rifleSource: { id: RIFLE_RELOAD_SOURCE.id, clips: RIFLE_RELOAD_SOURCE.clips, state: this.sourceRifle.status, error: this.sourceRifle.error, active: this.riflePresented, progress: this.rifleProgress, reloadEnd: this.rifleReloadEnd, weaponGeneration: this.rifleGeneration, cuePhases: this.sourceRifle.rifle?.cuePhases ?? null }, characters: { source: 'enemy-relay-guard', state: this.characters.status, activeIds: [...this.characterIds], error: this.characters.error, clips: ['idle', 'walk', 'fire', 'hit', 'death'] }, ...(this.aiMaterials ? { materials: this.aiMaterials.info } : {}), lighting: { id:this.lighting?LIGHTING_ID:'baseline', environment:this.lighting?'hemisphere-and-ambient':'hemisphere', ao:this.lighting?'deterministic-ssao-half-resolution':'none', grade:this.lighting?'cool-shadows-warm-highlights':'none' }, ...(this.art ? { art: { ...this.art.info, active: this.artPresented } } : {}), ...(this.environment ? { environment: { id: KIT.id, active: this.environmentPresented, budget: kitBudget(MAP.walls.length), evidence: 'offline-estimate' } } : {}), memory: { ...this.renderer.info.memory }, calls: this.renderer.info.render.calls }; }
+  get info() { return { combatFeedback: { damageActive: this.damagePresented, enemyImpactSubmissions: this.enemyImpactSubmissions }, rifleSource: { id: RIFLE_RELOAD_SOURCE.id, clips: RIFLE_RELOAD_SOURCE.clips, state: this.sourceRifle.status, error: this.sourceRifle.error, active: this.riflePresented, progress: this.rifleProgress, reloadEnd: this.rifleReloadEnd, weaponGeneration: this.rifleGeneration, cuePhases: this.sourceRifle.rifle?.cuePhases ?? null }, characters: { source: 'enemy-relay-guard', state: this.characters.status, activeIds: [...this.characterIds], error: this.characters.error, clips: ['idle', 'walk', 'fire', 'hit', 'death'] }, ...(this.aiMaterials ? { materials: this.aiMaterials.info } : {}), lighting: { id:this.lighting?LIGHTING_ID:'baseline', environment:this.lighting?'hemisphere-and-ambient':'hemisphere', ao:this.lighting?'deterministic-ssao-half-resolution':'none', grade:this.lighting?'cool-shadows-warm-highlights':'none' }, ...(this.art ? { art: { ...this.art.info, active: this.artPresented } } : {}), ...(this.environment ? { environment: { id: KIT.id, active: this.environmentPresented, budget: kitBudget(MAP.walls.length), evidence: 'offline-estimate' } } : {}), memory: { ...this.renderer.info.memory }, calls: this.renderer.info.render.calls }; }
   readonly renderer!: THREE.WebGLRenderer;
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera(80, 1, 0.05, 100);
   private feedback = new Feedback();
+  private damageFrame = createDamageFrame();
+  private damagePresented = false;
+  private enemyImpactSubmissions = 0;
+  private confirmedGeometry = new THREE.OctahedronGeometry(.035, 0);
   private characters = new TrainingCharacterSet();
   private sourceRifle = new TrainingRifleAssets();
   private riflePresented = false;
@@ -52,6 +58,7 @@ export class View {
   private readonly captureSize?: { width: number; height: number };
   constructor(canvas: HTMLCanvasElement, captureSize?: { width: number; height: number }) {
     this.captureSize = captureSize;
+    this.geometries.add(this.damageFrame.geometry); this.materials.add(this.damageFrame.material); this.geometries.add(this.confirmedGeometry);
     this.geometries.add(this.flash.geometry); this.materials.add(this.flash.material);
     try {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: !!captureSize });
@@ -121,6 +128,7 @@ export class View {
     this.makeWeapon(this.rifle, false); this.makeWeapon(this.pistol, true);
     this.weapon.add(this.rifle, this.pistol, this.flash); this.flash.position.set(0.01, 0.03, -0.7); this.flash.visible = false;
     this.weapon.userData.lightingCue=true;
+    this.camera.add(this.damageFrame.mesh);
     this.camera.add(this.weapon); this.scene.add(this.camera);
     if (artEnabled(globalThis.location?.search ?? '')) { this.art = new ArtStandards(this.scene, this.artSlots, undefined, undefined, this.aiMaterials instanceof FullAiMaterials ? this.aiMaterials.registerArt : undefined); void this.art.start(); }
     this.resize();
@@ -153,7 +161,7 @@ export class View {
     this.post?.resize(w,h,this.renderer.getPixelRatio());
   }
   render(state: GameState, player: Actor, yaw: number, pitch: number, now: number, dt: number, observer?: ObserverCamera) {
-    this.environmentPresented = false; this.artPresented = false; this.riflePresented = false;
+    this.environmentPresented = false; this.artPresented = false; this.riflePresented = false; this.damagePresented = false; this.enemyImpactSubmissions = 0;
     const basePose = weaponPose(state, player), effects=this.feedback.update(state,now);
     const sourceRifle = this.sourceRifle.rifle;
     const pose = sourceRifle && player.weapon === 'rifle' ? sourceRifle.pose(basePose) : basePose;
@@ -161,6 +169,7 @@ export class View {
     cameraPose(this.camera, observer?.position ?? eye(player), observer?.yaw ?? yaw, observer?.pitch ?? pitch);
     const fov = observer?.fov ?? 80;
     if (this.camera.fov !== fov) { this.camera.fov = fov; this.camera.updateProjectionMatrix(); }
+    this.damageFrame.update(observer ? 0 : damageCue(effects, player), this.camera);
     this.weapon.position.set(pose.x, pose.y, pose.z);
     this.weapon.rotation.set(pose.pitch, 0, pose.roll, 'ZYX');
     this.weapon.visible = !observer && player.hp > 0;
@@ -211,13 +220,19 @@ export class View {
       }
       positions.needsUpdate=true;model.geometry.computeVertexNormals();model.visible=reaction.visible;
     }
-    const visibleImpacts=effects.filter(e=>e.age<180&&e.shot.impact!.kind!=='range');
+    const visibleImpacts=effects.filter(e=>e.age<180&&e.shot.impact!.kind!=='range'&&(observer||e.shot.hit!==player.id));
+    let enemyImpactSubmissions = 0;
     while(this.impacts.length<visibleImpacts.length){
       const mesh=new THREE.Mesh(new THREE.SphereGeometry(.035,5,3),new THREE.MeshBasicMaterial({color:0xe6c49a,depthWrite:false}));
+      mesh.userData.ordinaryGeometry = mesh.geometry;
       this.scene.add(mesh);this.geometries.add(mesh.geometry);this.materials.add(mesh.material);this.impacts.push(mesh);
     }
     for(const [i,mesh]of this.impacts.entries()){
       const event=visibleImpacts[i];mesh.visible=!!event;if(!event)continue;
+      const appearance = impactAppearance(state, observer ? null : player, event);
+      mesh.geometry = appearance.enemy ? this.confirmedGeometry : mesh.userData.ordinaryGeometry;
+      (mesh.material as THREE.MeshBasicMaterial).color.setHex(appearance.color);
+      if (appearance.enemy) enemyImpactSubmissions++;
       const impact=event.shot.impact!,dx=impact.origin.x-impact.end.x,dy=impact.origin.y-impact.end.y,dz=impact.origin.z-impact.end.z,length=Math.hypot(dx,dy,dz)||1;
       mesh.position.set(...toThree({x:impact.end.x+dx/length*.018,y:impact.end.y+dy/length*.018,z:impact.end.z+dz/length*.018}));
       mesh.scale.setScalar((1-event.age/180)*(impact.kind==='actor'?1.2:1.8));
@@ -231,8 +246,9 @@ export class View {
     }else this.renderer.render(this.scene, this.camera);
     this.environmentPresented = this.environment; this.artPresented = this.art?.info.state === 'ready';
     this.riflePresented = !!sourceRifle && !observer && player.hp > 0 && player.weapon === 'rifle';
+    this.damagePresented = this.damageFrame.mesh.visible; this.enemyImpactSubmissions = enemyImpactSubmissions;
     this.rifleProgress = pose.progress; this.rifleReloadEnd = player.reload?.end ?? null; this.rifleGeneration = player.weaponGeneration;
   }
-  reset() {this.sourceRifle.reset();this.riflePresented=false;this.characters.reset();this.characterIds=[];this.artPresented=false;this.environmentPresented=false;this.feedback.reset();for(const mesh of this.impacts)mesh.visible=false;}
-  dispose() { this.artPresented=false; this.art?.dispose(); this.sourceRifle.dispose();this.riflePresented=false;this.characters.dispose();this.characterIds=[]; this.aiMaterials?.dispose(); this.post?.dispose(); if(this.lighting)this.scene.traverse(o=>{if(o instanceof THREE.DirectionalLight)o.shadow.dispose();}); this.environmentPresented=false;for (const g of this.geometries) g.dispose(); for (const m of this.materials) m.dispose(); for(const t of this.textures)t.dispose(); this.renderer?.dispose(); }
+  reset() {this.damageFrame.reset();this.damagePresented=false;this.enemyImpactSubmissions=0;this.sourceRifle.reset();this.riflePresented=false;this.characters.reset();this.characterIds=[];this.artPresented=false;this.environmentPresented=false;this.feedback.reset();for(const mesh of this.impacts)mesh.visible=false;}
+  dispose() { this.artPresented=false; this.art?.dispose(); this.damageFrame.reset();this.damagePresented=false;this.enemyImpactSubmissions=0; this.sourceRifle.dispose();this.riflePresented=false;this.characters.dispose();this.characterIds=[]; this.aiMaterials?.dispose(); this.post?.dispose(); if(this.lighting)this.scene.traverse(o=>{if(o instanceof THREE.DirectionalLight)o.shadow.dispose();}); this.environmentPresented=false;for (const g of this.geometries) g.dispose(); for (const m of this.materials) m.dispose(); for(const t of this.textures)t.dispose(); this.renderer?.dispose(); }
 }

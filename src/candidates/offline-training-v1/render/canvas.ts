@@ -1,5 +1,6 @@
 import { drawGround } from './ground.js';
 import { Feedback } from './feedback.js';
+import { damageCue, impactAppearance, DAMAGE_CUE_COLOR, DAMAGE_RECTS } from './combat-feedback.js';
 import { targetTriangles, targetVertices, targetColor } from './target.js';
 import { YARD, wallPaint, rgb, css } from './yard.js';
 import type { Box } from '../content/map.js';
@@ -12,6 +13,8 @@ type Occluder = { depth: number; top: number; bottom: number };
 export class CanvasView {
   readonly backend = 'canvas2d-cpu';
   private feedback=new Feedback();
+  private damagePresented = false;
+  private enemyImpactSubmissions = 0;
   private context: CanvasRenderingContext2D;
   private width = 640; private height = 360;
   private ground: ImageData | null = null;
@@ -20,16 +23,18 @@ export class CanvasView {
     if (!context) throw new Error('Canvas2D is unavailable');
     this.context = context; this.resize();
   }
-  get info() { return { memory: { geometries: 0, textures: 0 }, calls: 1 }; }
+  get info() { return { combatFeedback: { damageActive: this.damagePresented, enemyImpactSubmissions: this.enemyImpactSubmissions }, memory: { geometries: 0, textures: 0 }, calls: 1 }; }
   resize() {
     this.width = Math.min(800, this.canvas.clientWidth);
     this.height = Math.max(240, Math.round(this.width * this.canvas.clientHeight / this.canvas.clientWidth));
     this.canvas.width = this.width; this.canvas.height = this.height;
     this.ground=this.context.createImageData(this.width,this.height);
   }
-  reset() {this.feedback.reset();}
+  reset() {this.feedback.reset();this.damagePresented=false;this.enemyImpactSubmissions=0;}
   render(state: GameState, player: Actor, yaw: number, pitch: number, now: number, _dt: number) {
+    this.damagePresented=false;this.enemyImpactSubmissions=0;
     const effects=this.feedback.update(state,now);
+    let enemyImpactSubmissions = 0;
     const c = this.context, w = this.width, h = this.height, e = eye(player);
     const focal = h / (2 * Math.tan(40 * Math.PI / 180));
     const horizon = h / 2 + Math.tan(pitch) * focal;
@@ -116,14 +121,26 @@ export class CanvasView {
       if (p.depth > 0.1) rectangle(p.x - 0.22 * focal / p.depth, p.y - 0.36 * focal / p.depth, 0.44 * focal / p.depth, 0.36 * focal / p.depth, p.depth, '#f2b264');
     }
     for(const event of effects){
-      const impact=event.shot.impact!;if(event.age>=180||impact.kind==='range')continue;
+      const impact=event.shot.impact!;if(event.age>=180||impact.kind==='range'||event.shot.hit===player.id)continue;
       const dx=impact.origin.x-impact.end.x,dy=impact.origin.y-impact.end.y,dz=impact.origin.z-impact.end.z,length=Math.hypot(dx,dy,dz)||1;
       const p=project(impact.end.x+dx/length*.018,impact.end.y+dy/length*.018,impact.end.z+dz/length*.018);
       if(p.depth<=.1)continue;const size=Math.max(.5,.09*focal/p.depth)*(1-event.age/180);
-      rectangle(p.x-size/2,p.y-size/2,size,size,p.depth,'#e6c49a');
+      const appearance = impactAppearance(state, player, event), color = css(appearance.color);
+      if (appearance.enemy) {
+        enemyImpactSubmissions++;
+        const rows = Math.max(1, Math.ceil(size / 2));
+        for(let row=0;row<rows;row++){const span=size*(1-Math.abs((row+.5)/rows*2-1));rectangle(p.x-span/2,p.y-size/2+row*size/rows,span,size/rows,p.depth,color);}
+      } else rectangle(p.x-size/2,p.y-size/2,size,size,p.depth,color);
     }
     drawWeapon(c, w, h, state, player);
+    const strength = damageCue(effects, player);
+    if (strength > 0) {
+      c.save(); c.globalAlpha = strength * .55; c.fillStyle = css(DAMAGE_CUE_COLOR);
+      for (const [x, y, width, height] of DAMAGE_RECTS) c.fillRect((x-width/2+1)*w/2,(1-y-height/2)*h/2,width*w/2,height*h/2);
+      c.restore();
+    }
     c.fillStyle = '#b5d3d0'; c.font = '9px monospace'; c.fillText('CPU / CANVAS2D', 10, h - 8);
+    this.damagePresented = strength > 0; this.enemyImpactSubmissions = enemyImpactSubmissions;
   }
-  dispose() { this.ground=null; this.context.clearRect(0, 0, this.width, this.height); }
+  dispose() { this.reset(); this.ground=null; this.context.clearRect(0, 0, this.width, this.height); }
 }
