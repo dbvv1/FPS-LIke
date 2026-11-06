@@ -5,12 +5,13 @@ import { WEAPONS } from '../content/weapons.js';
 import { localShotResult, weaponPose } from '../render/weapon.js';
 import { MAP } from '../content/map.js';
 import { SECOND, type Actor, type GameState } from '../sim/types.js';
+import { teamStatus } from './team-status.js';
 const element = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 export class Hud {
   private lastHp = 100;
   private round = 0;
   constructor(private onStart: () => void, private onNext: () => void, private onRestart: () => void, private onMute: (on: boolean) => void, sensitivity: MouseSensitivity) {
-    element('hud').innerHTML = `<header class="topbar"><div class="brand">RELAY <b>YARD</b><span>单点攻防 / ORIGINAL FPS</span></div><div class="score"><b id="score-a">0</b><span id="round">回合 01</span><b id="score-d">0</b></div><button id="pause-button" title="暂停 (Esc)">Ⅱ</button></header><div class="objective"><span id="side">进攻</span><b id="timer">01:10</b><p id="goal">推进至信标区域 · 按住 E 安放</p></div><div id="crosshair"><i></i><i></i><i></i><i></i><span></span></div><div id="hitmarker" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div id="shot-result" aria-live="off"></div><div id="hurt"></div><div id="interaction" hidden><span id="interaction-label"></span><progress id="progress" max="1" value="0"></progress></div><footer class="bottom"><div class="health"><span>生命</span><b id="hp">100</b><div><i id="hp-bar"></i></div></div><div class="hint" id="hint">WASD 移动 · Shift 静步 · Ctrl 蹲伏<br>鼠标射击 · R 换弹 · 1 / 2 切枪 · Esc 暂停</div><div class="ammo"><span id="weapon">RX-24 / 步枪</span><b id="ammo">24 <small>/ 72</small></b><em id="reload"></em><progress id="reload-progress" max="1" value="0" hidden></progress></div></footer>`;
+    element('hud').innerHTML = `<header class="topbar"><div class="brand">RELAY <b>YARD</b><span>单点攻防 / ORIGINAL FPS</span></div><div class="score"><b id="score-a">0</b><span id="round">回合 01</span><span id="team-status" hidden></span><b id="score-d">0</b></div><button id="pause-button" title="暂停 (Esc)">Ⅱ</button></header><div class="objective"><span id="side">进攻</span><b id="timer">01:10</b><p id="goal">推进至信标区域 · 按住 E 安放</p></div><div id="crosshair"><i></i><i></i><i></i><i></i><span></span></div><div id="hitmarker" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div id="shot-result" aria-live="off"></div><div id="hurt"></div><div id="interaction" hidden><span id="interaction-label"></span><progress id="progress" max="1" value="0"></progress></div><footer class="bottom"><div class="health"><span>生命</span><b id="hp">100</b><div><i id="hp-bar"></i></div></div><div class="hint" id="hint">WASD 移动 · Shift 静步 · Ctrl 蹲伏<br>鼠标射击 · R 换弹 · 1 / 2 切枪 · Esc 暂停</div><div class="ammo"><span id="weapon">RX-24 / 步枪</span><b id="ammo">24 <small>/ 72</small></b><em id="reload"></em><progress id="reload-progress" max="1" value="0" hidden></progress></div></footer>`;
     element('menu').innerHTML = `<div class="intro"><p class="eyebrow">FPS-LIKE · LOCAL PROTOTYPE</p><h1>RELAY<br><span>YARD.</span></h1><p class="subtitle">三条路线。一个目标。<br>在中继场的掩体之间，拿下这一回合。</p><div class="features"><span>01 <b>抵近信标</b></span><span>02 <b>安放 / 拆除</b></span><span>03 <b>交替攻防</b></span></div></div><div class="menu-card"><p id="menu-kicker">训练部署</p><h2 id="menu-title">准备进入中继场</h2><p id="menu-description">你与一名机器人对抗。先清理对手，或潜入目标点安放信标。每三回合换边。</p><label class="field">机器人难度<select id="difficulty"><option value="easy">入门 · 迟缓反应</option><option value="normal">标准 · 均衡瞄准</option><option value="hard">精锐 · 快速压枪</option></select></label><p class="field-note">修改难度后点击“重新开始”生效。</p><button class="primary" id="start">进入靶场 <span>→</span></button><button class="primary" id="next" hidden>下一回合 <span>→</span></button><div class="secondary"><button id="restart">重新开始</button><label><input id="audio" type="checkbox" checked>合成音效</label></div><p class="footnote version-links"><a href="${legacySearch}">旧版 1v1</a> · <a href="${groundCandidateSearch}">移动手感候选（加速与摩擦）</a> · <a href="./">当前默认训练赛</a></p><div id="aim-settings-host"></div><p id="lock-error" role="status"></p><p class="footnote">点击后锁定鼠标 · Esc 退出锁定并暂停<br>桌面键盘与鼠标 · 原创程序化场景</p></div><details id="diagnostics"><summary>运行诊断</summary><pre id="debug-state"></pre></details>`;
     const settings = new SensitivityMenu(sensitivity, element('aim-settings-host'));
     const back = () => { if (!settings.back()) this.focusMenuAction(); };
@@ -71,6 +72,10 @@ export class Hud {
     this.lastHp = player.hp;
     element('score-a').textContent = String(state.score.amber); element('score-d').textContent = String(state.score.blue);
     element('round').textContent = `回合 ${String(state.round).padStart(2, '0')}${state.actors.length === 10 ? ' · 离线 5v5' : ''}`;
+    const team = state.actors.length === 10 ? teamStatus(state, player.id) : null;
+    const teamStatusText = element('team-status');
+    teamStatusText.hidden = !team;
+    teamStatusText.textContent = team ? `己方 ${team.allies.alive}/${team.allies.total} · 敌方 ${team.enemies.alive}/${team.enemies.total}` : '';
     const remaining = Math.max(0, Math.ceil(((state.bomb.planted ? state.bomb.explodeAt! : state.roundEndsAt) - state.time) / SECOND));
     element('timer').textContent = `${String(Math.floor(remaining / 60)).padStart(2, '0')}:${String(remaining % 60).padStart(2, '0')}`;
     element('timer').classList.toggle('urgent', state.bomb.planted);
@@ -78,11 +83,9 @@ export class Hud {
     const d = Math.hypot(player.position.x - MAP.site.x, player.position.z - MAP.site.z);
     element('goal').textContent = state.bomb.planted ? player.side === 'defend' ? '信标已安放 · 靠近并按住 E 拆除' : '守住信标，直到引爆' : player.side === 'attack' ? d <= MAP.siteRadius ? '已抵达信标点 · 按住 E 安放' : '推进至信标区域 · 按住 E 安放' : '阻止安放，或守住回合时间';
     if (state.actors.length === 10) {
-      const allies=state.actors.filter(a=>a.team===player.team&&a.hp>0).length;
-      const enemies=state.actors.filter(a=>a.team!==player.team&&a.hp>0).length;
       const carrier=state.bomb.carrier===player.id?'你携带信标':player.side==='attack'&&state.bomb.carrier?'队友携带信标':'';
       if(!state.bomb.planted && player.side==='attack' && state.bomb.carrier!==player.id)element('goal').textContent=state.bomb.carrier?'掩护携带信标的队友推进':'信标掉落 · 靠近拾取后推进安放';
-      element('goal').textContent += ` · 存活 ${allies}:${enemies}${carrier ? ' · '+carrier : ''}`;
+      if (carrier) element('goal').textContent += ` · ${carrier}`;
     }
     element('hp').textContent = String(player.hp); element('hp-bar').style.width = `${player.hp}%`;
     const mag = player.weapons[player.weapon];

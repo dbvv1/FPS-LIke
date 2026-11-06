@@ -72,7 +72,10 @@ try {
   }
   if (offline) {
     await page.waitForFunction(() => window.fpsClient.state().environment?.active === true);
-    const initial = await page.evaluate(() => ({ state: window.fpsClient.state(), snapshot: window.fpsClient.snapshot(), hud: { progress: document.getElementById('round').textContent, goal: document.getElementById('goal').textContent, title: document.getElementById('match-title').textContent } }));
+    const initial = await page.evaluate(() => {
+      const teamStatus = document.getElementById('team-status');
+      return { state: window.fpsClient.state(), snapshot: window.fpsClient.snapshot(), hud: { progress: document.getElementById('round').textContent, goal: document.getElementById('goal').textContent, teamStatus: teamStatus.textContent, teamStatusHidden: teamStatus.hidden, title: document.getElementById('match-title').textContent } };
+    });
     assertOfflineReady(initial.state, initial.snapshot, initial.hud);
     report.offlineInitial = initial;
     report.stages.push('nine bot controllers, ten actors, complete-match HUD, courtyard active');

@@ -15,7 +15,9 @@ export function assertOfflineReady(state, snapshot, hud) {
   assert.equal(state.match?.complete, false);
   assert.equal(state.match?.rounds.length, 0);
   assert.match(hud.progress, /1 \/ 6 回合/);
-  assert.match(hud.goal, /存活 5:5/);
+  assert.equal(hud.teamStatusHidden, false);
+  assert.match(hud.teamStatus, /己方 5\/5 · 敌方 5\/5/);
+  assert.doesNotMatch(hud.goal, /存活/, 'survivor counts belong to #team-status, not the objective sentence');
   assert.match(hud.title, /回合 1 \/ 6/);
 }
 export function assertMatchReset(state, snapshot) {

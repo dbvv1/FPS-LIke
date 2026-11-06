@@ -6,11 +6,16 @@ import { readFileSync } from 'node:fs';
 import { OFFLINE_QUERY, assertOfflineReady, assertMatchReset, browserExitReceipt, portClosed, finishOfflineRound, finishOfflineMatch, verifyRestartPlayable } from '../tools/smoke-offline-support.mjs';
 function fixture() {
   const actors = [{ id: 'player', team: 'amber', weapons: { pistol: { ammo: 10 } } }, ...Array.from({length:9}, (_,i)=>({ id:`bot-${i}`, team:i<4?'amber':'blue' }))];
-  return { state: { ready: true, squads: { version:'offline-v1', formation:'squads-v1', botIds:actors.slice(1).map(a=>a.id) }, environment:{id:'courtyard-v1',active:true}, match:{complete:false,rounds:[]} }, snapshot:{actors,tick:0,round:1,score:{amber:0,blue:0}}, hud:{progress:'1 / 6 回合',goal:'存活 5:5',title:'回合 1 / 6'} };
+  return { state: { ready: true, squads: { version:'offline-v1', formation:'squads-v1', botIds:actors.slice(1).map(a=>a.id) }, environment:{id:'courtyard-v1',active:true}, match:{complete:false,rounds:[]} }, snapshot:{actors,tick:0,round:1,score:{amber:0,blue:0}}, hud:{progress:'1 / 6 回合',goal:'掩护携带信标的队友推进 · 队友携带信标',teamStatus:'己方 5/5 · 敌方 5/5',teamStatusHidden:false,title:'回合 1 / 6'} };
 }
 test('offline smoke accepts complete runtime evidence, not missing or inactive candidates',()=>{
   const f=fixture(); assertOfflineReady(f.state,f.snapshot,f.hud); assertMatchReset(f.state,f.snapshot);
   for(const mutate of [(v:any)=>delete v.state.squads,(v:any)=>v.state.squads.botIds.pop(),(v:any)=>v.state.environment.active=false,(v:any)=>delete v.state.match,(v:any)=>v.hud.progress='回合 1',(v:any)=>v.snapshot.actors.pop()]){
+    const bad=fixture();mutate(bad);assert.throws(()=>assertOfflineReady(bad.state,bad.snapshot,bad.hud));
+  }
+  // Survivors now live in #team-status. A goal that still carries the old
+  // "存活 5:5" suffix, a missing census, or a hidden census must fail the gate.
+  for (const mutate of [(v:any)=>{v.hud.goal+=' · 存活 5:5';},(v:any)=>delete v.hud.teamStatus,(v:any)=>v.hud.teamStatus='己方 4/5 · 敌方 5/5',(v:any)=>v.hud.teamStatusHidden=true]) {
     const bad=fixture();mutate(bad);assert.throws(()=>assertOfflineReady(bad.state,bad.snapshot,bad.hud));
   }
   const bad=fixture();bad.snapshot.score.amber=1;assert.throws(()=>assertMatchReset(bad.state,bad.snapshot));
