@@ -23,7 +23,8 @@ export function matchCopy(state: GameState, player: Actor, summary: MatchSummary
   const halftime = state.phase === 'over' && state.round === 3 && !summary.complete;
   const side = player.side === 'attack' ? '进攻' : '防守';
   const title = summary.complete ? summary.wins > summary.losses ? '整场胜利' : summary.wins < summary.losses ? '整场失利' : '双方战平' : halftime ? '半场结束 · 交换攻守' : `${side}阶段 · 回合 ${state.round} / ${MATCH_ROUNDS}`;
-  const description = summary.complete ? `最终比分 ${summary.wins} : ${summary.losses}。两侧各打三回合；重新部署可开始一场新训练赛。` : halftime ? `前三回合 ${summary.wins} : ${summary.losses}。下一回合改守中继场：阻止安放，信标落地后必须拆除。` : player.side === 'attack' ? '三条路线抵近目标。击倒对手，或按住 E 安放后守到引爆；不要只追击而错过倒计时。' : '守住三条入口。未安放时可守到超时；已经安放后，击倒敌人仍不能替代拆除。';
+  const nextSideGoal = player.side === 'attack' ? '下一回合改守中继场：阻止安放，信标安放后必须拆除。' : '下一回合转为进攻：推进信标点，携带者按住 E 安放，其他人掩护。';
+  const description = summary.complete ? `最终比分 ${summary.wins} : ${summary.losses}。两侧各打三回合；重新部署可开始一场新训练赛。` : halftime ? `前三回合 ${summary.wins} : ${summary.losses}。${nextSideGoal}` : player.side === 'attack' ? '三条路线抵近目标。击倒对手，或按住 E 安放后守到引爆；不要只追击而错过倒计时。' : '守住三条入口。未安放时可守到超时；已经安放后，击倒敌人仍不能替代拆除。';
   return { title, description, halftime, nextPractice: nextMatchPractice(summary),
     action: summary.complete ? '再打一场' : halftime ? '交换攻守 · 第 4 回合' : '下一回合',
     progress: `${Math.min(state.round, MATCH_ROUNDS)} / ${MATCH_ROUNDS} 回合 · ${side}`,

@@ -82,6 +82,13 @@ for (const playerTeam of ['amber', 'blue'] as const) {
         clock += 20; raf(clock); clock += 20; raf(clock);
         assert.equal(created[0]!.state.round, round);
         assert.equal(created[0]!.state.phase, 'over');
+        if (round === 3) {
+          const side = created[0]!.state.actors.find(actor => actor.id === 'player')!.side;
+          assert.match(node('match-description').textContent, side === 'attack'
+            ? /下一回合改守中继场：阻止安放，信标安放后必须拆除/
+            : /下一回合转为进攻：推进信标点，携带者按住 E 安放，其他人掩护/);
+          assert.doesNotMatch(node('match-description').textContent, /信标落地/, 'a dropped, unplanted beacon cannot be defused');
+        }
         const summary = window.fpsClient.state().match;
         assert.equal(summary.rounds.length, round); assert.equal(summary.complete, round === 6);
         if (round < 6) assert.doesNotMatch(node('match-description').textContent, /下一场练习/);
