@@ -4,8 +4,113 @@ import { Game } from '../../src/candidates/offline-training-v1/sim/game.js';
 import { SECOND, SUBTICKS, type Shot } from '../../src/candidates/offline-training-v1/sim/types.js';
 import { weaponPose, localShotResult, weaponParts, weaponMesh, weaponPartPosition } from '../../src/candidates/offline-training-v1/render/weapon.js';
 import { synthesize, type Cue } from '../../src/candidates/offline-training-v1/render/synth.js';
-import { Soundscape } from '../../src/candidates/offline-training-v1/render/audio.js';
+import { Soundscape, type ReloadAudioPolicy } from '../../src/candidates/offline-training-v1/render/audio.js';
 const shot = (actorId: string, time=0): Shot => ({actorId,time,weapon:'rifle',yaw:0,pitch:0,hit:null,part:null,damage:0,visible:false,targetId:null,targetVisible:false});
+
+// Actual synthesis reaches the AudioContext stand-in. This checks scheduling
+// and samples, not audibility, browser decoding or subjective sound quality.
+async function cancellationAudio(policy: ReloadAudioPolicy) {
+  const events: Cue[] = [], recipes = (['shot', 'reload-out', 'reload-in', 'bolt'] as Cue[]).flatMap(cue => (['rifle', 'pistol'] as const).map(weapon => ({ cue, samples: synthesize(cue, weapon, 48000) })));
+  class Context {
+    state = 'running'; sampleRate = 48000; destination = {};
+    createBuffer() { return { samples: new Float32Array(), copyToChannel(samples: Float32Array) { this.samples = samples.slice(); } }; }
+    createBufferSource() { return { buffer: null as ReturnType<Context['createBuffer']> | null, onended: null, connect() { return this; }, disconnect() {}, stop() {}, start() {
+      const samples = this.buffer!.samples;
+      const recipe = recipes.find(value => value.samples.length === samples.length && value.samples.every((sample, i) => sample === samples[i]));
+      assert.ok(recipe, 'consumer must submit a known unmodified recipe'); events.push(recipe.cue);
+    } }; }
+    createGain() { return { gain: { value: 0 }, connect() { return this; }, disconnect() {} }; }
+    createStereoPanner() { return { pan: { value: 0 }, connect() { return this; }, disconnect() {} }; }
+    close() { return Promise.resolve(); }
+  }
+  const previous = globalThis.AudioContext;
+  globalThis.AudioContext = Context as unknown as typeof AudioContext;
+  const game = await Game.create(1, [{ id: 'a', team: 'amber', position: { x: 0, y: 0, z: 0 } }, { id: 'd', team: 'blue', position: { x: 0, y: 0, z: 5 } }], {}, { weaponPresentation: 'generation-v1' });
+  const sound = new Soundscape('baseline', policy);
+  const update = (audible: number[] = [], rifle?: Parameters<Soundscape['update']>[4]) => {
+    const state = game.state, before = JSON.stringify(state), hash = game.stateHash;
+    sound.update(state, state.actors.find(actor => actor.id === 'a')!, 0, audible, rifle);
+    assert.equal(JSON.stringify(state), before); assert.equal(game.stateHash, hash);
+  };
+  await sound.unlock();
+  game.step([{ actorId: 'a', type: 'shoot', yaw: 0, pitch: 1.4 }]); update(); events.length = 0;
+  return { game, sound, events, update, close() { sound.dispose(); game.dispose(); globalThis.AudioContext = previous; } };
+}
+
+for (const policy of ['baseline', 'source-rifle-v1'] as const) {
+  test(`${policy} does not start a reload sound canceled by one or two same-tick switches`, async () => {
+    for (const back of [false, true]) {
+      const f = await cancellationAudio(policy);
+      try {
+        f.game.step([{ actorId: 'a', type: 'reload', at: 1 }, { actorId: 'a', type: 'switch', weapon: 'pistol', at: 2 }, ...(back ? [{ actorId: 'a', type: 'switch' as const, weapon: 'rifle' as const, at: 3 }] : [])]);
+        assert.equal(f.game.state.actors[0]!.reload, null); f.update(); f.update();
+        for (let tick = 0; tick < 120; tick++) { f.game.step(); f.update(); }
+        assert.deepEqual(f.events, []);
+      } finally { f.close(); }
+    }
+  });
+  test(`${policy} starts only the surviving reload when cancellation and restart share a timestamp`, async () => {
+    const f = await cancellationAudio(policy);
+    try {
+      f.game.step([{ actorId: 'a', type: 'reload' }, { actorId: 'a', type: 'switch', weapon: 'pistol' }, { actorId: 'a', type: 'switch', weapon: 'rifle' }, { actorId: 'a', type: 'reload' }]);
+      const reloads = f.game.state.sounds.filter(event => event.kind === 'reload');
+      assert.equal(reloads.length, 2); assert.equal(reloads[0]!.time, reloads[1]!.time);
+      f.update(); assert.deepEqual(f.events, ['reload-out']);
+      while (f.game.state.actors[0]!.reload) { f.game.step(); f.update(); f.update(); }
+      assert.deepEqual(f.events, ['reload-out', 'reload-in', 'bolt']);
+      assert.equal(f.game.state.actors[0]!.weapons.rifle.ammo, 24);
+      assert.equal(f.sound.reloadAudioState.sourceTimeline, false, 'no View receipt retains the baseline timing');
+    } finally { f.close(); }
+  });
+}
+
+test('a ready source receipt still selects the source timeline for the surviving reload', async () => {
+  const f = await cancellationAudio('source-rifle-v1');
+  // Receipt-contract check only. It does not load a GLB or render a View.
+  const update = () => {
+    const state = f.game.state, actor = state.actors[0]!;
+    f.update([], { active: true, progress: weaponPose(state, actor).progress,
+      reloadEnd: actor.reload?.end ?? null, weaponGeneration: actor.weaponGeneration,
+      cuePhases: { out: .2, in: 1 / 1.9, bolt: 1.44 / 1.9 } });
+  };
+  try {
+    f.game.step([{ actorId: 'a', type: 'reload' }, { actorId: 'a', type: 'switch', weapon: 'pistol' }, { actorId: 'a', type: 'switch', weapon: 'rifle' }, { actorId: 'a', type: 'reload' }]);
+    update(); assert.equal(f.sound.reloadAudioState.sourceTimeline, true); assert.deepEqual(f.events, []);
+    while (f.game.state.actors[0]!.reload) { f.game.step(); update(); update(); }
+    assert.deepEqual(f.events, ['reload-out', 'reload-in', 'bolt']);
+  } finally { f.close(); }
+});
+
+test('death before the first audio update cancels only the local pending reload cue', async () => {
+  const f = await cancellationAudio('baseline');
+  try {
+    f.game.step([{ actorId: 'd', type: 'shoot', yaw: Math.PI, pitch: 0 }]); f.update();
+    assert.equal(f.game.state.actors[0]!.hp, 16);
+    for (let tick = 0; tick < 6; tick++) f.game.step();
+    f.game.step([{ actorId: 'a', type: 'reload', at: 100 }, { actorId: 'd', type: 'shoot', yaw: Math.PI, pitch: 0, at: 500 }]);
+    assert.equal(f.game.state.actors[0]!.hp, 0); assert.equal(f.game.state.actors[0]!.reload, null);
+    f.update(); assert.deepEqual(f.events, []);
+  } finally { f.close(); }
+});
+
+test('ordinary local reload timing and other actors audible reloads remain unchanged', async () => {
+  const f = await cancellationAudio('baseline');
+  try {
+    f.game.step([{ actorId: 'a', type: 'reload' }]); f.update();
+    assert.deepEqual(f.events, ['reload-out']);
+    while (f.game.state.actors[0]!.reload) { f.game.step(); f.update(); }
+    assert.deepEqual(f.events, ['reload-out', 'reload-in', 'bolt']);
+    f.events.length = 0;
+    f.game.step([{ actorId: 'd', type: 'shoot', yaw: 0, pitch: 1.4 }]); f.update();
+    f.game.step([{ actorId: 'd', type: 'reload' }]);
+    const id = [...f.game.state.sounds].reverse().find(event => event.actorId === 'd' && event.kind === 'reload')!.id;
+    f.update([id]); f.update([id]);
+    assert.deepEqual(f.events, ['reload-out']);
+    f.events.length = 0;
+    f.game.step([{ actorId: 'd', type: 'switch', weapon: 'pistol' }, { actorId: 'd', type: 'switch', weapon: 'rifle' }, { actorId: 'd', type: 'reload' }]);
+    f.update([]); assert.deepEqual(f.events, [], 'inaudible remote events remain filtered');
+  } finally { f.close(); }
+});
 
 test('one shot has attack/recovery, shares simulation timing, and never moves aim or snapshot', async()=>{
   const game=await Game.create(1);

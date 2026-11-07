@@ -61,12 +61,16 @@ export class Soundscape {
     this.reloadEnd = player.reload?.end ?? null;
     this.reloadStage = player.reload ? pose.progress >= .78 ? 2 : pose.progress >= .56 ? 1 : 0 : 0;
     const reloadStart = player.reload ? player.reload.end - WEAPONS[player.reload.weapon].reload * SUBTICKS : null;
+    // Several commands can cancel and restart a reload before one audio update,
+    // even at the same sub-tick. Only the last event for the surviving reload
+    // may start local audio; canceled events must not sound on the new weapon.
+    const ownReloadEvent = [...fresh].reverse().find(event => event.actorId === player.id && event.kind === 'reload' && event.time === reloadStart);
     const sourceReady = this.reloadPolicy === 'source-rifle-v1' && !!rifle?.active && !!rifle.cuePhases && player.hp > 0 && player.weapon === 'rifle' && !!player.reload && rifle.reloadEnd === player.reload.end && rifle.weaponGeneration === player.weaponGeneration;
     if (!player.reload || player.weapon !== 'rifle' || player.hp <= 0 || this.sourceReload?.generation !== player.weaponGeneration) this.sourceReload = null;
     // Choose once at the real reload event. A model arriving halfway through
     // a reload never switches timelines or repeats a previously played cue.
     if (previousEnd !== this.reloadEnd) {
-      this.sourceReload = sourceReady && fresh.some(event => event.actorId === player.id && event.kind === 'reload' && event.time === reloadStart) && pose.progress <= rifle!.cuePhases!.out && rifle!.progress <= rifle!.cuePhases!.out
+      this.sourceReload = sourceReady && ownReloadEvent && pose.progress <= rifle!.cuePhases!.out && rifle!.progress <= rifle!.cuePhases!.out
         ? { end: player.reload!.end, generation: player.weaponGeneration, progress: rifle!.progress } : null;
     }
     const sourceCues: Cue[] = [];
@@ -92,7 +96,7 @@ export class Soundscape {
       const volume = (self ? event.kind==='shot' ? .35 : .22 : .15) * Math.max(0, 1 - d / event.radius);
       const angle = Math.atan2(event.position.x - player.position.x, event.position.z - player.position.z) - yaw;
       const weapon = state.shots.find(s=>s.actorId===event.actorId && s.time===event.time)?.weapon ?? state.actors.find(a=>a.id===event.actorId)?.weapon ?? 'rifle';
-      if (self && event.kind === 'reload' && (this.sourceReload || (this.reloadPolicy === 'source-rifle-v1' && event.time !== reloadStart))) continue;
+      if (self && event.kind === 'reload' && (this.sourceReload || event.id !== ownReloadEvent?.id)) continue;
       this.play(event.kind === 'reload' ? 'reload-out' : event.kind, weapon, volume, self ? 0 : Math.sin(angle));
     }
     for (const cue of sourceCues) this.play(cue, 'rifle', cue === 'reload-out' ? .22 : .19, 0);
