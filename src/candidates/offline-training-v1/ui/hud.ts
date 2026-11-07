@@ -95,8 +95,15 @@ export class Hud {
     element('weapon').textContent = player.weapon === 'rifle' ? 'RX-24 / 步枪' : 'PX-10 / 手枪';
     element('ammo').innerHTML = `${mag.ammo} <small>/ ${mag.reserve}</small>`;
     const remainingReload = player.reload ? Math.max(0, (player.reload.end - state.time) / SECOND) : 0;
-    element('reload').textContent = player.reload ? `${pose.progress < .3 ? '退出弹匣' : pose.progress < .76 ? '装入弹匣' : '闭锁复位'} · ${remainingReload.toFixed(1)}s` : mag.ammo === 0 ? '弹匣已空 · R 换弹' : mag.ammo <= WEAPONS[player.weapon].magazine * .2 ? '弹药偏低 · R 换弹' : '';
-    element('ammo').classList.toggle('low', mag.ammo <= WEAPONS[player.weapon].magazine * .2);
+    const lowAmmo = mag.ammo <= WEAPONS[player.weapon].magazine * .2;
+    let ammoHint = lowAmmo ? mag.reserve > 0 ? mag.ammo === 0 ? '弹匣已空 · R 换弹' : '弹药偏低 · R 换弹' : '备用弹药耗尽' : '';
+    if (mag.ammo === 0 && mag.reserve === 0) {
+      const alternative = player.weapon === 'rifle' ? 'pistol' : 'rifle', backup = player.weapons[alternative];
+      const switchHint = alternative === 'rifle' ? '1 切换步枪' : '2 切换手枪';
+      ammoHint = backup.ammo > 0 ? `弹药耗尽 · ${switchHint}` : backup.reserve > 0 ? `弹药耗尽 · ${switchHint}后 R 换弹` : '双武器弹药耗尽';
+    }
+    element('reload').textContent = player.reload ? `${pose.progress < .3 ? '退出弹匣' : pose.progress < .76 ? '装入弹匣' : '闭锁复位'} · ${remainingReload.toFixed(1)}s` : ammoHint;
+    element('ammo').classList.toggle('low', lowAmmo);
     element('reload-progress').hidden = !player.reload;
     element<HTMLProgressElement>('reload-progress').value = pose.progress;
     const interaction = state.interaction?.actorId === player.id ? state.interaction : null;
