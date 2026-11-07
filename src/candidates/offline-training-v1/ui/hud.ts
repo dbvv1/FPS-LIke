@@ -43,8 +43,8 @@ export class Hud {
       const result = state.result;
       element('start').hidden = !!result; element('next').hidden = !result;
       element('menu-kicker').textContent = result ? `回合 ${state.round} 结束` : state.tick ? '已暂停' : '训练部署';
-      element('menu-title').textContent = result ? result.team === player.team ? '这一回合，拿下了。' : '调整路线，再来一局。' : state.tick ? '战场正在等你' : '准备进入中继场';
-      element('menu-description').textContent = result ? ({ elimination: result.team === player.team ? '对手被全部击倒。' : '你方成员全部倒下。下一回合可尝试更隐蔽的路线。', timeout: '回合时间结束，防守方守住了中继场。', explosion: '信标已引爆，进攻方完成目标。', defuse: '信标已拆除，防守方完成目标。' }[result.reason]) : '先清理对手，或推进目标点。按住 E 安放 / 拆除；移动、开枪、换弹会中断进度。';
+      element('menu-title').textContent = result ? result.team === player.team ? '这一回合，拿下了。' : '调整路线，再来一局。' : player.hp <= 0 ? '已被击倒 · 回合仍在进行' : state.tick ? '战场正在等你' : '准备进入中继场';
+      element('menu-description').textContent = result ? ({ elimination: result.team === player.team ? '对手被全部击倒。' : '你方成员全部倒下。下一回合可尝试更隐蔽的路线。', timeout: '回合时间结束，防守方守住了中继场。', explosion: '信标已引爆，进攻方完成目标。', defuse: '信标已拆除，防守方完成目标。' }[result.reason]) : player.hp <= 0 ? '你已被击倒。本回合仍在进行；点击继续等待结算，或重新开始训练。' : '先清理对手，或推进目标点。按住 E 安放 / 拆除；移动、开枪、换弹会中断进度。';
       element('start').firstChild!.textContent = state.tick ? '继续回合 ' : '进入靶场 ';
     }
     if (!menu.open) { menu.showModal(); this.focusMenuAction(); }
@@ -60,6 +60,7 @@ export class Hud {
   }
   update(state: GameState, player: Actor, now: number, marker?: MarkerReceipt) {
     if (state.round !== this.round) { this.round = state.round; this.lastHp = player.hp; }
+    const alive = player.hp > 0;
     const result = localShotResult(state, player), pose = weaponPose(state, player);
     const sourceOwnsMarker = marker?.ownsMarker === true && marker.round === state.round && marker.shotTime === (result?.shot.time ?? null);
     const kind = sourceOwnsMarker ? marker.kind : result?.kind;
@@ -68,6 +69,7 @@ export class Hud {
     element('hitmarker').dataset.kind = kind ?? '';
     element('shot-result').textContent = resultVisible ? kind === 'kill' ? '击倒确认' : kind === 'head' ? '要害命中' : kind === 'friendly' ? '友军命中' : '' : '';
     element('shot-result').dataset.kind = kind ?? '';
+    element('crosshair').hidden = !alive; element('hint').hidden = !alive;
     const moving = Math.hypot(player.input.x, player.input.z) > .01;
     element('crosshair').style.setProperty('--spread', `${5 + pose.kick * 9 + (moving ? 10 : 0)}px`);
     element('crosshair').classList.toggle('reloading', !!player.reload);
@@ -90,6 +92,7 @@ export class Hud {
       if(!state.bomb.planted && player.side==='attack' && state.bomb.carrier!==player.id)element('goal').textContent=state.bomb.carrier?'掩护携带信标的队友推进':'信标掉落 · 靠近拾取后推进安放';
       if (carrier) element('goal').textContent += ` · ${carrier}`;
     }
+    if (!alive) element('goal').textContent = state.phase === 'over' ? '你已被击倒 · 本回合已结束' : '你已被击倒 · 等待本回合结束';
     element('hp').textContent = String(player.hp); element('hp-bar').style.width = `${player.hp}%`;
     const mag = player.weapons[player.weapon];
     element('weapon').textContent = player.weapon === 'rifle' ? 'RX-24 / 步枪' : 'PX-10 / 手枪';
@@ -102,7 +105,7 @@ export class Hud {
       const switchHint = alternative === 'rifle' ? '1 切换步枪' : '2 切换手枪';
       ammoHint = backup.ammo > 0 ? `弹药耗尽 · ${switchHint}` : backup.reserve > 0 ? `弹药耗尽 · ${switchHint}后 R 换弹` : '双武器弹药耗尽';
     }
-    element('reload').textContent = player.reload ? `${pose.progress < .3 ? '退出弹匣' : pose.progress < .76 ? '装入弹匣' : '闭锁复位'} · ${remainingReload.toFixed(1)}s` : ammoHint;
+    element('reload').textContent = !alive ? '' : player.reload ? `${pose.progress < .3 ? '退出弹匣' : pose.progress < .76 ? '装入弹匣' : '闭锁复位'} · ${remainingReload.toFixed(1)}s` : ammoHint;
     element('ammo').classList.toggle('low', lowAmmo);
     element('reload-progress').hidden = !player.reload;
     element<HTMLProgressElement>('reload-progress').value = pose.progress;
