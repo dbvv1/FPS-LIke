@@ -5,10 +5,96 @@ import { Bot } from '../../src/candidates/offline-training-v1/sim/bot.js';
 import { Navigation, initNavigation } from '../../src/candidates/offline-training-v1/sim/navigation.js';
 import { MAP } from '../../src/candidates/offline-training-v1/content/map.js';
 import { DIFFICULTIES } from '../../src/candidates/offline-training-v1/content/difficulty.js';
-import { SECOND, type Command } from '../../src/candidates/offline-training-v1/sim/types.js';
+import { SECOND, type Command, type WeaponId } from '../../src/candidates/offline-training-v1/sim/types.js';
 import { parseArgs, runBatch } from '../../tools/offline-training-v1/sim.js';
 
 await initNavigation();
+
+const supplySpecs = [
+  { id: 'a', team: 'amber' as const, position: { x: 0, y: 0, z: 0 } },
+  { id: 'ally', team: 'amber' as const, position: { x: -2, y: 0, z: 0 } },
+  { id: 'd', team: 'blue' as const, position: { x: 0, y: 0, z: 5 } },
+];
+const self = (game: Game) => game.observe('a').self;
+function emptyMagazine(game: Game) {
+  for (let i = 0; self(game).weapons[self(game).weapon].ammo; i++) {
+    assert.ok(i < 500 && game.state.phase === 'live');
+    game.step([{ actorId: 'a', type: 'shoot', yaw: 0, pitch: 1.4 }]);
+  }
+}
+function finishReload(game: Game) {
+  assert.ok(self(game).reload);
+  for (let i = 0; self(game).reload; i++) { assert.ok(i < 120); game.step(); }
+}
+function exhaustWeapon(game: Game, weapon: WeaponId) {
+  game.step([{ actorId: 'a', type: 'switch', weapon }]);
+  while (true) {
+    emptyMagazine(game);
+    if (!self(game).weapons[weapon].reserve) break;
+    game.step([{ actorId: 'a', type: 'reload' }]); finishReload(game);
+  }
+}
+
+for (const preferred of ['rifle', 'pistol'] as const) test(`actual training bot recovers from exhausted ${preferred} without alternating back to an empty gun`, async () => {
+  const game = await Game.create(1, supplySpecs, {}, { formation: 'squads-v1', weaponPresentation: 'generation-v1' });
+  const nav = new Navigation(), bot = new Bot('a', 'hard', 8, nav, preferred, 0);
+  const alternative = preferred === 'rifle' ? 'pistol' : 'rifle';
+  const command = () => { const observation = game.observe('a'), before = structuredClone(observation); const commands = bot.commands(observation); assert.deepEqual(observation, before, 'controller only reads its observation'); return commands; };
+  try {
+    game.step([{ actorId: 'a', type: 'switch', weapon: preferred }]);
+    emptyMagazine(game);
+    const reload = command();
+    assert.ok(reload.some(c => c.type === 'reload'));
+    assert.ok(!reload.some(c => c.type === 'switch'), 'reloadable preferred weapon is retained');
+    game.step(reload); finishReload(game);
+    exhaustWeapon(game, preferred);
+    assert.deepEqual([self(game).weapons[preferred].ammo, self(game).weapons[preferred].reserve], [0, 0]);
+    const switchCommands = command();
+    assert.deepEqual(switchCommands, [{ actorId: 'a', type: 'switch', weapon: alternative }]);
+    game.step(switchCommands);
+    const afterSwitch = game.state.shots.length;
+    const generation = self(game).weaponGeneration;
+    const readyAt = self(game).nextShot;
+    let emittedShot = false;
+    for (let tick = 0; tick < 120 && game.state.phase === 'live'; tick++) {
+      const commands = command();
+      assert.ok(!commands.some(c => c.type === 'switch'), 'do not return to the exhausted preferred weapon');
+      emittedShot ||= commands.some(c => c.type === 'shoot'); game.step(commands);
+    }
+    assert.ok(emittedShot, 'loaded alternative resumes actual combat');
+    assert.ok(game.state.shots.slice(afterSwitch).every(shot => shot.weapon === alternative && shot.targetVisible));
+    assert.ok(game.state.shots.slice(afterSwitch).every(shot => shot.time >= readyAt), 'fallback obeys the real switch cooldown');
+    assert.ok(game.state.shots.slice(afterSwitch).length > 0);
+    assert.equal(self(game).weaponGeneration, generation);
+    assert.ok(game.state.actors.find(actor => actor.id === 'd')!.hp < 100);
+    assert.equal(game.state.actors.find(actor => actor.id === 'ally')!.hp, 100);
+    while (game.state.phase === 'live') game.step();
+    game.nextRound(); game.step(command());
+    assert.equal(self(game).weapon, preferred, 'next-round resupply restores configured preference');
+  } finally { game.dispose(); nav.dispose(); }
+});
+
+test('an exhausted training bot can reload its empty alternative, and two empty guns do not cause switch or reload loops', async () => {
+  const game = await Game.create(1, supplySpecs, {}, { formation: 'squads-v1' });
+  const nav = new Navigation(), bot = new Bot('a', 'hard', 8, nav, 'rifle', 0);
+  try {
+    game.step([{ actorId: 'a', type: 'switch', weapon: 'pistol' }]); emptyMagazine(game);
+    assert.ok(self(game).weapons.pistol.reserve > 0);
+    exhaustWeapon(game, 'rifle');
+    game.step(bot.commands(game.observe('a'))); assert.equal(self(game).weapon, 'pistol');
+    const commands = bot.commands(game.observe('a'));
+    assert.ok(commands.some(c => c.type === 'reload'));
+    game.step(commands); finishReload(game);
+    assert.ok(self(game).weapons.pistol.ammo > 0);
+    exhaustWeapon(game, 'pistol');
+    for (let tick = 0; tick < 30; tick++) {
+      const commands = bot.commands(game.observe('a'));
+      assert.ok(!commands.some(c => c.type === 'switch' || c.type === 'reload' || c.type === 'shoot'));
+      game.step(commands);
+    }
+    assert.equal(game.state.phase, 'live');
+  } finally { game.dispose(); nav.dispose(); }
+});
 
 test('offline Recast paths reach all routes and are stable across consumers', () => {
   const a = new Navigation(), b = new Navigation();

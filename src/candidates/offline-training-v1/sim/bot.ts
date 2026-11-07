@@ -37,7 +37,13 @@ export class Bot {
       this.routeIndex = 0; this.path = []; this.goal = null; this.nextPathAt = 0;
     }
     if (self.hp <= 0 || o.phase !== 'live') return [];
-    if (self.weapon !== this.preferredWeapon) return [{ actorId: this.id, type: 'switch', weapon: this.preferredWeapon }];
+    // Keep the configured weapon while it can still be fired or reloaded.
+    // Once its entire supply is gone, stay on a usable backup rather than
+    // switching back next tick and repeatedly requesting an impossible reload.
+    const supplied = (weapon: WeaponId) => self.weapons[weapon].ammo > 0 || self.weapons[weapon].reserve > 0;
+    const alternative = this.preferredWeapon === 'rifle' ? 'pistol' : 'rifle';
+    const selected = supplied(this.preferredWeapon) ? this.preferredWeapon : supplied(alternative) ? alternative : self.weapon;
+    if (self.weapon !== selected) return [{ actorId: this.id, type: 'switch', weapon: selected }];
     const plan = this.squadSlot === undefined ? null : squadPlan(o, this.squadSlot, this.routeIndex);
     if (plan) this.routeIndex = plan.routeIndex;
     const commands: Command[] = [];
@@ -67,8 +73,8 @@ export class Bot {
       emit({ type: 'move', x: 0, z: 0 });
       emit({ type: 'interact', held: false });
       emit({ type: 'aim', yaw, pitch });
-      if (mag.ammo === 0) emit({ type: 'reload' });
-      else if (!self.reload && o.time >= self.nextShot && o.time - this.seenAt >= this.reactionDelay && !friendlyInFiringLane(o, yaw + recoil[0], pitch + recoil[1], distance(eye(self), target))) {
+      if (mag.ammo === 0 && mag.reserve > 0) emit({ type: 'reload' });
+      else if (mag.ammo > 0 && !self.reload && o.time >= self.nextShot && o.time - this.seenAt >= this.reactionDelay && !friendlyInFiringLane(o, yaw + recoil[0], pitch + recoil[1], distance(eye(self), target))) {
         emit({ type: 'shoot', yaw, pitch, targetId: visible.id });
         this.aim = { yaw: (nextRandom(this.random) * 2 - 1) * config.aimError, pitch: (nextRandom(this.random) * 2 - 1) * config.aimError };
         if (!this.reactionRecorded) { this.reactions.push((o.time - this.seenAt) / SECOND); this.reactionRecorded = true; }
@@ -76,7 +82,7 @@ export class Bot {
       return commands;
     }
     this.target = null;
-    if (self.weapons[self.weapon].ammo < 5 && !self.reload) emit({ type: 'reload' });
+    if (self.weapons[self.weapon].ammo < 5 && self.weapons[self.weapon].reserve > 0 && !self.reload) emit({ type: 'reload' });
     let goal: Vec3;
     const canInteract = plan ? plan.interact : (o.bomb.planted && self.side === 'defend' && flatDistance(self.position, o.bomb.position) < 1.4) || (!o.bomb.planted && o.bomb.carrier === self.id && flatDistance(self.position, MAP.site) < 1.7);
     if (canInteract) {
