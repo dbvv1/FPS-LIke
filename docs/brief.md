@@ -96,9 +96,9 @@ CS2 对照必须逐项记录，而不是凭印象填数：移动与停步后的�
 
 **依据**：[Rapier](https://github.com/dimforge/rapier.js)、[recast-navigation-js](https://github.com/isaac-mason/recast-navigation-js)（[一手]，2026-10-26 核仓库）；Pointer Lock 的 `unadjustedMovement` 选项见 MDN Element.requestPointerLock（[一手]，2026-10-26 读原文；页面未列各浏览器支持，开工时核）。验收区间是初始目标，首轮模拟后按实际数据校准。
 
-### 离线训练赛旁置子轮
+### 离线训练赛当前子轮
 
-`gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1` 提供固定六回合的单点训练赛，1 名玩家与 9 名机器人，第三回合后换边，整场统计后重新部署。机器人经原命令边界执行分路、携弹/补位和拆弹职责；这是阶段 B 的已存在子轮，不代表双点、经济、投掷物、技能或联网已完成。该命名空间不组合 movement-v2 或 characters-v1，环境候选仅 Three 生效。默认玩法仍是原 1v1。
+`gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1` 提供固定六回合的单点训练赛，1 名玩家与 9 名机器人，第三回合后换边，整场统计后重新部署。机器人经原命令边界执行分路、携弹/补位和拆弹职责；这是阶段 B 的已存在子轮，不代表双点、经济、投掷物、技能或联网已完成。该命名空间不组合 movement-v2 或 characters-v1，环境候选仅 Three 生效。首页默认采用该六回合训练赛、庭院标准件与新灯光，移动仍用原训练赛模型；原 1v1 保留在 `?gameplay=legacy-v1`。
 
 训练整合候选的 squad 机器人使用已公开友方位置检查目标前的射击通道：有存活队友挡线则暂不开火，移开后恢复。覆盖可见目标、当前后坐与散布的保守范围，不关闭友伤、不改变玩家射击或弹道；1v1 没有队友观察时沿旧决策。暂不自动换位，目标后方队友受偏弹伤害仍可能，不能把当前矩阵的零友伤当成全局免疫。
 
