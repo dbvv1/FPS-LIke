@@ -147,3 +147,69 @@ test('HUD distinguishes an empty reloadable alternative, two exhausted guns, and
     assert.equal(dom.element('reload-progress').hidden, true);
   } finally { game.dispose(); dom.restore(); }
 });
+
+for (const reason of ['defuse', 'explosion'] as const) test(`settled ${reason} replaces live objective instructions for both surviving sides`, async () => {
+  const game = await Game.create(1, [
+    { id: 'player', team: 'amber', position: { x: 0, y: 0, z: 10 } },
+    { id: 'defender', team: 'blue', position: { x: 1, y: 0, z: 10 } },
+  ]), dom = installHud();
+  let urgent = false;
+  dom.element('timer').classList.toggle = (name: string, enabled: boolean) => { if (name === 'urgent') urgent = enabled; };
+  const update = (id: string) => {
+    const state = game.state, hash = game.stateHash;
+    dom.hud.update(state, state.actors.find(actor => actor.id === id)!, 0);
+    assert.equal(game.stateHash, hash, 'presentation cannot change the authoritative result');
+    return dom.element('goal').textContent;
+  };
+  try {
+    game.step([{ actorId: 'player', type: 'interact', held: true }]);
+    while (!game.state.bomb.planted) game.step();
+    assert.equal(game.state.tick, 180);
+    assert.match(update('defender'), /按住 E 拆除/);
+    assert.match(update('player'), /守住信标/);
+    assert.equal(urgent, true);
+    if (reason === 'defuse') game.step([{ actorId: 'defender', type: 'interact', held: true }]);
+    while (game.state.phase === 'live') game.step();
+    assert.equal(game.state.result?.reason, reason);
+    assert.equal(game.state.tick, reason === 'defuse' ? 480 : 1680);
+    assert.equal(game.state.bomb.planted, true, 'the retained bomb is historical state, not an actionable objective');
+    for (const id of ['player', 'defender']) {
+      assert.match(update(id), /本回合已结束/);
+      assert.match(update(id), reason === 'defuse' ? /信标已拆除/ : /信标已引爆/);
+      assert.doesNotMatch(update(id), /按住 E|守住信标/);
+      assert.equal(urgent, false);
+    }
+    const hash = game.stateHash;
+    game.step([{ actorId: 'defender', type: 'interact', held: true }]);
+    assert.equal(game.stateHash, hash, 'the old instruction requests a command the settled Game ignores');
+    game.nextRound();
+    assert.match(update('player'), /推进至信标区域/);
+    assert.match(update('defender'), /阻止安放/);
+    assert.doesNotMatch(update('player'), /本回合已结束/);
+  } finally { game.dispose(); dom.restore(); }
+});
+
+for (const reason of ['timeout', 'elimination'] as const) test(`settled ${reason} clears the unplanted objective and restores it next round`, async () => {
+  const game = await Game.create(1, [
+    { id: 'player', team: 'amber', position: { x: 0, y: 0, z: 10 } },
+    { id: 'defender', team: 'blue', position: { x: 1, y: 0, z: 10 } },
+    ...(reason === 'timeout' ? Array.from({ length: 4 }, (_, i) => ({ id: `z-ally-${i}`, team: 'amber' as const })) : []),
+    ...(reason === 'timeout' ? Array.from({ length: 4 }, (_, i) => ({ id: `z-enemy-${i}`, team: 'blue' as const })) : []),
+  ], {}, { formation: 'squads-v1' }), dom = installHud();
+  const update = () => {
+    const state = game.state;
+    dom.hud.update(state, state.actors.find(actor => actor.id === 'player')!, 0);
+    return dom.element('goal').textContent;
+  };
+  try {
+    assert.match(update(), /按住 E 安放/);
+    if (reason === 'timeout') assert.match(update(), /你携带信标/);
+    while (game.state.phase === 'live') game.step(reason === 'elimination'
+      ? [{ actorId: 'player', type: 'shoot', yaw: Math.PI / 2, pitch: 0 }] : []);
+    assert.equal(game.state.result?.reason, reason);
+    assert.match(update(), /本回合已结束/);
+    assert.doesNotMatch(update(), /按住 E|携带信标|掩护|拾取/);
+    game.nextRound();
+    assert.match(update(), /推进至信标区域/);
+  } finally { game.dispose(); dom.restore(); }
+});

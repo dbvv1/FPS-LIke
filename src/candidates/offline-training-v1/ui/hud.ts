@@ -83,7 +83,7 @@ export class Hud {
     teamStatusText.textContent = team ? `己方 ${team.allies.alive}/${team.allies.total} · 敌方 ${team.enemies.alive}/${team.enemies.total}` : '';
     const remaining = Math.max(0, Math.ceil(((state.bomb.planted ? state.bomb.explodeAt! : state.roundEndsAt) - state.time) / SECOND));
     element('timer').textContent = `${String(Math.floor(remaining / 60)).padStart(2, '0')}:${String(remaining % 60).padStart(2, '0')}`;
-    element('timer').classList.toggle('urgent', state.bomb.planted);
+    element('timer').classList.toggle('urgent', state.phase === 'live' && state.bomb.planted);
     element('side').textContent = player.side === 'attack' ? '进攻 / ATTACK' : '防守 / DEFEND';
     const d = Math.hypot(player.position.x - MAP.site.x, player.position.z - MAP.site.z);
     element('goal').textContent = state.bomb.planted ? player.side === 'defend' ? '信标已安放 · 靠近并按住 E 拆除' : '守住信标，直到引爆' : player.side === 'attack' ? d <= MAP.siteRadius ? '已抵达信标点 · 按住 E 安放' : '推进至信标区域 · 按住 E 安放' : '阻止安放，或守住回合时间';
@@ -91,6 +91,10 @@ export class Hud {
       const carrier=state.bomb.carrier===player.id?'你携带信标':player.side==='attack'&&state.bomb.carrier?'队友携带信标':'';
       if(!state.bomb.planted && player.side==='attack' && state.bomb.carrier!==player.id)element('goal').textContent=state.bomb.carrier?'掩护携带信标的队友推进':'信标掉落 · 靠近拾取后推进安放';
       if (carrier) element('goal').textContent += ` · ${carrier}`;
+    }
+    if (state.phase === 'over' && state.result) {
+      const outcome = { elimination: '一方已全部击倒', timeout: '回合时间已结束', explosion: '信标已引爆', defuse: '信标已拆除' }[state.result.reason];
+      element('goal').textContent = `${outcome} · 本回合已结束`;
     }
     if (!alive) element('goal').textContent = state.phase === 'over' ? '你已被击倒 · 本回合已结束' : '你已被击倒 · 等待本回合结束';
     element('hp').textContent = String(player.hp); element('hp-bar').style.width = `${player.hp}%`;
