@@ -16,20 +16,20 @@ const supplySpecs = [
   { id: 'd', team: 'blue' as const, position: { x: 0, y: 0, z: 5 } },
 ];
 const self = (game: Game) => game.observe('a').self;
-function emptyMagazine(game: Game) {
+function emptyMagazine(game: Game, targetId?: string) {
   for (let i = 0; self(game).weapons[self(game).weapon].ammo; i++) {
     assert.ok(i < 500 && game.state.phase === 'live');
-    game.step([{ actorId: 'a', type: 'shoot', yaw: 0, pitch: 1.4 }]);
+    game.step([{ actorId: 'a', type: 'shoot', yaw: 0, pitch: 1.4, ...(targetId ? { targetId } : {}) }]);
   }
 }
 function finishReload(game: Game) {
   assert.ok(self(game).reload);
   for (let i = 0; self(game).reload; i++) { assert.ok(i < 120); game.step(); }
 }
-function exhaustWeapon(game: Game, weapon: WeaponId) {
+function exhaustWeapon(game: Game, weapon: WeaponId, targetId?: string) {
   game.step([{ actorId: 'a', type: 'switch', weapon }]);
   while (true) {
-    emptyMagazine(game);
+    emptyMagazine(game, targetId);
     if (!self(game).weapons[weapon].reserve) break;
     game.step([{ actorId: 'a', type: 'reload' }]); finishReload(game);
   }
@@ -90,9 +90,67 @@ test('an exhausted training bot can reload its empty alternative, and two empty 
     for (let tick = 0; tick < 30; tick++) {
       const commands = bot.commands(game.observe('a'));
       assert.ok(!commands.some(c => c.type === 'switch' || c.type === 'reload' || c.type === 'shoot'));
+      assert.ok(game.observe('a').enemies.length > 0);
+      assert.ok(commands.some(c => c.type === 'interact' && !c.held), 'outside objective range retain the existing visible-enemy policy');
+      assert.ok(!commands.some(c => c.type === 'move' && (c.x !== 0 || c.z !== 0)), 'no new advance or evasion policy');
       game.step(commands);
     }
     assert.equal(game.state.phase, 'live');
+  } finally { game.dispose(); nav.dispose(); }
+});
+
+for (const objective of ['plant', 'defuse'] as const) test(`fully depleted training bot completes ${objective} in range despite a visible enemy`, async () => {
+  const defuse = objective === 'defuse';
+  const game = await Game.create(1, [
+    { id: 'a', team: defuse ? 'blue' : 'amber', bot: 'normal', position: { x: 1, y: 0, z: 10 } },
+    { id: 'd', team: defuse ? 'amber' : 'blue', position: { x: 0, y: 0, z: 10 } },
+  ], {}, { formation: 'squads-v1' });
+  const nav = new Navigation(), bot = new Bot('a', 'normal', 8, nav, 'rifle', 0);
+  try {
+    // Spend both supplies through real shots/reloads, not edited snapshots.
+    // Aim away from the visible target so it remains alive throughout.
+    exhaustWeapon(game, 'rifle', 'd'); exhaustWeapon(game, 'pistol', 'd');
+    for (const weapon of ['rifle', 'pistol'] as const) assert.deepEqual([self(game).weapons[weapon].ammo, self(game).weapons[weapon].reserve], [0, 0]);
+    if (defuse) {
+      for (let tick = 0; tick < 181; tick++) game.step([{ actorId: 'd', type: 'interact', held: true }]);
+      assert.equal(game.state.bomb.planted, true);
+    }
+    game.step([{ actorId: 'a', type: 'aim', yaw: -Math.PI / 2, pitch: 0 }]);
+    const position = self(game).position, shotCount = game.state.shots.length;
+    let held = 0;
+    for (let tick = 0; tick < (defuse ? 301 : 181) && game.state.phase === 'live' && (defuse || !game.state.bomb.planted); tick++) {
+      const observation = game.observe('a'), before = structuredClone(observation);
+      assert.deepEqual(observation.enemies.map(enemy => enemy.id), ['d']);
+      const commands = bot.commands(observation);
+      assert.deepEqual(observation, before, 'controller must not edit the filtered observation');
+      assert.ok(!commands.some(c => c.type === 'shoot' || c.type === 'reload' || c.type === 'switch'));
+      assert.ok(commands.some(c => c.type === 'interact' && c.held), 'in-range exhausted objective actor must keep interacting');
+      held++; game.step(commands);
+    }
+    assert.equal(held, defuse ? 300 : 180, 'preserve the normal objective duration');
+    assert.deepEqual(self(game).position, position, 'no advance into the visible threat');
+    assert.equal(game.state.shots.length, shotCount);
+    assert.equal(game.observe('d').self.hp, 100);
+    if (defuse) assert.equal(game.state.result?.reason, 'defuse');
+    else assert.equal(game.state.bomb.planted, true);
+  } finally { game.dispose(); nav.dispose(); }
+});
+
+for (const supply of ['loaded', 'reloadable', 'backup'] as const) test(`visible enemy retains combat priority at the objective with ${supply} ammunition`, async () => {
+  const game = await Game.create(1, [
+    { id: 'a', team: 'amber', bot: 'normal', position: { x: 1, y: 0, z: 10 } },
+    { id: 'd', team: 'blue', position: { x: 0, y: 0, z: 10 } },
+  ], {}, { formation: 'squads-v1' });
+  const nav = new Navigation(), bot = new Bot('a', 'normal', 8, nav, 'rifle', 0);
+  try {
+    if (supply === 'reloadable') emptyMagazine(game, 'd');
+    if (supply === 'backup') exhaustWeapon(game, 'rifle', 'd');
+    game.step([{ actorId: 'a', type: 'aim', yaw: -Math.PI / 2, pitch: 0 }]);
+    const commands = bot.commands(game.observe('a'));
+    assert.ok(!commands.some(c => c.type === 'interact' && c.held));
+    if (supply === 'reloadable') assert.ok(commands.some(c => c.type === 'reload'));
+    if (supply === 'backup') assert.deepEqual(commands, [{ actorId: 'a', type: 'switch', weapon: 'pistol' }]);
+    if (supply === 'loaded') assert.ok(commands.some(c => c.type === 'interact' && !c.held));
   } finally { game.dispose(); nav.dispose(); }
 });
 

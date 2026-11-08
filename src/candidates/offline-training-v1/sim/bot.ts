@@ -56,7 +56,11 @@ export class Bot {
       // A sound is a last-known location, not a live reference to its producer.
       this.lastClue = { position: { ...sound.position }, time: sound.time };
     }
-    if (visible) {
+    const canInteract = plan ? plan.interact : (o.bomb.planted && self.side === 'defend' && flatDistance(self.position, o.bomb.position) < 1.4) || (!o.bomb.planted && o.bomb.carrier === self.id && flatDistance(self.position, MAP.site) < 1.7);
+    // With no usable ammunition, an already-reached objective can still be
+    // completed. Outside interaction range, retain the existing combat policy.
+    const depletedAtObjective = canInteract && !supplied('rifle') && !supplied('pistol');
+    if (visible && !depletedAtObjective) {
       this.lastClue = { position: { ...visible.position }, time: o.time };
       if (this.target !== visible.id) {
         this.target = visible.id; this.seenAt = o.time; this.reactionRecorded = false;
@@ -84,7 +88,6 @@ export class Bot {
     this.target = null;
     if (self.weapons[self.weapon].ammo < 5 && self.weapons[self.weapon].reserve > 0 && !self.reload) emit({ type: 'reload' });
     let goal: Vec3;
-    const canInteract = plan ? plan.interact : (o.bomb.planted && self.side === 'defend' && flatDistance(self.position, o.bomb.position) < 1.4) || (!o.bomb.planted && o.bomb.carrier === self.id && flatDistance(self.position, MAP.site) < 1.7);
     if (canInteract) {
       emit({ type: 'move', x: 0, z: 0 });
       emit({ type: 'interact', held: true });
