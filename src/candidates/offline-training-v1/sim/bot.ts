@@ -37,30 +37,37 @@ export class Bot {
       this.routeIndex = 0; this.path = []; this.goal = null; this.nextPathAt = 0;
     }
     if (self.hp <= 0 || o.phase !== 'live') return [];
-    // Keep the configured weapon while it can still be fired or reloaded.
-    // Once its entire supply is gone, stay on a usable backup rather than
-    // switching back next tick and repeatedly requesting an impossible reload.
     const supplied = (weapon: WeaponId) => self.weapons[weapon].ammo > 0 || self.weapons[weapon].reserve > 0;
+    const plan = this.squadSlot === undefined ? null : squadPlan(o, this.squadSlot, this.routeIndex);
+    const visible = [...o.enemies].sort((a, b) => flatDistance(self.position, a.position) - flatDistance(self.position, b.position))[0];
+    const canInteract = plan ? plan.interact : (o.bomb.planted && self.side === 'defend' && flatDistance(self.position, o.bomb.position) < 1.4) || (!o.bomb.planted && o.bomb.carrier === self.id && flatDistance(self.position, MAP.site) < 1.7);
+    // A reached objective precedes optional switching and magazine top-ups.
+    // A visible threat still takes priority unless both weapons are depleted.
+    const pursueObjective = canInteract && (!visible || (!supplied('rifle') && !supplied('pistol')));
     const alternative = this.preferredWeapon === 'rifle' ? 'pistol' : 'rifle';
     const selected = supplied(this.preferredWeapon) ? this.preferredWeapon : supplied(alternative) ? alternative : self.weapon;
-    if (self.weapon !== selected) return [{ actorId: this.id, type: 'switch', weapon: selected }];
-    const plan = this.squadSlot === undefined ? null : squadPlan(o, this.squadSlot, this.routeIndex);
+    // Preserve the early switch boundary: no route, clue or RNG advances while
+    // combat/travel selects its supplied preferred weapon or usable backup.
+    if (!pursueObjective && self.weapon !== selected) return [{ actorId: this.id, type: 'switch', weapon: selected }];
     if (plan) this.routeIndex = plan.routeIndex;
     const commands: Command[] = [];
     type BotAction = Command extends infer C ? C extends Command ? Omit<C, 'actorId'> : never : never;
     const emit = (c: BotAction) => commands.push({ ...c, actorId: this.id });
-    const visible = [...o.enemies].sort((a, b) => flatDistance(self.position, a.position) - flatDistance(self.position, b.position))[0];
     const config = DIFFICULTIES[this.difficulty];
     for (const sound of o.sounds) if (sound.id > this.lastSound) {
       this.lastSound = sound.id;
       // A sound is a last-known location, not a live reference to its producer.
       this.lastClue = { position: { ...sound.position }, time: sound.time };
     }
-    const canInteract = plan ? plan.interact : (o.bomb.planted && self.side === 'defend' && flatDistance(self.position, o.bomb.position) < 1.4) || (!o.bomb.planted && o.bomb.carrier === self.id && flatDistance(self.position, MAP.site) < 1.7);
-    // With no usable ammunition, an already-reached objective can still be
-    // completed. Outside interaction range, retain the existing combat policy.
-    const depletedAtObjective = canInteract && !supplied('rifle') && !supplied('pistol');
-    if (visible && !depletedAtObjective) {
+    if (pursueObjective) {
+      this.target = null;
+      // Game still owns movement/reload eligibility, cancellation and deadlines.
+      emit({ type: 'move', x: 0, z: 0 });
+      emit({ type: 'interact', held: true });
+      emit({ type: 'aim', yaw: self.yaw + (plan ? 0 : 0.012), pitch: 0 });
+      return commands;
+    }
+    if (visible) {
       this.lastClue = { position: { ...visible.position }, time: o.time };
       if (this.target !== visible.id) {
         this.target = visible.id; this.seenAt = o.time; this.reactionRecorded = false;
@@ -87,14 +94,6 @@ export class Bot {
     }
     this.target = null;
     let goal: Vec3;
-    if (canInteract) {
-      emit({ type: 'move', x: 0, z: 0 });
-      emit({ type: 'interact', held: true });
-      emit({ type: 'aim', yaw: self.yaw + (plan ? 0 : 0.012), pitch: 0 });
-      return commands;
-    }
-    // A reached objective takes priority over an optional magazine top-up.
-    // Game still owns eligibility and completion of any reload already begun.
     if (self.weapons[self.weapon].ammo < 5 && self.weapons[self.weapon].reserve > 0 && !self.reload) emit({ type: 'reload' });
     emit({ type: 'interact', held: false });
     if (plan) goal = plan.goal;
