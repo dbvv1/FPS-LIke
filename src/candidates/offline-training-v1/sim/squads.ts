@@ -15,7 +15,10 @@ export function squadPlan(o: Observation, slot: number, progress = 0): SquadPlan
   let routeIndex=progress;
   const cover=[{x:-7,y:0,z:9},{x:-2,y:0,z:9},{x:2,y:0,z:9},{x:7,y:0,z:9},{x:0,y:0,z:14}][slot%5]!;
   if(o.bomb.planted){
-    const defuser=self.side==='defend' ? nearest(o.bomb.position) : undefined;
+    // A closer covering teammate must not reset a defuse already accepted by
+    // Game. Once that interaction ends, normal nearest-bot selection resumes.
+    const active=o.alliedInteraction?.kind==='defuse' ? alive.find(a=>a.id===o.alliedInteraction!.actorId)?.id : undefined;
+    const defuser=self.side==='defend' ? active ?? nearest(o.bomb.position) : undefined;
     if(self.id===defuser)return {role:'defuse',goal:{...o.bomb.position},interact:flatDistance(self.position,o.bomb.position)<1.4,routeIndex};
     return {role:'cover',goal:{...cover},interact:false,routeIndex};
   }

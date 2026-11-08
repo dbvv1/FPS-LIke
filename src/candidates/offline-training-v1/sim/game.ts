@@ -11,6 +11,7 @@ export type VisibleEnemy = Pick<Actor, 'id' | 'team' | 'side' | 'position'> & { 
 export type Observation = {
   time: number; round: number; phase: GameState['phase']; self: Actor;
   allies?: Pick<Actor, 'id'|'position'|'hp'|'bot'>[];
+  alliedInteraction?: Pick<NonNullable<GameState['interaction']>, 'actorId'|'kind'> | null;
   enemies: VisibleEnemy[]; bodyVisibleIds: string[]; sounds: Sound[];
   bomb: { planted: boolean; position: Vec3; carrier: string | null };
 };
@@ -261,7 +262,12 @@ export class Game {
     });
     // Unplanted enemy carrier location is private. Public site knowledge is not enemy tracking.
     const bomb = this.current.bomb;
-    return structuredClone({ time: this.current.time, round: this.current.round, phase: this.current.phase, self: actor, ...(this.options.formation ? {allies: this.current.actors.filter(a=>a.team===actor.team).map(a=>({id:a.id,position:a.position,hp:a.hp,bot:a.bot}))} : {}), enemies: enemies.map(a => ({ id: a.id, team: a.team, side: a.side, position: a.position, crouch: a.input.crouch })), bodyVisibleIds, sounds, bomb: { planted: bomb.planted, position: bomb.planted || actor.side === 'attack' ? bomb.position : MAP.site, carrier: actor.side === 'attack' ? bomb.carrier : null } });
+    const interaction = this.current.interaction;
+    // Share only a living teammate's authoritative ongoing action. Do not expose
+    // enemy interaction ownership or its timing through team coordination.
+    const alliedInteraction = interaction && this.current.actors.some(a=>a.id===interaction.actorId && a.team===actor.team && a.hp>0)
+      ? { actorId: interaction.actorId, kind: interaction.kind } : null;
+    return structuredClone({ time: this.current.time, round: this.current.round, phase: this.current.phase, self: actor, ...(this.options.formation ? {allies: this.current.actors.filter(a=>a.team===actor.team).map(a=>({id:a.id,position:a.position,hp:a.hp,bot:a.bot})), alliedInteraction} : {}), enemies: enemies.map(a => ({ id: a.id, team: a.team, side: a.side, position: a.position, crouch: a.input.crouch })), bodyVisibleIds, sounds, bomb: { planted: bomb.planted, position: bomb.planted || actor.side === 'attack' ? bomb.position : MAP.site, carrier: actor.side === 'attack' ? bomb.carrier : null } });
   }
   dispose() { if (!this.disposed) { this.physics.dispose(); this.disposed = true; } }
 }
