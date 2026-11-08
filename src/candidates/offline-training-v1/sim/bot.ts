@@ -86,7 +86,6 @@ export class Bot {
       return commands;
     }
     this.target = null;
-    if (self.weapons[self.weapon].ammo < 5 && self.weapons[self.weapon].reserve > 0 && !self.reload) emit({ type: 'reload' });
     let goal: Vec3;
     if (canInteract) {
       emit({ type: 'move', x: 0, z: 0 });
@@ -94,6 +93,9 @@ export class Bot {
       emit({ type: 'aim', yaw: self.yaw + (plan ? 0 : 0.012), pitch: 0 });
       return commands;
     }
+    // A reached objective takes priority over an optional magazine top-up.
+    // Game still owns eligibility and completion of any reload already begun.
+    if (self.weapons[self.weapon].ammo < 5 && self.weapons[self.weapon].reserve > 0 && !self.reload) emit({ type: 'reload' });
     emit({ type: 'interact', held: false });
     if (plan) goal = plan.goal;
     else if (o.bomb.planted) goal = self.side === 'defend' ? o.bomb.position : { x: 0, y: 0, z: 9 };
