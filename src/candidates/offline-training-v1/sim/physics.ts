@@ -6,14 +6,15 @@ let initialization: Promise<void> | undefined;
 export const initPhysics = () => initialization ??= RAPIER.init();
 export const eye = (actor: Actor): Vec3 => ({ ...actor.position, y: actor.position.y + (actor.input.crouch ? 1.02 : 1.62) });
 const rotation = { x: 0, y: 0, z: 0, w: 1 };
+export const SHOT_RANGE = 100;
+export const FLOOR = { center: { x: 0, y: -.1, z: 0 }, half: { x: 13, y: .1, z: 18 } } as const;
 export class Physics {
   private world = new RAPIER.World({ x: 0, y: 0, z: 0 });
   private walls: RAPIER.Collider[] = [];
   private bodies = new Map<string, { move: RAPIER.Collider; body: RAPIER.Collider; head: RAPIER.Collider; crouch: boolean }>();
   private controller = this.world.createCharacterController(0.02);
   constructor(actors: Actor[]) {
-    this.walls.push(this.world.createCollider(RAPIER.ColliderDesc.cuboid(13, 0.1, 18).setTranslation(0, -0.1, 0)));
-    for (const box of MAP.walls) this.walls.push(this.world.createCollider(RAPIER.ColliderDesc.cuboid(box.half.x, box.half.y, box.half.z).setTranslation(box.center.x, box.center.y, box.center.z)));
+    for (const box of [FLOOR, ...MAP.walls]) this.walls.push(this.world.createCollider(RAPIER.ColliderDesc.cuboid(box.half.x, box.half.y, box.half.z).setTranslation(box.center.x, box.center.y, box.center.z)));
     this.controller.enableAutostep(0.25, 0.2, false);
     this.controller.enableSnapToGround(0.2);
     this.controller.setMaxSlopeClimbAngle(Math.PI / 4);
@@ -71,7 +72,7 @@ export class Physics {
     }
     apply(compute(translation));
   }
-  wallDistance(origin: Vec3, dir: Vec3, max = 100) {
+  wallDistance(origin: Vec3, dir: Vec3, max = SHOT_RANGE) {
     const ray = new RAPIER.Ray(origin, dir);
     let nearest = max;
     for (const wall of this.walls) {
@@ -99,11 +100,11 @@ export class Physics {
       if (actor.id === from.id || actor.hp <= 0) continue;
       const b = this.bodies.get(actor.id)!;
       for (const part of ['head', 'body'] as const) {
-        const t = b[part].castRay(ray, 100, true);
+        const t = b[part].castRay(ray, SHOT_RANGE, true);
         if (t >= 0 && t < nearest) { nearest = t; hit = { actor, part }; }
       }
     }
-    return { hit, origin, end: { x: origin.x + dir.x * nearest, y: origin.y + dir.y * nearest, z: origin.z + dir.z * nearest }, kind: hit ? 'actor' as const : nearest < 100 ? 'world' as const : 'range' as const };
+    return { hit, origin, end: { x: origin.x + dir.x * nearest, y: origin.y + dir.y * nearest, z: origin.z + dir.z * nearest }, kind: hit ? 'actor' as const : nearest < SHOT_RANGE ? 'world' as const : 'range' as const };
   }
   dispose() { this.world.free(); }
 }

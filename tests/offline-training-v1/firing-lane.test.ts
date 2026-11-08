@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Game } from '../../src/candidates/offline-training-v1/sim/game.js';
 import { Bot } from '../../src/candidates/offline-training-v1/sim/bot.js';
+import { angles } from '../../src/candidates/offline-training-v1/sim/math.js';
+import { eye } from '../../src/candidates/offline-training-v1/sim/physics.js';
 import { friendlyInFiringLane } from '../../src/candidates/offline-training-v1/sim/firing-lane.js';
 import { Navigation, initNavigation } from '../../src/candidates/offline-training-v1/sim/navigation.js';
 import { runSquadMatch } from '../../tools/offline-training-v1/squads-sim.js';
@@ -24,16 +26,16 @@ test('real squad bot holds fire on an intervening teammate and resumes when the 
  }
 });
 
-test('friendly safety uses only living forward allies, handles vertical separation, and does not invent a legacy observation',async()=>{
+test('friendly safety checks living forward allies through shot range and does not invent a legacy observation',async()=>{
  const game=await Game.create(1,specs,{}, {formation:'squads-v1'});
  try{
-  const o=game.observe('shooter'),before=JSON.stringify(o);assert.equal(friendlyInFiringLane(o,0,0,5),true);assert.equal(JSON.stringify(o),before);
-  assert.equal(friendlyInFiringLane({...o,allies:undefined},0,0,5),false);
-  for(const position of [{x:0,y:0,z:-2},{x:0,y:0,z:7},{x:2,y:0,z:2},{x:0,y:5,z:2}]){
-   assert.equal(friendlyInFiringLane({...o,allies:[{id:'ally',position,hp:100,bot:null}]},0,0,5),false,JSON.stringify(position));
+  const o=game.observe('shooter'),before=JSON.stringify(o);assert.equal(friendlyInFiringLane(o,0,0),true);assert.equal(JSON.stringify(o),before);
+  assert.equal(friendlyInFiringLane({...o,allies:undefined},0,0),false);
+  for(const position of [{x:0,y:0,z:-2},{x:0,y:0,z:102},{x:2,y:0,z:2},{x:0,y:5,z:2}]){
+   assert.equal(friendlyInFiringLane({...o,allies:[{id:'ally',position,hp:100,bot:null}]},0,0),false,JSON.stringify(position));
   }
-  assert.equal(friendlyInFiringLane({...o,allies:o.allies!.map(a=>({...a,hp:0}))},0,0,5),false);
-  assert.equal(friendlyInFiringLane({...o,allies:[{...o.allies!.find(a=>a.id==='ally')!,position:{x:0,y:0,z:2}}]},0,Math.PI/2,5),false);
+  assert.equal(friendlyInFiringLane({...o,allies:o.allies!.map(a=>({...a,hp:0}))},0,0),false);
+  assert.equal(friendlyInFiringLane({...o,allies:[{...o.allies!.find(a=>a.id==='ally')!,position:{x:0,y:0,z:2}}]},0,Math.PI/2),false);
  }finally{game.dispose();}
 });
 
@@ -41,12 +43,12 @@ test('ground velocity widens the conservative lane without consuming random stat
  const game=await Game.create(1,specs,{}, {formation:'squads-v1',movement:'ground-v1'});
  try{
   const o=game.observe('shooter'),ally=o.allies!.find(a=>a.id==='ally')!;
-  const edge={...o,allies:[{...ally,position:{x:.5,y:0,z:3}}]};
-  assert.equal(friendlyInFiringLane(edge,0,0,5),false);
-  assert.equal(friendlyInFiringLane({...edge,self:{...edge.self,velocity:{x:4.5,z:0}}},0,0,5),true);
-  const hash=game.stateHash;for(let i=0;i<100;i++)friendlyInFiringLane(o,0,0,5);assert.equal(game.stateHash,hash);
+  const edge={...o,allies:[{...ally,position:{x:.43,y:0,z:3}}]};
+  assert.equal(friendlyInFiringLane(edge,0,0),false);
+  assert.equal(friendlyInFiringLane({...edge,self:{...edge.self,velocity:{x:4.5,z:0}}},0,0),true);
+  const hash=game.stateHash;for(let i=0;i<100;i++)friendlyInFiringLane(o,0,0);assert.equal(game.stateHash,hash);
   game.step([{actorId:'ally',type:'move',x:0,z:0,crouch:true}]);
-  assert.equal(friendlyInFiringLane(game.observe('shooter'),0,0,5),true,'unknown crouch is conservatively enclosed, not leaked into the observation');
+  assert.equal(friendlyInFiringLane(game.observe('shooter'),0,0),true,'unknown crouch is conservatively enclosed, not leaked into the observation');
   assert.equal('crouch' in game.observe('shooter').allies!.find(a=>a.id==='ally')!,false);
  }finally{game.dispose();}
 });
@@ -88,4 +90,78 @@ test('received observer cannot mutate actual commands or the full-match result; 
  const observed=await runSquadMatch(1,false,record=>{calls++;record.commands.length=0;record.state.actors[0]!.hp=0;record.state.bomb.planted=true;record.state.shots.length=0;record.stateHash='edited';});
  assert.deepEqual(observed,plain);assert.equal(calls,plain.rounds.reduce((sum,r)=>sum+r.ticks,0));
  const ground=await runSquadMatch(1,true);assert.equal(ground.complete,true);assert.equal(ground.noLosShots,0);assert.equal(ground.rounds.reduce((sum,r)=>sum+r.friendlyHits,0),0);
+});
+
+
+test('a missed target does not expose an ally behind it, and clearing that lane resumes fire', async () => {
+  const positions: PlayerSpec[] = specs.map(actor => actor.id === 'ally' ? { ...actor, position: { x: .65, y: 0, z: 10 } } : actor);
+  for (const movement of ['legacy', 'ground-v1'] as const) {
+    const game = await Game.create(1, positions, {}, { formation: 'squads-v1', ...(movement === 'ground-v1' ? { movement } : {}) });
+    const nav = new Navigation(), bot = new Bot('shooter', 'easy', 1, nav, 'rifle', 0);
+    try {
+      for (let tick = 0; tick < 90 && game.state.phase === 'live'; tick++) game.step(bot.commands(game.observe('shooter')));
+      assert.equal(game.state.actors.find(actor => actor.id === 'ally')!.hp, 100, movement);
+      assert.equal(game.state.shots.some(shot => shot.hit === 'ally'), false);
+      const heldShots = game.state.shots.length;
+      for (let tick = 0; tick < 180 && game.state.phase === 'live'; tick++) {
+        game.step([{ actorId: 'ally', type: 'move', x: 1, z: 0 }, ...bot.commands(game.observe('shooter'))]);
+      }
+      assert.ok(game.state.shots.length > heldShots, 'clear lane resumes shooting');
+      assert.equal(game.state.shots.some(shot => shot.hit === 'ally'), false);
+    } finally { game.dispose(); nav.dispose(); }
+  }
+});
+
+test('behind-target protection uses local spread bounds and only proven public cover', async () => {
+  const game = await Game.create(1, specs, {}, { formation: 'squads-v1', movement: 'ground-v1' });
+  try {
+    const observation = game.observe('shooter'), ally = observation.allies!.find(actor => actor.id === 'ally')!;
+    const at = (position: NonNullable<PlayerSpec['position']>) => ({ ...observation, allies: [{ ...ally, position }] });
+    for (const weapon of ['rifle', 'pistol'] as const) {
+      const behind = at({ x: 0, y: 0, z: 10 });
+      behind.self = { ...behind.self, weapon };
+      assert.equal(friendlyInFiringLane(behind, 0, 0), true, weapon);
+      // A clear central ray passes through center-dogleg before this ally.
+      const protectedAlly = at({ x: 0, y: 0, z: -10 });
+      protectedAlly.self = { ...protectedAlly.self, weapon };
+      assert.equal(friendlyInFiringLane(protectedAlly, Math.PI, 0), false, 'full cover clears the lane');
+      // At the edge, the central ray hits the wall, but allowed spread can miss it.
+      const edge = at({ x: 1.8, y: 0, z: -10 });
+      edge.self = { ...edge.self, weapon, velocity: { x: 4.5, z: 0 } };
+      const aim = angles(eye(edge.self), { x: 1.1, y: 1.62, z: -6 });
+      assert.equal(friendlyInFiringLane(edge, aim.yaw, aim.pitch), true, 'do not trust a single wall ray');
+      // Padding comes from this nearby ally, not the whole 100 m range.
+      const nearby = at({ x: .5, y: 0, z: 3 });
+      nearby.self = { ...nearby.self, weapon };
+      assert.equal(friendlyInFiringLane(nearby, 0, 0), false, 'nearby off-axis ally stays clear');
+    }
+    const before = game.stateHash, original = JSON.stringify(observation);
+    friendlyInFiringLane(observation, 0, 0);
+    assert.equal(game.stateHash, before); assert.equal(JSON.stringify(observation), original);
+  } finally { game.dispose(); }
+});
+
+test('a crouched observation also protects the standing origin of the preceding stop command', async () => {
+  const positions: PlayerSpec[] = [
+    { id: 'shooter', team: 'amber', position: { x: 0, y: 0, z: 0 } },
+    { id: 'ally', team: 'amber', position: { x: 0, y: 0, z: 6 } },
+    { id: 'enemy', team: 'blue', position: { x: 2, y: 0, z: 1 } },
+  ];
+  const game = await Game.create(1, positions, {}, { formation: 'squads-v1' });
+  try {
+    game.step([{ actorId: 'shooter', type: 'move', x: 0, z: 0, crouch: true }]);
+    const observation = game.observe('shooter');
+    assert.equal(observation.self.input.crouch, true);
+    assert.equal(friendlyInFiringLane(observation, 0, -.22), true);
+    // Deliberately ignore the decision to prove why the controller must stop.
+    // This is the existing authoritative stop/shoot command contract, not a
+    // claim that this aim occurs in a natural Bot match.
+    game.step([
+      { actorId: 'shooter', type: 'move', x: 0, z: 0 },
+      { actorId: 'shooter', type: 'shoot', yaw: 0, pitch: -.22, targetId: 'enemy' },
+    ]);
+    assert.equal(game.state.shots[0]!.impact!.origin.y, 1.62);
+    assert.equal(game.state.shots[0]!.hit, 'ally');
+    assert.equal(game.state.shots[0]!.damage, 28);
+  } finally { game.dispose(); }
 });

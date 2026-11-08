@@ -2,7 +2,7 @@ import { squadPlan } from './squads.js';
 import { DIFFICULTIES } from '../content/difficulty.js';
 import { MAP } from '../content/map.js';
 import { WEAPONS } from '../content/weapons.js';
-import { angles, distance, flatDistance, nextRandom } from './math.js';
+import { angles, flatDistance, nextRandom } from './math.js';
 import { friendlyInFiringLane } from './firing-lane.js';
 import { eye } from './physics.js';
 import type { Navigation } from './navigation.js';
@@ -85,7 +85,7 @@ export class Bot {
       emit({ type: 'interact', held: false });
       emit({ type: 'aim', yaw, pitch });
       if (mag.ammo === 0 && mag.reserve > 0) emit({ type: 'reload' });
-      else if (mag.ammo > 0 && !self.reload && o.time >= self.nextShot && o.time - this.seenAt >= this.reactionDelay && !friendlyInFiringLane(o, yaw + recoil[0], pitch + recoil[1], distance(eye(self), target))) {
+      else if (mag.ammo > 0 && !self.reload && o.time >= self.nextShot && o.time - this.seenAt >= this.reactionDelay && !friendlyInFiringLane(o, yaw + recoil[0], pitch + recoil[1])) {
         emit({ type: 'shoot', yaw, pitch, targetId: visible.id });
         this.aim = { yaw: (nextRandom(this.random) * 2 - 1) * config.aimError, pitch: (nextRandom(this.random) * 2 - 1) * config.aimError };
         if (!this.reactionRecorded) { this.reactions.push((o.time - this.seenAt) / SECOND); this.reactionRecorded = true; }
