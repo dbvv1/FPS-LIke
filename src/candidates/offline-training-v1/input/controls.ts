@@ -11,6 +11,7 @@ export class Controls {
   private queue: Queued[] = [];
   private triggerHeld = false;
   private requestPending = false;
+  private promisePending = false;
   private lockGeneration = 0;
   private abort = new AbortController();
   constructor(private canvas: HTMLCanvasElement, private changed: (locked: boolean) => void, private error: (message: string) => void, private sensitivity: () => number = () => 1) {
@@ -25,7 +26,7 @@ export class Controls {
       else { this.requestPending = false; this.error(''); }
       this.changed(this.locked);
     }, { signal });
-    document.addEventListener('pointerlockerror', () => { if (this.requestPending && !this.locked) this.error('未能锁定鼠标。请再点一次“进入靶场”；若浏览器不支持，请使用桌面 Chromium。'); }, { signal });
+    document.addEventListener('pointerlockerror', () => { if (this.requestPending && !this.locked) { if (!this.promisePending) this.requestPending = false; this.error('未能锁定鼠标。请再点一次“进入靶场”；若浏览器不支持，请使用桌面 Chromium。'); } }, { signal });
     document.addEventListener('mousemove', e => {
       if (!this.locked) return;
       const scale = 0.002 * this.sensitivity();
@@ -69,19 +70,28 @@ export class Controls {
     this.add({ type: 'move', x: Math.sin(this.yaw) * forward + Math.cos(this.yaw) * right, z: Math.cos(this.yaw) * forward - Math.sin(this.yaw) * right, walk: this.held.has('ShiftLeft') || this.held.has('ShiftRight'), crouch: this.held.has('ControlLeft') || this.held.has('ControlRight') });
   }
   async lock() {
-    if (this.abort.signal.aborted || this.locked) return;
+    if (this.abort.signal.aborted || this.locked || this.requestPending) return;
     this.clear();
     this.requestPending = true; const generation = ++this.lockGeneration;
-    try { await this.canvas.requestPointerLock({ unadjustedMovement: true }); }
+    try { await this.requestLock(generation, { unadjustedMovement: true }); }
     catch (error) {
       if (generation !== this.lockGeneration) return;
       if (error instanceof DOMException && error.name === 'NotSupportedError') {
-        try { await this.canvas.requestPointerLock(); } catch (fallbackError) { if (generation !== this.lockGeneration || this.abort.signal.aborted) return; this.error(`鼠标锁定失败（${fallbackError instanceof Error ? fallbackError.name + ': ' + fallbackError.message : String(fallbackError)}）。请将游戏窗口置于前台后再点击进入。`); }
-      } else this.error(`鼠标锁定失败（${error instanceof Error ? error.name + ': ' + error.message : String(error)}）。请将游戏窗口置于前台后再点击进入。`);
+        this.requestPending = true;
+        try { await this.requestLock(generation); } catch (fallbackError) { if (generation !== this.lockGeneration || this.abort.signal.aborted) return; this.requestPending = false; this.error(`鼠标锁定失败（${fallbackError instanceof Error ? fallbackError.name + ': ' + fallbackError.message : String(fallbackError)}）。请将游戏窗口置于前台后再点击进入。`); }
+      } else { this.requestPending = false; this.error(`鼠标锁定失败（${error instanceof Error ? error.name + ': ' + error.message : String(error)}）。请将游戏窗口置于前台后再点击进入。`); }
     } finally {
       // Teardown removes event listeners; a pending promise can still acquire our canvas.
       if (this.abort.signal.aborted && lockOwners.get(this.canvas) === this.ownerToken && document.pointerLockElement === this.canvas) document.exitPointerLock();
     }
+  }
+  private async requestLock(generation: number, options?: PointerLockOptions) {
+    const result = this.canvas.requestPointerLock(options);
+    // Promise-based browsers settle failure in catch; their queued error event
+    // may belong to the raw-input attempt while its fallback is already pending.
+    this.promisePending = !!result && typeof result.then === 'function';
+    try { await result; }
+    finally { if (generation === this.lockGeneration) this.promisePending = false; }
   }
   commands(actor: Actor, start: number, end: number, simTime: number): Command[] {
     const result: Command[] = [];
@@ -129,6 +139,6 @@ export class Controls {
     this.add({ type: 'move', x: 0, z: 0 }); this.add({ type: 'interact', held: false });
   }
   reset(actor: Actor) { this.yaw = actor.yaw; this.pitch = actor.pitch; this.clear(); }
-  pause() { this.requestPending = false; this.lockGeneration++; this.clear(); if (lockOwners.get(this.canvas) === this.ownerToken && document.pointerLockElement === this.canvas) document.exitPointerLock(); }
+  pause() { this.requestPending = false; this.promisePending = false; this.lockGeneration++; this.clear(); if (lockOwners.get(this.canvas) === this.ownerToken && document.pointerLockElement === this.canvas) document.exitPointerLock(); }
   dispose() { this.pause(); this.abort.abort(); }
 }
