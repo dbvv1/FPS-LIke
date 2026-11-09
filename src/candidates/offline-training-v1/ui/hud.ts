@@ -109,9 +109,10 @@ export class Hud {
       const switchHint = alternative === 'rifle' ? '1 切换步枪' : '2 切换手枪';
       ammoHint = backup.ammo > 0 ? `弹药耗尽 · ${switchHint}` : backup.reserve > 0 ? `弹药耗尽 · ${switchHint}后 R 换弹` : '双武器弹药耗尽';
     }
-    element('reload').textContent = !alive ? '' : player.reload ? `${pose.progress < .3 ? '退出弹匣' : pose.progress < .76 ? '装入弹匣' : '闭锁复位'} · ${remainingReload.toFixed(1)}s` : ammoHint;
+    const canAct = alive && state.phase === 'live';
+    element('reload').textContent = !canAct ? '' : player.reload ? `${pose.progress < .3 ? '退出弹匣' : pose.progress < .76 ? '装入弹匣' : '闭锁复位'} · ${remainingReload.toFixed(1)}s` : ammoHint;
     element('ammo').classList.toggle('low', lowAmmo);
-    element('reload-progress').hidden = !player.reload;
+    element('reload-progress').hidden = !canAct || !player.reload;
     element<HTMLProgressElement>('reload-progress').value = pose.progress;
     const interaction = state.interaction?.actorId === player.id ? state.interaction : null;
     element('interaction').hidden = !interaction;

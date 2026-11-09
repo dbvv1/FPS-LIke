@@ -213,3 +213,78 @@ for (const reason of ['timeout', 'elimination'] as const) test(`settled ${reason
     assert.match(update(), /推进至信标区域/);
   } finally { game.dispose(); dom.restore(); }
 });
+
+for (const reason of ['timeout', 'elimination', 'explosion', 'defuse'] as const) {
+  test(`settled ${reason} hides an unfinished reload without changing its frozen state`, async () => {
+    const game = await Game.create(1, [
+      { id: 'player', team: 'amber', position: { x: 0, y: 0, z: 10 } },
+      { id: 'z-ally', team: 'amber', position: { x: 2, y: 0, z: 10 } },
+      { id: 'defender', team: 'blue', position: { x: 1, y: 0, z: 10 } },
+    ]), dom = installHud();
+    const update = () => {
+      const state = game.state, hash = game.stateHash;
+      dom.hud.update(state, state.actors.find(actor => actor.id === 'player')!, 0);
+      assert.equal(game.stateHash, hash);
+    };
+    try {
+      game.step([{ actorId: 'player', type: 'shoot', yaw: 0, pitch: 1.4 }]);
+      if (reason === 'explosion' || reason === 'defuse') {
+        game.step([{ actorId: 'player', type: 'interact', held: true }]);
+        for (let ticks = 0; !game.state.bomb.planted; ticks++) { assert.ok(ticks < 200); game.step(); }
+        if (reason === 'defuse') game.step([{ actorId: 'defender', type: 'interact', held: true }]);
+      }
+      const state = game.state;
+      const end = reason === 'timeout' ? state.roundEndsAt / 1000
+        : reason === 'explosion' ? state.bomb.explodeAt! / 1000
+        : reason === 'defuse' ? state.interaction!.since / 1000 + game.rules.defuseTicks
+        : state.tick + 30;
+      while (game.state.tick < end - 30) game.step();
+      game.step([{ actorId: 'player', type: 'reload' }]); update();
+      assert.ok(player(game).reload);
+      assert.match(dom.element('reload').textContent, /退出弹匣/);
+      assert.equal(dom.element('reload-progress').hidden, false);
+      for (let ticks = 0; game.state.phase === 'live'; ticks++) {
+        assert.ok(ticks < 120);
+        game.step(reason === 'elimination' ? [{ actorId: 'z-ally', type: 'shoot', yaw: -Math.PI / 2, pitch: 0 }] : []);
+      }
+      assert.equal(game.state.result?.reason, reason);
+      assert.equal(player(game).hp, 100);
+      assert.ok(player(game).reload, 'settlement retains unfinished reload as historical state');
+      update();
+      assert.equal(dom.element('reload').textContent, '');
+      assert.equal(dom.element('reload-progress').hidden, true);
+      const frozen = game.stateHash;
+      game.step([{ actorId: 'player', type: 'reload' }, { actorId: 'player', type: 'switch', weapon: 'pistol' }]);
+      assert.equal(game.stateHash, frozen);
+      update(); assert.equal(dom.element('reload').textContent, '');
+      game.nextRound();
+      game.step([{ actorId: 'player', type: 'shoot', yaw: 0, pitch: 1.4 }]);
+      game.step([{ actorId: 'player', type: 'reload' }]); update();
+      assert.match(dom.element('reload').textContent, /退出弹匣/);
+      assert.equal(dom.element('reload-progress').hidden, false);
+    } finally { game.dispose(); dom.restore(); }
+  });
+}
+
+test('death during reload and a surviving empty magazine cannot advertise actions after settlement', async () => {
+  for (const dies of [false, true]) {
+    const game = await Game.create(1, [
+      { id: 'player', team: 'amber', position: { x: 0, y: 0, z: 10 } },
+      { id: 'defender', team: 'blue', position: { x: 1, y: 0, z: 10 } },
+    ]), dom = installHud();
+    const update = () => { const s = game.state; dom.hud.update(s, s.actors.find(a => a.id === 'player')!, 0); };
+    try {
+      spendTo(game, 0); update(); assert.match(dom.element('reload').textContent, /R 换弹/);
+      if (dies) {
+        game.step([{ actorId: 'player', type: 'reload' }]);
+        assert.ok(player(game).reload);
+      }
+      while (game.state.phase === 'live') game.step(dies ? [{ actorId: 'defender', type: 'shoot', yaw: -Math.PI / 2, pitch: 0 }] : []);
+      assert.equal(game.state.result?.reason, dies ? 'elimination' : 'timeout');
+      assert.equal(player(game).hp, dies ? 0 : 100);
+      assert.equal(player(game).reload, null);
+      update(); assert.equal(dom.element('reload').textContent, '');
+      assert.equal(dom.element('reload-progress').hidden, true);
+    } finally { game.dispose(); dom.restore(); }
+  }
+});
