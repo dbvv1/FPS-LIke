@@ -72,6 +72,47 @@ Root-space reference points (the same values are in `manifest.json` under
 space, so a consumer can drive reload and bolt motion by transforming those
 nodes; no clips are exported with this asset.
 
+## Anchor contract (consumer input)
+
+`anchors.json` publishes the three contact semantics a mount consumer needs,
+without inventing a complete hand frame:
+
+| Anchor | Root-space position (`x, y, z`) | Meaning |
+| --- | --- | --- |
+| `primary-palm-center` | `[0.036, -0.099, -0.19]` | trigger-hand palm centre, the primary hand contact |
+| `idle-support-palm-center` | `[-0.033, -0.044, -0.446]` | support palm centre in the idle two-hand hold |
+| `reload-magazine-palm-target` | `[-0.03443, -0.175014, -0.345572]` | support palm target while grasping the magazine |
+
+The values are derived from the live render consumer
+`weaponParts('rifle')` (`src/render/weapon.ts`): the two palms are the
+`trigger-palm` / `support-palm` part positions (the support palm already
+includes the single `hands()` `+0.025 m` Y adjustment), and the reload target
+is `support-palm.position + support-palm.gripOffset`, i.e. the source
+`grip.surface + grip.palmOffset`. `anchors.ts` also re-reads the fixed GLB with
+the real `three 0.186.1 GLTFLoader` and fails if the `trigger-hand` /
+`support-hand` node origins disagree with the palms by more than `1e-5 m` per
+axis, or if the `grip` node origin disagrees with the reload target by more
+than `5e-5 m` per axis (the source `grip` keeps its existing 4-decimal
+encoding; both values and the observed error are reported).
+
+The source `grip` node is **not** renamed or edited, and its extras role stays
+verbatim `support-palm-contact`; the new data explains that it is the reload
+magazine target, not the idle foregrip hold, a primary-hand grip or a bone
+socket. The muzzle firing axis is the source local `-Z` axis declared by the
+GLB scene extras, checked against the distal end of `rifle-static`. Palm surface
+normals/rotations, Knight bone binding and an acceptable contact tolerance stay
+`null`: three points do not make a frame.
+
+Regenerate the committed JSON (the CLI prints only to stdout, so a failed build
+leaves the target empty; two runs on the same input are byte-identical):
+
+```sh
+node --import tsx asset-pipeline/kaykit-rx24/anchors.ts \
+  --src assets/content-set/fp-arms-rx24.glb \
+  > asset-pipeline/kaykit-rx24/anchors.json
+node --import tsx --test tests/kaykit-rx24-anchors.test.ts
+```
+
 ## Excluded geometry
 
 The complete `support-hand` and `trigger-hand` node subtrees (both separate

@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "id": "kaykit-rx24-anchors",
+  "generatedBy": "asset-pipeline/kaykit-rx24/anchors.ts",
+  "source": {
+    "path": "assets/content-set/fp-arms-rx24.glb",
+    "bytes": 188088,
+    "sha256": "e672d06e30262f2575076f759645aa3d82d6734f0c26ef280a2a36870549b9e1",
+    "commit": "b198df62a56f4c520716fbc9cb4afac47dd62213",
+    "license": "assets/content-set/LICENSE.txt",
+    "licenseNote": "CC0-1.0; upstream RX-24 geometry by Quaternius, Ultimate Guns Pack. The fixed source bytes stay unchanged."
+  },
+  "root": "rx24-root",
+  "units": "metres",
+  "up": "+Y",
+  "forward": "-Z",
+  "points": {
+    "primary-palm-center": [
+      0.036,
+      -0.099,
+      -0.19
+    ],
+    "idle-support-palm-center": [
+      -0.033,
+      -0.044,
+      -0.446
+    ],
+    "reload-magazine-palm-target": [
+      -0.03443,
+      -0.175014,
+      -0.345572
+    ]
+  },
+  "semantics": {
+    "primary-palm-center": "Trigger-hand palm centre consumed by the live rifle view model; the primary hand contact point in root space, metres.",
+    "idle-support-palm-center": "Support-hand palm centre in the idle two-hand hold, after hands() applies its single +0.025 m Y adjustment. This is the normal support foregrip hold.",
+    "reload-magazine-palm-target": "Support palm target for the reload magazine grasp: support-palm.position + support-palm.gripOffset, i.e. source grip.surface + grip.palmOffset. This is the reload contact, not the idle foregrip hold."
+  },
+  "derivation": {
+    "primary-palm-center": "weaponParts('rifle') part 'trigger-palm'.position",
+    "idle-support-palm-center": "weaponParts('rifle') part 'support-palm'.position (hands() Y adjustment already applied once)",
+    "reload-magazine-palm-target": "weaponParts('rifle') part 'support-palm'.position + its gripOffset"
+  },
+  "distances": {
+    "primaryToIdleSupport": 0.270780353793,
+    "primaryToReloadMagazineTarget": 0.186925547425
+  },
+  "muzzle": {
+    "position": [
+      0.0003,
+      0.0021,
+      -0.7775
+    ],
+    "axis": [
+      0,
+      0,
+      -1
+    ],
+    "axisSource": "Source scene extras declare up +Y / forward -Z as the weapon-group local axis; the muzzle node is a position-only anchor with no rotation, so the firing axis is the local -Z axis and no frame is derived from the point.",
+    "geometryEvidence": {
+      "rifleStaticMinZ": -0.777468,
+      "muzzleZ": -0.7775,
+      "muzzleAtDistalNegativeZ": true
+    }
+  },
+  "evidence": {
+    "loader": "three 0.186.1 GLTFLoader",
+    "handNodes": {
+      "trigger-hand": {
+        "role": "primary-palm-center",
+        "nodeOrigin": [
+          0.036,
+          -0.099,
+          -0.19
+        ],
+        "perAxisError": [
+          0,
+          0,
+          0
+        ],
+        "maxAxisError": 0
+      },
+      "support-hand": {
+        "role": "idle-support-palm-center",
+        "nodeOrigin": [
+          -0.033,
+          -0.044,
+          -0.446
+        ],
+        "perAxisError": [
+          0,
+          0,
+          0
+        ],
+        "maxAxisError": 0
+      }
+    },
+    "gripNode": {
+      "role": "reload-magazine-palm-target",
+      "sourceName": "grip",
+      "sourceExtrasRole": "support-palm-contact",
+      "nodeOrigin": [
+        -0.0344,
+        -0.175,
+        -0.3456
+      ],
+      "computedTarget": [
+        -0.03443,
+        -0.175014,
+        -0.345572
+      ],
+      "perAxisError": [
+        0.00003,
+        0.000014,
+        0.000028
+      ],
+      "maxAxisError": 0.00003
+    }
+  },
+  "gripInterpretation": "The source node named grip (extras.role support-palm-contact) is the reload-magazine palm target, not the idle support foregrip hold, a primary-hand grip, a generic bone socket or a camera mount. Its name and extras are unchanged.",
+  "unverified": {
+    "palmSurfaceNormal": null,
+    "palmRotation": null,
+    "knightBoneBinding": null,
+    "acceptableContactTolerance": null
+  }
+}
