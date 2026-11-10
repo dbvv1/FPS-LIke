@@ -219,9 +219,22 @@ const { Game } = await import('../src/sim/game.js');
 const { syncKayKitNativeAction } = await import('../src/render/kaykit-game-action.js');
 const game = await Game.create(17), gameActor = new KayKitSkinnedCharacter(nativeInputs);
 const player = game.state.actors[0]!.id;
+const windowReference = new KayKitSkinnedCharacter(nativeInputs);
+function boneDifference(a: THREE.Object3D, b: THREE.Object3D) {
+  let error=0;
+  a.traverse(n=>{if(n instanceof THREE.Bone){const expected=b.getObjectByName(n.name)!;
+    n.matrixWorld.elements.forEach((value,index)=>{error=Math.max(error,Math.abs(value-expected.matrixWorld.elements[index]!));});}});
+  return error;
+}
+let sourceWindowJoinError=0;
 try {
   syncKayKitNativeAction(gameActor, game.state, player);
   assert.equal(gameActor.currentAction, 'native-aim-two-hand');
+  windowReference.sample('native-aim-two-hand',1);
+  assert.ok(boneDifference(gameActor.scene,windowReference.scene)<1e-7, 'hold real final aiming pose');
+  windowReference.sample('native-fire-two-hand',.25);
+  sourceWindowJoinError=boneDifference(gameActor.scene,windowReference.scene);
+  assert.ok(sourceWindowJoinError<1e-6,'fixed-source aiming end joins fire after raise pre-roll');
   game.step([{actorId:player,type:'shoot',yaw:Math.PI/2,pitch:0}]);
   const hash = game.stateHash;
   syncKayKitNativeAction(gameActor, game.state, player);
@@ -232,5 +245,5 @@ try {
   assert.equal(gameActor.currentAction, 'native-reload-two-hand');
   game.step([{actorId:player,type:'switch',weapon:'pistol'}]); syncKayKitNativeAction(gameActor, game.state, player);
   assert.equal(gameActor.currentAction, null);
-} finally { gameActor.dispose(); game.dispose(); }
-console.log(JSON.stringify({ nativeGameSnapshots: true, simulationUnchanged: true, browser: false, viewConnected: false }));
+} finally { gameActor.dispose(); windowReference.dispose(); game.dispose(); }
+console.log(JSON.stringify({ sourceWindowJoinError, nativeGameSnapshots: true, simulationUnchanged: true, browser: false, viewConnected: false }));

@@ -1,3 +1,4 @@
+import { SECOND } from '../src/sim/types.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
@@ -173,6 +174,9 @@ test('native stationary rifle follows accepted Game snapshots; switch and unsupp
   const sync = () => syncKayKitNativeAction(character, game.state, id);
   try {
     sync(); assert.equal(character.currentAction, 'native-aim-two-hand');
+    const held = character.scene.getObjectByName('Rig')!.position.clone();
+    character.sample('native-aim-two-hand', 1);
+    assert.ok(character.scene.getObjectByName('Rig')!.position.equals(held), 'held pose is source end, not raise pre-roll');
     game.step([{actorId:id,type:'shoot',yaw:Math.PI/2,pitch:0}]);
     const shot = game.state, hash = game.stateHash;
     sync(); assert.equal(character.currentAction, 'native-fire-two-hand');
@@ -199,4 +203,19 @@ test('native stationary rifle follows accepted Game snapshots; switch and unsupp
     syncKayKitNativeAction(character,recent,'absent');assert.equal(character.currentAction,null);
     character.dispose();sync();assert.equal(character.currentAction,null);
   } finally {character.dispose();old.dispose();game.dispose();}
+});
+
+ test('native snapshot window holds final aim and omits shot pre-roll at original speed', async () => {
+  const game = await Game.create(17); const id=game.state.actors[0]!.id;
+  const calls: [string,number][]=[];
+  const fake = {disposed:false,currentAction:null,duration:()=>32/30, sample:(a:string,p:number)=>{calls.push([a,p]);return true}, stop:()=>{}} as unknown as KayKitSkinnedCharacter;
+  try {
+    syncKayKitNativeAction(fake,game.state,id);assert.deepEqual(calls.pop(),['native-aim-two-hand',1]);
+    game.step([{actorId:id,type:'shoot',yaw:0,pitch:0}]);
+    const state=game.state;const shot=state.actors[0]!.weapons.rifle.lastShot;
+    state.time=shot;syncKayKitNativeAction(fake,state,id);assert.deepEqual(calls.pop(),['native-fire-two-hand',.25]);
+    state.time=shot+SECOND/10;syncKayKitNativeAction(fake,state,id);
+    assert.deepEqual(calls.pop(),['native-fire-two-hand',.25+.1/(32/30)]);
+    state.time=shot+SECOND*.8;syncKayKitNativeAction(fake,state,id);assert.deepEqual(calls.pop(),['native-aim-two-hand',1]);
+  } finally {game.dispose();}
 });
