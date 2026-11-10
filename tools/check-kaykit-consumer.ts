@@ -127,5 +127,24 @@ await failedSlot.load(async () => ({ ...inputs, animations: [broken] }));
 assert.equal(failedSlot.status, 'fallback'); assert.equal(failedSlot.character, null);
 assert.equal(rigidFallback.parent, fallbackScene); assert.equal(rigidFallback.visible, true);
 failedSlot.dispose(); assert.equal(rigidFallback.parent, fallbackScene);
+// Absolute snapshot sampling must match independent elapsed-time evaluation,
+// including a finished clip rewound and switching both fixed source clips.
+const sampled = new KayKitSkinnedCharacter(inputs), elapsed = new KayKitSkinnedCharacter(inputs);
+let absoluteSamples = 0;
+for (const action of Object.keys(KAYKIT_ACTIONS) as KayKitAction[]) {
+  const duration = source.animations.find(c => c.name === KAYKIT_ACTIONS[action])!.duration;
+  for (const phase of [1, 0.25, 0, 0.75, 0.25]) {
+    sampled.sample(action, phase);
+    elapsed.play(action); elapsed.update(duration * phase);
+    const left: THREE.Object3D[] = [], right: THREE.Object3D[] = [];
+    sampled.scene.traverse(n => left.push(n)); elapsed.scene.traverse(n => right.push(n));
+    for (let i = 0; i < left.length; i++) {
+      const l = left[i]!.matrixWorld.elements, r = right[i]!.matrixWorld.elements;
+      assert.ok(l.every((v, j) => Math.abs(v - r[j]!) < 1e-6), `absolute sample ${action} ${phase}`);
+    }
+    absoluteSamples++;
+  }
+}
+sampled.dispose(); elapsed.dispose();
 const slot = new KayKitCharacterSlot(); await slot.load(async () => inputs); assert.equal(slot.status, 'ready'); slot.dispose(); assert.equal(slot.status, 'disposed');
-console.log(JSON.stringify({ samples, boundVerticesChecked, verticesChecked, maxMatrixError, maxSkinError, clones: 2, skinnedMeshesPerClone: 6, paletteDisposals, borrowedDisposals, textureDecoded: false, browser: false }));
+console.log(JSON.stringify({ absoluteSamples, samples, boundVerticesChecked, verticesChecked, maxMatrixError, maxSkinError, clones: 2, skinnedMeshesPerClone: 6, paletteDisposals, borrowedDisposals, textureDecoded: false, browser: false }));

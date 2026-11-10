@@ -86,3 +86,52 @@ test('CPU frustum uses updated skin sphere after offscreen pose and actor parent
   parent.position.x = 0; actor.update(0); assert.equal(frustum.intersectsObject(skin), true);
   actor.stop(); assert.equal(frustum.intersectsObject(skin), false); actor.dispose();
 });
+
+import { Game } from '../src/sim/game.js';
+import { syncKayKitGameAction } from '../src/render/kaykit-game-action.js';
+
+test('actual Game reload snapshots drive actual skin; pause, rewind, switch and completion reset', async () => {
+  const game = await Game.create(17);
+  const actorId = game.state.actors[0]!.id;
+  const character = new KayKitSkinnedCharacter(movingSkinSources());
+  const skin = skinsOf(character.scene)[0]!;
+  const sync = () => syncKayKitGameAction(character, game.state, actorId);
+  try {
+    sync(); assert.equal(character.currentAction, null);
+    game.step([{ actorId, type: 'shoot', yaw: Math.PI / 2, pitch: 0 }]);
+    game.step([{ actorId, type: 'reload' }]);
+    const early = game.state;
+    sync(); assert.equal(character.currentAction, 'reload-two-hand');
+    for (let i = 0; i < 56; i++) game.step();
+    const hash = game.stateHash;
+    sync(); const x = skin.boundingBox!.min.x; assert.ok(x > 4 && x < 6);
+    sync(); assert.equal(skin.boundingBox!.min.x, x); assert.equal(game.stateHash, hash);
+    syncKayKitGameAction(character, early, actorId); assert.ok(skin.boundingBox!.min.x < 1);
+    sync(); assert.equal(skin.boundingBox!.min.x, x);
+    game.step([{ actorId, type: 'switch', weapon: 'pistol' }]); sync();
+    assert.equal(character.currentAction, null); assert.ok(skin.boundingBox!.min.x < 1);
+    for (let i = 0; i < 13; i++) game.step();
+    game.step([{ actorId, type: 'shoot', yaw: Math.PI / 2, pitch: 0 }]);
+    game.step([{ actorId, type: 'reload' }]); sync();
+    assert.equal(character.currentAction, 'reload-one-hand');
+    const pistol = game.state;
+    const dead = structuredClone(pistol); dead.actors[0]!.hp = 0;
+    syncKayKitGameAction(character, dead, actorId); assert.equal(character.currentAction, null);
+    sync(); const over = structuredClone(pistol); over.phase = 'over';
+    syncKayKitGameAction(character, over, actorId); assert.equal(character.currentAction, null);
+    sync(); syncKayKitGameAction(character, pistol, 'absent'); assert.equal(character.currentAction, null);
+    for (let i = 0; i < 84; i++) game.step(); sync(); assert.equal(character.currentAction, null);
+    character.dispose(); sync(); assert.equal(character.disposed, true);
+  } finally { character.dispose(); game.dispose(); }
+});
+
+test('absolute clip sampling supports finish then rewind without stale clamp', () => {
+  const character = new KayKitSkinnedCharacter(movingSkinSources());
+  try {
+    character.sample('reload-two-hand', 1);
+    assert.ok(skinsOf(character.scene)[0]!.boundingBox!.min.x > 9.9);
+    character.sample('reload-two-hand', 0.25);
+    assert.ok(Math.abs(skinsOf(character.scene)[0]!.boundingBox!.min.x - 2.5) < 1e-5);
+    assert.throws(() => character.sample('reload-one-hand', NaN));
+  } finally { character.dispose(); }
+});

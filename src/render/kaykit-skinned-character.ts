@@ -119,6 +119,18 @@ export class KayKitSkinnedCharacter {
     this.mixer.update(0); this.refreshPoseBounds();
     return true;
   }
+  /** Absolute source-clip phase, independent of render frame rate or missed frames. */
+  sample(name: KayKitAction, progress: number): boolean {
+    if (!Number.isFinite(progress) || progress < 0 || progress > 1) throw new Error('Invalid action progress');
+    if (this.ended) return false;
+    const action = this.actions.get(name);
+    if (!action) return false;
+    // Reset even after a clamped finish, allowing replay rewind and a new reload.
+    this.mixer.stopAllAction(); action.reset().play(); this.active = name;
+    action.time = action.getClip().duration * progress;
+    this.mixer.update(0); this.refreshPoseBounds();
+    return true;
+  }
   update(deltaSeconds: number) {
     if (this.ended) return;
     requireThat(Number.isFinite(deltaSeconds) && deltaSeconds >= 0, 'Finite nonnegative delta required');
