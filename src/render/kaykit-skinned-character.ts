@@ -60,6 +60,7 @@ export class KayKitSkinnedCharacter {
   private readonly actions = new Map<KayKitAction, THREE.AnimationAction>();
   private active: KayKitAction | null = null;
   private ended = false;
+  private readonly skins: THREE.SkinnedMesh[] = [];
   private readonly rest: { node: THREE.Object3D; position: THREE.Vector3; quaternion: THREE.Quaternion; scale: THREE.Vector3 }[] = [];
   constructor(sources: KayKitSources) {
     const clips = (Object.keys(KAYKIT_ACTIONS) as KayKitAction[]).map(name => {
@@ -82,7 +83,10 @@ export class KayKitSkinnedCharacter {
     // Skeleton.clone shares inverse-bind matrices; isolate these too so no
     // actor-side skeleton work can mutate the source or a sibling actor.
     this.scene.traverse(node => {
-      if (node instanceof THREE.SkinnedMesh) node.skeleton.boneInverses = node.skeleton.boneInverses.map(matrix => matrix.clone());
+      if (node instanceof THREE.SkinnedMesh) {
+        node.skeleton.boneInverses = node.skeleton.boneInverses.map(matrix => matrix.clone());
+        this.skins.push(node);
+      }
       this.rest.push({ node, position: node.position.clone(), quaternion: node.quaternion.clone(), scale: node.scale.clone() });
     });
     this.mixer = new THREE.AnimationMixer(this.scene);
@@ -90,6 +94,18 @@ export class KayKitSkinnedCharacter {
       const action = this.mixer.clipAction(clip);
       action.setLoop(THREE.LoopOnce, 1); action.clampWhenFinished = true;
       this.actions.set(name, action);
+    }
+    this.refreshPoseBounds();
+  }
+  private refreshPoseBounds() {
+    // Refresh ancestors too: the caller owns the actor placement container.
+    this.scene.updateWorldMatrix(true, false);
+    this.scene.updateMatrixWorld(true);
+    // SkinnedMesh bounds are instance-local. Geometry bounds are shared rest
+    // data and cannot be used (or mutated) for animated frustum culling.
+    for (const skin of this.skins) {
+      skin.computeBoundingBox();
+      skin.computeBoundingSphere();
     }
   }
   get currentAction() { return this.active; }
@@ -100,13 +116,13 @@ export class KayKitSkinnedCharacter {
     if (!action) return false;
     // Deterministic hard switch; crossfade/locomotion layers are not accepted yet.
     this.mixer.stopAllAction(); action.reset().play(); this.active = name;
-    this.mixer.update(0); this.scene.updateMatrixWorld(true);
+    this.mixer.update(0); this.refreshPoseBounds();
     return true;
   }
   update(deltaSeconds: number) {
     if (this.ended) return;
     requireThat(Number.isFinite(deltaSeconds) && deltaSeconds >= 0, 'Finite nonnegative delta required');
-    this.mixer.update(deltaSeconds); this.scene.updateMatrixWorld(true);
+    this.mixer.update(deltaSeconds); this.refreshPoseBounds();
   }
   stop() {
     if (this.ended) return;
@@ -114,7 +130,7 @@ export class KayKitSkinnedCharacter {
     for (const { node, position, quaternion, scale } of this.rest) {
       node.position.copy(position); node.quaternion.copy(quaternion); node.scale.copy(scale);
     }
-    this.scene.updateMatrixWorld(true);
+    this.refreshPoseBounds();
   }
   dispose() {
     if (this.ended) return;

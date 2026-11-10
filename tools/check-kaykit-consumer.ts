@@ -26,6 +26,12 @@ function transforms(root: THREE.Object3D) {
 function meshes(root: THREE.Object3D) { const result: THREE.SkinnedMesh[] = []; root.traverse(n => { if (n instanceof THREE.SkinnedMesh) result.push(n); }); return result; }
 const before = [transforms(target.scene), transforms(source.scene), JSON.stringify(source.animations.map(c => THREE.AnimationClip.toJSON(c)))];
 const originalMeshes = meshes(target.scene);
+function sharedResourceState() {
+  return JSON.stringify(originalMeshes.map(mesh => ({ geometry: mesh.geometry.toJSON(),
+    box: mesh.geometry.boundingBox, sphere: mesh.geometry.boundingSphere,
+    materials: (Array.isArray(mesh.material) ? mesh.material : [mesh.material]).map(material => material.toJSON()) })));
+}
+const originalResources = sharedResourceState();
 const originalPalettes = originalMeshes.map(mesh => ({ bones: Array.from(mesh.skeleton.boneMatrices!), inverses: mesh.skeleton.boneInverses.map(m => m.toArray()) }));
 // Official SkinnedMesh.copy retains the skeleton. Plain Object3D.clone is unsafe.
 assert.equal(meshes(target.scene.clone(true))[0]!.skeleton, originalMeshes[0]!.skeleton);
@@ -45,6 +51,7 @@ for (const [index, mesh] of meshes(a.scene).entries()) {
   assert.equal(mesh.geometry, originalMeshes[index]!.geometry, 'immutable shared geometry');
 }
 const restingB = transforms(b.scene), restA = transforms(a.scene);
+let boundVerticesChecked = 0;
 let samples = 0, verticesChecked = 0, maxMatrixError = 0, maxSkinError = 0;
 for (const action of Object.keys(KAYKIT_ACTIONS) as KayKitAction[]) {
   const clip = source.animations.find(c => c.name === KAYKIT_ACTIONS[action])!;
@@ -63,6 +70,12 @@ for (const action of Object.keys(KAYKIT_ACTIONS) as KayKitAction[]) {
     // Three CPU skinning against independently weighted source-bone matrices.
     for (const mesh of meshes(a.scene)) {
       mesh.skeleton.update();
+      for (let vertex = 0; vertex < mesh.geometry.getAttribute('position').count; vertex++) {
+        const point = mesh.getVertexPosition(vertex, new THREE.Vector3());
+        assert.ok(mesh.boundingBox!.clone().expandByScalar(1e-8).containsPoint(point));
+        assert.ok(point.distanceTo(mesh.boundingSphere!.center) <= mesh.boundingSphere!.radius + 1e-8);
+        boundVerticesChecked++;
+      }
       const position = mesh.geometry.getAttribute('position'), indices = mesh.geometry.getAttribute('skinIndex'), weights = mesh.geometry.getAttribute('skinWeight');
       for (const vertex of [0, Math.floor(position.count / 2), position.count - 1]) {
         const actual = mesh.applyBoneTransform(vertex, new THREE.Vector3().fromBufferAttribute(position, vertex)).applyMatrix4(mesh.matrixWorld);
@@ -102,6 +115,7 @@ assert.equal(a.scene.parent, null); assert.equal(a.disposed, true); assert.equal
 assert.equal(paletteDisposals, 6); assert.equal(borrowedDisposals, 0); assert.equal(transforms(b.scene), playingB);
 b.update(.1); assert.notEqual(transforms(b.scene), playingB); b.dispose(); assert.equal(borrowedDisposals, 0);
 assert.deepEqual([transforms(target.scene), transforms(source.scene), JSON.stringify(source.animations.map(c => THREE.AnimationClip.toJSON(c)))], before, 'original sources unchanged');
+assert.equal(sharedResourceState(), originalResources, 'shared source geometry and materials unchanged');
 const clip = source.animations.find(c => c.name === KAYKIT_ACTIONS['reload-one-hand'])!;
 const broken = clip.clone(); broken.tracks = broken.tracks.filter(t => t.name !== 'Rig_Medium.quaternion');
 assert.throws(() => remapKayKitParent(source.scene, target.scene, broken), /channels/);
@@ -114,4 +128,4 @@ assert.equal(failedSlot.status, 'fallback'); assert.equal(failedSlot.character, 
 assert.equal(rigidFallback.parent, fallbackScene); assert.equal(rigidFallback.visible, true);
 failedSlot.dispose(); assert.equal(rigidFallback.parent, fallbackScene);
 const slot = new KayKitCharacterSlot(); await slot.load(async () => inputs); assert.equal(slot.status, 'ready'); slot.dispose(); assert.equal(slot.status, 'disposed');
-console.log(JSON.stringify({ samples, verticesChecked, maxMatrixError, maxSkinError, clones: 2, skinnedMeshesPerClone: 6, paletteDisposals, borrowedDisposals, textureDecoded: false, browser: false }));
+console.log(JSON.stringify({ samples, boundVerticesChecked, verticesChecked, maxMatrixError, maxSkinError, clones: 2, skinnedMeshesPerClone: 6, paletteDisposals, borrowedDisposals, textureDecoded: false, browser: false }));
