@@ -1,0 +1,2103 @@
+{
+  "schema": 1,
+  "evidence": "fixed GLB CPU inventory and world-space bone/slot positions, not rendered contact",
+  "sourceHashes": {
+    "Knight": "60428e3abc09ba83e595d256e3af8c5c976b46cdae599f0802fc82b4a3445168",
+    "Med_CombatRanged": "08de5a5fd14dcc7c404b14f7c6ff962f8959503bf70bc00cbf258dbd0187c48d"
+  },
+  "units": {
+    "declaredFormat": "glTF 2.0 uses metres",
+    "actualAuthoredScale": "not independently verified"
+  },
+  "sources": {
+    "Knight": {
+      "asset": {
+        "generator": "Khronos glTF Blender I/O v1.7.33",
+        "version": "2.0"
+      },
+      "nodes": [
+        {
+          "index": 0,
+          "name": "1H_Sword_Offhand",
+          "parent": 5,
+          "mesh": 1,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 1,
+          "name": "Badge_Shield",
+          "parent": 5,
+          "mesh": 2,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 2,
+          "name": "Rectangle_Shield",
+          "parent": 5,
+          "mesh": 3,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 3,
+          "name": "Round_Shield",
+          "parent": 5,
+          "mesh": 4,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 4,
+          "name": "Spike_Shield",
+          "parent": 5,
+          "mesh": 5,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 5,
+          "name": "handslot.l",
+          "parent": 6,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "index": 6,
+          "name": "hand.l",
+          "parent": 7,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            5
+          ]
+        },
+        {
+          "index": 7,
+          "name": "wrist.l",
+          "parent": 8,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            6
+          ]
+        },
+        {
+          "index": 8,
+          "name": "lowerarm.l",
+          "parent": 9,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            7
+          ]
+        },
+        {
+          "index": 9,
+          "name": "upperarm.l",
+          "parent": 20,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            8
+          ]
+        },
+        {
+          "index": 10,
+          "name": "1H_Sword",
+          "parent": 12,
+          "mesh": 6,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 11,
+          "name": "2H_Sword",
+          "parent": 12,
+          "mesh": 7,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 12,
+          "name": "handslot.r",
+          "parent": 13,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            10,
+            11
+          ]
+        },
+        {
+          "index": 13,
+          "name": "hand.r",
+          "parent": 14,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            12
+          ]
+        },
+        {
+          "index": 14,
+          "name": "wrist.r",
+          "parent": 15,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            13
+          ]
+        },
+        {
+          "index": 15,
+          "name": "lowerarm.r",
+          "parent": 16,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            14
+          ]
+        },
+        {
+          "index": 16,
+          "name": "upperarm.r",
+          "parent": 20,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            15
+          ]
+        },
+        {
+          "index": 17,
+          "name": "Knight_Helmet",
+          "parent": 18,
+          "mesh": 8,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 18,
+          "name": "head",
+          "parent": 20,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            17
+          ]
+        },
+        {
+          "index": 19,
+          "name": "Knight_Cape",
+          "parent": 20,
+          "mesh": 9,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 20,
+          "name": "chest",
+          "parent": 21,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            9,
+            16,
+            18,
+            19
+          ]
+        },
+        {
+          "index": 21,
+          "name": "spine",
+          "parent": 30,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            20
+          ]
+        },
+        {
+          "index": 22,
+          "name": "toes.l",
+          "parent": 23,
+          "mesh": null,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 23,
+          "name": "foot.l",
+          "parent": 24,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            22
+          ]
+        },
+        {
+          "index": 24,
+          "name": "lowerleg.l",
+          "parent": 25,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            23
+          ]
+        },
+        {
+          "index": 25,
+          "name": "upperleg.l",
+          "parent": 30,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            24
+          ]
+        },
+        {
+          "index": 26,
+          "name": "toes.r",
+          "parent": 27,
+          "mesh": null,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 27,
+          "name": "foot.r",
+          "parent": 28,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            26
+          ]
+        },
+        {
+          "index": 28,
+          "name": "lowerleg.r",
+          "parent": 29,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            27
+          ]
+        },
+        {
+          "index": 29,
+          "name": "upperleg.r",
+          "parent": 30,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            28
+          ]
+        },
+        {
+          "index": 30,
+          "name": "hips",
+          "parent": 49,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            21,
+            25,
+            29
+          ]
+        },
+        {
+          "index": 31,
+          "name": "kneeIK.l",
+          "parent": 49,
+          "mesh": null,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 32,
+          "name": "heelIK.l",
+          "parent": 34,
+          "mesh": null,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 33,
+          "name": "IK-foot.l",
+          "parent": 34,
+          "mesh": null,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 34,
+          "name": "control-foot-roll.l",
+          "parent": 36,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            32,
+            33
+          ]
+        },
+        {
+          "index": 35,
+          "name": "IK-toe.l",
+          "parent": 36,
+          "mesh": null,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 36,
+          "name": "control-heel-roll.l",
+          "parent": 37,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            34,
+            35
+          ]
+        },
+        {
+          "index": 37,
+          "name": "control-toe-roll.l",
+          "parent": 49,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            36
+          ]
+        },
+        {
+          "index": 38,
+          "name": "kneeIK.r",
+          "parent": 49,
+          "mesh": null,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 39,
+          "name": "heelIK.r",
+          "parent": 41,
+          "mesh": null,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 40,
+          "name": "IK-foot.r",
+          "parent": 41,
+          "mesh": null,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 41,
+          "name": "control-foot-roll.r",
+          "parent": 43,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            39,
+            40
+          ]
+        },
+        {
+          "index": 42,
+          "name": "IK-toe.r",
+          "parent": 43,
+          "mesh": null,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 43,
+          "name": "control-heel-roll.r",
+          "parent": 44,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            41,
+            42
+          ]
+        },
+        {
+          "index": 44,
+          "name": "control-toe-roll.r",
+          "parent": 49,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            43
+          ]
+        },
+        {
+          "index": 45,
+          "name": "elbowIK.l",
+          "parent": 49,
+          "mesh": null,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 46,
+          "name": "handIK.l",
+          "parent": 49,
+          "mesh": null,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 47,
+          "name": "elbowIK.r",
+          "parent": 49,
+          "mesh": null,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 48,
+          "name": "handIK.r",
+          "parent": 49,
+          "mesh": null,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 49,
+          "name": "root",
+          "parent": 56,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            30,
+            31,
+            37,
+            38,
+            44,
+            45,
+            46,
+            47,
+            48
+          ]
+        },
+        {
+          "index": 50,
+          "name": "Knight_ArmLeft",
+          "parent": 56,
+          "mesh": 0,
+          "skin": 0,
+          "children": []
+        },
+        {
+          "index": 51,
+          "name": "Knight_ArmRight",
+          "parent": 56,
+          "mesh": 10,
+          "skin": 0,
+          "children": []
+        },
+        {
+          "index": 52,
+          "name": "Knight_Body",
+          "parent": 56,
+          "mesh": 11,
+          "skin": 0,
+          "children": []
+        },
+        {
+          "index": 53,
+          "name": "Knight_Head",
+          "parent": 56,
+          "mesh": 12,
+          "skin": 0,
+          "children": []
+        },
+        {
+          "index": 54,
+          "name": "Knight_LegLeft",
+          "parent": 56,
+          "mesh": 13,
+          "skin": 0,
+          "children": []
+        },
+        {
+          "index": 55,
+          "name": "Knight_LegRight",
+          "parent": 56,
+          "mesh": 14,
+          "skin": 0,
+          "children": []
+        },
+        {
+          "index": 56,
+          "name": "Rig",
+          "parent": null,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            50,
+            51,
+            52,
+            53,
+            54,
+            55,
+            49
+          ]
+        }
+      ],
+      "meshes": [
+        {
+          "index": 0,
+          "name": "Cube.125",
+          "primitives": [
+            {
+              "material": 0,
+              "attributes": {
+                "POSITION": 0,
+                "NORMAL": 1,
+                "TEXCOORD_0": 2,
+                "JOINTS_0": 3,
+                "WEIGHTS_0": 4
+              }
+            }
+          ]
+        },
+        {
+          "index": 1,
+          "name": "Cube.003",
+          "primitives": [
+            {
+              "material": 0,
+              "attributes": {
+                "POSITION": 7,
+                "NORMAL": 8,
+                "TEXCOORD_0": 9
+              }
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "name": "Cylinder.280",
+          "primitives": [
+            {
+              "material": 0,
+              "attributes": {
+                "POSITION": 11,
+                "NORMAL": 12,
+                "TEXCOORD_0": 13
+              }
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "name": "Cylinder.005",
+          "primitives": [
+            {
+              "material": 0,
+              "attributes": {
+                "POSITION": 15,
+                "NORMAL": 16,
+                "TEXCOORD_0": 17
+              }
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "name": "Cylinder.010",
+          "primitives": [
+            {
+              "material": 0,
+              "attributes": {
+                "POSITION": 19,
+                "NORMAL": 20,
+                "TEXCOORD_0": 21
+              }
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "name": "Cylinder.022",
+          "primitives": [
+            {
+              "material": 0,
+              "attributes": {
+                "POSITION": 23,
+                "NORMAL": 24,
+                "TEXCOORD_0": 25
+              }
+            }
+          ]
+        },
+        {
+          "index": 6,
+          "name": "Cube.11839",
+          "primitives": [
+            {
+              "material": 0,
+              "attributes": {
+                "POSITION": 27,
+                "NORMAL": 28,
+                "TEXCOORD_0": 29
+              }
+            }
+          ]
+        },
+        {
+          "index": 7,
+          "name": "Cube.12993",
+          "primitives": [
+            {
+              "material": 0,
+              "attributes": {
+                "POSITION": 30,
+                "NORMAL": 31,
+                "TEXCOORD_0": 32
+              }
+            }
+          ]
+        },
+        {
+          "index": 8,
+          "name": "Cube.124",
+          "primitives": [
+            {
+              "material": 0,
+              "attributes": {
+                "POSITION": 34,
+                "NORMAL": 35,
+                "TEXCOORD_0": 36
+              }
+            }
+          ]
+        },
+        {
+          "index": 9,
+          "name": "Plane.004",
+          "primitives": [
+            {
+              "material": 0,
+              "attributes": {
+                "POSITION": 38,
+                "NORMAL": 39,
+                "TEXCOORD_0": 40
+              }
+            }
+          ]
+        },
+        {
+          "index": 10,
+          "name": "Cube.126",
+          "primitives": [
+            {
+              "material": 0,
+              "attributes": {
+                "POSITION": 42,
+                "NORMAL": 43,
+                "TEXCOORD_0": 44,
+                "JOINTS_0": 45,
+                "WEIGHTS_0": 46
+              }
+            }
+          ]
+        },
+        {
+          "index": 11,
+          "name": "PrototypePete_body.020",
+          "primitives": [
+            {
+              "material": 0,
+              "attributes": {
+                "POSITION": 48,
+                "NORMAL": 49,
+                "TEXCOORD_0": 50,
+                "JOINTS_0": 51,
+                "WEIGHTS_0": 52
+              }
+            }
+          ]
+        },
+        {
+          "index": 12,
+          "name": "PrototypePete_head.001",
+          "primitives": [
+            {
+              "material": 0,
+              "attributes": {
+                "POSITION": 54,
+                "NORMAL": 55,
+                "TEXCOORD_0": 56,
+                "JOINTS_0": 57,
+                "WEIGHTS_0": 58
+              }
+            }
+          ]
+        },
+        {
+          "index": 13,
+          "name": "Cube.128",
+          "primitives": [
+            {
+              "material": 0,
+              "attributes": {
+                "POSITION": 60,
+                "NORMAL": 61,
+                "TEXCOORD_0": 62,
+                "JOINTS_0": 63,
+                "WEIGHTS_0": 64
+              }
+            }
+          ]
+        },
+        {
+          "index": 14,
+          "name": "Cube.127",
+          "primitives": [
+            {
+              "material": 0,
+              "attributes": {
+                "POSITION": 66,
+                "NORMAL": 67,
+                "TEXCOORD_0": 68,
+                "JOINTS_0": 69,
+                "WEIGHTS_0": 70
+              }
+            }
+          ]
+        }
+      ],
+      "materials": [
+        {
+          "index": 0,
+          "name": "knight_texture"
+        }
+      ],
+      "skins": [
+        {
+          "inverseBindMatrices": 6,
+          "joints": [
+            49,
+            30,
+            21,
+            20,
+            9,
+            8,
+            7,
+            6,
+            5,
+            16,
+            15,
+            14,
+            13,
+            12,
+            18,
+            25,
+            24,
+            23,
+            22,
+            29,
+            28,
+            27,
+            26,
+            31,
+            37,
+            36,
+            34,
+            32,
+            33,
+            35,
+            38,
+            44,
+            43,
+            41,
+            39,
+            40,
+            42,
+            45,
+            46,
+            47,
+            48
+          ],
+          "name": "Rig"
+        }
+      ],
+      "animations": [
+        {
+          "name": "1H_Melee_Attack_Chop",
+          "channels": 123
+        },
+        {
+          "name": "1H_Melee_Attack_Slice_Diagonal",
+          "channels": 123
+        },
+        {
+          "name": "1H_Melee_Attack_Slice_Horizontal",
+          "channels": 123
+        },
+        {
+          "name": "1H_Melee_Attack_Stab",
+          "channels": 123
+        },
+        {
+          "name": "1H_Ranged_Aiming",
+          "channels": 120
+        },
+        {
+          "name": "1H_Ranged_Reload",
+          "channels": 122
+        },
+        {
+          "name": "1H_Ranged_Shoot",
+          "channels": 120
+        },
+        {
+          "name": "1H_Ranged_Shooting",
+          "channels": 101
+        },
+        {
+          "name": "2H_Melee_Attack_Chop",
+          "channels": 98
+        },
+        {
+          "name": "2H_Melee_Attack_Slice",
+          "channels": 94
+        },
+        {
+          "name": "2H_Melee_Attack_Spin",
+          "channels": 98
+        },
+        {
+          "name": "2H_Melee_Attack_Spinning",
+          "channels": 87
+        },
+        {
+          "name": "2H_Melee_Attack_Stab",
+          "channels": 97
+        },
+        {
+          "name": "2H_Melee_Idle",
+          "channels": 94
+        },
+        {
+          "name": "2H_Ranged_Aiming",
+          "channels": 123
+        },
+        {
+          "name": "2H_Ranged_Reload",
+          "channels": 109
+        },
+        {
+          "name": "2H_Ranged_Shoot",
+          "channels": 123
+        },
+        {
+          "name": "2H_Ranged_Shooting",
+          "channels": 108
+        },
+        {
+          "name": "Block",
+          "channels": 123
+        },
+        {
+          "name": "Block_Attack",
+          "channels": 123
+        },
+        {
+          "name": "Block_Hit",
+          "channels": 123
+        },
+        {
+          "name": "Blocking",
+          "channels": 123
+        },
+        {
+          "name": "Cheer",
+          "channels": 123
+        },
+        {
+          "name": "Death_A",
+          "channels": 123
+        },
+        {
+          "name": "Death_A_Pose",
+          "channels": 83
+        },
+        {
+          "name": "Death_B",
+          "channels": 123
+        },
+        {
+          "name": "Death_B_Pose",
+          "channels": 83
+        },
+        {
+          "name": "Dodge_Backward",
+          "channels": 123
+        },
+        {
+          "name": "Dodge_Forward",
+          "channels": 123
+        },
+        {
+          "name": "Dodge_Left",
+          "channels": 123
+        },
+        {
+          "name": "Dodge_Right",
+          "channels": 123
+        },
+        {
+          "name": "Dualwield_Melee_Attack_Chop",
+          "channels": 123
+        },
+        {
+          "name": "Dualwield_Melee_Attack_Slice",
+          "channels": 96
+        },
+        {
+          "name": "Dualwield_Melee_Attack_Stab",
+          "channels": 94
+        },
+        {
+          "name": "Hit_A",
+          "channels": 123
+        },
+        {
+          "name": "Hit_B",
+          "channels": 123
+        },
+        {
+          "name": "Idle",
+          "channels": 123
+        },
+        {
+          "name": "Interact",
+          "channels": 123
+        },
+        {
+          "name": "Jump_Full_Long",
+          "channels": 123
+        },
+        {
+          "name": "Jump_Full_Short",
+          "channels": 123
+        },
+        {
+          "name": "Jump_Idle",
+          "channels": 123
+        },
+        {
+          "name": "Jump_Land",
+          "channels": 123
+        },
+        {
+          "name": "Jump_Start",
+          "channels": 123
+        },
+        {
+          "name": "Lie_Down",
+          "channels": 123
+        },
+        {
+          "name": "Lie_Idle",
+          "channels": 102
+        },
+        {
+          "name": "Lie_Pose",
+          "channels": 102
+        },
+        {
+          "name": "Lie_StandUp",
+          "channels": 123
+        },
+        {
+          "name": "PickUp",
+          "channels": 123
+        },
+        {
+          "name": "Running_A",
+          "channels": 122
+        },
+        {
+          "name": "Running_B",
+          "channels": 123
+        },
+        {
+          "name": "Running_Strafe_Left",
+          "channels": 123
+        },
+        {
+          "name": "Running_Strafe_Right",
+          "channels": 123
+        },
+        {
+          "name": "Sit_Chair_Down",
+          "channels": 123
+        },
+        {
+          "name": "Sit_Chair_Idle",
+          "channels": 89
+        },
+        {
+          "name": "Sit_Chair_Pose",
+          "channels": 85
+        },
+        {
+          "name": "Sit_Chair_StandUp",
+          "channels": 123
+        },
+        {
+          "name": "Sit_Floor_Down",
+          "channels": 123
+        },
+        {
+          "name": "Sit_Floor_Idle",
+          "channels": 89
+        },
+        {
+          "name": "Sit_Floor_Pose",
+          "channels": 84
+        },
+        {
+          "name": "Sit_Floor_StandUp",
+          "channels": 94
+        },
+        {
+          "name": "Spellcast_Long",
+          "channels": 123
+        },
+        {
+          "name": "Spellcast_Raise",
+          "channels": 123
+        },
+        {
+          "name": "Spellcast_Shoot",
+          "channels": 123
+        },
+        {
+          "name": "Spellcasting",
+          "channels": 95
+        },
+        {
+          "name": "T-Pose",
+          "channels": 123
+        },
+        {
+          "name": "Throw",
+          "channels": 100
+        },
+        {
+          "name": "Unarmed_Idle",
+          "channels": 123
+        },
+        {
+          "name": "Unarmed_Melee_Attack_Kick",
+          "channels": 123
+        },
+        {
+          "name": "Unarmed_Melee_Attack_Punch_A",
+          "channels": 123
+        },
+        {
+          "name": "Unarmed_Melee_Attack_Punch_B",
+          "channels": 123
+        },
+        {
+          "name": "Unarmed_Pose",
+          "channels": 123
+        },
+        {
+          "name": "Use_Item",
+          "channels": 123
+        },
+        {
+          "name": "Walking_A",
+          "channels": 123
+        },
+        {
+          "name": "Walking_B",
+          "channels": 123
+        },
+        {
+          "name": "Walking_Backwards",
+          "channels": 123
+        },
+        {
+          "name": "Walking_C",
+          "channels": 119
+        }
+      ]
+    },
+    "Med_CombatRanged": {
+      "asset": {
+        "generator": "Khronos glTF Blender I/O v4.3.47",
+        "version": "2.0"
+      },
+      "nodes": [
+        {
+          "index": 0,
+          "name": "handslot.l",
+          "parent": 1,
+          "mesh": null,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 1,
+          "name": "hand.l",
+          "parent": 2,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            0
+          ]
+        },
+        {
+          "index": 2,
+          "name": "wrist.l",
+          "parent": 3,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            1
+          ]
+        },
+        {
+          "index": 3,
+          "name": "lowerarm.l",
+          "parent": 4,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            2
+          ]
+        },
+        {
+          "index": 4,
+          "name": "upperarm.l",
+          "parent": 11,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            3
+          ]
+        },
+        {
+          "index": 5,
+          "name": "handslot.r",
+          "parent": 6,
+          "mesh": null,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 6,
+          "name": "hand.r",
+          "parent": 7,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            5
+          ]
+        },
+        {
+          "index": 7,
+          "name": "wrist.r",
+          "parent": 8,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            6
+          ]
+        },
+        {
+          "index": 8,
+          "name": "lowerarm.r",
+          "parent": 9,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            7
+          ]
+        },
+        {
+          "index": 9,
+          "name": "upperarm.r",
+          "parent": 11,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            8
+          ]
+        },
+        {
+          "index": 10,
+          "name": "head",
+          "parent": 11,
+          "mesh": null,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 11,
+          "name": "chest",
+          "parent": 12,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            4,
+            9,
+            10
+          ]
+        },
+        {
+          "index": 12,
+          "name": "spine",
+          "parent": 21,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            11
+          ]
+        },
+        {
+          "index": 13,
+          "name": "toes.l",
+          "parent": 14,
+          "mesh": null,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 14,
+          "name": "foot.l",
+          "parent": 15,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            13
+          ]
+        },
+        {
+          "index": 15,
+          "name": "lowerleg.l",
+          "parent": 16,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            14
+          ]
+        },
+        {
+          "index": 16,
+          "name": "upperleg.l",
+          "parent": 21,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            15
+          ]
+        },
+        {
+          "index": 17,
+          "name": "toes.r",
+          "parent": 18,
+          "mesh": null,
+          "skin": null,
+          "children": []
+        },
+        {
+          "index": 18,
+          "name": "foot.r",
+          "parent": 19,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            17
+          ]
+        },
+        {
+          "index": 19,
+          "name": "lowerleg.r",
+          "parent": 20,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            18
+          ]
+        },
+        {
+          "index": 20,
+          "name": "upperleg.r",
+          "parent": 21,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            19
+          ]
+        },
+        {
+          "index": 21,
+          "name": "hips",
+          "parent": 22,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            12,
+            16,
+            20
+          ]
+        },
+        {
+          "index": 22,
+          "name": "root",
+          "parent": 23,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            21
+          ]
+        },
+        {
+          "index": 23,
+          "name": "Rig_Medium",
+          "parent": null,
+          "mesh": null,
+          "skin": null,
+          "children": [
+            22
+          ]
+        }
+      ],
+      "meshes": [],
+      "materials": [],
+      "skins": [
+        {
+          "inverseBindMatrices": 1465,
+          "joints": [
+            22,
+            21,
+            12,
+            11,
+            4,
+            3,
+            2,
+            1,
+            0,
+            9,
+            8,
+            7,
+            6,
+            5,
+            10,
+            16,
+            15,
+            14,
+            13,
+            20,
+            19,
+            18,
+            17
+          ],
+          "name": "Rig_Medium"
+        }
+      ],
+      "animations": [
+        {
+          "name": "Rig_Medium|Ranged_1H_Aiming",
+          "channels": 72
+        },
+        {
+          "name": "Rig_Medium|Ranged_1H_Reload",
+          "channels": 72
+        },
+        {
+          "name": "Rig_Medium|Ranged_1H_Shoot",
+          "channels": 72
+        },
+        {
+          "name": "Rig_Medium|Ranged_1H_Shooting",
+          "channels": 72
+        },
+        {
+          "name": "Rig_Medium|Ranged_2H_Aiming",
+          "channels": 72
+        },
+        {
+          "name": "Rig_Medium|Ranged_2H_Reload",
+          "channels": 72
+        },
+        {
+          "name": "Rig_Medium|Ranged_2H_Shoot",
+          "channels": 72
+        },
+        {
+          "name": "Rig_Medium|Ranged_2H_Shooting",
+          "channels": 72
+        },
+        {
+          "name": "Rig_Medium|Ranged_Bow_Aiming_Idle",
+          "channels": 72
+        },
+        {
+          "name": "Rig_Medium|Ranged_Bow_Draw",
+          "channels": 72
+        },
+        {
+          "name": "Rig_Medium|Ranged_Bow_Draw_Up",
+          "channels": 72
+        },
+        {
+          "name": "Rig_Medium|Ranged_Bow_Idle",
+          "channels": 72
+        },
+        {
+          "name": "Rig_Medium|Ranged_Bow_Release",
+          "channels": 72
+        },
+        {
+          "name": "Rig_Medium|Ranged_Bow_Release_Up",
+          "channels": 72
+        },
+        {
+          "name": "Rig_Medium|Ranged_Magic_Raise",
+          "channels": 72
+        },
+        {
+          "name": "Rig_Medium|Ranged_Magic_Shoot",
+          "channels": 72
+        },
+        {
+          "name": "Rig_Medium|Ranged_Magic_Spellcasting",
+          "channels": 72
+        },
+        {
+          "name": "Rig_Medium|Ranged_Magic_Spellcasting_Long",
+          "channels": 72
+        },
+        {
+          "name": "Rig_Medium|Ranged_Magic_Summon",
+          "channels": 72
+        },
+        {
+          "name": "Rig_Medium|T-Pose",
+          "channels": 72
+        }
+      ]
+    }
+  },
+  "samples": [
+    {
+      "name": "2H_Ranged_Aiming",
+      "durationSeconds": 1.600000023841858,
+      "samples": [
+        {
+          "phase": 0,
+          "timeSeconds": 0,
+          "points": {
+            "hand.l": {
+              "loadedName": "handl",
+              "worldPosition": [
+                0.5632458429718424,
+                0.732830284067197,
+                -0.03363566429852495
+              ]
+            },
+            "hand.r": {
+              "loadedName": "handr",
+              "worldPosition": [
+                -0.5479111488175754,
+                0.7371547834188968,
+                0.09797666493935192
+              ]
+            },
+            "handslot.l": {
+              "loadedName": "handslotl",
+              "worldPosition": [
+                0.5077678977334618,
+                0.6367051929823833,
+                -0.018521068512887293
+              ]
+            },
+            "handslot.r": {
+              "loadedName": "handslotr",
+              "worldPosition": [
+                -0.49106077379428104,
+                0.6410297715501191,
+                0.10659557340381932
+              ]
+            }
+          }
+        },
+        {
+          "phase": 0.25,
+          "timeSeconds": 0.4000000059604645,
+          "points": {
+            "hand.l": {
+              "loadedName": "handl",
+              "worldPosition": [
+                -0.039627238787912474,
+                1.003544922854546,
+                0.5686273573697106
+              ]
+            },
+            "hand.r": {
+              "loadedName": "handr",
+              "worldPosition": [
+                -0.5029360867561812,
+                0.9877645334719226,
+                -0.030164550420745805
+              ]
+            },
+            "handslot.l": {
+              "loadedName": "handslotl",
+              "worldPosition": [
+                -0.13342960943714174,
+                0.9461261975931574,
+                0.5474026281458088
+              ]
+            },
+            "handslot.r": {
+              "loadedName": "handslotr",
+              "worldPosition": [
+                -0.42633997626434283,
+                0.9878084278502025,
+                0.06412855615547028
+              ]
+            }
+          }
+        },
+        {
+          "phase": 0.5,
+          "timeSeconds": 0.800000011920929,
+          "points": {
+            "hand.l": {
+              "loadedName": "handl",
+              "worldPosition": [
+                -0.04011155673631727,
+                0.9927848745835683,
+                0.5678789234344754
+              ]
+            },
+            "hand.r": {
+              "loadedName": "handr",
+              "worldPosition": [
+                -0.504134953328626,
+                0.9942744232535555,
+                -0.029885523559907985
+              ]
+            },
+            "handslot.l": {
+              "loadedName": "handslotl",
+              "worldPosition": [
+                -0.13391474328572056,
+                0.9363412602504565,
+                0.5441859170528451
+              ]
+            },
+            "handslot.r": {
+              "loadedName": "handslotr",
+              "worldPosition": [
+                -0.4275387788343192,
+                0.9902255500856646,
+                0.06432056984467274
+              ]
+            }
+          }
+        },
+        {
+          "phase": 0.75,
+          "timeSeconds": 1.2000000178813934,
+          "points": {
+            "hand.l": {
+              "loadedName": "handl",
+              "worldPosition": [
+                -0.04016677901291291,
+                0.9903318154395722,
+                0.5675746640397328
+              ]
+            },
+            "hand.r": {
+              "loadedName": "handr",
+              "worldPosition": [
+                -0.5044599075285269,
+                0.9934195921153733,
+                -0.030349725298927828
+              ]
+            },
+            "handslot.l": {
+              "loadedName": "handslotl",
+              "worldPosition": [
+                -0.13397046762540377,
+                0.9341265060679458,
+                0.543323830857673
+              ]
+            },
+            "handslot.r": {
+              "loadedName": "handslotr",
+              "worldPosition": [
+                -0.4278636014515803,
+                0.988434256384926,
+                0.06381135972824004
+              ]
+            }
+          }
+        },
+        {
+          "phase": 1,
+          "timeSeconds": 1.600000023841858,
+          "points": {
+            "hand.l": {
+              "loadedName": "handl",
+              "worldPosition": [
+                -0.03933406635608156,
+                1.0045661292329917,
+                0.5680349505789469
+              ]
+            },
+            "hand.r": {
+              "loadedName": "handr",
+              "worldPosition": [
+                -0.5030382887925713,
+                0.9754794071781052,
+                -0.03280137593212247
+              ]
+            },
+            "handslot.l": {
+              "loadedName": "handslotl",
+              "worldPosition": [
+                -0.13313772206741165,
+                0.9470661529330667,
+                0.5470375190652806
+              ]
+            },
+            "handslot.r": {
+              "loadedName": "handslotr",
+              "worldPosition": [
+                -0.42644228000352724,
+                0.9758862304840445,
+                0.061490922137491605
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2H_Ranged_Shoot",
+      "durationSeconds": 1.0666667222976685,
+      "samples": [
+        {
+          "phase": 0,
+          "timeSeconds": 0,
+          "points": {
+            "hand.l": {
+              "loadedName": "handl",
+              "worldPosition": [
+                0.5632458429718424,
+                0.732830284067197,
+                -0.03363566429852495
+              ]
+            },
+            "hand.r": {
+              "loadedName": "handr",
+              "worldPosition": [
+                -0.5479111488175754,
+                0.7371547834188968,
+                0.09797666493935192
+              ]
+            },
+            "handslot.l": {
+              "loadedName": "handslotl",
+              "worldPosition": [
+                0.5077678977334618,
+                0.6367051929823833,
+                -0.018521068512887293
+              ]
+            },
+            "handslot.r": {
+              "loadedName": "handslotr",
+              "worldPosition": [
+                -0.49106077379428104,
+                0.6410297715501191,
+                0.10659557340381932
+              ]
+            }
+          }
+        },
+        {
+          "phase": 0.25,
+          "timeSeconds": 0.2666666805744171,
+          "points": {
+            "hand.l": {
+              "loadedName": "handl",
+              "worldPosition": [
+                -0.039334007150946725,
+                1.004566138262397,
+                0.5680348773453966
+              ]
+            },
+            "hand.r": {
+              "loadedName": "handr",
+              "worldPosition": [
+                -0.5030382607310326,
+                0.9754793800755619,
+                -0.03280128070092409
+              ]
+            },
+            "handslot.l": {
+              "loadedName": "handslotl",
+              "worldPosition": [
+                -0.13313775359344898,
+                0.9470661411864955,
+                0.5470374385683816
+              ]
+            },
+            "handslot.r": {
+              "loadedName": "handslotr",
+              "worldPosition": [
+                -0.42644222979949087,
+                0.9758862082798843,
+                0.06149102515946731
+              ]
+            }
+          }
+        },
+        {
+          "phase": 0.5,
+          "timeSeconds": 0.5333333611488342,
+          "points": {
+            "hand.l": {
+              "loadedName": "handl",
+              "worldPosition": [
+                -0.03962668014779451,
+                1.0049434440925151,
+                0.5552069021229431
+              ]
+            },
+            "hand.r": {
+              "loadedName": "handr",
+              "worldPosition": [
+                -0.5032319854622834,
+                0.975254147551748,
+                -0.045316483581334714
+              ]
+            },
+            "handslot.l": {
+              "loadedName": "handslotl",
+              "worldPosition": [
+                -0.13343041292132193,
+                0.947443452787463,
+                0.5342094789983667
+              ]
+            },
+            "handslot.r": {
+              "loadedName": "handslotr",
+              "worldPosition": [
+                -0.42663593470377975,
+                0.9756610391243418,
+                0.04897579946204645
+              ]
+            }
+          }
+        },
+        {
+          "phase": 0.75,
+          "timeSeconds": 0.8000000417232513,
+          "points": {
+            "hand.l": {
+              "loadedName": "handl",
+              "worldPosition": [
+                -0.04096833408912029,
+                0.9426345365298684,
+                0.5584113324844696
+              ]
+            },
+            "hand.r": {
+              "loadedName": "handr",
+              "worldPosition": [
+                -0.5035901049664818,
+                0.9785362836900884,
+                -0.03667982880149899
+              ]
+            },
+            "handslot.l": {
+              "loadedName": "handslotl",
+              "worldPosition": [
+                -0.13477203380336156,
+                0.8876097338303047,
+                0.5315894618832064
+              ]
+            },
+            "handslot.r": {
+              "loadedName": "handslotr",
+              "worldPosition": [
+                -0.4269941398182667,
+                0.9692057109953859,
+                0.05715060120071172
+              ]
+            }
+          }
+        },
+        {
+          "phase": 1,
+          "timeSeconds": 1.0666667222976685,
+          "points": {
+            "hand.l": {
+              "loadedName": "handl",
+              "worldPosition": [
+                -0.041404353857217115,
+                0.844691408815114,
+                0.5410393082913932
+              ]
+            },
+            "hand.r": {
+              "loadedName": "handr",
+              "worldPosition": [
+                -0.5044551599522519,
+                0.9832609905729957,
+                -0.042684626084243456
+              ]
+            },
+            "handslot.l": {
+              "loadedName": "handslotl",
+              "worldPosition": [
+                -0.135208029214406,
+                0.7946235312255733,
+                0.5058207239211231
+              ]
+            },
+            "handslot.r": {
+              "loadedName": "handslotr",
+              "worldPosition": [
+                -0.42785900647699326,
+                0.9591501626036687,
+                0.04847374552453217
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2H_Ranged_Reload",
+      "durationSeconds": 1.600000023841858,
+      "samples": [
+        {
+          "phase": 0,
+          "timeSeconds": 0,
+          "points": {
+            "hand.l": {
+              "loadedName": "handl",
+              "worldPosition": [
+                -0.04140454454899013,
+                0.8446914028955996,
+                0.5410394631141008
+              ]
+            },
+            "hand.r": {
+              "loadedName": "handr",
+              "worldPosition": [
+                -0.5044553040451351,
+                0.9832609403671476,
+                -0.04268447289195244
+              ]
+            },
+            "handslot.l": {
+              "loadedName": "handslotl",
+              "worldPosition": [
+                -0.13520826125094337,
+                0.7946235499478937,
+                0.5058209055032353
+              ]
+            },
+            "handslot.r": {
+              "loadedName": "handslotr",
+              "worldPosition": [
+                -0.42785921437039176,
+                0.9591501098641065,
+                0.048473875966204526
+              ]
+            }
+          }
+        },
+        {
+          "phase": 0.25,
+          "timeSeconds": 0.4000000059604645,
+          "points": {
+            "hand.l": {
+              "loadedName": "handl",
+              "worldPosition": [
+                -0.08851987088111489,
+                0.956339657677373,
+                0.3704576880253118
+              ]
+            },
+            "hand.r": {
+              "loadedName": "handr",
+              "worldPosition": [
+                -0.4773839921343572,
+                0.8896950484903645,
+                -0.04540202303646352
+              ]
+            },
+            "handslot.l": {
+              "loadedName": "handslotl",
+              "worldPosition": [
+                -0.19189796657862268,
+                0.9460579585002985,
+                0.4123327856259565
+              ]
+            },
+            "handslot.r": {
+              "loadedName": "handslotr",
+              "worldPosition": [
+                -0.40515328569035614,
+                0.8407517449122751,
+                0.03912859462752983
+              ]
+            }
+          }
+        },
+        {
+          "phase": 0.5,
+          "timeSeconds": 0.800000011920929,
+          "points": {
+            "hand.l": {
+              "loadedName": "handl",
+              "worldPosition": [
+                0.028106288973568205,
+                0.9912468193732175,
+                0.45065400078805967
+              ]
+            },
+            "hand.r": {
+              "loadedName": "handr",
+              "worldPosition": [
+                -0.5092031881119687,
+                1.0122753420158874,
+                0.0069766806289456584
+              ]
+            },
+            "handslot.l": {
+              "loadedName": "handslotl",
+              "worldPosition": [
+                -0.07914594800702236,
+                0.961356635810904,
+                0.43841470099941887
+              ]
+            },
+            "handslot.r": {
+              "loadedName": "handslotr",
+              "worldPosition": [
+                -0.41880936585008144,
+                0.9722528143794372,
+                0.18283225805189282
+              ]
+            }
+          }
+        },
+        {
+          "phase": 0.75,
+          "timeSeconds": 1.2000000178813934,
+          "points": {
+            "hand.l": {
+              "loadedName": "handl",
+              "worldPosition": [
+                0.009432366492576422,
+                1.0011151044413993,
+                0.43754619794428734
+              ]
+            },
+            "hand.r": {
+              "loadedName": "handr",
+              "worldPosition": [
+                -0.5142743665620242,
+                1.0258720774141392,
+                0.011136108350501592
+              ]
+            },
+            "handslot.l": {
+              "loadedName": "handslotl",
+              "worldPosition": [
+                -0.08463322671101957,
+                0.9435901113992986,
+                0.45726442264167144
+              ]
+            },
+            "handslot.r": {
+              "loadedName": "handslotr",
+              "worldPosition": [
+                -0.41820183122789695,
+                1.0246909128391324,
+                0.16998171755632574
+              ]
+            }
+          }
+        },
+        {
+          "phase": 1,
+          "timeSeconds": 1.600000023841858,
+          "points": {
+            "hand.l": {
+              "loadedName": "handl",
+              "worldPosition": [
+                -0.04140454396254527,
+                0.8446914028618553,
+                0.5410394634194697
+              ]
+            },
+            "hand.r": {
+              "loadedName": "handr",
+              "worldPosition": [
+                -0.5044553054939482,
+                0.9832609385861133,
+                -0.04268444993583996
+              ]
+            },
+            "handslot.l": {
+              "loadedName": "handslotl",
+              "worldPosition": [
+                -0.1352082598099379,
+                0.7946235484027375,
+                0.505820901176903
+              ]
+            },
+            "handslot.r": {
+              "loadedName": "handslotr",
+              "worldPosition": [
+                -0.42785920541212363,
+                0.9591501127892851,
+                0.048473902012985015
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "contact": {
+    "rifleNode": null,
+    "magazineNode": null,
+    "handToRifleAabbDistance": null,
+    "handToMagazineAabbDistance": null,
+    "reason": "No independently identified rifle or magazine geometry in the fixed inputs; swords and shields are not firearm contact proxies."
+  },
+  "decision": "缺独立物件需选择配套物件",
+  "next": "Select a licensed rifle with a separate magazine and an explicit grip/magazine mount contract; then inspect real scene poses. Do not treat handslot bones as a gun, or AABB distance as palm contact."
+}
