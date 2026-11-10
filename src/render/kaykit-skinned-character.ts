@@ -142,6 +142,7 @@ export class KayKitSkinnedCharacter {
     }
   }
   get currentAction() { return this.active; }
+  duration(name: KayKitAction): number | null { return this.actions.get(name)?.getClip().duration ?? null; }
   get disposed() { return this.ended; }
   play(name: KayKitAction): boolean {
     if (this.ended) return false;

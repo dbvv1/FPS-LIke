@@ -158,3 +158,45 @@ test('native character clips are explicit, cloned and fail closed on invalid bin
   const broken = new KayKitCharacterSlot(); await broken.load(async () => ({ ...source, nativeAnimations: [] }));
   assert.equal(broken.status, 'fallback'); assert.ok(broken.error); broken.dispose();
 });
+
+
+import { syncKayKitNativeAction } from '../src/render/kaykit-game-action.js';
+test('native stationary rifle follows accepted Game snapshots; switch and unsupported states restore rest', async () => {
+  const sources = movingSkinSources();
+  const nativeAnimations = Object.values(KAYKIT_NATIVE_ACTIONS).map(name => {
+    const clip = sources.animations[0]!.clone(); clip.name = name;
+    clip.tracks.forEach(t => { t.name = t.name.replace('Rig_Medium.', 'Rig.'); }); return clip;
+  });
+  const character = new KayKitSkinnedCharacter({ ...sources, nativeAnimations });
+  const old = new KayKitSkinnedCharacter(sources);
+  const game = await Game.create(17); const id = game.state.actors[0]!.id;
+  const sync = () => syncKayKitNativeAction(character, game.state, id);
+  try {
+    sync(); assert.equal(character.currentAction, 'native-aim-two-hand');
+    game.step([{actorId:id,type:'shoot',yaw:Math.PI/2,pitch:0}]);
+    const shot = game.state, hash = game.stateHash;
+    sync(); assert.equal(character.currentAction, 'native-fire-two-hand');
+    const skin = skinsOf(character.scene)[0]!; const early = skin.boundingBox!.min.x;
+    sync(); assert.equal(skin.boundingBox!.min.x,early); assert.equal(game.stateHash,hash);
+    for(let i=0;i<15;i++)game.step(); sync(); assert.ok(skin.boundingBox!.min.x > early);
+    syncKayKitNativeAction(character,shot,id); assert.equal(skin.boundingBox!.min.x,early);
+    game.step([{actorId:id,type:'reload'}]); sync(); assert.equal(character.currentAction,'native-reload-two-hand');
+    game.step([{actorId:id,type:'switch',weapon:'pistol'}]); sync(); assert.equal(character.currentAction,null);
+    game.step([{actorId:id,type:'switch',weapon:'rifle'}]); sync(); assert.equal(character.currentAction,'native-aim-two-hand');
+    for(let i=0;i<13;i++)game.step();
+    game.step([{actorId:id,type:'shoot',yaw:Math.PI/2,pitch:0}]); sync(); assert.equal(character.currentAction,'native-fire-two-hand');
+    const recent = game.state;
+    for(const mutate of [
+      (s:typeof recent)=>{s.actors[0]!.input.x=1},
+      (s:typeof recent)=>{s.actors[0]!.input.crouch=true},
+      (s:typeof recent)=>{s.actors[0]!.input.interact=true},
+      (s:typeof recent)=>{s.actors[0]!.hp=0},
+      (s:typeof recent)=>{s.phase='over'},
+    ]) {const blocked=structuredClone(recent);mutate(blocked);syncKayKitNativeAction(character,blocked,id);assert.equal(character.currentAction,null);}
+    const noShot=structuredClone(recent);noShot.shots=[];syncKayKitNativeAction(character,noShot,id);assert.equal(character.currentAction,'native-aim-two-hand');
+    syncKayKitNativeAction(old,recent,id);assert.equal(old.currentAction,null);
+    for(let i=0;i<65;i++)game.step();sync();assert.equal(character.currentAction,'native-aim-two-hand');
+    syncKayKitNativeAction(character,recent,'absent');assert.equal(character.currentAction,null);
+    character.dispose();sync();assert.equal(character.currentAction,null);
+  } finally {character.dispose();old.dispose();game.dispose();}
+});

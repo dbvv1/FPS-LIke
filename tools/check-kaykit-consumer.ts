@@ -212,3 +212,25 @@ nativeActor.dispose(); nativeActor.dispose(); nativeSibling.dispose();
 assert.deepEqual([transforms(target.scene), transforms(source.scene), JSON.stringify(source.animations.map(c => THREE.AnimationClip.toJSON(c)))], before);
 assert.equal(sharedResourceState(), originalResources);
 console.log(JSON.stringify({ nativeSamples, nativeBoundVertices, nativeMaxError, nativeActions: KAYKIT_NATIVE_ACTIONS, browser: false, gunMagazineContact: 'unverified', defaultChanged: false }));
+
+
+// Actual fixed-source skin consumes real simulation snapshots without changing them.
+const { Game } = await import('../src/sim/game.js');
+const { syncKayKitNativeAction } = await import('../src/render/kaykit-game-action.js');
+const game = await Game.create(17), gameActor = new KayKitSkinnedCharacter(nativeInputs);
+const player = game.state.actors[0]!.id;
+try {
+  syncKayKitNativeAction(gameActor, game.state, player);
+  assert.equal(gameActor.currentAction, 'native-aim-two-hand');
+  game.step([{actorId:player,type:'shoot',yaw:Math.PI/2,pitch:0}]);
+  const hash = game.stateHash;
+  syncKayKitNativeAction(gameActor, game.state, player);
+  assert.equal(gameActor.currentAction, 'native-fire-two-hand');
+  const pose = transforms(gameActor.scene); syncKayKitNativeAction(gameActor, game.state, player);
+  assert.equal(transforms(gameActor.scene), pose); assert.equal(game.stateHash, hash);
+  game.step([{actorId:player,type:'reload'}]); syncKayKitNativeAction(gameActor, game.state, player);
+  assert.equal(gameActor.currentAction, 'native-reload-two-hand');
+  game.step([{actorId:player,type:'switch',weapon:'pistol'}]); syncKayKitNativeAction(gameActor, game.state, player);
+  assert.equal(gameActor.currentAction, null);
+} finally { gameActor.dispose(); game.dispose(); }
+console.log(JSON.stringify({ nativeGameSnapshots: true, simulationUnchanged: true, browser: false, viewConnected: false }));
