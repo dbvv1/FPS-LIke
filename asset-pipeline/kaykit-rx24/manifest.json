@@ -1,0 +1,508 @@
+{
+  "schema": 1,
+  "id": "kaykit-rx24-weapon-only",
+  "generatedBy": "asset-pipeline/kaykit-rx24/extract.ts",
+  "source": {
+    "path": "assets/content-set/fp-arms-rx24.glb",
+    "sourceCommit": "b198df62a56f4c520716fbc9cb4afac47dd62213",
+    "bytes": 188088,
+    "sha256": "e672d06e30262f2575076f759645aa3d82d6734f0c26ef280a2a36870549b9e1",
+    "license": "assets/content-set/LICENSE.txt",
+    "licenseNote": "Source file and licence stay byte-for-byte unchanged; the RX-24 upstream geometry is Quaternius Ultimate Guns Pack, CC0-1.0."
+  },
+  "output": {
+    "path": "asset-pipeline/kaykit-rx24/weapon-only.glb",
+    "bytes": 121224,
+    "sha256": "66a2872ed6a1ecb269e80ee7a3c5166fc7d4ebb82318b7b696e3222bfe54087a",
+    "triangles": 1958,
+    "vertices": 5874,
+    "materials": 1,
+    "meshes": 3,
+    "nodes": 6,
+    "drawCalls": 3,
+    "bbox": {
+      "min": [
+        -0.027446,
+        -0.214921,
+        -0.777468
+      ],
+      "max": [
+        0.036,
+        0.071522,
+        0.049542
+      ]
+    },
+    "units": "metres",
+    "unitsNote": "The source glTF declares metres. Actual human-body scale fit is not verified by this asset."
+  },
+  "coordinateSystem": {
+    "root": "rx24-root",
+    "rootMatrix": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    "restMount": "The source scene extras contain a first-person camera restMount. It is deliberately not exported and is not a world or bone mount.",
+    "origin": "All recorded matrices and bounds are in the original rx24-root root coordinate system."
+  },
+  "nodes": [
+    {
+      "name": "rx24-root",
+      "sourceName": "rx24-root",
+      "role": "weapon-root",
+      "parent": null,
+      "parentChain": [
+        "rx24-root"
+      ],
+      "sourceMatrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "outputMatrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "mesh": null,
+      "bytes": 0,
+      "triangles": 0,
+      "vertices": 0,
+      "materials": 0,
+      "bbox": null
+    },
+    {
+      "name": "rifle-static",
+      "sourceName": "rifle-static",
+      "role": "gun-body",
+      "parent": "rx24-root",
+      "parentChain": [
+        "rx24-root",
+        "rifle-static"
+      ],
+      "sourceMatrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "outputMatrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "mesh": "rx24-static",
+      "bytes": 108360,
+      "triangles": 1806,
+      "vertices": 5418,
+      "materials": 1,
+      "bbox": {
+        "min": [
+          -0.027446,
+          -0.146867,
+          -0.777468
+        ],
+        "max": [
+          0.027979,
+          0.071522,
+          0.049542
+        ]
+      }
+    },
+    {
+      "name": "rifle-magazine",
+      "sourceName": "rifle-magazine",
+      "role": "magazine",
+      "parent": "rx24-root",
+      "parentChain": [
+        "rx24-root",
+        "rifle-magazine"
+      ],
+      "sourceMatrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0.0002,
+        -0.1284,
+        -0.3475,
+        1
+      ],
+      "outputMatrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0.0002,
+        -0.1284,
+        -0.3475,
+        1
+      ],
+      "mesh": "rx24-magazine",
+      "bytes": 7440,
+      "triangles": 124,
+      "vertices": 372,
+      "materials": 1,
+      "bbox": {
+        "min": [
+          -0.010328,
+          -0.214921,
+          -0.391432
+        ],
+        "max": [
+          0.010727,
+          -0.041878,
+          -0.303568
+        ]
+      }
+    },
+    {
+      "name": "rifle-bolt",
+      "sourceName": "rifle-bolt",
+      "role": "bolt",
+      "parent": "rx24-root",
+      "parentChain": [
+        "rx24-root",
+        "rifle-bolt"
+      ],
+      "sourceMatrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0.026,
+        -0.005,
+        -0.245,
+        1
+      ],
+      "outputMatrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0.026,
+        -0.005,
+        -0.245,
+        1
+      ],
+      "mesh": "rx24-bolt",
+      "bytes": 1680,
+      "triangles": 28,
+      "vertices": 84,
+      "materials": 1,
+      "bbox": {
+        "min": [
+          0.016,
+          -0.011,
+          -0.2625
+        ],
+        "max": [
+          0.036,
+          0.001,
+          -0.2275
+        ]
+      }
+    },
+    {
+      "name": "muzzle",
+      "sourceName": "muzzle",
+      "role": "flash-and-tracer-anchor",
+      "parent": "rx24-root",
+      "parentChain": [
+        "rx24-root",
+        "muzzle"
+      ],
+      "sourceMatrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0.0003,
+        0.0021,
+        -0.7775,
+        1
+      ],
+      "outputMatrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0.0003,
+        0.0021,
+        -0.7775,
+        1
+      ],
+      "mesh": null,
+      "bytes": 0,
+      "triangles": 0,
+      "vertices": 0,
+      "materials": 0,
+      "bbox": null
+    },
+    {
+      "name": "grip",
+      "sourceName": "grip",
+      "role": "support-palm-contact",
+      "parent": "rx24-root",
+      "parentChain": [
+        "rx24-root",
+        "grip"
+      ],
+      "sourceMatrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -0.0344,
+        -0.175,
+        -0.3456,
+        1
+      ],
+      "outputMatrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -0.0344,
+        -0.175,
+        -0.3456,
+        1
+      ],
+      "mesh": null,
+      "bytes": 0,
+      "triangles": 0,
+      "vertices": 0,
+      "materials": 0,
+      "bbox": null
+    }
+  ],
+  "mounts": {
+    "muzzle": {
+      "node": "muzzle",
+      "role": "flash-and-tracer-anchor",
+      "roleMeaning": "Source muzzle flash and tracer anchor. It is not a hand grip or a camera mount.",
+      "position": [
+        0.0003,
+        0.0021,
+        -0.7775
+      ],
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0.0003,
+        0.0021,
+        -0.7775,
+        1
+      ]
+    },
+    "grip": {
+      "node": "grip",
+      "role": "support-palm-contact",
+      "roleMeaning": "Support palm contact point. This is not a primary-hand grip, a generic bone socket, or a first-person camera mount.",
+      "position": [
+        -0.0344,
+        -0.175,
+        -0.3456
+      ],
+      "matrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -0.0344,
+        -0.175,
+        -0.3456,
+        1
+      ]
+    }
+  },
+  "excluded": {
+    "nodes": [
+      "support-hand",
+      "trigger-hand"
+    ],
+    "meshes": [
+      "support-hand",
+      "trigger-hand"
+    ],
+    "triangles": 1048,
+    "vertices": 3144,
+    "materials": [
+      "Glove and sleeve fabric"
+    ],
+    "reason": "Player arms and hands are separate hand meshes; the complete support-hand / trigger-hand subtrees are excluded before export. No hand or sleeve faces are removed by colour."
+  },
+  "animations": {
+    "source": [
+      "idle",
+      "fire",
+      "reload-magazine",
+      "reload-bolt"
+    ],
+    "exported": [],
+    "reason": "This card delivers static weapon geometry and independent magazine/bolt nodes. The source clips (including first-person idle/fire) remain in the unchanged source and are not exported as weapon mounts or world animation."
+  },
+  "verification": {
+    "loader": "three 0.186.1 GLTFLoader",
+    "checks": [
+      "source SHA-256 and byte size",
+      "unique required node names and root parent chain",
+      "support-hand / trigger-hand subtrees excluded by node and mesh identity",
+      "retained accessors, bufferViews and materials disjoint from hand meshes",
+      "triangle and vertex contracts: 1958 / 5874",
+      "real GLTFLoader re-read: node/world matrices, root-space vertices, separate magazine, materials, bbox and mounts"
+    ],
+    "unverified": [
+      "grip / muzzle placement against Knight hands and native reload clips",
+      "style match, silhouette and first-person camera framing",
+      "human-body metre scale fit",
+      "browser, GPU and in-game adoption"
+    ]
+  }
+}
