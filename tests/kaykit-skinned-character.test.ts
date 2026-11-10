@@ -135,3 +135,26 @@ test('absolute clip sampling supports finish then rewind without stale clamp', (
     assert.throws(() => character.sample('reload-one-hand', NaN));
   } finally { character.dispose(); }
 });
+
+import { KAYKIT_NATIVE_ACTIONS, validateKayKitNative } from '../src/render/kaykit-skinned-character.js';
+test('native character clips are explicit, cloned and fail closed on invalid bindings', async () => {
+  const source = movingSkinSources();
+  const nativeAnimations = Object.values(KAYKIT_NATIVE_ACTIONS).map(name => {
+    const clip = source.animations[0]!.clone(); clip.name = name;
+    clip.tracks.forEach(t => { t.name = t.name.replace('Rig_Medium.', 'Rig.'); }); return clip;
+  });
+  const before = JSON.stringify(nativeAnimations.map(c => THREE.AnimationClip.toJSON(c)));
+  const actor = new KayKitSkinnedCharacter({ ...source, nativeAnimations });
+  for (const name of Object.keys(KAYKIT_NATIVE_ACTIONS) as (keyof typeof KAYKIT_NATIVE_ACTIONS)[]) {
+    assert.equal(actor.sample(name, .5), true); assert.equal(actor.currentAction, name);
+    assert.ok(skinsOf(actor.scene)[0]!.boundingBox!.min.x > 4.99);
+  }
+  actor.stop(); assert.equal(actor.currentAction, null); actor.dispose();
+  assert.equal(JSON.stringify(nativeAnimations.map(c => THREE.AnimationClip.toJSON(c))), before);
+  const invalid = nativeAnimations[0]!.clone(); invalid.tracks[0]!.name = 'absent.position';
+  assert.throws(() => validateKayKitNative(source.character, invalid), /Unique node/);
+  const duplicate = nativeAnimations[0]!.clone(); duplicate.tracks.push(duplicate.tracks[0]!.clone());
+  assert.throws(() => validateKayKitNative(source.character, duplicate), /Duplicate/);
+  const broken = new KayKitCharacterSlot(); await broken.load(async () => ({ ...source, nativeAnimations: [] }));
+  assert.equal(broken.status, 'fallback'); assert.ok(broken.error); broken.dispose();
+});

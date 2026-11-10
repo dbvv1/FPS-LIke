@@ -1,16 +1,23 @@
 import * as THREE from 'three';
 import { clone } from 'three/addons/utils/SkeletonUtils.js';
 
-// Only the two clips with a verified parent-coordinate contract are accepted.
+// Cross-rig clips retain the verified parent-coordinate contract.
 export const KAYKIT_ACTIONS = {
   'reload-one-hand': 'Rig_Medium|Ranged_1H_Reload',
   'reload-two-hand': 'Rig_Medium|Ranged_2H_Reload',
 } as const;
-export type KayKitAction = keyof typeof KAYKIT_ACTIONS;
+export const KAYKIT_NATIVE_ACTIONS = {
+  'native-aim-two-hand': '2H_Ranged_Aiming',
+  'native-fire-two-hand': '2H_Ranged_Shoot',
+  'native-reload-two-hand': '2H_Ranged_Reload',
+} as const;
+export type KayKitAction = keyof typeof KAYKIT_ACTIONS | keyof typeof KAYKIT_NATIVE_ACTIONS;
 export interface KayKitSources {
   character: THREE.Object3D;
   motion: THREE.Object3D;
   animations: readonly THREE.AnimationClip[];
+  /** Explicit opt-in: clips from the exact character GLB, never another rig. */
+  nativeAnimations?: readonly THREE.AnimationClip[];
 }
 function requireThat(ok: unknown, message: string): asserts ok {
   if (!ok) throw new Error(message);
@@ -50,6 +57,24 @@ export function remapKayKitParent(source: THREE.Object3D, target: THREE.Object3D
   return result;
 }
 
+/** Same-rig playback needs no parent rename or retarget. Reject missing/ambiguous
+ * bindings instead of silently accepting a partial pose. Borrowed clips stay intact.
+ */
+export function validateKayKitNative(character: THREE.Object3D, input: THREE.AnimationClip) {
+  requireThat(Number.isFinite(input.duration) && input.duration > 0, 'Positive clip duration required');
+  requireThat(input.tracks.length > 0, 'Native tracks required');
+  const names = new Set<string>();
+  for (const track of input.tracks) {
+    const parsed = THREE.PropertyBinding.parseTrackName(track.name), name = parsed.nodeName;
+    requireThat(name && track.name === `${name}.${parsed.propertyName}`
+      && ['position', 'quaternion', 'scale'].includes(parsed.propertyName), 'Direct transform tracks required');
+    unique(character, name);
+    requireThat(!names.has(track.name), 'Duplicate native track'); names.add(track.name);
+    requireThat(track.validate() && Array.from(track.values).every(Number.isFinite), 'Invalid native track');
+  }
+  return input.clone();
+}
+
 /** Instance bones, skeleton palettes, mixer and clips are private to this actor.
  * Geometry/material/texture resources are borrowed and MUST remain immutable and
  * alive until every actor is disposed. This class never disposes borrowed data.
@@ -63,7 +88,7 @@ export class KayKitSkinnedCharacter {
   private readonly skins: THREE.SkinnedMesh[] = [];
   private readonly rest: { node: THREE.Object3D; position: THREE.Vector3; quaternion: THREE.Quaternion; scale: THREE.Vector3 }[] = [];
   constructor(sources: KayKitSources) {
-    const clips = (Object.keys(KAYKIT_ACTIONS) as KayKitAction[]).map(name => {
+    const clips: (readonly [KayKitAction, THREE.AnimationClip])[] = (Object.keys(KAYKIT_ACTIONS) as (keyof typeof KAYKIT_ACTIONS)[]).map(name => {
       const matches = sources.animations.filter(clip => clip.name === KAYKIT_ACTIONS[name]);
       requireThat(matches.length === 1, `Unique clip required: ${KAYKIT_ACTIONS[name]}`);
       const clip = remapKayKitParent(sources.motion, sources.character, matches[0]!);
@@ -71,6 +96,14 @@ export class KayKitSkinnedCharacter {
       clip.name = name;
       return [name, clip] as const;
     });
+    if (sources.nativeAnimations !== undefined) {
+      for (const name of Object.keys(KAYKIT_NATIVE_ACTIONS) as (keyof typeof KAYKIT_NATIVE_ACTIONS)[]) {
+        const matches = sources.nativeAnimations.filter(clip => clip.name === KAYKIT_NATIVE_ACTIONS[name]);
+        requireThat(matches.length === 1, `Unique native clip required: ${KAYKIT_NATIVE_ACTIONS[name]}`);
+        const clip = validateKayKitNative(sources.character, matches[0]!); clip.name = name;
+        clips.push([name, clip]);
+      }
+    }
     const contained = new Set<THREE.Object3D>(); sources.character.traverse(node => contained.add(node));
     let skins = 0;
     sources.character.traverse(node => {

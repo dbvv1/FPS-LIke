@@ -6,7 +6,7 @@ import path from 'node:path';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone } from 'three/addons/utils/SkeletonUtils.js';
-import { KAYKIT_ACTIONS, KayKitSkinnedCharacter, KayKitCharacterSlot, remapKayKitParent, type KayKitAction } from '../src/render/kaykit-skinned-character.js';
+import { KAYKIT_NATIVE_ACTIONS, KAYKIT_ACTIONS, KayKitSkinnedCharacter, KayKitCharacterSlot, remapKayKitParent, type KayKitAction } from '../src/render/kaykit-skinned-character.js';
 const sample = process.argv[2];
 if (!sample) { console.error('Usage: npm run check:kaykit -- <fixed-sample-directory>'); process.exit(2); }
 async function load(name: string, hash: string) {
@@ -53,7 +53,7 @@ for (const [index, mesh] of meshes(a.scene).entries()) {
 const restingB = transforms(b.scene), restA = transforms(a.scene);
 let boundVerticesChecked = 0;
 let samples = 0, verticesChecked = 0, maxMatrixError = 0, maxSkinError = 0;
-for (const action of Object.keys(KAYKIT_ACTIONS) as KayKitAction[]) {
+for (const action of Object.keys(KAYKIT_ACTIONS) as (keyof typeof KAYKIT_ACTIONS)[]) {
   const clip = source.animations.find(c => c.name === KAYKIT_ACTIONS[action])!;
   const reference = clone(source.scene), mixer = new THREE.AnimationMixer(reference);
   const referenceAction = mixer.clipAction(clip.clone()); referenceAction.setLoop(THREE.LoopOnce, 1); referenceAction.clampWhenFinished = true; referenceAction.play();
@@ -131,7 +131,7 @@ failedSlot.dispose(); assert.equal(rigidFallback.parent, fallbackScene);
 // including a finished clip rewound and switching both fixed source clips.
 const sampled = new KayKitSkinnedCharacter(inputs), elapsed = new KayKitSkinnedCharacter(inputs);
 let absoluteSamples = 0;
-for (const action of Object.keys(KAYKIT_ACTIONS) as KayKitAction[]) {
+for (const action of Object.keys(KAYKIT_ACTIONS) as (keyof typeof KAYKIT_ACTIONS)[]) {
   const duration = source.animations.find(c => c.name === KAYKIT_ACTIONS[action])!.duration;
   for (const phase of [1, 0.25, 0, 0.75, 0.25]) {
     sampled.sample(action, phase);
@@ -148,3 +148,67 @@ for (const action of Object.keys(KAYKIT_ACTIONS) as KayKitAction[]) {
 sampled.dispose(); elapsed.dispose();
 const slot = new KayKitCharacterSlot(); await slot.load(async () => inputs); assert.equal(slot.status, 'ready'); slot.dispose(); assert.equal(slot.status, 'disposed');
 console.log(JSON.stringify({ absoluteSamples, samples, boundVerticesChecked, verticesChecked, maxMatrixError, maxSkinError, clones: 2, skinnedMeshesPerClone: 6, paletteDisposals, borrowedDisposals, textureDecoded: false, browser: false }));
+
+// Same-GLB native source animations: direct independent mixer comparison, no
+// cross-rig adaptation and no claim about the absent gun/magazine contact.
+const nativeBefore = JSON.stringify(target.animations.map(c => THREE.AnimationClip.toJSON(c)));
+const nativeInputs = { ...inputs, nativeAnimations: target.animations };
+const nativeActor = new KayKitSkinnedCharacter(nativeInputs);
+const nativeSibling = new KayKitSkinnedCharacter(nativeInputs);
+const nativeSiblingRest = transforms(nativeSibling.scene);
+let nativeSamples = 0, nativeBoundVertices = 0, nativeMaxError = 0;
+for (const action of Object.keys(KAYKIT_NATIVE_ACTIONS) as (keyof typeof KAYKIT_NATIVE_ACTIONS)[]) {
+  const clip = target.animations.find(c => c.name === KAYKIT_NATIVE_ACTIONS[action])!;
+  const reference = clone(target.scene), mixer = new THREE.AnimationMixer(reference);
+  const refAction = mixer.clipAction(clip.clone());
+  refAction.setLoop(THREE.LoopOnce, 1); refAction.clampWhenFinished = true;
+  // Full 60 Hz sequence plus rewind, end and restart after prior native action.
+  const phases = [...Array.from({length: Math.ceil(clip.duration * 60) + 1}, (_,i) => Math.min(i / 60 / clip.duration, 1)), .75, .25, 1, 0];
+  for (const phase of phases) {
+    assert.equal(nativeActor.sample(action, phase), true);
+    mixer.stopAllAction(); refAction.reset().play(); mixer.update(clip.duration * phase);
+    reference.updateMatrixWorld(true);
+    nativeActor.scene.traverse(node => {
+      if (!node.name) return;
+      const expected = reference.getObjectByName(node.name)!;
+      node.matrixWorld.elements.forEach((value, index) => {
+        nativeMaxError = Math.max(nativeMaxError, Math.abs(value - expected.matrixWorld.elements[index]!));
+      });
+    });
+    for (const skin of meshes(nativeActor.scene)) for (let i = 0; i < skin.geometry.getAttribute('position').count; i++) {
+      const point = skin.getVertexPosition(i, new THREE.Vector3());
+      assert.ok(skin.boundingBox!.clone().expandByScalar(1e-8).containsPoint(point));
+      assert.ok(point.distanceTo(skin.boundingSphere!.center) <= skin.boundingSphere!.radius + 1e-8);
+      nativeBoundVertices++;
+    }
+    nativeSamples++;
+  }
+  mixer.stopAllAction(); mixer.uncacheRoot(reference);
+}
+assert.ok(nativeMaxError < 1e-6, `native source drift ${nativeMaxError}`);
+assert.equal(transforms(nativeSibling.scene), nativeSiblingRest);
+assert.equal(JSON.stringify(target.animations.map(c => THREE.AnimationClip.toJSON(c))), nativeBefore);
+const legacy = new KayKitSkinnedCharacter(inputs);
+assert.equal(legacy.play('native-fire-two-hand'), false, 'native actions are opt-in'); legacy.dispose();
+const missingNative = new KayKitCharacterSlot();
+await missingNative.load(async () => ({ ...inputs, nativeAnimations: [] }));
+assert.equal(missingNative.status, 'fallback'); assert.equal(missingNative.character, null); missingNative.dispose();
+// Native elapsed playback and switches back to the existing remapped actions.
+const mixed = new KayKitSkinnedCharacter(nativeInputs);
+for (const [name, duration] of [
+  ['native-fire-two-hand', target.animations.find(c => c.name === KAYKIT_NATIVE_ACTIONS['native-fire-two-hand'])!.duration],
+  ['reload-one-hand', source.animations.find(c => c.name === KAYKIT_ACTIONS['reload-one-hand'])!.duration],
+  ['native-aim-two-hand', target.animations.find(c => c.name === KAYKIT_NATIVE_ACTIONS['native-aim-two-hand'])!.duration],
+] as const) {
+  mixed.play(name); mixed.update(duration * .5); nativeActor.sample(name, .5);
+  assert.equal(transforms(mixed.scene), transforms(nativeActor.scene));
+}
+mixed.stop(); nativeActor.stop();
+const localRest = (root: THREE.Object3D) => JSON.parse(transforms(root)).map((n: unknown[]) => n.slice(0,4));
+assert.deepEqual(localRest(mixed.scene), localRest(target.scene));
+assert.deepEqual(localRest(nativeActor.scene), localRest(target.scene)); mixed.dispose();
+assert.equal(nativeActor.currentAction, null);
+nativeActor.dispose(); nativeActor.dispose(); nativeSibling.dispose();
+assert.deepEqual([transforms(target.scene), transforms(source.scene), JSON.stringify(source.animations.map(c => THREE.AnimationClip.toJSON(c)))], before);
+assert.equal(sharedResourceState(), originalResources);
+console.log(JSON.stringify({ nativeSamples, nativeBoundVertices, nativeMaxError, nativeActions: KAYKIT_NATIVE_ACTIONS, browser: false, gunMagazineContact: 'unverified', defaultChanged: false }));
