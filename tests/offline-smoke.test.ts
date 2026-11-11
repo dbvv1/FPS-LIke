@@ -93,3 +93,67 @@ test('new-match UI start must advance, then Escape must freeze before full cover
     assert.deepEqual(actions,['#start','Escape']);
   }
 });
+
+test('home and current full-materials promotion route require complete-match coverage', async () => {
+  // @ts-expect-error Browser-independent orchestration helpers.
+  const { smokeEntry, REVIEWED_QUERY, FULL_MATERIALS_QUERY } = await import('../tools/smoke-offline-support.mjs');
+  for (const query of [undefined, '', '?', REVIEWED_QUERY, FULL_MATERIALS_QUERY]) {
+    const entry = smokeEntry(query);
+    assert.equal(entry.offline, true); assert.equal(entry.lit, true); assert.equal(entry.artStandards, true);
+    assert.equal(entry.fullMaterials, query === FULL_MATERIALS_QUERY);
+  }
+  const { reviewedTrainingSearch, resolveHomeSearch } = await import('../src/default-route.js');
+  assert.equal(REVIEWED_QUERY, reviewedTrainingSearch);
+  assert.equal(smokeEntry().effective, resolveHomeSearch(''));
+  for (const query of ['?gameplay=movement-v2', '?gameplay=movement-v2&contentSet=characters-v1']) {
+    assert.equal(smokeEntry(query).effective, resolveHomeSearch(query));
+    assert.equal(smokeEntry(query).offline, true);
+  }
+  assert.equal(smokeEntry('?gameplay=legacy-v1').offline, false);
+  for (const query of [null, 'materials=x', '?smoke=ground-v1', '?foo=bar', '?materials=ai-courtyard-full-v1', '?gameplay=movement-v2&foo=bar', OFFLINE_QUERY + '&testHook=end', OFFLINE_QUERY + '&match=complete-v1'])
+    assert.throws(() => smokeEntry(query));
+});
+
+test('frame summary covers all six rounds and rejects missing or invalid measurements', async () => {
+  // @ts-expect-error Browser-independent orchestration helpers.
+  const { summarizeMatchFrames } = await import('../tools/smoke-offline-support.mjs');
+  const samples = Array.from({length:6}, (_,i) => ({startMs:5*i*(i+1),endMs:5*(i+1)*(i+2),ms: 10*(i+1),round:i+1,active:true}));
+  const summary = summarizeMatchFrames([...samples, {startMs:210,endMs:710,ms:500,round:1,active:false}]);
+  assert.equal(summary.startMs,0); assert.equal(summary.endMs,710); assert.equal(summary.observedSpanMs,710);
+  assert.equal(summary.active.count,6); assert.equal(summary.active.meanMs,35);
+  assert.equal(summary.active.medianMs,30); assert.equal(summary.active.p95Ms,60);
+  assert.equal(summary.active.over50Ms,1); assert.equal(summary.all.maxMs,500);
+  assert.equal(summary.rounds.every((r:any)=>r.count===1),true);
+  for(const input of [undefined, [], samples.slice(1), [...samples,{ms:NaN,round:1,active:true}],
+    [...samples,{ms:-1,round:1,active:true}], [...samples,{ms:1,round:7,active:true}], [...samples,{ms:1,round:1}]])
+    assert.throws(()=>summarizeMatchFrames(input));
+  for (const mutate of [(s:any)=>delete s.startMs, (s:any)=>s.endMs=Infinity,
+    (s:any)=>{s.startMs+=1;s.ms-=1;}, (s:any)=>s.ms+=1]) {
+    const bad=samples.map(s=>({...s})); mutate(bad[1]); assert.throws(()=>summarizeMatchFrames(bad));
+  }
+  const partial=summarizeMatchFrames(samples.slice(0,2),false);
+  assert.equal(partial.rounds[2].count,0); assert.match(partial.scope,/partial observation only/);
+  assert.doesNotMatch(partial.scope,/across six natural rounds/);
+});
+
+test('read-only frame observer preserves raw intervals but excludes pause, hidden and round boundaries', async () => {
+  // @ts-expect-error Browser-injected observer is also executed against a minimal CPU host.
+  const { installFrameObserver } = await import('../tools/smoke-offline-support.mjs');
+  const { runInNewContext } = await import('node:vm');
+  let callback:(now:number)=>void = ()=>{}, cancelled=0;
+  const state={running:true}, snapshot={round:1,phase:'live'}, document={hidden:false};
+  const window:any={fpsClient:{state:()=>state,snapshot:()=>snapshot}};
+  runInNewContext(`(${installFrameObserver.toString()})()`, {window,document,
+    requestAnimationFrame:(cb:any)=>{callback=cb;return 19;},cancelAnimationFrame:(id:number)=>{cancelled=id;}});
+  callback(0); callback(16); state.running=false; callback(32);
+  state.running=true; callback(48); callback(64); snapshot.round=2; callback(80);
+  callback(96); document.hidden=true; callback(112); document.hidden=false; callback(128); callback(144);
+  snapshot.phase='over'; callback(160);
+  const samples=window.fpsSmokeFrames.stop();
+  assert.equal(cancelled,19); assert.equal(samples.length,10);
+  assert.deepEqual(Array.from(samples,(s:any)=>s.active),[true,false,false,true,false,true,false,false,true,false]);
+  assert.equal(samples.every((s:any)=>s.ms===16 && s.endMs-s.startMs===16),true);
+  assert.equal(samples[0].startMs,0); assert.equal(samples.at(-1).endMs,160);
+  assert.equal(samples[6].visible,false); assert.equal(samples[1].running,false);
+  assert.deepEqual(state,{running:true}); assert.deepEqual(snapshot,{round:2,phase:'over'});
+});

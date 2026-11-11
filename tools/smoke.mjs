@@ -6,17 +6,13 @@ import { resolve, sep } from 'node:path';
 import { chromium } from 'playwright';
 import { preview } from 'vite';
 import { PNG } from 'pngjs';
-import { OFFLINE_QUERY, assertOfflineReady, assertMatchReset, finishOfflineMatch, verifyRestartPlayable, portClosed } from './smoke-offline-support.mjs';
+import { smokeEntry, installFrameObserver, summarizeMatchFrames, assertOfflineReady, assertMatchReset, finishOfflineMatch, verifyRestartPlayable, portClosed } from './smoke-offline-support.mjs';
 const output = process.env.FPS_SMOKE_OUTPUT ? pathToFileURL(resolve(process.env.FPS_SMOKE_OUTPUT) + sep) : new URL('../outputs/browser-smoke/', import.meta.url);
 const query = process.env.FPS_SMOKE_QUERY ?? '';
 if (query && !query.startsWith('?')) throw new Error('Smoke query must start with ?');
 await mkdir(output, { recursive: true });
 const report = { passed: false, errors: [], warnings: [], stages: [] };
-const litFullMaterials = query === OFFLINE_QUERY + '&art=standards-v1&lighting=courtyard-light-v1&materials=ai-courtyard-full-v1';
-const fullMaterials = query === OFFLINE_QUERY + '&art=standards-v1&materials=ai-courtyard-full-v1' || litFullMaterials;
-const artStandards = query === OFFLINE_QUERY + '&art=standards-v1' || fullMaterials;
-const offline = query === OFFLINE_QUERY || artStandards;
-if (new URLSearchParams(query).get('gameplay') === 'offline-training-v1' && !offline) throw new Error('Offline smoke requires the exact complete entry');
+const { effective, offline, artStandards, fullMaterials, lit } = smokeEntry(query);
 if (offline) report.offlineCoverage = { fullMatchPlaythrough: false, completedRounds: [], restartScope: 'whole match via final next UI (再打一场); no separate round-restart control', unverified: ['six-round completion UI', 'halftime transition', 'end-of-match replay', 'human visual/audio quality'] };
 let server, browser, page, previewPort;
 try {
@@ -34,20 +30,23 @@ try {
   report.launchEvidence = 'Requested options only; verify final argv in DEBUG=pw:browser output.';
   browser = await chromium.launch(launch);
   report.requestedLaunch.browserVersion = browser.version();
-  page = await browser.newPage({ viewport: { width: 1365, height: 900 } });
+  report.viewport = { width: 1365, height: 900 };
+  report.deviceScaleFactor = 1;
+  page = await browser.newPage({ viewport: report.viewport, deviceScaleFactor: 1 });
   page.on('pageerror', e => report.errors.push(String(e)));
   page.on('console', e => { if (e.type() === 'error') report.errors.push(e.text()); else if (e.type() === 'warning') report.warnings.push(e.text()); });
   page.on('requestfailed', r => report.errors.push(`Request failed: ${r.url()} ${r.failure()?.errorText}`));
   await page.route('**/*', route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort('blockedbyclient'));
   report.query = query;
+  report.effectiveQuery = effective;
   await page.goto(origin + query, { waitUntil: 'networkidle' });
   await page.waitForFunction(() => window.fpsClient?.state().ready);
   report.webgl = await page.locator('#stage').evaluate(canvas => { const gl = canvas.getContext('webgl2'); if (!gl || gl.isContextLost()) return null; const ext = gl.getExtension('WEBGL_debug_renderer_info'); return { version: gl.getParameter(gl.VERSION), renderer: gl.getParameter(gl.RENDERER), vendor: gl.getParameter(gl.VENDOR), unmaskedRenderer: ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : null, unmaskedVendor: ext ? gl.getParameter(ext.UNMASKED_VENDOR_WEBGL) : null }; });
   assert.ok(report.webgl, 'A real WebGL2 context is required');
   const raw = report.webgl.unmaskedRenderer ?? report.webgl.renderer;
   report.rendererClass = /(swiftshader|llvmpipe|softpipe|swrast|lavapipe|software|basic render|microsoft remote)/i.test(raw) ? 'software' : report.webgl.unmaskedRenderer && !/(virgl|virtual|vmware|parallels)/i.test(raw) && /(nvidia|geforce|quadro|radeon|\bAMD\b|\bIntel\b|Apple\s+(?:M\d|GPU)|adreno|mali)/i.test(raw) ? 'gpu' : 'unknown';
-  assert.equal(await page.evaluate(() => window.fpsClient.snapshot().gameplayVersion ?? 1), new URLSearchParams(query).get('gameplay') === 'movement-v2' ? 2 : 1);
-  if (new URLSearchParams(query).get('contentSet') === 'characters-v1') {
+  assert.equal(await page.evaluate(() => window.fpsClient.snapshot().gameplayVersion ?? 1), 1);
+  if (new URLSearchParams(effective).get('contentSet') === 'characters-v1') {
     await page.waitForFunction(() => { const state = JSON.parse(document.getElementById('debug-state').textContent); return state.contentSet?.status === 'ready' && state.contentSet?.active === true; });
     report.contentSet = await page.evaluate(() => JSON.parse(document.getElementById('debug-state').textContent).contentSet);
   }
@@ -57,7 +56,7 @@ try {
     assert.equal(report.artStandards.pieces, 3);
     assert.deepEqual(report.artStandards.budget, {triangles:2396,calls:4,bytes:123604});
   }
-  if (litFullMaterials) {
+  if (lit) {
     report.lighting = await page.evaluate(() => window.fpsClient.state().lighting);
     assert.deepEqual(report.lighting, { id: 'courtyard-light-v1', environment: 'hemisphere-and-ambient', ao: 'deterministic-ssao-half-resolution', grade: 'cool-shadows-warm-highlights' });
   }
@@ -110,6 +109,7 @@ try {
   assert.ok(report.pixels.colors > 32 && report.pixels.dominant < 0.99, 'Canvas must have non-background pixels');
   report.stages.push('loaded real WebGL2 scene');
   await page.locator('#audio').uncheck();
+  if (offline) await page.evaluate(installFrameObserver);
   await page.locator('#start').click();
   await page.waitForFunction(() => window.fpsClient.state().locked && window.fpsClient.state().running);
   await page.waitForFunction(() => window.fpsClient.snapshot().tick > 4);
@@ -137,7 +137,12 @@ try {
   await page.waitForTimeout(200); assert.equal(await page.evaluate(() => window.fpsClient.snapshot().tick), paused);
   await page.locator('#start').click(); await page.waitForFunction(() => window.fpsClient.state().running);
   await page.keyboard.press('Escape'); await page.waitForFunction(() => !window.fpsClient.state().running);
-  if (offline) await finishOfflineMatch(page, report);
+  if (offline) {
+    await finishOfflineMatch(page, report);
+    const samples = await page.evaluate(() => window.fpsSmokeFrames.stop());
+    await writeFile(new URL('frames.json', output), JSON.stringify(samples) + '\n');
+    report.frameTiming = summarizeMatchFrames(samples);
+  }
   else await page.locator('#restart').click();
   await page.waitForFunction(() => window.fpsClient.snapshot().tick === 0);
   assert.equal(await page.evaluate(() => window.fpsClient.snapshot().actors.find(a => a.id === 'player').weapons.pistol.ammo), 10);
@@ -153,6 +158,13 @@ try {
   report.passed = true;
 } catch (error) {
   report.failure = String(error.stack ?? error); process.exitCode = 1;
+  if (offline && page) { try {
+    const samples = await page.evaluate(() => window.fpsSmokeFrames?.stop());
+    if (samples?.length) {
+      await writeFile(new URL('frames.json', output), JSON.stringify(samples) + '\n');
+      report.partialFrameTiming = summarizeMatchFrames(samples, false);
+    }
+  } catch {} }
   if (page) { try { await page.screenshot({ path: fileURLToPath(new URL('failure.png', output)) }); } catch {} }
 } finally {
   report.cleanup = {};

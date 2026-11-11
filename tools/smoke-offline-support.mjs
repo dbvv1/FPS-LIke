@@ -1,6 +1,78 @@
 import assert from 'node:assert/strict';
 import { connect } from 'node:net';
+// Node >=24 (repository runtime): native type stripping shares the product route.
+import { resolveHomeSearch, reviewedTrainingSearch } from '../src/default-route.ts';
 export const OFFLINE_QUERY = '?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1';
+export const REVIEWED_QUERY = reviewedTrainingSearch;
+export const FULL_MATERIALS_QUERY = REVIEWED_QUERY + '&materials=ai-courtyard-full-v1';
+export function smokeEntry(query = '') {
+  assert.equal(typeof query, 'string');
+  assert.ok(query === '' || query.startsWith('?'), 'Smoke query must start with ?');
+  assert.ok(!new URLSearchParams(query).has('smoke'), 'Fixed-tape smoke is not a natural full-match entry');
+  const allowed = ['', '?', '?gameplay=legacy-v1', '?contentSet=characters-v1',
+    '?gameplay=movement-v2', '?gameplay=movement-v2&contentSet=characters-v1', OFFLINE_QUERY,
+    OFFLINE_QUERY + '&art=standards-v1', OFFLINE_QUERY + '&art=standards-v1&materials=ai-courtyard-full-v1',
+    REVIEWED_QUERY, FULL_MATERIALS_QUERY];
+  assert.ok(allowed.includes(query), 'Unsupported smoke entry; use an exact supported route');
+  const effective = resolveHomeSearch(query);
+  const litFullMaterials = effective === FULL_MATERIALS_QUERY;
+  const fullMaterials = litFullMaterials || effective === OFFLINE_QUERY + '&art=standards-v1&materials=ai-courtyard-full-v1';
+  const lit = litFullMaterials || effective === REVIEWED_QUERY;
+  const artStandards = lit || fullMaterials || effective === OFFLINE_QUERY + '&art=standards-v1';
+  const offline = effective === OFFLINE_QUERY || artStandards;
+  // Do not silently certify unsupported/duplicate options as a complete-match run.
+  assert.ok(offline || effective === '?gameplay=legacy-v1' || effective === '?contentSet=characters-v1', 'Unsupported resolved smoke entry');
+  return { effective, offline, artStandards, fullMaterials, lit };
+}
+
+// Read-only rAF observer. This measures frame intervals, not GPU time or input latency.
+// Keep raw samples, including menus and hidden frames, so exclusions remain auditable.
+export function installFrameObserver() {
+  const samples = [];
+  let previous, previousRound, previousRunning = false, previousVisible = false, id;
+  function frame(now) {
+    const state = window.fpsClient.state(), snapshot = window.fpsClient.snapshot();
+    const running = state.running && snapshot.phase !== 'over', visible = !document.hidden;
+    if (previous !== undefined) samples.push({ startMs: previous, endMs: now, ms: now - previous, round: snapshot.round,
+      running, visible, phase: snapshot.phase,
+      active: running && previousRunning && previousRound === snapshot.round && visible && previousVisible });
+    previous = now; previousRound = snapshot.round; previousRunning = running; previousVisible = visible;
+    id = requestAnimationFrame(frame);
+  }
+  id = requestAnimationFrame(frame);
+  window.fpsSmokeFrames = { stop: () => { cancelAnimationFrame(id); return samples; } };
+}
+export function summarizeMatchFrames(samples, requireComplete = true) {
+  assert.ok(Array.isArray(samples) && samples.length > 0, 'Missing frame observations');
+  let previousEnd;
+  for (const s of samples) {
+    assert.ok(Number.isFinite(s.ms) && s.ms > 0, 'Invalid frame interval');
+    assert.ok(Number.isFinite(s.startMs) && Number.isFinite(s.endMs) && s.endMs > s.startMs, 'Missing or invalid frame boundaries');
+    assert.ok(Math.abs(s.endMs - s.startMs - s.ms) < 1e-6, 'Frame duration does not match boundaries');
+    if (previousEnd !== undefined) assert.equal(s.startMs, previousEnd, 'Gap or overlap in frame observations');
+    previousEnd = s.endMs;
+    assert.ok(Number.isInteger(s.round) && s.round >= 1 && s.round <= 6, 'Invalid frame round');
+    assert.equal(typeof s.active, 'boolean');
+  }
+  const stats = values => {
+    if (!values.length) return { count: 0 };
+    const sorted = [...values].sort((a,b) => a-b);
+    return { count: values.length, totalMs: values.reduce((a,b) => a+b, 0),
+      meanMs: values.reduce((a,b) => a+b, 0) / values.length,
+      medianMs: sorted[Math.ceil(sorted.length * .5)-1], p95Ms: sorted[Math.ceil(sorted.length * .95)-1],
+      p99Ms: sorted[Math.ceil(sorted.length * .99)-1], maxMs: sorted.at(-1), over50Ms: values.filter(v=>v>50).length };
+  };
+  const rounds = Array.from({length:6}, (_,i) => ({ round:i+1, ...stats(samples.filter(s=>s.active && s.round===i+1).map(s=>s.ms)) }));
+  if (requireComplete) assert.ok(rounds.every(r=>r.count>0), 'Missing active frame observations for one or more rounds');
+  return { metric: 'requestAnimationFrame interval; observer overhead included; not GPU time',
+    clock: 'performance timeline milliseconds since page time origin',
+    startMs: samples[0].startMs, endMs: samples.at(-1).endMs,
+    observedSpanMs: samples.at(-1).endMs - samples[0].startMs,
+    scope: requireComplete
+      ? 'first to last recorded rAF across six natural rounds and final UI restart; active excludes paused/hidden/round-boundary intervals'
+      : 'partial observation only: first to last recorded rAF before failure; no six-round or restart completion claim',
+    all: stats(samples.map(s=>s.ms)), active: stats(samples.filter(s=>s.active).map(s=>s.ms)), rounds };
+}
 export function assertOfflineReady(state, snapshot, hud) {
   assert.equal(state.ready, true);
   assert.equal(state.squads?.version, 'offline-v1');

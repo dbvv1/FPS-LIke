@@ -32,7 +32,10 @@ smoke 保留 sandbox、仅 headless，不允许可见窗口或操作桌面。页
 `?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1`。
 不重复四个旧入口或 capture；其源码隔离仍由路由测试与 v13 baseline 哈希回归检查。
 
-此命令使用真实 headless 页面输入，不改模拟时间或状态：核对九个 bot、十名角色、六回合 HUD 与 courtyard active；移动、瞄准、开火、换弹中断、暂停冻结和恢复；自然等待第一回合结束（最多 120 秒），用 UI 进入第二回合，再“重新开始”清空整场记录和比分。当前 UI 没有独立的“仅重开本回合”动作。
-**这不是六回合实玩验收**：半场换边、六回合终局与终局“再打一场”、人工画面/听感仍未覆盖。任何首回合超时或输入断言失败都使 smoke 失败，不回退为模拟通过。
+此命令使用真实 headless 页面输入，不改模拟时间或状态：核对九个 bot、十名角色、六回合 HUD 与 courtyard active；移动、瞄准、开火、换弹中断、暂停冻结和恢复；自然等待每一回合结束（每回合最多 180 秒），用 UI 继续到六回合，核对第三回合半场、第四回合攻守身份、终局比分和六条记录，再用“再打一场”清空记录并验证重新进入后推进、暂停。当前 UI 没有独立的“仅重开本回合”动作。超时或断言失败即失败，不注入 tick、不用 testHook 造终局、不回退为模拟通过。旧回执仍只证明当时实际覆盖范围。
+
+全场材质换默认前，沿同一执行器运行 `node tools/smoke-backlog.mjs --full-materials`：串行验首页空参数与已合开关 `?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&materials=ai-courtyard-full-v1`，不采用未合训练资源候选。两路必须各自完成六回合且 renderer 相同。首页与显式现行灯光入口都走完整训练 smoke，不再被当作旧 1v1。旧 movement-v2 链接复用真实首页路由，按实际重定向后的训练版本验收；固定带 smoke 参数和不支持的入口明确拒绝，不静默降为短测。脚本直接共享 TypeScript 路由，需要仓库要求的 Node 24+。
+
+帧耗从首次进入前记录到六回合终局重开，保存 `frames.json` 全部 rAF 间隔；`report.json` 给出整体及逐回合活动帧数、平均、中位、p95、p99、最大和超过 50 ms 次数。活动统计排除暂停、后台与跨回合间隔，原始数据仍保留；缺任一回合数据失败。失败时尽量保存部分数据，不能冒充完整结果。这是含观察器开销的页面帧间隔，不是 GPU 渲染耗时、输入延迟或硬件 FPS；自然对局时长可能不同，比较报告不自动作“明显劣化”判定。视觉盲评与声音仍需独立验收，增加脚本不代表已在浏览器运行。
 
 每次独占 `outputs/offline-training-smoke/<commit>-<unique>/`，保留 source commit/tree、构建文件 SHA-256、页面报告与 `DEBUG=pw:browser` 日志；报告区分原始 renderer 与 gpu/software/unknown，并核对自有浏览器 PID 的零码退出、断连及预览端口关闭。Windows 构建复用现有 npm 调用。默认保留 sandbox、精确移除 unsafe SwiftShader 默认参数；可沿现有 `FPS_SMOKE_CHROMIUM` 与 `FPS_SMOKE_RENDERER=native` 配置选择执行器，不启动可见窗口。原始输出含执行环境信息，公开前需脱敏扫描。
