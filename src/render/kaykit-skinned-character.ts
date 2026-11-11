@@ -11,13 +11,19 @@ export const KAYKIT_NATIVE_ACTIONS = {
   'native-fire-two-hand': '2H_Ranged_Shoot',
   'native-reload-two-hand': '2H_Ranged_Reload',
 } as const;
-export type KayKitAction = keyof typeof KAYKIT_ACTIONS | keyof typeof KAYKIT_NATIVE_ACTIONS;
+export const KAYKIT_LOOP_ACTIONS = {
+  'run-rifle': 'Rig_Medium|Running_HoldingRifle',
+} as const;
+export type KayKitLoopAction = keyof typeof KAYKIT_LOOP_ACTIONS;
+export type KayKitAction = keyof typeof KAYKIT_ACTIONS | keyof typeof KAYKIT_NATIVE_ACTIONS | KayKitLoopAction;
 export interface KayKitSources {
   character: THREE.Object3D;
   motion: THREE.Object3D;
   animations: readonly THREE.AnimationClip[];
   /** Explicit opt-in: clips from the exact character GLB, never another rig. */
   nativeAnimations?: readonly THREE.AnimationClip[];
+  /** Separate fixed MovementAdvanced source; omitted callers keep their old clips. */
+  rifleMovement?: { motion: THREE.Object3D; animations: readonly THREE.AnimationClip[] };
 }
 function requireThat(ok: unknown, message: string): asserts ok {
   if (!ok) throw new Error(message);
@@ -104,6 +110,15 @@ export class KayKitSkinnedCharacter {
         clips.push([name, clip]);
       }
     }
+    if (sources.rifleMovement !== undefined) {
+      for (const name of Object.keys(KAYKIT_LOOP_ACTIONS) as KayKitLoopAction[]) {
+        const matches = sources.rifleMovement.animations.filter(clip => clip.name === KAYKIT_LOOP_ACTIONS[name]);
+        requireThat(matches.length === 1, `Unique movement clip required: ${KAYKIT_LOOP_ACTIONS[name]}`);
+        const clip = remapKayKitParent(sources.rifleMovement.motion, sources.character, matches[0]!);
+        requireThat(Number.isFinite(clip.duration) && clip.duration > 0, 'Positive clip duration required');
+        clip.name = name; clips.push([name, clip]);
+      }
+    }
     const contained = new Set<THREE.Object3D>(); sources.character.traverse(node => contained.add(node));
     let skins = 0;
     sources.character.traverse(node => {
@@ -164,6 +179,17 @@ export class KayKitSkinnedCharacter {
     action.time = action.getClip().duration * progress;
     this.mixer.update(0); this.refreshPoseBounds();
     return true;
+  }
+  /** Absolute loop time from the caller's locomotion clock, never wall time.
+   * This does not infer movement from input, set actor speed, or blend actions.
+   * sample(name, 1) still exposes the original endpoint; this method wraps it.
+   */
+  sampleLoop(name: KayKitLoopAction, elapsedSeconds: number): boolean {
+    requireThat(Number.isFinite(elapsedSeconds) && elapsedSeconds >= 0, 'Finite nonnegative loop time required');
+    if (this.ended || !Object.hasOwn(KAYKIT_LOOP_ACTIONS, name)) return false;
+    const duration = this.duration(name);
+    if (duration === null) return false;
+    return this.sample(name, (elapsedSeconds % duration) / duration);
   }
   update(deltaSeconds: number) {
     if (this.ended) return;

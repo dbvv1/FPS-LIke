@@ -219,3 +219,166 @@ test('native stationary rifle follows accepted Game snapshots; switch and unsupp
     state.time=shot+SECOND*.8;syncKayKitNativeAction(fake,state,id);assert.deepEqual(calls.pop(),['native-aim-two-hand',1]);
   } finally {game.dispose();}
 });
+
+import { KAYKIT_LOOP_ACTIONS, type KayKitLoopAction } from '../src/render/kaykit-skinned-character.js';
+function rifleRunSources() {
+  const sources = movingSkinSources();
+  const clip = sources.animations[0]!.clone();
+  clip.name = KAYKIT_LOOP_ACTIONS['run-rifle'];
+  clip.tracks = clip.tracks.map(track => track.name === 'root.position'
+    ? new THREE.VectorKeyframeTrack(track.name, [0, .5, 1], [0, 0, 0, 4, 0, 0, 0, 0, 0]) : track);
+  return { ...sources, rifleMovement: { motion: sources.motion, animations: [clip] } };
+}
+test('optional rifle run consumes a separate complete source without changing old callers', () => {
+  const sources = rifleRunSources(), before = JSON.stringify(THREE.AnimationClip.toJSON(sources.rifleMovement.animations[0]!));
+  const actor = new KayKitSkinnedCharacter(sources), old = new KayKitSkinnedCharacter(movingSkinSources());
+  try {
+    assert.equal(old.duration('run-rifle'), null); old.play('reload-one-hand');
+    assert.equal(old.sampleLoop('run-rifle', .5), false); assert.equal(old.currentAction, 'reload-one-hand');
+    assert.equal(actor.duration('run-rifle'), 1); actor.sample('run-rifle', .5);
+    assert.equal(actor.currentAction, 'run-rifle');
+    assert.ok(Math.abs(skinsOf(actor.scene)[0]!.boundingBox!.min.x - 4) < 1e-6);
+    // Instance action clips are copied, not the borrowed source's live arrays.
+    sources.rifleMovement.animations[0]!.tracks[0]!.values.fill(999);
+    actor.sample('run-rifle', .5); assert.ok(Math.abs(skinsOf(actor.scene)[0]!.boundingBox!.min.x - 4) < 1e-6);
+    assert.notEqual(JSON.stringify(THREE.AnimationClip.toJSON(sources.rifleMovement.animations[0]!)), before);
+  } finally { actor.dispose(); old.dispose(); }
+});
+test('rifle loop absolute time wraps, rewinds and survives switches without advancing siblings', () => {
+  const sources = rifleRunSources(), actor = new KayKitSkinnedCharacter(sources), sibling = new KayKitSkinnedCharacter(sources);
+  const skin = skinsOf(actor.scene)[0]!, rest = skinsOf(sibling.scene)[0]!.boundingBox!.clone();
+  const original = JSON.stringify(sources.rifleMovement.animations.map(c => THREE.AnimationClip.toJSON(c)));
+  try {
+    for (const [seconds, x] of [[0, 0], [.25, 2], [.5, 4], [1, 0], [10.25, 2], [.25, 2], [1e6 + .75, 2]]) {
+      assert.equal(actor.sampleLoop('run-rifle', seconds!), true);
+      assert.ok(Math.abs(skin.boundingBox!.min.x - x!) < 1e-6);
+      const pose = skin.boundingBox!.clone(); actor.sampleLoop('run-rifle', seconds!); assert.deepEqual(skin.boundingBox, pose);
+      assert.deepEqual(skinsOf(sibling.scene)[0]!.boundingBox, rest);
+    }
+    actor.sample('reload-two-hand', .75); actor.sampleLoop('run-rifle', .5);
+    assert.ok(Math.abs(skin.boundingBox!.min.x - 4) < 1e-6);
+    actor.stop(); assert.equal(actor.currentAction, null); assert.deepEqual(skin.boundingBox, rest);
+    actor.sampleLoop('run-rifle', .5);
+    for (const bad of [-1, NaN, Infinity]) assert.throws(() => actor.sampleLoop('run-rifle', bad), /loop time/);
+    const pose = skin.boundingBox!.clone();
+    assert.equal(actor.sampleLoop('reload-two-hand' as KayKitLoopAction, .5), false);
+    assert.deepEqual(skin.boundingBox, pose); assert.equal(actor.currentAction, 'run-rifle');
+    assert.equal(JSON.stringify(sources.rifleMovement.animations.map(c => THREE.AnimationClip.toJSON(c))), original);
+    actor.dispose(); assert.equal(actor.sampleLoop('run-rifle', .5), false);
+  } finally { actor.dispose(); sibling.dispose(); }
+});
+test('movement opt-in fails closed on missing, ambiguous or incomplete clips and invalid hierarchy', async () => {
+  const sources = rifleRunSources(), clip = sources.rifleMovement.animations[0]!;
+  const incomplete = clip.clone(); incomplete.tracks = incomplete.tracks.filter(t => t.name !== 'Rig_Medium.scale');
+  const zero = clip.clone(); zero.duration = 0;
+  for (const animations of [[], [clip, clip], [incomplete], [zero]]) {
+    const slot = new KayKitCharacterSlot();
+    await slot.load(async () => ({ ...sources, rifleMovement: { ...sources.rifleMovement, animations } }));
+    assert.equal(slot.status, 'fallback'); assert.equal(slot.character, null); assert.ok(slot.error); slot.dispose();
+  }
+  assert.throws(() => new KayKitSkinnedCharacter({ ...sources,
+    rifleMovement: { motion: new THREE.Group(), animations: [clip] } }), /Unique node/);
+});
+
+import { syncKayKitRifleAction } from '../src/render/kaykit-game-action.js';
+function completeBodySources() {
+  const sources = rifleRunSources();
+  return { ...sources, nativeAnimations: Object.values(KAYKIT_NATIVE_ACTIONS).map(name => {
+    const clip = sources.animations[0]!.clone(); clip.name = name;
+    clip.tracks.forEach(t => { t.name = t.name.replace('Rig_Medium.', 'Rig.'); }); return clip;
+  }) };
+}
+test('real Game forward displacement drives the body chain at authoritative time without sim writes', async () => {
+  const game = await Game.create(17), id = game.state.actors[0]!.id;
+  const character = new KayKitSkinnedCharacter(completeBodySources());
+  try {
+    syncKayKitRifleAction(character, game.state, id); assert.equal(character.currentAction, 'native-aim-two-hand');
+    let previous = game.state;
+    game.step([{ actorId: id, type: 'move', x: 0, z: 1 }]);
+    const firstPair = [previous, game.state] as const;
+    for (let i = 0; i < 55; i++) {
+      const current = game.state, hash = game.stateHash, json = JSON.stringify([previous, current]);
+      syncKayKitRifleAction(character, current, id, previous); assert.equal(character.currentAction, 'run-rifle');
+      const expected = (current.time / SECOND) % 1;
+      const x = skinsOf(character.scene)[0]!.boundingBox!.min.x;
+      assert.ok(Math.abs(x - 8 * Math.min(expected, 1 - expected)) < 1e-5);
+      syncKayKitRifleAction(character, current, id, previous); assert.equal(skinsOf(character.scene)[0]!.boundingBox!.min.x, x);
+      assert.equal(game.stateHash, hash); assert.equal(JSON.stringify([previous, current]), json);
+      previous = current; game.step();
+    }
+    syncKayKitRifleAction(character, firstPair[1], id, firstPair[0]);
+    assert.equal(character.currentAction, 'run-rifle'); // Replay old authoritative pair, no accumulated clock.
+    game.step([{ actorId: id, type: 'move', x: 0, z: 0 }]);
+    syncKayKitRifleAction(character, game.state, id); assert.equal(character.currentAction, 'native-aim-two-hand');
+    game.step([{ actorId: id, type: 'shoot', yaw: Math.PI / 2, pitch: 0 }]);
+    syncKayKitRifleAction(character, game.state, id); assert.equal(character.currentAction, 'native-fire-two-hand');
+    game.step([{ actorId: id, type: 'reload' }]);
+    syncKayKitRifleAction(character, game.state, id); assert.equal(character.currentAction, 'native-reload-two-hand');
+    game.step([{ actorId: id, type: 'switch', weapon: 'pistol' }]);
+    syncKayKitRifleAction(character, game.state, id); assert.equal(character.currentAction, null);
+  } finally { character.dispose(); game.dispose(); }
+});
+test('real Game wall blocking and unsupported movement never become forward-run playback', async () => {
+  const game = await Game.create(17), id = game.state.actors[0]!.id;
+  const character = new KayKitSkinnedCharacter(completeBodySources());
+  try {
+    let previous = game.state;
+    game.step([{ actorId: id, type: 'move', x: 0, z: 1 }]);
+    for (let i = 0; i < 125; i++) { previous = game.state; game.step(); }
+    const current = game.state;
+    assert.ok(Math.hypot(current.actors[0]!.position.x - previous.actors[0]!.position.x,
+      current.actors[0]!.position.z - previous.actors[0]!.position.z) < .001, 'actual collision is below Game footstep displacement floor');
+    character.sampleLoop('run-rifle', .5); syncKayKitRifleAction(character, current, id, previous);
+    assert.equal(character.currentAction, null);
+    for (const command of [
+      { type: 'move', x: 1, z: 0 }, { type: 'move', x: 0, z: -1 },
+      { type: 'move', x: 0, z: -1, walk: true }, { type: 'move', x: 0, z: -1, crouch: true },
+    ] as const) {
+      previous = game.state; game.step([{ actorId: id, ...command }]);
+      character.sampleLoop('run-rifle', .5); syncKayKitRifleAction(character, game.state, id, previous);
+      assert.equal(character.currentAction, null);
+    }
+  } finally { character.dispose(); game.dispose(); }
+});
+test('movement witness rejects stale, absent, cross-round and fighting snapshots with same-frame reset', async () => {
+  const game = await Game.create(17), id = game.state.actors[0]!.id;
+  const character = new KayKitSkinnedCharacter(completeBodySources());
+  try {
+    const previous = game.state; game.step([{ actorId: id, type: 'move', x: 0, z: 1 }]); const current = game.state;
+    for (const old of [undefined, current, { ...previous, seed: 21 }, { ...previous, round: 2 }, { ...previous, actors: [] }]) {
+      character.sampleLoop('run-rifle', .5); syncKayKitRifleAction(character, current, id, old); assert.equal(character.currentAction, null);
+    }
+    const unsupported = [
+      (s:typeof current) => { s.phase = 'over'; }, (s:typeof current) => { s.actors[0]!.hp = 0; },
+      (s:typeof current) => { s.actors[0]!.input.interact = true; }, (s:typeof current) => { s.time = NaN; },
+      (s:typeof current) => { s.tick += 1; s.time += 1000; }, (s:typeof current) => { s.actors[0]!.position.x += 1; },
+    ];
+    for (const mutate of unsupported) { const bad = structuredClone(current); mutate(bad);
+      character.sampleLoop('run-rifle', .5); syncKayKitRifleAction(character, bad, id, previous); assert.equal(character.currentAction, null); }
+    let old = game.state; game.step([{ actorId: id, type: 'shoot', yaw: 0, pitch: 0 }]);
+    syncKayKitRifleAction(character, game.state, id, old); assert.equal(character.currentAction, null, 'no running-fire clip');
+    old = game.state; game.step([{ actorId: id, type: 'reload' }]);
+    syncKayKitRifleAction(character, game.state, id, old); assert.equal(character.currentAction, null, 'no running-reload clip');
+    const missing = new KayKitSkinnedCharacter(movingSkinSources());
+    try { missing.play('reload-two-hand'); syncKayKitRifleAction(missing, current, id, previous); assert.equal(missing.currentAction, null); }
+    finally { missing.dispose(); }
+    character.dispose(); syncKayKitRifleAction(character, current, id, previous); assert.equal(character.currentAction, null);
+  } finally { character.dispose(); game.dispose(); }
+});
+test('real Game forward movement uses world-space input at nonzero yaw in all quadrants', async () => {
+  for (const yaw of [Math.PI / 2, -Math.PI / 2, Math.PI / 4, Math.PI]) {
+    const game = await Game.create(17), id = game.state.actors[0]!.id;
+    const character = new KayKitSkinnedCharacter(completeBodySources());
+    try {
+      let previous = game.state;
+      game.step([{ actorId: id, type: 'aim', yaw, pitch: 0 },
+        { actorId: id, type: 'move', x: Math.sin(yaw), z: Math.cos(yaw) }]);
+      for (let i = 0; i < 12; i++) {
+        const current = game.state;
+        syncKayKitRifleAction(character, current, id, previous);
+        assert.equal(character.currentAction, 'run-rifle', `yaw ${yaw}, step ${i}`);
+        previous = current; game.step();
+      }
+    } finally { character.dispose(); game.dispose(); }
+  }
+});
