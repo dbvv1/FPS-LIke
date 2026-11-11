@@ -6,7 +6,7 @@ import path from 'node:path';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone } from 'three/addons/utils/SkeletonUtils.js';
-import { KAYKIT_NATIVE_ACTIONS, KAYKIT_ACTIONS, KayKitSkinnedCharacter, KayKitCharacterSlot, remapKayKitParent, type KayKitAction } from '../src/render/kaykit-skinned-character.js';
+import { KAYKIT_RIFLE_BODY, KAYKIT_MELEE_EQUIPMENT, KAYKIT_NATIVE_ACTIONS, KAYKIT_ACTIONS, KayKitSkinnedCharacter, KayKitCharacterSlot, remapKayKitParent, type KayKitAction } from '../src/render/kaykit-skinned-character.js';
 const sample = process.argv[2];
 if (!sample) { console.error('Usage: npm run check:kaykit -- <fixed-sample-directory>'); process.exit(2); }
 async function load(name: string, hash: string) {
@@ -166,6 +166,8 @@ for (const action of Object.keys(KAYKIT_NATIVE_ACTIONS) as (keyof typeof KAYKIT_
   const phases = [...Array.from({length: Math.ceil(clip.duration * 60) + 1}, (_,i) => Math.min(i / 60 / clip.duration, 1)), .75, .25, 1, 0];
   for (const phase of phases) {
     assert.equal(nativeActor.sample(action, phase), true);
+    for (const name of KAYKIT_MELEE_EQUIPMENT) assert.equal(nativeActor.scene.getObjectByName(name)!.visible, false);
+    for (const name of KAYKIT_RIFLE_BODY) assert.equal(nativeActor.scene.getObjectByName(name)!.visible, target.scene.getObjectByName(name)!.visible);
     mixer.stopAllAction(); refAction.reset().play(); mixer.update(clip.duration * phase);
     reference.updateMatrixWorld(true);
     nativeActor.scene.traverse(node => {
@@ -226,10 +228,23 @@ function boneDifference(a: THREE.Object3D, b: THREE.Object3D) {
     n.matrixWorld.elements.forEach((value,index)=>{error=Math.max(error,Math.abs(value-expected.matrixWorld.elements[index]!));});}});
   return error;
 }
+function checkEquipment(active: boolean) {
+  for (const name of KAYKIT_MELEE_EQUIPMENT)
+    assert.equal(gameActor.scene.getObjectByName(name)!.visible, active ? false : target.scene.getObjectByName(name)!.visible);
+  for (const name of KAYKIT_RIFLE_BODY)
+    assert.equal(gameActor.scene.getObjectByName(name)!.visible, target.scene.getObjectByName(name)!.visible);
+}
+// Fixed-source missing or invalid semantic meshes must fail before clone allocation.
+for (const mode of ['missing', 'wrong-kind']) {
+  const invalid = clone(target.scene), node = invalid.getObjectByName('Knight_Cape')!;
+  node.removeFromParent();
+  if (mode === 'wrong-kind') { const replacement = new THREE.Group(); replacement.name = node.name; invalid.add(replacement); }
+  assert.throws(() => new KayKitSkinnedCharacter({ ...nativeInputs, character: invalid }), /Unique node required|Knight mesh required/);
+}
 let sourceWindowJoinError=0;
 try {
   syncKayKitNativeAction(gameActor, game.state, player);
-  assert.equal(gameActor.currentAction, 'native-aim-two-hand');
+  assert.equal(gameActor.currentAction, 'native-aim-two-hand'); checkEquipment(true);
   windowReference.sample('native-aim-two-hand',1);
   assert.ok(boneDifference(gameActor.scene,windowReference.scene)<1e-7, 'hold real final aiming pose');
   windowReference.sample('native-fire-two-hand',.25);
@@ -238,12 +253,12 @@ try {
   game.step([{actorId:player,type:'shoot',yaw:Math.PI/2,pitch:0}]);
   const hash = game.stateHash;
   syncKayKitNativeAction(gameActor, game.state, player);
-  assert.equal(gameActor.currentAction, 'native-fire-two-hand');
+  assert.equal(gameActor.currentAction, 'native-fire-two-hand'); checkEquipment(true);
   const pose = transforms(gameActor.scene); syncKayKitNativeAction(gameActor, game.state, player);
   assert.equal(transforms(gameActor.scene), pose); assert.equal(game.stateHash, hash);
   game.step([{actorId:player,type:'reload'}]); syncKayKitNativeAction(gameActor, game.state, player);
-  assert.equal(gameActor.currentAction, 'native-reload-two-hand');
+  assert.equal(gameActor.currentAction, 'native-reload-two-hand'); checkEquipment(true);
   game.step([{actorId:player,type:'switch',weapon:'pistol'}]); syncKayKitNativeAction(gameActor, game.state, player);
-  assert.equal(gameActor.currentAction, null);
+  assert.equal(gameActor.currentAction, null); checkEquipment(false);
 } finally { gameActor.dispose(); windowReference.dispose(); game.dispose(); }
 console.log(JSON.stringify({ sourceWindowJoinError, nativeGameSnapshots: true, simulationUnchanged: true, browser: false, viewConnected: false }));

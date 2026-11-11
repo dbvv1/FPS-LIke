@@ -1,3 +1,4 @@
+import { KAYKIT_RIFLE_BODY, KAYKIT_MELEE_EQUIPMENT } from '../src/render/kaykit-skinned-character.js';
 import { SECOND } from '../src/sim/types.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -39,6 +40,9 @@ test('parent adapter rejects missing hierarchy rather than silently dropping tra
 // Small real skinned fixture: one bone moves all vertices across the frustum.
 function movingSkinSources() {
   const character = new THREE.Group(), motion = new THREE.Group();
+  for (const name of [...KAYKIT_RIFLE_BODY, ...KAYKIT_MELEE_EQUIPMENT]) {
+    const mesh = new THREE.Mesh(); mesh.name = name; character.add(mesh);
+  }
   for (const [scene, rigName] of [[character, 'Rig'], [motion, 'Rig_Medium']] as const) {
     const rig = new THREE.Group(); rig.name = rigName; scene.add(rig);
     const bone = new THREE.Bone(); bone.name = 'root'; rig.add(bone);
@@ -380,5 +384,34 @@ test('real Game forward movement uses world-space input at nonzero yaw in all qu
         previous = current; game.step();
       }
     } finally { character.dispose(); game.dispose(); }
+  }
+});
+
+test('native rifle poses select only melee visibility, restoring source selection on exit', () => {
+  const sources = completeBodySources();
+  sources.character.getObjectByName('Round_Shield')!.visible = false;
+  sources.character.getObjectByName('Knight_Cape')!.visible = false;
+  const actor = new KayKitSkinnedCharacter(sources), sibling = new KayKitSkinnedCharacter(sources);
+  const sourceState = sources.character.toJSON();
+  for (const action of ['native-aim-two-hand', 'native-fire-two-hand', 'native-reload-two-hand', 'run-rifle'] as const) {
+    assert.equal(actor.sample(action, .5), true);
+    for (const name of KAYKIT_MELEE_EQUIPMENT) assert.equal(actor.scene.getObjectByName(name)!.visible, false);
+    for (const name of KAYKIT_RIFLE_BODY) assert.equal(actor.scene.getObjectByName(name)!.visible, sources.character.getObjectByName(name)!.visible);
+    assert.equal(sibling.scene.getObjectByName('1H_Sword')!.visible, true);
+    assert.deepEqual(sources.character.toJSON(), sourceState);
+  }
+  actor.stop(); assert.equal(actor.scene.getObjectByName('1H_Sword')!.visible, true);
+  assert.equal(actor.scene.getObjectByName('Round_Shield')!.visible, false);
+  actor.play('native-aim-two-hand'); actor.play('reload-one-hand');
+  assert.equal(actor.scene.getObjectByName('1H_Sword')!.visible, true);
+  actor.dispose(); sibling.dispose();
+});
+test('native rifle body preparation rejects missing, duplicate and non-mesh semantic nodes', () => {
+  for (const mode of ['missing', 'duplicate', 'wrong-kind']) {
+    const sources = completeBodySources(), node = sources.character.getObjectByName('Knight_Cape')!;
+    if (mode !== 'duplicate') node.removeFromParent();
+    if (mode !== 'missing') { const replacement = mode === 'duplicate' ? new THREE.Mesh() : new THREE.Group();
+      replacement.name = 'Knight_Cape'; sources.character.add(replacement); }
+    assert.throws(() => new KayKitSkinnedCharacter(sources), /Unique node required|Knight mesh required/);
   }
 });

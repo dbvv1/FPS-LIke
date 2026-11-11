@@ -14,6 +14,12 @@ export const KAYKIT_NATIVE_ACTIONS = {
 export const KAYKIT_LOOP_ACTIONS = {
   'run-rifle': 'Rig_Medium|Running_HoldingRifle',
 } as const;
+// Fixed Knight mesh semantics. Keep the costume; remove only melee equipment
+// while native rifle poses are consumed. No geometry/bone deletion or rescale.
+export const KAYKIT_RIFLE_BODY = ['Knight_ArmLeft', 'Knight_ArmRight', 'Knight_Body',
+  'Knight_Head', 'Knight_LegLeft', 'Knight_LegRight', 'Knight_Helmet', 'Knight_Cape'] as const;
+export const KAYKIT_MELEE_EQUIPMENT = ['1H_Sword_Offhand', '1H_Sword', '2H_Sword',
+  'Badge_Shield', 'Rectangle_Shield', 'Round_Shield', 'Spike_Shield'] as const;
 export type KayKitLoopAction = keyof typeof KAYKIT_LOOP_ACTIONS;
 export type KayKitAction = keyof typeof KAYKIT_ACTIONS | keyof typeof KAYKIT_NATIVE_ACTIONS | KayKitLoopAction;
 export interface KayKitSources {
@@ -93,6 +99,7 @@ export class KayKitSkinnedCharacter {
   private ended = false;
   private readonly skins: THREE.SkinnedMesh[] = [];
   private readonly rest: { node: THREE.Object3D; position: THREE.Vector3; quaternion: THREE.Quaternion; scale: THREE.Vector3 }[] = [];
+  private readonly equipment: { node: THREE.Mesh; visible: boolean }[] = [];
   constructor(sources: KayKitSources) {
     const clips: (readonly [KayKitAction, THREE.AnimationClip])[] = (Object.keys(KAYKIT_ACTIONS) as (keyof typeof KAYKIT_ACTIONS)[]).map(name => {
       const matches = sources.animations.filter(clip => clip.name === KAYKIT_ACTIONS[name]);
@@ -103,6 +110,10 @@ export class KayKitSkinnedCharacter {
       return [name, clip] as const;
     });
     if (sources.nativeAnimations !== undefined) {
+      // Validate the entire fixed selection before allocating a clone. A partial
+      // or renamed body is not silently accepted as a different costume.
+      for (const name of [...KAYKIT_RIFLE_BODY, ...KAYKIT_MELEE_EQUIPMENT])
+        requireThat(unique(sources.character, name) instanceof THREE.Mesh, `Knight mesh required: ${name}`);
       for (const name of Object.keys(KAYKIT_NATIVE_ACTIONS) as (keyof typeof KAYKIT_NATIVE_ACTIONS)[]) {
         const matches = sources.nativeAnimations.filter(clip => clip.name === KAYKIT_NATIVE_ACTIONS[name]);
         requireThat(matches.length === 1, `Unique native clip required: ${KAYKIT_NATIVE_ACTIONS[name]}`);
@@ -128,6 +139,10 @@ export class KayKitSkinnedCharacter {
     });
     requireThat(skins > 0, 'Skinned character required');
     this.scene = clone(sources.character);
+    if (sources.nativeAnimations !== undefined) for (const name of KAYKIT_MELEE_EQUIPMENT) {
+      const node = unique(this.scene, name) as THREE.Mesh;
+      this.equipment.push({ node, visible: node.visible });
+    }
     // Skeleton.clone shares inverse-bind matrices; isolate these too so no
     // actor-side skeleton work can mutate the source or a sibling actor.
     this.scene.traverse(node => {
@@ -156,6 +171,10 @@ export class KayKitSkinnedCharacter {
       skin.computeBoundingSphere();
     }
   }
+  private selectEquipment(name: KayKitAction | null) {
+    const rifle = name !== null && (Object.hasOwn(KAYKIT_NATIVE_ACTIONS, name) || name === 'run-rifle');
+    for (const { node, visible } of this.equipment) node.visible = rifle ? false : visible;
+  }
   get currentAction() { return this.active; }
   duration(name: KayKitAction): number | null { return this.actions.get(name)?.getClip().duration ?? null; }
   get disposed() { return this.ended; }
@@ -164,7 +183,7 @@ export class KayKitSkinnedCharacter {
     const action = this.actions.get(name);
     if (!action) return false;
     // Deterministic hard switch; crossfade/locomotion layers are not accepted yet.
-    this.mixer.stopAllAction(); action.reset().play(); this.active = name;
+    this.mixer.stopAllAction(); action.reset().play(); this.active = name; this.selectEquipment(name);
     this.mixer.update(0); this.refreshPoseBounds();
     return true;
   }
@@ -175,7 +194,7 @@ export class KayKitSkinnedCharacter {
     const action = this.actions.get(name);
     if (!action) return false;
     // Reset even after a clamped finish, allowing replay rewind and a new reload.
-    this.mixer.stopAllAction(); action.reset().play(); this.active = name;
+    this.mixer.stopAllAction(); action.reset().play(); this.active = name; this.selectEquipment(name);
     action.time = action.getClip().duration * progress;
     this.mixer.update(0); this.refreshPoseBounds();
     return true;
@@ -198,7 +217,7 @@ export class KayKitSkinnedCharacter {
   }
   stop() {
     if (this.ended) return;
-    this.mixer.stopAllAction(); this.active = null;
+    this.mixer.stopAllAction(); this.active = null; this.selectEquipment(null);
     for (const { node, position, quaternion, scale } of this.rest) {
       node.position.copy(position); node.quaternion.copy(quaternion); node.scale.copy(scale);
     }
