@@ -175,3 +175,20 @@ Not verified here: grip or muzzle placement against Knight hands and native
 reload clips, first-person camera framing, silhouette/style match, human-body
 metre scale fit, and browser/GPU/in-game adoption. No browser run is part of
 this card.
+
+## Knight 接触拟合：拒绝手槽最近表面方案
+
+**当前不把 RX24 挂到 Knight 上。** 固定 Knight 的稳定双手瞄准末帧中，左右手槽最近的真实手套表面相距 **0.562282 m**，RX24 主掌与常态支撑锚相距 **0.270780 m**。刚体变换不改变两点距离：主手点对齐后，支撑点仍至少差 **0.291502 m**；两手均摊误差也各需 **0.145751 m**。因此拒绝这组原尺寸装配，不通过放大枪械、自动缩放人物或新建 IK 来隐藏差距。
+
+`knight-contact.ts` 在 `native-aim-two-hand` 的末帧，从每个手套中所有顶点均由对应手骨贡献超过 50% 的三角形里，选离原 `handslot` 最近的点。它保存实际三角形索引及重心坐标，每次采样重新计算蒙皮顶点，而非把手槽、手骨或包围盒中心当掌面。当前选点离左右手槽分别 **0.058398 m / 0.037697 m**；三原生动作的 15 个采样中，沿用瞄准时的固定骨偏移会偏离这些表面，最大 **0.017840 m**。
+
+这些是可重复的**表面候选**，尚未由真实姿态图确定解剖学掌面；本结论只否决“手槽最近表面＋原尺寸 RX24”这个方案，不证明所有 Knight / RX24 配对都不可行。实际掌面、枪轴滚转、握持容差与完整换弹仍未定。下一步先在可用的既有拍摄流程里判断这两处表面及持枪姿态是否有可用搭配，不能继续把 CPU 源动作当已可见的持枪角色。View、默认和网站均不变。
+
+复算使用现有 `78a892c` 的固定 Knight / Med_CombatRanged 文件，与上文已接收的 RX24 三锚配方；先核两份源 hash，再输出 15 姿态及距离，不写源文件。缺输入、错误 hash 或无法识别手套表面均非零退出。
+
+```sh
+node --import tsx tools/check-kaykit-rx24-contact.ts <fixed-sample-directory>
+node --import tsx --test tests/kaykit-rx24-contact.test.ts
+```
+
+2026-11-11：真实固定源两次输出逐字一致；贴图由 CPU 空纹理替代，浏览器、GPU、实际握持与游戏内使用未验。许可及固定源追溯沿本目录和 `docs/skinned-character-consumer.md`，不引入新的模型来源。
