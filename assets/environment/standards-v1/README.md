@@ -16,7 +16,21 @@ The builder now writes the entire family to a sibling staging directory. Only su
 
 `--render` optionally includes a CPU studio PNG in that same output directory, before the batch is published; a later build without `--render` removes the old generated PNG. It remains an offline preview, not a game capture. A successful offline export still needs the runtime checks below before it can replace the game assets.
 
-Run `python3 assets/environment/standards-v1/tools/test_asset_batch.py` for filesystem, missing-output, cancellation and rollback tests. Run `python3 assets/environment/standards-v1/tools/test_build_integration.py` with Blender 4.3.2 installed for real exports in a disposable copy: two unchanged rebuilds, a palette edit, an injected failure before the second export, missing style input and restoration. The first failed GLB export does not touch the live batch; the second edit changes both plaster pieces while preserving the lamp.
+## Check the manifest without rebuilding
+
+`tools/verify_manifest.py` is a read-only, standard-library check. It does not run Blender, parse GLB geometry or `.blend` internals, execute or re-save the `.blend`, use the network, GPU or a browser, and it never writes the checked files.
+
+```
+python3 assets/environment/standards-v1/tools/verify_manifest.py --json
+```
+
+It defaults to this directory and `models/manifest.json`; `--root <standards-v1>` and `--manifest <path inside root>` select another copy. stdout is one UTF-8 JSON document ending in LF. Exit codes: 0 both checks pass, 1 stale source record or byte mismatch, 2 invalid CLI, unreadable file or unsupported structure. stderr carries only a short status line.
+
+`artifactIntegrity` recomputes each contract piece's `models/<id>.glb` byte size and SHA-256, and the manifest `.blend` byte size and SHA-256; the `.blend` is read only as opaque bytes, not parsed or executed. `sourceCurrency` recomputes the four fixed inputs (`tools/build.py`, `tools/asset_batch.py`, `contract.json`, `style.json`) and reports missing, extra, duplicate and changed entries. `overall` is true only when both pass.
+
+The checked-in historical manifest is honestly **stale** under this check: it omits `tools/asset_batch.py` and records the earlier `tools/build.py` hash, while the three GLBs and the `.blend` currently match their recorded sizes and hashes. That means the manifest's input record does not reproduce the current sources; it does not mean the shipped artifacts are corrupt, and a passing check would not prove that the recorded build actually ran. Geometry, skinning, visual quality, licensing and `.blend` internals are not verified. The tool supports manifest schema `fps-art-standard-draft/1`; unrecognized fields are rejected rather than ignored. Do not rewrite the historical manifest just to make the check pass; a real rebuild produces a current record.
+
+Run `python3 assets/environment/standards-v1/tools/test_asset_batch.py` for filesystem, missing-output, cancellation and rollback tests. Run `python3 assets/environment/standards-v1/tools/test_verify_manifest.py` for the verifier's pass, stale, malformed, duplicate and path-escape cases; both suites run on CPU without Blender. Run `python3 assets/environment/standards-v1/tools/test_build_integration.py` with Blender 4.3.2 installed for real exports in a disposable copy: two unchanged rebuilds, a palette edit, an injected failure before the second export, missing style input and restoration. The first failed GLB export does not touch the live batch; the second edit changes both plaster pieces while preserving the lamp.
 
 Directory replacement is not a power-loss transaction. If a run is killed, do not blindly delete `.models.build-lock`, `.models.build-backup` or its staging directory: first confirm no writer remains, inspect the complete backup and current output, and restore the backup if the output is absent. A failed rollback preserves these paths and blocks retry. If only backup cleanup fails, the error explicitly says the new batch is already committed; do not roll it back from a partly cleaned backup. Remove recovery remnants only after choosing and checking the complete batch to retain.
 

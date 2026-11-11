@@ -273,7 +273,7 @@ test('a disposed fallback rejection does not report into the old HUD',async()=>{
   const env=environment(),canvas=new FakeCanvas(env.document),messages:string[]=[];let reject!:(error:unknown)=>void;
   canvas.requestPointerLock=async(options?:{unadjustedMovement?:boolean})=>{canvas.calls++;if(options?.unadjustedMovement)throw new DOMException('unsupported','NotSupportedError');await new Promise<void>((_,fail)=>{reject=fail;});};
   const controls=new Controls(canvas as unknown as HTMLCanvasElement,()=>{},value=>messages.push(value));
-  try{const pending=controls.lock();await Promise.resolve();assert.equal(canvas.calls,2);controls.dispose();reject(new Error('late denied'));await pending;assert.deepEqual(messages,[]);}
+  try{const pending=controls.lock();for(let i=0;i<8&&canvas.calls<2;i++)await Promise.resolve();assert.equal(canvas.calls,2);controls.dispose();reject(new Error('late denied'));await pending;assert.deepEqual(messages,[]);}
   finally{controls.dispose();env.restore();}
 });
 
@@ -286,4 +286,61 @@ for(const completion of ['resolve','reject'] as const)test(`old disposed ${compl
   let current:Controls|undefined;
   try{const pending=old.lock();old.dispose();canvas.requestPointerLock=original;current=new Controls(canvas as unknown as HTMLCanvasElement,()=>{},()=>{});await current.lock();assert.equal(current.locked,true);finish();await pending;assert.equal(env.document.pointerLockElement,canvas);assert.equal(current.locked,true);old.dispose();assert.equal(env.document.pointerLockElement,canvas);}
   finally{current?.dispose();old.dispose();env.restore();}
+});
+
+
+test('repeated enter clicks keep one pending pointer-lock request', async () => {
+  const env=environment(),canvas=new FakeCanvas(env.document),messages:string[]=[];
+  let acquire!:()=>void;
+  canvas.requestPointerLock=()=>{canvas.calls++;return new Promise<void>(resolve=>{acquire=()=>{env.document.pointerLockElement=canvas;env.document.dispatchEvent(event('pointerlockchange'));resolve();};});};
+  const controls=new Controls(canvas as unknown as HTMLCanvasElement,()=>{},message=>messages.push(message));
+  try {
+    const pending=controls.lock(), repeated=controls.lock(), third=controls.lock();
+    assert.equal(canvas.calls,1);acquire();await Promise.all([pending,repeated,third]);
+    assert.equal(controls.locked,true);assert.deepEqual(messages,['']);
+  } finally {controls.dispose();env.restore();}
+});
+
+test('a rejected pointer-lock request permits a new explicit enter click', async () => {
+  const env=environment(),canvas=new FakeCanvas(env.document);
+  const acquire=canvas.requestPointerLock.bind(canvas);
+  canvas.requestPointerLock=async()=>{canvas.calls++;throw new DOMException('inactive document','WrongDocumentError');};
+  const controls=new Controls(canvas as unknown as HTMLCanvasElement,()=>{},()=>{});
+  try {await controls.lock();canvas.requestPointerLock=acquire;await controls.lock();assert.equal(canvas.calls,2);assert.equal(controls.locked,true);}
+  finally {controls.dispose();env.restore();}
+});
+
+test('an event-only pointer-lock failure permits an explicit retry', async () => {
+  const env=environment(),canvas=new FakeCanvas(env.document);
+  const acquire=canvas.requestPointerLock.bind(canvas);
+  canvas.requestPointerLock=(()=>{canvas.calls++;}) as unknown as typeof canvas.requestPointerLock;
+  const controls=new Controls(canvas as unknown as HTMLCanvasElement,()=>{},()=>{});
+  try {await controls.lock();env.document.dispatchEvent(event('pointerlockerror'));canvas.requestPointerLock=acquire;await controls.lock();assert.equal(canvas.calls,2);assert.equal(controls.locked,true);}
+  finally {controls.dispose();env.restore();}
+});
+
+test('unsupported raw input still falls back after its error event', async () => {
+  const env=environment(),canvas=new FakeCanvas(env.document);
+  const acquire=canvas.requestPointerLock.bind(canvas);
+  canvas.requestPointerLock=async options=>{if(options?.unadjustedMovement){canvas.calls++;env.document.dispatchEvent(event('pointerlockerror'));throw new DOMException('unsupported','NotSupportedError');}await acquire();};
+  const controls=new Controls(canvas as unknown as HTMLCanvasElement,()=>{},()=>{});
+  try {await controls.lock();assert.equal(canvas.calls,2);assert.equal(controls.locked,true);}
+  finally {controls.dispose();env.restore();}
+});
+
+
+test('queued raw-input error cannot cancel its pending fallback', async () => {
+  const env=environment(),canvas=new FakeCanvas(env.document);let acquire!:()=>void;
+  canvas.requestPointerLock=options=>{
+    canvas.calls++;
+    if(options?.unadjustedMovement)return Promise.reject(new DOMException('unsupported','NotSupportedError'));
+    return new Promise<void>(resolve=>{acquire=()=>{env.document.pointerLockElement=canvas;env.document.dispatchEvent(event('pointerlockchange'));resolve();};});
+  };
+  const controls=new Controls(canvas as unknown as HTMLCanvasElement,()=>{},()=>{});
+  try {
+    const pending=controls.lock();for(let i=0;i<8&&canvas.calls<2;i++)await Promise.resolve();assert.equal(canvas.calls,2);
+    env.document.dispatchEvent(event('pointerlockerror'));await controls.lock();
+    assert.equal(canvas.calls,2);acquire();await pending;
+    assert.equal(controls.locked,true);assert.equal(env.document.pointerLockElement,canvas);
+  } finally {controls.dispose();env.restore();}
 });
