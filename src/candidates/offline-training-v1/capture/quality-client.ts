@@ -38,9 +38,24 @@ try {
   view.resize();
   const replay = await prepareReplay(lifetime);
   const deadline = performance.now() + 15000;
-  while (view.info.art?.state !== 'ready' || (view.info.materials && view.info.materials.state !== 'ready')) {
+  while (true) {
     lifetime.assertActive();
-    if (view.info.art?.state === 'fallback' || view.info.materials?.state === 'fallback' || performance.now() > deadline) throw new Error('Art assets unavailable: capture not ready');
+    const info = view.info;
+    // Older Views expose none of these consumers. Once any is present, require
+    // the complete training set so a missing receipt cannot pass as ready.
+    const trainingKeys = ['characters', 'rifleSource', 'hitSource'] as const;
+    const training = trainingKeys.some(key => key in info);
+    const resources: [string, { state?: string } | undefined][] = [
+      ['art', info.art], ...(info.materials ? [['materials', info.materials] as [string, { state?: string }]] : []),
+      ...(training ? trainingKeys.map(key => [key, info[key]] as [string, { state?: string } | undefined]) : []),
+    ];
+    for (const [name, resource] of resources) {
+      if (!resource || (resource.state !== 'ready' && resource.state !== 'loading')) {
+        throw new Error(`Capture resource ${name} unavailable: ${resource?.state ?? 'missing state'}`);
+      }
+    }
+    if (resources.every(([, resource]) => resource!.state === 'ready')) break;
+    if (performance.now() > deadline) throw new Error('Capture resources unavailable: readiness timeout');
     await new Promise(resolve => setTimeout(resolve, 25));
   }
   let frame = 0;

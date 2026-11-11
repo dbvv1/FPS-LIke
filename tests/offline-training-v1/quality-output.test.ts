@@ -7,14 +7,14 @@ import {qualityCaptureOptions,CAPTURE_SIZE} from '../../src/candidates/offline-t
 import {CaptureLifetime} from '../../src/capture/lifetime.js';
 const source=stripTypeScriptTypes(readFileSync(new URL('../../src/candidates/offline-training-v1/capture/quality-client.ts',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replaceAll('import.meta.url', JSON.stringify('https://example.test/quality-client.js')));
 const AsyncFunction=Object.getPrototypeOf(async function(){}).constructor;
-async function fixture(webgl=true){
+async function fixture(webgl=true, resources: Record<string, any> = {}){
   const host=new EventTarget() as EventTarget & {__shot?:any;__shotNext?:()=>any};
   const gl={isContextLost:()=>false,finish(){},getParameter:()=>[],SAMPLES:1,MAX_SAMPLES:2,COMPRESSED_TEXTURE_FORMATS:3};
   const canvas=Object.assign(new EventTarget(),{width:0,height:0,clientWidth:317,clientHeight:233,getContext:()=>webgl?gl:null,toDataURL:()=> 'data:image/png;base64,AA=='});
   const document={createElement:()=>canvas,getElementById:()=>({hidden:false}),getAnimations:()=>[]};
   let size:any;
   class View {
-    info={art:{state:'ready'}};
+    info={art:{state:'ready'}, ...resources};
     renderer={getContext:()=>gl,capabilities:{getMaxAnisotropy:()=>1},info:{render:{},memory:{}},shadowMap:{enabled:false}};
     constructor(_canvas:unknown,captureSize:unknown){size=captureSize;}resize(){}render(){}dispose(){}
   }
@@ -37,3 +37,34 @@ test('production qualityCapture publishes fixed PNG/camera despite a small DPR3 
 test('production qualityCapture reports missing WebGL2 instead of accepting a CPU image',async()=>{
   const f=await fixture(false);await assert.rejects(f.done,/WebGL2/);assert.equal(f.host.__shot.ready,false);assert.equal(f.host.__shot.backend,null);assert.equal(f.host.__shot.pngDataUrl,undefined);
 });
+
+const trainingReady = () => ({ characters: { state: 'ready' }, rifleSource: { state: 'ready' }, hitSource: { state: 'ready' } });
+test('production qualityCapture accepts the complete ready training set', async () => {
+  const f = await fixture(true, trainingReady()); await f.done;
+  assert.equal(f.host.__shot.ready, true);
+  assert.equal(f.host.__shot.renderInfo.rifleSource.state, 'ready');
+});
+for (const key of ['characters', 'rifleSource', 'hitSource'] as const) {
+  test(`production qualityCapture waits for ${key}, then captures`, async () => {
+    const resources = trainingReady(); resources[key].state = 'loading';
+    const f = await fixture(true, resources);
+    await new Promise(resolve => setTimeout(resolve, 35));
+    assert.equal(f.host.__shot.ready, false); assert.equal(f.host.__shot.pngDataUrl, undefined);
+    resources[key].state = 'ready'; await f.done;
+    assert.equal(f.host.__shot.ready, true);
+  });
+  for (const state of ['fallback', 'off', 'disposed', undefined]) {
+    test(`production qualityCapture rejects ${key} state ${state}`, async () => {
+      const resources: Record<string, any> = trainingReady(); resources[key] = { state };
+      const f = await fixture(true, resources);
+      await assert.rejects(f.done, new RegExp(`Capture resource ${key} unavailable`));
+      assert.equal(f.host.__shot.ready, false); assert.equal(f.host.__shot.pngDataUrl, undefined);
+    });
+  }
+  test(`production qualityCapture rejects an absent ${key} receipt in a training View`, async () => {
+    const resources: Record<string, any> = trainingReady(); delete resources[key];
+    const f = await fixture(true, resources);
+    await assert.rejects(f.done, new RegExp(`Capture resource ${key} unavailable`));
+    assert.equal(f.host.__shot.ready, false); assert.equal(f.host.__shot.pngDataUrl, undefined);
+  });
+}
