@@ -10,8 +10,9 @@ import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 // Only legacy client scheduling/input debt disposal changed by owner request on 2026-10-30.
 // Reviewed 2026-11-03 input teardown also pins its exact bytes below.
-// Capture sizing is opt-in; simulation, content, HUD and ordinary sizing remain covered.
-test('legacy modules retain frozen bytes except authorized scheduling and fixed capture sizing', () => {
+// Capture sizing is opt-in; accepted shot cancellation adds presentation facts only.
+// Content, HUD, ordinary sizing and all other simulation modules remain frozen.
+test('legacy modules retain frozen bytes except authorized scheduling, capture and shot presentation facts', () => {
  const files = {
   "src/client.ts": "43229bc71256b05182892cf7405b3f51be2fdbbe920035470da55ca38b9f9416",
   "src/render/scene.ts": "4ff87f9c38280059dcdea7da61868ff228cf7edb84fa8af774d1644a8bda96cc",
@@ -45,7 +46,11 @@ test('legacy modules retain frozen bytes except authorized scheduling and fixed 
   "src/ui/sensitivity-menu.ts": "30d9ecbf72853722fc00b26d9f48b1ada06dee64c9d3994c9cdb23f3013624f9",
   "src/ui/style.css": "58e861d051adacba252bb71b7154af19df4746e7f011774973667cd36784648b"
 };
- for (const [path, sha] of Object.entries(files)) assert.equal(createHash('sha256').update(readFileSync(new URL('../' + path, import.meta.url))).digest('hex'), sha, path);
+ const shotPresentationFacts = {
+  "src/sim/game.ts": "9993b2600256dbfb5aa550d59a19b27af38c8f4be670d9a74f361b20b2c41210",
+  "src/sim/types.ts": "23594d6adccedd4c539d33cbf826eaa17f376fb7dba44aad956250a91047842b"
+ };
+ for (const [path, sha] of Object.entries({ ...files, ...shotPresentationFacts })) assert.equal(createHash('sha256').update(readFileSync(new URL('../' + path, import.meta.url))).digest('hex'), sha, path);
 });
 
 import { parseCaptureConfig as baseCapture } from '../src/capture/config.js';

@@ -373,7 +373,7 @@ test('actual GLB hit/death beyond Feedback retention fail closed instead of sile
   }
 });
 
-test('real Game switch-away/back does not replay an old shot through actual View.render', async () => {
+for (const weapon of ['rifle', 'pistol'] as const) test(`real Game ${weapon} switch-away/back does not replay an old shot through actual View.render`, async () => {
   const { Game } = await import('../src/sim/game.js');
   const game = await Game.create(17);
   const { View } = await import('../src/render/scene.js');
@@ -402,12 +402,18 @@ test('real Game switch-away/back does not replay an old shot through actual View
     return { actual: transforms(opponent.mount), rest: transforms(baseline.mount) };
   };
   try {
+    if (weapon === 'pistol') {
+      game.step([{ actorId, type: 'switch', weapon }]);
+      for (let i = 0; i < 12; i++) game.step();
+    }
     game.step([{ actorId, type: 'shoot', yaw: Math.PI / 2, pitch: 0 }]);
     const fired = game.state;
     assert.ok(fired.shots.some(s => s.actorId === actorId));
     assert.notDeepEqual(sample(fired).actual, sample(fired).rest);
-    game.step([{ actorId, type: 'switch', weapon: 'pistol' }]);
-    game.step([{ actorId, type: 'switch', weapon: 'rifle' }]);
+    game.step([
+      { actorId, type: 'switch', weapon: weapon === 'pistol' ? 'rifle' : 'pistol', at: 0 },
+      { actorId, type: 'switch', weapon, at: 0 },
+    ]);
     const switched = game.state;
     assert.ok(switched.shots.some(s => s.actorId === actorId), 'old shot is still in the authoritative snapshot');
     assert.deepEqual(sample(switched).actual, sample(switched).rest);

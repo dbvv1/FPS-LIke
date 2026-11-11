@@ -1,16 +1,22 @@
 import { WEAPONS } from '../content/weapons.js';
 import { SUBTICKS, type Actor, type GameState, type Shot } from '../sim/types.js';
 
-/** Accepted rifle shot, shared by rigid/skinned action consumers.
- * Rifle cooldown is shorter than the switch lock, so switching invalidates it.
- * Pistol cooldown can survive Math.max in switch handling; snapshots alone
- * cannot prove its weapon generation, so this selector does not accept pistol. Consumers still own their clip duration and source pre-roll.
+/** Snapshot-only presentation selection. New Game shots explicitly record whether
+ * an accepted switch cancelled their action, including two switches between
+ * rendered frames. Missing facts are only provable for the short rifle cooldown;
+ * legacy pistol snapshots fail closed rather than inventing switch history.
  */
-export function currentRifleShot(state: GameState, actor: Actor): Shot | undefined {
-  if (actor.weapon !== 'rifle') return undefined;
-  const last = actor.weapons.rifle.lastShot;
-  if (state.phase !== 'live' || actor.hp <= 0 || actor.reload || state.time < last
-    || actor.nextShot !== last + WEAPONS.rifle.interval * SUBTICKS) return undefined;
-  return [...state.shots].reverse().find(shot => shot.actorId === actor.id
+export function currentWeaponShot(state: GameState, actor: Actor): Shot | undefined {
+  const last = actor.weapons[actor.weapon].lastShot;
+  if (state.phase !== 'live' || actor.hp <= 0 || actor.reload || state.time < last) return undefined;
+  const shot = [...state.shots].reverse().find(shot => shot.actorId === actor.id
     && shot.weapon === actor.weapon && shot.time === last);
+  if (!shot || shot.weaponActionActive === false) return undefined;
+  if (shot.weaponActionActive === true) return shot;
+  return actor.weapon === 'rifle' && actor.nextShot === last + WEAPONS.rifle.interval * SUBTICKS ? shot : undefined;
+}
+
+/** Keep the Knight rifle-only contract; no pistol animation is implied. */
+export function currentRifleShot(state: GameState, actor: Actor): Shot | undefined {
+  return actor.weapon === 'rifle' ? currentWeaponShot(state, actor) : undefined;
 }

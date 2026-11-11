@@ -43,8 +43,8 @@ export class Game {
   get state(): GameState { return structuredClone(this.current); }
   get stateHash() {
     // Preserve the v1 gameplay replay hash. Presentation facts are derived from the
-    // same trace, not input/state used by future gameplay, and are excluded.
-    const state = { ...this.current, shots: this.current.shots.map(({ impact: _impact, ...shot }) => shot) };
+    // accepted commands/traces, never used by future gameplay, and are excluded.
+    const state = { ...this.current, shots: this.current.shots.map(({ impact: _impact, weaponActionActive: _action, ...shot }) => shot) };
     return hash({ state, rules: this.rules });
   }
   private resetActors() {
@@ -113,7 +113,14 @@ export class Game {
       actor.input.crouch = (c.crouch ?? false) || (actor.input.crouch && !this.physics.canStand(actor));
       this.physics.sync(actor);
     } else if (c.type === 'aim') { actor.yaw = c.yaw; actor.pitch = c.pitch; }
-    else if (c.type === 'switch') { if (c.weapon !== actor.weapon) { actor.weapon = c.weapon; actor.reload = null; actor.input.interact = false; actor.nextShot = Math.max(actor.nextShot, this.current.time + 12 * SUBTICKS); } }
+    else if (c.type === 'switch') {
+      if (c.weapon !== actor.weapon) {
+        // Preserve hit/audio history; cancel only the outgoing weapon action.
+        for (const shot of this.current.shots) if (shot.actorId === actor.id) shot.weaponActionActive = false;
+        actor.weapon = c.weapon; actor.reload = null; actor.input.interact = false;
+        actor.nextShot = Math.max(actor.nextShot, this.current.time + 12 * SUBTICKS);
+      }
+    }
     else if (c.type === 'reload') {
       const mag = actor.weapons[actor.weapon];
       if (!actor.reload && mag.ammo < WEAPONS[actor.weapon].magazine && mag.reserve > 0) {
@@ -150,7 +157,7 @@ export class Game {
         this.physics.sync(hit.actor);
       }
     }
-    this.current.shots.push({ actorId: actor.id, weapon: actor.weapon, time: now, yaw: shotYaw, pitch: shotPitch, hit: hit?.actor.id ?? null, part: hit?.part ?? null, damage, visible, targetId: targetId ?? null, targetVisible, impact: { origin: trace.origin, end: trace.end, kind: trace.kind, killed: !!hit && hit.actor.hp === 0 } });
+    this.current.shots.push({ weaponActionActive: true, actorId: actor.id, weapon: actor.weapon, time: now, yaw: shotYaw, pitch: shotPitch, hit: hit?.actor.id ?? null, part: hit?.part ?? null, damage, visible, targetId: targetId ?? null, targetVisible, impact: { origin: trace.origin, end: trace.end, kind: trace.kind, killed: !!hit && hit.actor.hp === 0 } });
     this.sound(actor, 'shot', 40);
   }
   private sound(actor: Actor, kind: Sound['kind'], radius: number) {

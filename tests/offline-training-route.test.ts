@@ -32,10 +32,12 @@ const reviewedLockDisposal = {
   "src/candidates/movement-v2/input/controls.ts": "b18b0be72114f1a45074a6747d0e951b2d4868d943442bdf596f9212a76160fc"
 };
 
-// Candidate-only opponent fire repair. Keep the historical baseline fixture;
-// simulation/default weapon bytes and the other candidate copies stay frozen.
+// Candidate opponent action repair plus read-only Game shot cancellation facts.
+// Historical fixtures and gameplay hashes stay unchanged; no other copy changes.
 const reviewedOpponentShotRevision = {
-  "src/render/content-set-assets.ts": "4e0a07f5f5cdeb9ba1bc05e9521e2b8edc875b93828753a11ada8a53341240c1"
+  "src/render/content-set-assets.ts": "a15585ab9ed2ff2a67d0559ba6dfafda88a2d0a2f484a70afa90ab988467c1c5",
+  "src/sim/game.ts": "9993b2600256dbfb5aa550d59a19b27af38c8f4be670d9a74f361b20b2c41210",
+  "src/sim/types.ts": "23594d6adccedd4c539d33cbf826eaa17f376fb7dba44aad956250a91047842b"
 };
 
 test('v13 frozen modules plus authorized scheduling/capture changes retain their exact bytes', () => {
