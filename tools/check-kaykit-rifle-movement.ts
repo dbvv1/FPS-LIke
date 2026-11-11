@@ -54,6 +54,25 @@ export async function checkRifleMovement(directory: string) {
   const start = new Map<string, number[]>();
   const boundSkins = skins(actor.scene);
   assert.equal(boundSkins.length, 6);
+  // Fixed Knight only: the near-planar bottom surface in its static pose.
+  // This reference plane is not an observed game floor or contact classifier.
+  const soleSurfaces = ['Knight_LegLeft', 'Knight_LegRight'].map(name => {
+    const mesh = boundSkins.find(m => m.name === name)!;
+    assert.ok(mesh, `fixed leg missing: ${name}`);
+    const positions = mesh.geometry.getAttribute('position');
+    const rest = Array.from({ length: positions.count }, (_, i) =>
+      mesh.getVertexPosition(i, new THREE.Vector3()).applyMatrix4(mesh.matrixWorld));
+    const staticMinimumY = Math.min(...rest.map(v => v.y));
+    const vertices = rest.flatMap((v, i) => v.y <= staticMinimumY + .001 ? [i] : []);
+    const selected = new Set(vertices), index = mesh.geometry.index;
+    let triangles = 0;
+    for (let i = 0; i < (index?.count ?? positions.count); i += 3)
+      if ([0, 1, 2].every(offset => selected.has(index ? index.getX(i + offset) : i + offset))) triangles++;
+    assert.equal(vertices.length, 31, 'fixed bottom vertex set');
+    assert.equal(triangles, 13, 'fixed bottom triangles');
+    return { mesh, vertices, staticMinimumY, triangles, minimumY: Infinity,
+      minimumRelativeToStatic: Infinity, worstPhase: 0, maxOriginalSourceError: 0 };
+  });
   try {
     const phases = [...Array.from({ length: Math.ceil(clip.duration * 60) + 1 }, (_, i) => Math.min(i / 60 / clip.duration, 1)), 0, 1, .25, .75, 0];
     for (const phase of phases) {
@@ -91,6 +110,27 @@ export async function checkRifleMovement(directory: string) {
     for (let i = 0, count = Math.ceil(clip.duration * 240); i <= count; i++) {
       const time = clip.duration * i / count;
       actor.sample('run-rifle', i / count);
+      mixer.stopAllAction(); refAction.reset().play(); mixer.update(time); reference.updateMatrixWorld(true);
+      for (const surface of soleSurfaces) {
+        const { mesh } = surface, positions = mesh.geometry.getAttribute('position');
+        const indices = mesh.geometry.getAttribute('skinIndex'), weights = mesh.geometry.getAttribute('skinWeight');
+        for (const vertex of surface.vertices) {
+          const actual = mesh.getVertexPosition(vertex, new THREE.Vector3()).applyMatrix4(mesh.matrixWorld);
+          // Independently skin the fixed Knight bind vertex with the original
+          // movement rig/clip matrices, without the production parent remap.
+          const bind = new THREE.Vector3().fromBufferAttribute(positions, vertex).applyMatrix4(mesh.bindMatrix);
+          const original = new THREE.Vector3();
+          for (let component = 0; component < 4; component++) {
+            const weight = weights.getComponent(vertex, component); if (!weight) continue;
+            const boneIndex = indices.getComponent(vertex, component), bone = mesh.skeleton.bones[boneIndex]!;
+            original.addScaledVector(bind.clone().applyMatrix4(mesh.skeleton.boneInverses[boneIndex]!)
+              .applyMatrix4(reference.getObjectByName(bone.name)!.matrixWorld), weight);
+          }
+          surface.maxOriginalSourceError = Math.max(surface.maxOriginalSourceError, actual.distanceTo(original));
+          if (actual.y < surface.minimumY) { surface.minimumY = actual.y; surface.worstPhase = i / count; }
+          surface.minimumRelativeToStatic = Math.min(surface.minimumRelativeToStatic, original.y - surface.staticMinimumY);
+        }
+      }
       for (const [name, trajectory] of Object.entries(footTrajectories)) {
         const node = actor.scene.getObjectByName(name);
         assert.ok(node, `fixed foot landmark missing: ${name}`);
@@ -98,6 +138,7 @@ export async function checkRifleMovement(directory: string) {
         trajectory.push({ time, y: point.y, z: point.z });
       }
     }
+    assert.ok(soleSurfaces.every(s => s.maxOriginalSourceError < 1e-6), 'original source bottom-surface equivalence');
     assert.ok(maxMatrixError < 1e-6 && maxSkinError < 1e-6, 'fixed source parent/skin contract');
     assert.ok(maxLoopSeam < 1e-6 && sourceRootMotion < 1e-6, 'fixed source loop seam/root displacement');
     for (const seconds of [0, clip.duration, clip.duration * 2.25, clip.duration * 9.75, clip.duration * .25]) {
@@ -153,6 +194,10 @@ export async function checkRifleMovement(directory: string) {
       gameSpeedMetersPerSecond: { min: Math.min(...gameSpeeds), max: Math.max(...gameSpeeds) },
       estimatedTravelPerSourceCycleAtConstantSpeedMeters: { min: Math.min(...gameSpeeds) * clip.duration, max: Math.max(...gameSpeeds) * clip.duration },
       landmarks: Object.fromEntries(Object.entries(footTrajectories).map(([name, points]) => [name, summarizeTrajectory(points)])),
+      bottomSurfaces: soleSurfaces.map(({ mesh, vertices, ...measurements }) => ({
+        mesh: mesh.name, vertexCount: vertices.length, ...measurements,
+      })),
+      bottomReference: 'fixed static Knight mesh minimum Y; not an observed game floor',
       contactIdentified: false, strideCalibrated: false, playbackRateChanged: false,
     },
     textureDecoded: false, viewConnected: false, browser: false, weaponContactVerified: false };
