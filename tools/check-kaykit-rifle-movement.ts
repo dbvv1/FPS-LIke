@@ -181,6 +181,23 @@ export async function checkRifleMovement(directory: string) {
         syncKayKitRifleAction(actor, game.state, id); assert.equal(actor.currentAction, 'native-aim-two-hand');
         game.step([{ actorId: id, type: 'shoot', yaw, pitch: 0 }]);
         syncKayKitRifleAction(actor, game.state, id); assert.equal(actor.currentAction, 'native-fire-two-hand');
+        previous = game.state;
+        game.step([{ actorId: id, type: 'move', x: Math.sin(yaw), z: Math.cos(yaw) }]);
+        syncKayKitRifleAction(actor, game.state, id, previous);
+        assert.equal(actor.currentAction, null, 'active shot excludes unsupported running-fire');
+        previous = game.state;
+        game.step([{ actorId: id, type: 'switch', weapon: 'pistol' },
+          { actorId: id, type: 'switch', weapon: 'rifle' }]);
+        const cancelled = game.state, cancelledHash = game.stateHash;
+        assert.equal(cancelled.shots.find(shot => shot.actorId === id)!.weaponActionActive, false);
+        syncKayKitRifleAction(actor, cancelled, id, previous);
+        assert.equal(actor.currentAction, 'run-rifle', 'cancelled shot no longer suppresses the fixed run');
+        sibling.sample('run-rifle', ((cancelled.time / SECOND) % clip.duration) / clip.duration);
+        assert.equal(transforms(actor.scene), transforms(sibling.scene));
+        syncKayKitRifleAction(actor, cancelled, id, previous);
+        assert.equal(transforms(actor.scene), transforms(sibling.scene));
+        assert.equal(game.stateHash, cancelledHash);
+        game.step([{ actorId: id, type: 'move', x: 0, z: 0 }]);
         game.step([{ actorId: id, type: 'reload' }]);
         syncKayKitRifleAction(actor, game.state, id); assert.equal(actor.currentAction, 'native-reload-two-hand');
       } finally { game.dispose(); }

@@ -89,7 +89,7 @@ export function syncKayKitRifleAction(character: KayKitSkinnedCharacter,
     || state.tick !== previous.tick + 1 || state.time !== state.tick * SUBTICKS
     || previous.time !== previous.tick * SUBTICKS || state.time < 0 || fireDuration === null) { reset(); return; }
   const last = actor.weapons.rifle.lastShot;
-  if (state.shots.some(s => s.actorId === actorId && s.weapon === 'rifle' && s.time === last)
+  if (currentRifleShot(state, actor)
     && state.time >= last && state.time - last < fireDuration * (1 - KAYKIT_NATIVE_WINDOWS.fireStart) * SECOND) {
     reset(); return; // No running-fire layer in this source contract.
   }

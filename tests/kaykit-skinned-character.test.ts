@@ -415,3 +415,38 @@ test('native rifle body preparation rejects missing, duplicate and non-mesh sema
     assert.throws(() => new KayKitSkinnedCharacter(sources), /Unique node required|Knight mesh required/);
   }
 });
+
+
+test('cancelled rifle fire stops suppressing actual forward movement, but active fire still does', async () => {
+  const game = await Game.create(17), id = game.state.actors[0]!.id;
+  const character = new KayKitSkinnedCharacter(completeBodySources());
+  try {
+    game.step([{ actorId: id, type: 'move', x: 0, z: 1 }]);
+    let previous = game.state;
+    game.step([{ actorId: id, type: 'shoot', yaw: 0, pitch: 0 }]);
+    const firing = game.state;
+    assert.equal(firing.shots[0]!.weaponActionActive, true);
+    syncKayKitRifleAction(character, firing, id, previous);
+    assert.equal(character.currentAction, null, 'no running-fire clip');
+    previous = firing;
+    game.step([{ actorId: id, type: 'switch', weapon: 'pistol' },
+      { actorId: id, type: 'switch', weapon: 'rifle' }]);
+    const current = game.state, beforeHash = game.stateHash, json = JSON.stringify(current);
+    assert.equal(current.shots[0]!.weaponActionActive, false);
+    syncKayKitRifleAction(character, current, id, previous);
+    assert.equal(character.currentAction, 'run-rifle', 'cancelled shot must not suppress movement');
+    syncKayKitRifleAction(character, current, id, previous);
+    assert.equal(character.currentAction, 'run-rifle', 'pause/repeated snapshot is stable');
+    assert.equal(game.stateHash, beforeHash); assert.equal(JSON.stringify(current), json);
+    const legacy = structuredClone(current); delete legacy.shots[0]!.weaponActionActive;
+    syncKayKitRifleAction(character, legacy, id, previous);
+    assert.equal(character.currentAction, 'run-rifle', 'legacy switch cooldown excludes stale shot');
+    const absent = structuredClone(current); absent.shots = [];
+    syncKayKitRifleAction(character, absent, id, previous);
+    assert.equal(character.currentAction, 'run-rifle', 'absent shot cannot suppress movement');
+    for (let i = 0; i < 12; i++) game.step();
+    previous = game.state; game.step([{ actorId: id, type: 'shoot', yaw: 0, pitch: 0 }]);
+    syncKayKitRifleAction(character, game.state, id, previous);
+    assert.equal(character.currentAction, null, 'new accepted fire suppresses running again');
+  } finally { character.dispose(); game.dispose(); }
+});
