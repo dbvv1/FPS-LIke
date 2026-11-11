@@ -1,3 +1,4 @@
+import { currentRifleShot } from './shot-action.js';
 import * as THREE from 'three';
 import { GLTFLoader, type GLTF } from 'three/addons/loaders/GLTFLoader.js';
 import { SECOND, type Actor, type GameState } from '../sim/types.js';
@@ -182,7 +183,10 @@ export class ContentOpponent {
     if (actor.hp <= 0) { if (hit?.shot.impact?.killed) this.sample('death', hit.age / 1000); return; }
     this.sample('idle', time, true);
     if (Math.hypot(actor.input.x, actor.input.z) > .01) this.sample('walk', time, true);
-    const shot = [...state.shots].reverse().find(shot => shot.actorId === actor.id && shot.weapon === actor.weapon && shot.time <= state.time);
+    // Keep pistol's existing presentation until snapshots can identify its
+    // weapon generation: its longer cooldown may survive a switch-away/back.
+    const shot = actor.weapon === 'rifle' ? currentRifleShot(state, actor)
+      : [...state.shots].reverse().find(shot => shot.actorId === actor.id && shot.weapon === actor.weapon && shot.time <= state.time);
     if (shot && !actor.reload && state.phase === 'live' && time - shot.time / SECOND < this.clips.get('fire')!.duration) this.sample('fire', time - shot.time / SECOND);
     if (hit && hit.age / 1000 < this.clips.get('hit')!.duration && !hit.shot.impact?.killed) this.sample('hit', hit.age / 1000);
   }

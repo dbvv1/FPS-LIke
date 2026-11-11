@@ -7,7 +7,8 @@ import { GLTFLoader, type GLTF } from 'three/addons/loaders/GLTFLoader.js';
 import { CONTENT_PIECES, ContentRifle, ContentOpponent, ContentSetAssets, contentNode, contentSetEnabled, contentSetDiagnostics, CONTENT_SOURCE, disposeContent, excludeMergedSleeve, loadContentPiece, type ContentPiece } from '../src/render/content-set-assets.js';
 import { weaponParts, weaponPartPosition, weaponPose, weaponMesh } from '../src/render/weapon.js';
 import { targetVertices, targetSource } from '../src/render/target.js';
-import { SECOND, type Actor, type GameState, type Shot } from '../src/sim/types.js';
+import { WEAPONS } from '../src/content/weapons.js';
+import { SUBTICKS, SECOND, type Actor, type GameState, type Shot } from '../src/sim/types.js';
 
 async function bytes(id: ContentPiece) { return readFile(new URL(`../assets/content-set/${id}.glb`, import.meta.url)); }
 async function load(id: ContentPiece) {
@@ -26,6 +27,7 @@ function state(a = actor()): GameState {
     result: null, shots: [], sounds: [], soundSequence: 0 };
 }
 function shot(a: Actor, time: number): Shot {
+  a.weapons[a.weapon].lastShot = time; a.nextShot = time + WEAPONS[a.weapon].interval * SUBTICKS;
   return { actorId: a.id, weapon: a.weapon, time, yaw: 0, pitch: 0, hit: null, part: null, damage: 0, visible: true, targetId: null, targetVisible: false };
 }
 function transforms(object: THREE.Object3D) {
@@ -369,4 +371,79 @@ test('actual GLB hit/death beyond Feedback retention fail closed instead of sile
     assert.throws(()=>new ContentOpponent(source),/exceeds Feedback retention/);
     disposeContent(source.scene);
   }
+});
+
+test('real Game switch-away/back does not replay an old shot through actual View.render', async () => {
+  const { Game } = await import('../src/sim/game.js');
+  const game = await Game.create(17);
+  const { View } = await import('../src/render/scene.js');
+  const { Feedback } = await import('../src/render/feedback.js');
+  const owner = new ContentSetAssets(load); await owner.start();
+  const gltf = await load('enemy-relay-guard'), baseline = new ContentOpponent(gltf);
+  const flash = new THREE.Mesh(new THREE.SphereGeometry(.1), new THREE.MeshBasicMaterial());
+  // Only GPU draw is replaced. View.render, the owner, GLB and Game are real.
+  const view: InstanceType<typeof View> = Object.assign(Object.create(View.prototype), {
+    renderer: { render() {}, dispose() {} }, content: owner, scene: new THREE.Scene(),
+    camera: new THREE.PerspectiveCamera(), weapon: new THREE.Group(), rifle: new THREE.Group(),
+    pistol: new THREE.Group(), flash, bomb: new THREE.Group(), feedback: new Feedback(),
+    impacts: [], actors: new Map(), geometries: new Set([flash.geometry]),
+    materials: new Set([flash.material]), textures: new Set(),
+  });
+  const actorId = game.state.actors[0]!.id;
+  const sample = (snapshot: GameState) => {
+    const a = snapshot.actors.find(a => a.id === actorId)!;
+    const hash = game.stateHash, before = JSON.stringify(snapshot);
+    const viewer = snapshot.actors.find(other => other.id !== actorId)!;
+    view.render(snapshot, viewer, viewer.yaw, viewer.pitch, snapshot.time / SECOND * 1000, 0);
+    const opponent = owner.actor(actorId)!;
+    assert.ok(opponent.mount.parent, 'View attached the real candidate');
+    baseline.pose({ ...snapshot, shots: [] }, a, [], true);
+    assert.equal(game.stateHash, hash); assert.equal(JSON.stringify(snapshot), before);
+    return { actual: transforms(opponent.mount), rest: transforms(baseline.mount) };
+  };
+  try {
+    game.step([{ actorId, type: 'shoot', yaw: Math.PI / 2, pitch: 0 }]);
+    const fired = game.state;
+    assert.ok(fired.shots.some(s => s.actorId === actorId));
+    assert.notDeepEqual(sample(fired).actual, sample(fired).rest);
+    game.step([{ actorId, type: 'switch', weapon: 'pistol' }]);
+    game.step([{ actorId, type: 'switch', weapon: 'rifle' }]);
+    const switched = game.state;
+    assert.ok(switched.shots.some(s => s.actorId === actorId), 'old shot is still in the authoritative snapshot');
+    assert.deepEqual(sample(switched).actual, sample(switched).rest);
+    assert.deepEqual(sample(switched).actual, sample(switched).rest, 'pause does not resurrect recoil');
+    assert.notDeepEqual(sample(fired).actual, sample(fired).rest, 'rewind to an accepted shot remains valid');
+    game.step([{ actorId, type: 'shoot', yaw: Math.PI / 2, pitch: 0 }]);
+    assert.deepEqual(sample(game.state).actual, sample(game.state).rest, 'blocked trigger is not a shot');
+    for (let i = 0; i < 13; i++) game.step();
+    game.step([{ actorId, type: 'shoot', yaw: Math.PI / 2, pitch: 0 }]);
+    assert.notDeepEqual(sample(game.state).actual, sample(game.state).rest, 'new accepted shot resumes animation');
+    game.step([{ actorId, type: 'reload' }]);
+    assert.deepEqual(sample(game.state).actual, sample(game.state).rest);
+    const ended = structuredClone(fired); ended.phase = 'over';
+    assert.deepEqual(sample(ended).actual, sample(ended).rest);
+    const future = structuredClone(fired); future.time = future.shots[0]!.time - 1;
+    assert.deepEqual(sample(future).actual, sample(future).rest);
+  } finally { game.dispose(); view.dispose(); baseline.detach(); disposeContent(gltf.scene); }
+});
+
+test('real pistol switch retains its longer cooldown and is outside the rifle selector contract', async () => {
+  const { Game } = await import('../src/sim/game.js');
+  const { currentRifleShot } = await import('../src/render/shot-action.js');
+  const game = await Game.create(17), id = game.state.actors[0]!.id;
+  try {
+    game.step([{ actorId: id, type: 'switch', weapon: 'pistol' }]);
+    for (let i = 0; i < 13; i++) game.step();
+    game.step([{ actorId: id, type: 'shoot', yaw: Math.PI / 2, pitch: 0 }]);
+    const fired = game.state, before = fired.actors.find(a => a.id === id)!;
+    assert.ok(fired.shots.some(s => s.actorId === id && s.weapon === 'pistol'));
+    game.step([{ actorId: id, type: 'switch', weapon: 'rifle' }]);
+    game.step([{ actorId: id, type: 'switch', weapon: 'pistol' }]);
+    const switched = game.state, after = switched.actors.find(a => a.id === id)!;
+    assert.equal(after.weapon, 'pistol');
+    assert.equal(after.nextShot, before.nextShot, 'Math.max preserves the 15-tick pistol cooldown');
+    assert.equal(after.nextShot, after.weapons.pistol.lastShot + WEAPONS.pistol.interval * SUBTICKS);
+    assert.equal(currentRifleShot(fired, before), undefined);
+    assert.equal(currentRifleShot(switched, after), undefined, 'do not claim rifle cooldown identifies pistol switch history');
+  } finally { game.dispose(); }
 });

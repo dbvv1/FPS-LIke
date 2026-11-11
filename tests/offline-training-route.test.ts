@@ -32,8 +32,14 @@ const reviewedLockDisposal = {
   "src/candidates/movement-v2/input/controls.ts": "b18b0be72114f1a45074a6747d0e951b2d4868d943442bdf596f9212a76160fc"
 };
 
+// Candidate-only opponent fire repair. Keep the historical baseline fixture;
+// simulation/default weapon bytes and the other candidate copies stay frozen.
+const reviewedOpponentShotRevision = {
+  "src/render/content-set-assets.ts": "4e0a07f5f5cdeb9ba1bc05e9521e2b8edc875b93828753a11ada8a53341240c1"
+};
+
 test('v13 frozen modules plus authorized scheduling/capture changes retain their exact bytes', () => {
-  for (const [file, hash] of Object.entries({...hashes, ...reviewedLegacyScheduling, ...fixedCaptureRevision, ...reviewedLockDisposal})) assert.equal(createHash('sha256').update(readFileSync(new URL('../'+file, import.meta.url))).digest('hex'), hash, file);
+  for (const [file, hash] of Object.entries({...hashes, ...reviewedLegacyScheduling, ...fixedCaptureRevision, ...reviewedLockDisposal, ...reviewedOpponentShotRevision})) assert.equal(createHash('sha256').update(readFileSync(new URL('../'+file, import.meta.url))).digest('hex'), hash, file);
 });
 test('offline client and stylesheet load only through the lazy candidate entry', () => {
   const boot = readFileSync(new URL('../src/boot.ts', import.meta.url), 'utf8');

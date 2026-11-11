@@ -1,3 +1,4 @@
+import { currentRifleShot } from './shot-action.js';
 import { WEAPONS } from '../content/weapons.js';
 import { SECOND, SUBTICKS, type GameState } from '../sim/types.js';
 import type { KayKitAction, KayKitSkinnedCharacter } from './kaykit-skinned-character.js';
@@ -54,10 +55,7 @@ export function syncKayKitNativeAction(character: KayKitSkinnedCharacter, state:
   }
   const last = actor.weapons.rifle.lastShot;
   const duration = character.duration('native-fire-two-hand');
-  // Switching changes nextShot even before its lockout expires. Requiring the
-  // shot's original cooldown rejects old rifle shots after switch-away/back.
-  const accepted = actor.nextShot === last + WEAPONS.rifle.interval * SUBTICKS
-    && state.shots.some(s => s.actorId === actorId && s.weapon === 'rifle' && s.time === last);
+  const accepted = currentRifleShot(state, actor);
   const elapsed = state.time - last;
   if (accepted && duration !== null && elapsed >= 0 && elapsed < duration * (1 - KAYKIT_NATIVE_WINDOWS.fireStart) * SECOND) {
     // Preserve source playback speed, omit only the raise-to-aim pre-roll.
