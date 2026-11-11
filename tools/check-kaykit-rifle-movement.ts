@@ -47,6 +47,10 @@ export async function checkRifleMovement(directory: string) {
   let samples = 0, vertices = 0, maxMatrixError = 0, maxSkinError = 0, maxLoopSeam = 0;
   let sourceRootMotion = 0;
   let gameMovementSamples = 0;
+  const gameSpeeds: number[] = [];
+  // Joint landmarks are measurements, not inferred sole contact or a stride.
+  const footTrajectories = Object.fromEntries(['footl', 'footr', 'toesl', 'toesr']
+    .map(name => [name, [] as { time: number; y: number; z: number }[]]));
   const start = new Map<string, number[]>();
   const boundSkins = skins(actor.scene);
   assert.equal(boundSkins.length, 6);
@@ -82,6 +86,18 @@ export async function checkRifleMovement(directory: string) {
       }
       samples++;
     }
+    // Exact endpoint plus 240 Hz samples. Use a separate pass so repeated and
+    // rewind checks above cannot accidentally become a locomotion trajectory.
+    for (let i = 0, count = Math.ceil(clip.duration * 240); i <= count; i++) {
+      const time = clip.duration * i / count;
+      actor.sample('run-rifle', i / count);
+      for (const [name, trajectory] of Object.entries(footTrajectories)) {
+        const node = actor.scene.getObjectByName(name);
+        assert.ok(node, `fixed foot landmark missing: ${name}`);
+        const point = node.getWorldPosition(new THREE.Vector3());
+        trajectory.push({ time, y: point.y, z: point.z });
+      }
+    }
     assert.ok(maxMatrixError < 1e-6 && maxSkinError < 1e-6, 'fixed source parent/skin contract');
     assert.ok(maxLoopSeam < 1e-6 && sourceRootMotion < 1e-6, 'fixed source loop seam/root displacement');
     for (const seconds of [0, clip.duration, clip.duration * 2.25, clip.duration * 9.75, clip.duration * .25]) {
@@ -114,6 +130,9 @@ export async function checkRifleMovement(directory: string) {
           const pose = transforms(actor.scene); syncKayKitRifleAction(actor, current, id, previous);
           assert.equal(transforms(actor.scene), pose); assert.equal(game.stateHash, hash);
           assert.equal(JSON.stringify([previous, current]), input);
+          const oldActor = previous.actors.find(a => a.id === id)!, newActor = current.actors.find(a => a.id === id)!;
+          gameSpeeds.push(Math.hypot(newActor.position.x - oldActor.position.x, newActor.position.z - oldActor.position.z)
+            / ((current.time - previous.time) / SECOND));
           previous = current; game.step(); gameMovementSamples++;
         }
         syncKayKitRifleAction(actor, first[1], id, first[0]); assert.equal(actor.currentAction, 'run-rifle');
@@ -130,7 +149,30 @@ export async function checkRifleMovement(directory: string) {
   } finally { actor.dispose(); sibling.dispose(); mixer.stopAllAction(); mixer.uncacheRoot(reference); }
   return { inputs: FIXED_MOVEMENT_INPUTS, sourceClip: clip.name, durationSeconds: clip.duration, tracks: clip.tracks.length,
     samples, vertices, maxMatrixError, maxSkinError, maxLoopSeam, sourceRootMotion, gameMovementSamples,
+    locomotionCalibration: {
+      gameSpeedMetersPerSecond: { min: Math.min(...gameSpeeds), max: Math.max(...gameSpeeds) },
+      estimatedTravelPerSourceCycleAtConstantSpeedMeters: { min: Math.min(...gameSpeeds) * clip.duration, max: Math.max(...gameSpeeds) * clip.duration },
+      landmarks: Object.fromEntries(Object.entries(footTrajectories).map(([name, points]) => [name, summarizeTrajectory(points)])),
+      contactIdentified: false, strideCalibrated: false, playbackRateChanged: false,
+    },
     textureDecoded: false, viewConnected: false, browser: false, weaponContactVerified: false };
+}
+/** Finite chronological landmark samples, not a ground-contact classifier. */
+export function summarizeTrajectory(points: readonly { time: number; y: number; z: number }[]) {
+  assert.ok(points.length >= 2, 'two trajectory samples required');
+  const velocities: number[] = [];
+  for (const [i, p] of points.entries()) {
+    assert.ok([p.time, p.y, p.z].every(Number.isFinite), 'finite trajectory required');
+    if (i) {
+      const previous = points[i - 1]!;
+      assert.ok(p.time > previous.time, 'strictly increasing trajectory times required');
+      velocities.push((p.z - previous.z) / (p.time - previous.time));
+    }
+  }
+  return { samples: points.length, durationSeconds: points.at(-1)!.time - points[0]!.time,
+    heightMeters: { min: Math.min(...points.map(p => p.y)), max: Math.max(...points.map(p => p.y)) },
+    sourceZSweepMeters: Math.max(...points.map(p => p.z)) - Math.min(...points.map(p => p.z)),
+    sourceZVelocityMetersPerSecond: { min: Math.min(...velocities), max: Math.max(...velocities) } };
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
   if (!process.argv[2]) { console.error('Usage: node --import tsx tools/check-kaykit-rifle-movement.ts <fixed-sample-directory>'); process.exitCode = 2; }
