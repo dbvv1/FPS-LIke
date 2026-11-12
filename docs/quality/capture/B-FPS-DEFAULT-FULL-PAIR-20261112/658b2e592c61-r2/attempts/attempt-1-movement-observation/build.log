@@ -1,0 +1,57 @@
+
+> fps-like@0.1.0 build
+> tsc --noEmit && npm run build:sim && vite build
+
+
+> fps-like@0.1.0 build:sim
+> vite build --config vite.sim.config.ts
+
+[36mvite v8.3.5 [32mbuilding client environment for production...[36m[39m
+transforming...
+✓ 13 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/fps-sim.js  113.81 kB │ gzip: 15.40 kB
+
+[32m✓ built in 88ms[39m
+[36mvite v8.3.5 [32mbuilding client environment for production...[36m[39m
+transforming...
+✓ 162 modules transformed.
+rendering chunks...
+computing gzip size...
+web-dist/index.html                                            1.60 kB │ gzip:     0.98 kB
+web-dist/assets/lamp-existing-DVeGWscy.glb                    10.33 kB
+web-dist/assets/low-cover-site-DA3dcXAf.glb                   36.49 kB
+web-dist/assets/enemy-relay-guard-CS-HTAkv.glb                40.38 kB
+web-dist/assets/wall-center-dogleg-DddcdcKC.glb               76.77 kB
+web-dist/assets/wall-9_xNUgQT.webp                            89.30 kB
+web-dist/assets/ground-Cegpr579.webp                         174.61 kB
+web-dist/assets/fp-arms-rx24-Csz61tNP.glb                    188.08 kB
+web-dist/assets/index-Lpyfeiio.css                             9.47 kB │ gzip:     2.94 kB
+web-dist/assets/entry-e2Z0vRps.css                            10.27 kB │ gzip:     3.16 kB
+web-dist/assets/quality-route-qehs-H0T.js                      0.09 kB │ gzip:     0.10 kB
+web-dist/assets/frame-budget-Bp0rdbDd.js                       0.28 kB │ gzip:     0.19 kB
+web-dist/assets/default-route-CkZGZv8p.js                      0.37 kB │ gzip:     0.25 kB
+web-dist/assets/candidate-route-SS3bEaxz.js                    0.52 kB │ gzip:     0.26 kB
+web-dist/assets/quality-route-foNotyz7.js                      0.75 kB │ gzip:     0.47 kB
+web-dist/assets/cameras-ChKJAfpS.js                            0.77 kB │ gzip:     0.46 kB
+web-dist/assets/output-BoVdQSWt.js                             0.80 kB │ gzip:     0.48 kB
+web-dist/assets/renderer-CPCC4Qy-.js                           1.04 kB │ gzip:     0.57 kB
+web-dist/assets/entry-DP0JfkzJ.js                              1.05 kB │ gzip:     0.50 kB
+web-dist/assets/preload-helper-BLdHbfdN.js                     1.51 kB │ gzip:     0.79 kB
+web-dist/assets/index-CXhSxSPO.js                              2.58 kB │ gzip:     1.36 kB
+web-dist/assets/physics-D_zIYmY6.js                            4.12 kB │ gzip:     1.78 kB
+web-dist/assets/quality-client-CaIOJ2Zz.js                     4.17 kB │ gzip:     2.01 kB
+web-dist/assets/client-BV_2DDtN.js                             5.23 kB │ gzip:     2.30 kB
+web-dist/assets/client-CvwXRiEZ.js                             6.85 kB │ gzip:     3.03 kB
+web-dist/assets/client-BFX7xFLw.js                            18.46 kB │ gzip:     7.67 kB
+web-dist/assets/client-CzBtgPDQ.js                            19.60 kB │ gzip:     8.11 kB
+web-dist/assets/client-Oj8Ss1k6.js                            22.22 kB │ gzip:     9.17 kB
+web-dist/assets/navigation-DdDgzWcG.js                        94.69 kB │ gzip:    27.59 kB
+web-dist/assets/navigation-DHtDdhlh.js                       101.95 kB │ gzip:    30.06 kB
+web-dist/assets/match-panel-BiNUyxYp.js                      144.21 kB │ gzip:    42.68 kB
+web-dist/assets/recast-navigation.wasm-compat-Qa-X0_Ub.js    726.22 kB │ gzip:   219.84 kB
+web-dist/assets/dist-CVkarZtm.js                           1,178.07 kB │ gzip:   375.45 kB
+web-dist/assets/rapier-BR_-CEU_.js                         4,332.81 kB │ gzip: 1,669.30 kB
+
+[32m✓ built in 507ms[39m

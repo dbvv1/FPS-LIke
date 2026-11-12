@@ -1,0 +1,266 @@
+{
+  "finalWeapon": "rifle",
+  "events": [
+    {
+      "label": "started",
+      "tick": 5,
+      "now": 1816.6999999284744,
+      "weapon": "rifle",
+      "pistolAmmo": 10,
+      "rifleAmmo": 24,
+      "reload": null
+    },
+    {
+      "label": "after-press-2 +100ms",
+      "tick": 11,
+      "now": 1931.8999999761581,
+      "weapon": "pistol",
+      "pistolAmmo": 10,
+      "rifleAmmo": 24,
+      "reload": null
+    },
+    {
+      "label": "after-press-2 +200ms",
+      "tick": 11,
+      "now": 2041.1000000238419,
+      "weapon": "pistol",
+      "pistolAmmo": 10,
+      "rifleAmmo": 24,
+      "reload": null
+    },
+    {
+      "label": "after-press-2 +300ms",
+      "tick": 19,
+      "now": 2149.6999999284744,
+      "weapon": "pistol",
+      "pistolAmmo": 10,
+      "rifleAmmo": 24,
+      "reload": null
+    },
+    {
+      "label": "after-press-2 +400ms",
+      "tick": 19,
+      "now": 2270.399999976158,
+      "weapon": "pistol",
+      "pistolAmmo": 10,
+      "rifleAmmo": 24,
+      "reload": null
+    },
+    {
+      "label": "after-press-2 +500ms",
+      "tick": 19,
+      "now": 2382.100000023842,
+      "weapon": "pistol",
+      "pistolAmmo": 10,
+      "rifleAmmo": 24,
+      "reload": null
+    },
+    {
+      "label": "after-press-2 +600ms",
+      "tick": 34,
+      "now": 2491.899999976158,
+      "weapon": "pistol",
+      "pistolAmmo": 10,
+      "rifleAmmo": 24,
+      "reload": null
+    },
+    {
+      "label": "after-press-2 +700ms",
+      "tick": 37,
+      "now": 2602.100000023842,
+      "weapon": "pistol",
+      "pistolAmmo": 10,
+      "rifleAmmo": 24,
+      "reload": null
+    },
+    {
+      "label": "after-press-2 +800ms",
+      "tick": 37,
+      "now": 2708.1999999284744,
+      "weapon": "pistol",
+      "pistolAmmo": 10,
+      "rifleAmmo": 24,
+      "reload": null
+    },
+    {
+      "label": "after-press-2 +900ms",
+      "tick": 37,
+      "now": 2829.2999999523163,
+      "weapon": "pistol",
+      "pistolAmmo": 10,
+      "rifleAmmo": 24,
+      "reload": null
+    },
+    {
+      "label": "after-press-2 +1000ms",
+      "tick": 37,
+      "now": 2942.1999999284744,
+      "weapon": "pistol",
+      "pistolAmmo": 10,
+      "rifleAmmo": 24,
+      "reload": null
+    },
+    {
+      "label": "after-press-2 +1100ms",
+      "tick": 52,
+      "now": 3062.7999999523163,
+      "weapon": "pistol",
+      "pistolAmmo": 10,
+      "rifleAmmo": 24,
+      "reload": null
+    },
+    {
+      "label": "after-press-2 +1200ms",
+      "tick": 52,
+      "now": 3184.600000023842,
+      "weapon": "pistol",
+      "pistolAmmo": 10,
+      "rifleAmmo": 24,
+      "reload": null
+    },
+    {
+      "label": "after-shot +100ms",
+      "tick": 52,
+      "now": 3299.2999999523163,
+      "weapon": "pistol",
+      "pistolAmmo": 10,
+      "rifleAmmo": 24,
+      "reload": null
+    },
+    {
+      "label": "after-shot +200ms",
+      "tick": 52,
+      "now": 3408.6999999284744,
+      "weapon": "pistol",
+      "pistolAmmo": 10,
+      "rifleAmmo": 24,
+      "reload": null
+    },
+    {
+      "label": "after-shot +300ms",
+      "tick": 52,
+      "now": 3516.1999999284744,
+      "weapon": "pistol",
+      "pistolAmmo": 10,
+      "rifleAmmo": 24,
+      "reload": null
+    },
+    {
+      "label": "after-shot +400ms",
+      "tick": 67,
+      "now": 4268.100000023842,
+      "weapon": "pistol",
+      "pistolAmmo": 9,
+      "rifleAmmo": 24,
+      "reload": null
+    },
+    {
+      "label": "after-shot +500ms",
+      "tick": 85,
+      "now": 4414.100000023842,
+      "weapon": "pistol",
+      "pistolAmmo": 9,
+      "rifleAmmo": 24,
+      "reload": null
+    },
+    {
+      "label": "after-shot +600ms",
+      "tick": 85,
+      "now": 4528.699999928474,
+      "weapon": "pistol",
+      "pistolAmmo": 9,
+      "rifleAmmo": 24,
+      "reload": null
+    },
+    {
+      "label": "after-reload +100ms",
+      "tick": 99,
+      "now": 4653.100000023842,
+      "weapon": "pistol",
+      "pistolAmmo": 9,
+      "rifleAmmo": 24,
+      "reload": "pistol"
+    },
+    {
+      "label": "after-reload +200ms",
+      "tick": 99,
+      "now": 4771.5,
+      "weapon": "pistol",
+      "pistolAmmo": 9,
+      "rifleAmmo": 24,
+      "reload": "pistol"
+    },
+    {
+      "label": "after-reload +300ms",
+      "tick": 99,
+      "now": 4903.199999928474,
+      "weapon": "pistol",
+      "pistolAmmo": 9,
+      "rifleAmmo": 24,
+      "reload": "pistol"
+    },
+    {
+      "label": "after-reload +400ms",
+      "tick": 113,
+      "now": 5017.699999928474,
+      "weapon": "pistol",
+      "pistolAmmo": 9,
+      "rifleAmmo": 24,
+      "reload": "pistol"
+    },
+    {
+      "label": "after-rifle +100ms",
+      "tick": 113,
+      "now": 5174.399999976158,
+      "weapon": "pistol",
+      "pistolAmmo": 9,
+      "rifleAmmo": 24,
+      "reload": "pistol"
+    },
+    {
+      "label": "after-rifle +200ms",
+      "tick": 127,
+      "now": 5436,
+      "weapon": "rifle",
+      "pistolAmmo": 9,
+      "rifleAmmo": 24,
+      "reload": null
+    },
+    {
+      "label": "after-rifle +300ms",
+      "tick": 127,
+      "now": 5557.899999976158,
+      "weapon": "rifle",
+      "pistolAmmo": 9,
+      "rifleAmmo": 24,
+      "reload": null
+    },
+    {
+      "label": "after-rifle +400ms",
+      "tick": 127,
+      "now": 5679.5,
+      "weapon": "rifle",
+      "pistolAmmo": 9,
+      "rifleAmmo": 24,
+      "reload": null
+    },
+    {
+      "label": "after-rifle +500ms",
+      "tick": 127,
+      "now": 5789.199999928474,
+      "weapon": "rifle",
+      "pistolAmmo": 9,
+      "rifleAmmo": 24,
+      "reload": null
+    },
+    {
+      "label": "after-rifle +600ms",
+      "tick": 127,
+      "now": 5899.199999928474,
+      "weapon": "rifle",
+      "pistolAmmo": 9,
+      "rifleAmmo": 24,
+      "reload": null
+    }
+  ]
+}

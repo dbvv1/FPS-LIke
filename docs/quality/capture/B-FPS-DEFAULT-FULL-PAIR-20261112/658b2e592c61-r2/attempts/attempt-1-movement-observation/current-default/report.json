@@ -1,0 +1,638 @@
+{
+  "passed": false,
+  "errors": [],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content."
+  ],
+  "stages": [
+    "nine bot controllers, ten actors, complete-match HUD, courtyard active",
+    "loaded real WebGL2 scene"
+  ],
+  "offlineCoverage": {
+    "fullMatchPlaythrough": false,
+    "completedRounds": [],
+    "restartScope": "whole match via final next UI (再打一场); no separate round-restart control",
+    "unverified": [
+      "six-round completion UI",
+      "halftime transition",
+      "end-of-match replay",
+      "human visual/audio quality"
+    ]
+  },
+  "requestedLaunch": {
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": [
+      "--enable-unsafe-swiftshader"
+    ],
+    "executablePath": "<playwright-browser>ss_shell-1248/chrome-headless-shell-win64/chrome-headless-shell.exe",
+    "args": [
+      "--use-angle=swiftshader"
+    ],
+    "browserVersion": "156.0.8078.4"
+  },
+  "launchEvidence": "Requested options only; verify final argv in DEBUG=pw:browser output.",
+  "viewport": {
+    "width": 1365,
+    "height": 900
+  },
+  "deviceScaleFactor": 1,
+  "query": "",
+  "effectiveQuery": "?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1",
+  "webgl": {
+    "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+    "renderer": "WebKit WebGL",
+    "vendor": "WebKit",
+    "unmaskedRenderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "unmaskedVendor": "Google Inc. (Google)"
+  },
+  "rendererClass": "software",
+  "artStandards": {
+    "id": "standards-v1",
+    "state": "ready",
+    "pieces": 3,
+    "budget": {
+      "triangles": 2396,
+      "calls": 4,
+      "bytes": 123604
+    },
+    "evidence": "runtime-geometry-only",
+    "active": true
+  },
+  "lighting": {
+    "id": "courtyard-light-v1",
+    "environment": "hemisphere-and-ambient",
+    "ao": "deterministic-ssao-half-resolution",
+    "grade": "cool-shadows-warm-highlights"
+  },
+  "offlineInitial": {
+    "state": {
+      "ready": true,
+      "renderFallback": null,
+      "acceptance": {
+        "requiredTicksPerRun": 144,
+        "requiredRuns": 2,
+        "movement": "baseline"
+      },
+      "squads": {
+        "version": "offline-v1",
+        "formation": "squads-v1",
+        "botIds": [
+          "amber-1",
+          "amber-2",
+          "amber-3",
+          "amber-4",
+          "blue-1",
+          "blue-2",
+          "blue-3",
+          "blue-4",
+          "blue-5"
+        ]
+      },
+      "match": {
+        "rounds": [],
+        "complete": false,
+        "wins": 0,
+        "losses": 0,
+        "shots": 0,
+        "hits": 0,
+        "headHits": 0,
+        "objectiveWins": 0
+      },
+      "running": false,
+      "locked": false,
+      "backend": "three-webgl2",
+      "yaw": 0,
+      "pitch": 0,
+      "lighting": {
+        "id": "courtyard-light-v1",
+        "environment": "hemisphere-and-ambient",
+        "ao": "deterministic-ssao-half-resolution",
+        "grade": "cool-shadows-warm-highlights"
+      },
+      "art": {
+        "id": "standards-v1",
+        "state": "ready",
+        "pieces": 3,
+        "budget": {
+          "triangles": 2396,
+          "calls": 4,
+          "bytes": 123604
+        },
+        "evidence": "runtime-geometry-only",
+        "active": true
+      },
+      "environment": {
+        "id": "courtyard-v1",
+        "active": true,
+        "budget": {
+          "wallTriangles": 120,
+          "wallDraws": 10,
+          "rgbaBytes": 5505024,
+          "extraPasses": 0
+        },
+        "evidence": "offline-estimate"
+      },
+      "memory": {
+        "geometries": 94,
+        "textures": 21
+      },
+      "calls": 64
+    },
+    "snapshot": {
+      "seed": 1,
+      "random": 1,
+      "tick": 0,
+      "time": 0,
+      "round": 1,
+      "roundEndsAt": 4200000,
+      "phase": "live",
+      "score": {
+        "amber": 0,
+        "blue": 0
+      },
+      "actors": [
+        {
+          "id": "amber-1",
+          "team": "amber",
+          "side": "attack",
+          "hp": 100,
+          "position": {
+            "x": -10.5,
+            "y": 0,
+            "z": -14
+          },
+          "yaw": 0,
+          "pitch": 0,
+          "input": {
+            "x": 0,
+            "z": 0,
+            "walk": false,
+            "crouch": false,
+            "interact": false
+          },
+          "weapon": "rifle",
+          "weapons": {
+            "rifle": {
+              "ammo": 24,
+              "reserve": 72,
+              "shots": 0,
+              "lastShot": -60000
+            },
+            "pistol": {
+              "ammo": 10,
+              "reserve": 30,
+              "shots": 0,
+              "lastShot": -60000
+            }
+          },
+          "reload": null,
+          "nextShot": 0,
+          "nextFootstep": 0,
+          "bot": "easy"
+        },
+        {
+          "id": "amber-2",
+          "team": "amber",
+          "side": "attack",
+          "hp": 100,
+          "position": {
+            "x": -9.4,
+            "y": 0,
+            "z": -14
+          },
+          "yaw": 0,
+          "pitch": 0,
+          "input": {
+            "x": 0,
+            "z": 0,
+            "walk": false,
+            "crouch": false,
+            "interact": false
+          },
+          "weapon": "rifle",
+          "weapons": {
+            "rifle": {
+              "ammo": 24,
+              "reserve": 72,
+              "shots": 0,
+              "lastShot": -60000
+            },
+            "pistol": {
+              "ammo": 10,
+              "reserve": 30,
+              "shots": 0,
+              "lastShot": -60000
+            }
+          },
+          "reload": null,
+          "nextShot": 0,
+          "nextFootstep": 0,
+          "bot": "easy"
+        },
+        {
+          "id": "amber-3",
+          "team": "amber",
+          "side": "attack",
+          "hp": 100,
+          "position": {
+            "x": -8.3,
+            "y": 0,
+            "z": -14
+          },
+          "yaw": 0,
+          "pitch": 0,
+          "input": {
+            "x": 0,
+            "z": 0,
+            "walk": false,
+            "crouch": false,
+            "interact": false
+          },
+          "weapon": "rifle",
+          "weapons": {
+            "rifle": {
+              "ammo": 24,
+              "reserve": 72,
+              "shots": 0,
+              "lastShot": -60000
+            },
+            "pistol": {
+              "ammo": 10,
+              "reserve": 30,
+              "shots": 0,
+              "lastShot": -60000
+            }
+          },
+          "reload": null,
+          "nextShot": 0,
+          "nextFootstep": 0,
+          "bot": "easy"
+        },
+        {
+          "id": "amber-4",
+          "team": "amber",
+          "side": "attack",
+          "hp": 100,
+          "position": {
+            "x": -10.5,
+            "y": 0,
+            "z": -15.2
+          },
+          "yaw": 0,
+          "pitch": 0,
+          "input": {
+            "x": 0,
+            "z": 0,
+            "walk": false,
+            "crouch": false,
+            "interact": false
+          },
+          "weapon": "rifle",
+          "weapons": {
+            "rifle": {
+              "ammo": 24,
+              "reserve": 72,
+              "shots": 0,
+              "lastShot": -60000
+            },
+            "pistol": {
+              "ammo": 10,
+              "reserve": 30,
+              "shots": 0,
+              "lastShot": -60000
+            }
+          },
+          "reload": null,
+          "nextShot": 0,
+          "nextFootstep": 0,
+          "bot": "easy"
+        },
+        {
+          "id": "blue-1",
+          "team": "blue",
+          "side": "defend",
+          "hp": 100,
+          "position": {
+            "x": -10.5,
+            "y": 0,
+            "z": 14
+          },
+          "yaw": 3.141592653589793,
+          "pitch": 0,
+          "input": {
+            "x": 0,
+            "z": 0,
+            "walk": false,
+            "crouch": false,
+            "interact": false
+          },
+          "weapon": "rifle",
+          "weapons": {
+            "rifle": {
+              "ammo": 24,
+              "reserve": 72,
+              "shots": 0,
+              "lastShot": -60000
+            },
+            "pistol": {
+              "ammo": 10,
+              "reserve": 30,
+              "shots": 0,
+              "lastShot": -60000
+            }
+          },
+          "reload": null,
+          "nextShot": 0,
+          "nextFootstep": 0,
+          "bot": "easy"
+        },
+        {
+          "id": "blue-2",
+          "team": "blue",
+          "side": "defend",
+          "hp": 100,
+          "position": {
+            "x": -9.4,
+            "y": 0,
+            "z": 14
+          },
+          "yaw": 3.141592653589793,
+          "pitch": 0,
+          "input": {
+            "x": 0,
+            "z": 0,
+            "walk": false,
+            "crouch": false,
+            "interact": false
+          },
+          "weapon": "rifle",
+          "weapons": {
+            "rifle": {
+              "ammo": 24,
+              "reserve": 72,
+              "shots": 0,
+              "lastShot": -60000
+            },
+            "pistol": {
+              "ammo": 10,
+              "reserve": 30,
+              "shots": 0,
+              "lastShot": -60000
+            }
+          },
+          "reload": null,
+          "nextShot": 0,
+          "nextFootstep": 0,
+          "bot": "easy"
+        },
+        {
+          "id": "blue-3",
+          "team": "blue",
+          "side": "defend",
+          "hp": 100,
+          "position": {
+            "x": -8.3,
+            "y": 0,
+            "z": 14
+          },
+          "yaw": 3.141592653589793,
+          "pitch": 0,
+          "input": {
+            "x": 0,
+            "z": 0,
+            "walk": false,
+            "crouch": false,
+            "interact": false
+          },
+          "weapon": "rifle",
+          "weapons": {
+            "rifle": {
+              "ammo": 24,
+              "reserve": 72,
+              "shots": 0,
+              "lastShot": -60000
+            },
+            "pistol": {
+              "ammo": 10,
+              "reserve": 30,
+              "shots": 0,
+              "lastShot": -60000
+            }
+          },
+          "reload": null,
+          "nextShot": 0,
+          "nextFootstep": 0,
+          "bot": "easy"
+        },
+        {
+          "id": "blue-4",
+          "team": "blue",
+          "side": "defend",
+          "hp": 100,
+          "position": {
+            "x": -10.5,
+            "y": 0,
+            "z": 15.2
+          },
+          "yaw": 3.141592653589793,
+          "pitch": 0,
+          "input": {
+            "x": 0,
+            "z": 0,
+            "walk": false,
+            "crouch": false,
+            "interact": false
+          },
+          "weapon": "rifle",
+          "weapons": {
+            "rifle": {
+              "ammo": 24,
+              "reserve": 72,
+              "shots": 0,
+              "lastShot": -60000
+            },
+            "pistol": {
+              "ammo": 10,
+              "reserve": 30,
+              "shots": 0,
+              "lastShot": -60000
+            }
+          },
+          "reload": null,
+          "nextShot": 0,
+          "nextFootstep": 0,
+          "bot": "easy"
+        },
+        {
+          "id": "blue-5",
+          "team": "blue",
+          "side": "defend",
+          "hp": 100,
+          "position": {
+            "x": -9.4,
+            "y": 0,
+            "z": 15.2
+          },
+          "yaw": 3.141592653589793,
+          "pitch": 0,
+          "input": {
+            "x": 0,
+            "z": 0,
+            "walk": false,
+            "crouch": false,
+            "interact": false
+          },
+          "weapon": "rifle",
+          "weapons": {
+            "rifle": {
+              "ammo": 24,
+              "reserve": 72,
+              "shots": 0,
+              "lastShot": -60000
+            },
+            "pistol": {
+              "ammo": 10,
+              "reserve": 30,
+              "shots": 0,
+              "lastShot": -60000
+            }
+          },
+          "reload": null,
+          "nextShot": 0,
+          "nextFootstep": 0,
+          "bot": "easy"
+        },
+        {
+          "id": "player",
+          "team": "amber",
+          "side": "attack",
+          "hp": 100,
+          "position": {
+            "x": -9.4,
+            "y": 0,
+            "z": -15.2
+          },
+          "yaw": 0,
+          "pitch": 0,
+          "input": {
+            "x": 0,
+            "z": 0,
+            "walk": false,
+            "crouch": false,
+            "interact": false
+          },
+          "weapon": "rifle",
+          "weapons": {
+            "rifle": {
+              "ammo": 24,
+              "reserve": 72,
+              "shots": 0,
+              "lastShot": -60000
+            },
+            "pistol": {
+              "ammo": 10,
+              "reserve": 30,
+              "shots": 0,
+              "lastShot": -60000
+            }
+          },
+          "reload": null,
+          "nextShot": 0,
+          "nextFootstep": 0,
+          "bot": null
+        }
+      ],
+      "bomb": {
+        "carrier": "amber-1",
+        "position": {
+          "x": -10.5,
+          "y": 0,
+          "z": -14
+        },
+        "planted": false,
+        "explodeAt": null
+      },
+      "interaction": null,
+      "result": null,
+      "shots": [],
+      "sounds": [],
+      "soundSequence": 0
+    },
+    "hud": {
+      "progress": "1 / 6 回合 · 进攻",
+      "goal": "掩护携带信标的队友推进 · 存活 5:5 · 队友携带信标",
+      "title": "进攻阶段 · 回合 1 / 6"
+    }
+  },
+  "pixels": {
+    "colors": 473,
+    "dominant": 0.10412617012617012
+  },
+  "failure": "AssertionError [ERR_ASSERTION]: Actual keyboard input moves the shared simulation\n    at file:///<measurement-worktree-smoke>/tools/smoke.mjs:120:10",
+  "partialFrameTiming": {
+    "metric": "requestAnimationFrame interval; observer overhead included; not GPU time",
+    "clock": "performance timeline milliseconds since page time origin",
+    "startMs": 17276.8,
+    "endMs": 18376.7,
+    "observedSpanMs": 1099.9000000000015,
+    "scope": "partial observation only: first to last recorded rAF before failure; no six-round or restart completion claim",
+    "all": {
+      "count": 4,
+      "totalMs": 1099.9000000000015,
+      "meanMs": 274.97500000000036,
+      "medianMs": 266.6000000000022,
+      "p95Ms": 300,
+      "p99Ms": 300,
+      "maxMs": 300,
+      "over50Ms": 4
+    },
+    "active": {
+      "count": 2,
+      "totalMs": 549.9000000000015,
+      "meanMs": 274.9500000000007,
+      "medianMs": 249.90000000000146,
+      "p95Ms": 300,
+      "p99Ms": 300,
+      "maxMs": 300,
+      "over50Ms": 2
+    },
+    "rounds": [
+      {
+        "round": 1,
+        "count": 2,
+        "totalMs": 549.9000000000015,
+        "meanMs": 274.9500000000007,
+        "medianMs": 249.90000000000146,
+        "p95Ms": 300,
+        "p99Ms": 300,
+        "maxMs": 300,
+        "over50Ms": 2
+      },
+      {
+        "round": 2,
+        "count": 0
+      },
+      {
+        "round": 3,
+        "count": 0
+      },
+      {
+        "round": 4,
+        "count": 0
+      },
+      {
+        "round": 5,
+        "count": 0
+      },
+      {
+        "round": 6,
+        "count": 0
+      }
+    ]
+  },
+  "cleanup": {
+    "browserDisconnected": true,
+    "previewPortClosed": true
+  }
+}

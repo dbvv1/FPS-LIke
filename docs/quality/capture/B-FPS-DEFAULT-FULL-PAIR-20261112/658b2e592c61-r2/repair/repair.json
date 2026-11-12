@@ -1,0 +1,41 @@
+{
+  "baseRef": "658b2e592c612fa0801e2cc7fecdce32bb57eadb",
+  "patchedToolFiles": {
+    "tools/smoke.mjs": {
+      "sha256": "e5184af26f8d83a046ccb4118ea823179801d7425162b0ced3da7db79e12feae",
+      "atCommit": "c3546ecef83704a747dfe56838d40346e114e2d0"
+    },
+    "tools/smoke-backlog.mjs": {
+      "sha256": "bb099f9d186f18293b96d7c2dd9f753eb60a2596a768c599f01889515fd3deec",
+      "atCommit": "c3546ecef83704a747dfe56838d40346e114e2d0"
+    }
+  },
+  "patches": [
+    {
+      "order": 1,
+      "commit": "b45345f249697b27ad0716a7a01287b2ea767cf2",
+      "file": "smoke-observation-fix.patch",
+      "sha256": "f3adcc44f3032f5f48578e86e7c4b38fa93b6ef3e8915854958299739c4ba014",
+      "scope": "tools/smoke.mjs only",
+      "reason": "fixed 230ms hold could snapshot before a slow frame advanced any tick"
+    },
+    {
+      "order": 2,
+      "commit": "c3546ecef83704a747dfe56838d40346e114e2d0",
+      "file": "smoke-buffer-fix.patch",
+      "sha256": "157cfd3d2ac449007cc9cfb75ffbd2882e62c3463efb0802a3b29cf2c4ebaabe",
+      "scope": "tools/smoke-backlog.mjs only",
+      "reason": "spawnSync 1MiB default maxBuffer killed the child while printing a >1MiB passing report"
+    }
+  ],
+  "gameSourceChanged": false,
+  "notes": [
+    "Both patches are tools-only measurement/receipt fixes; src/, assets, defaults, dependencies and lockfile are untouched.",
+    "Probe JSON records real DOM key/consume timing and weapon state under ~250-300ms software frames.",
+    "attempt-3 uses baseRef plus both tools patches; capture uses exact baseRef in a separate clean worktree."
+  ],
+  "probeFindings": {
+    "movement": "keydown 127ms, keyup 391ms; tick advanced 18->33 only when a frame landed inside the hold; dz -0.363m. Immediate snapshot after a fixed hold can see zero ticks.",
+    "controls": "press 2 -> pistol within 100ms/one frame; click -> pistol ammo 10->9; r -> reload=pistol; press 1 -> rifle and reload null. Real control chain works under slow frames."
+  }
+}

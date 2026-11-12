@@ -1,0 +1,38 @@
+{
+  "label": "attempt-2",
+  "note": "Passing six-round report was written and Chrome exited 0, but spawnSync default 1MiB maxBuffer killed the child with SIGTERM while printing the report. Wrapper exit 1.",
+  "wrapperExitLine": "EXIT=1",
+  "manifestPassed": false,
+  "runStatus": null,
+  "runSignal": "SIGTERM",
+  "reportPassed": true,
+  "reportFailure": null,
+  "reportCleanup": {
+    "browserDisconnected": true,
+    "previewPortClosed": true
+  },
+  "reportStages": [
+    "nine bot controllers, ten actors, complete-match HUD, courtyard active",
+    "loaded real WebGL2 scene",
+    "pointer lock, mouse aim, movement, pistol shot, reload interruption",
+    "six natural rounds, halftime UI and side switch, final result and UI new-match reset",
+    "whole-match restart clears completed-round record and score",
+    "new match starts advancing and Escape freezes its clock",
+    "pause freezes clock, resume and restart clear input/ammo state"
+  ],
+  "reportErrors": [],
+  "movementObservation": {
+    "fromTick": 13,
+    "toTick": 47,
+    "dz": -2.1791029213927686
+  },
+  "partialFrameTiming": null,
+  "actualArgvFlags": {
+    "headless": true,
+    "useAngleSwiftshader": true,
+    "noSandbox": false,
+    "unsafeSwiftshader": false,
+    "automation": false,
+    "argumentCount": 45
+  }
+}

@@ -1,0 +1,21 @@
+diff --git a/tools/smoke.mjs b/tools/smoke.mjs
+index f105503..49cfa45 100644
+--- a/tools/smoke.mjs
++++ b/tools/smoke.mjs
+@@ -114,9 +114,15 @@ try {
+   await page.waitForFunction(() => window.fpsClient.state().locked && window.fpsClient.state().running);
+   await page.waitForFunction(() => window.fpsClient.snapshot().tick > 4);
+   const initial = await page.evaluate(() => window.fpsClient.snapshot());
+-  await page.keyboard.down('s'); await page.waitForTimeout(230); await page.keyboard.up('s');
++  // Software frames can exceed a short wall-clock hold, so a fixed 230ms press may see
++  // no advanced tick at all even though the real key is held. Wait for the shared
++  // simulation to advance while the key is held, then keep the same displacement check.
++  await page.keyboard.down('s');
++  await page.waitForFunction(tick => window.fpsClient.snapshot().tick >= tick + 20, initial.tick, { timeout: 30_000 });
++  await page.keyboard.up('s');
+   const moved = await page.evaluate(() => window.fpsClient.snapshot());
+   const p0 = initial.actors.find(a => a.id === 'player'), p1 = moved.actors.find(a => a.id === 'player');
++  report.movementObservation = { fromTick: initial.tick, toTick: moved.tick, dz: p1.position.z - p0.position.z };
+   assert.ok(p1.position.z < p0.position.z - 0.3, 'Actual keyboard input moves the shared simulation');
+   const yaw = await page.evaluate(() => window.fpsClient.state().yaw);
+   await page.mouse.move(800, 450); await page.mouse.move(900, 440);

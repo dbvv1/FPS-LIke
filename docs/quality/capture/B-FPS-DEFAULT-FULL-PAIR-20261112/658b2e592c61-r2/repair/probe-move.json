@@ -1,0 +1,422 @@
+{
+  "start": {
+    "tick": 18,
+    "z": -15.2,
+    "x": -9.4,
+    "running": true,
+    "locked": true,
+    "now": 3071.3000000715256
+  },
+  "end": {
+    "tick": 90,
+    "z": -15.562711071968078,
+    "x": -9.400004624496685,
+    "running": true,
+    "locked": true,
+    "now": 5764.399999976158
+  },
+  "keyDownWallMs": 127,
+  "keyUpWallMs": 391,
+  "samples": [
+    {
+      "wall": 0,
+      "tick": 18,
+      "z": -15.2,
+      "x": -9.4,
+      "running": true,
+      "locked": true,
+      "now": 3075.5,
+      "keyheld": false
+    },
+    {
+      "wall": 64,
+      "tick": 18,
+      "z": -15.2,
+      "x": -9.4,
+      "running": true,
+      "locked": true,
+      "now": 3138.3000000715256,
+      "keyheld": false
+    },
+    {
+      "wall": 127,
+      "tick": 18,
+      "z": -15.2,
+      "x": -9.4,
+      "running": true,
+      "locked": true,
+      "now": 3262.7000000476837,
+      "keyheld": true
+    },
+    {
+      "wall": 252,
+      "tick": 18,
+      "z": -15.2,
+      "x": -9.4,
+      "running": true,
+      "locked": true,
+      "now": 3330.7000000476837,
+      "keyheld": true
+    },
+    {
+      "wall": 318,
+      "tick": 33,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 3398.2000000476837,
+      "keyheld": true
+    },
+    {
+      "wall": 391,
+      "tick": 33,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 3467.100000023842,
+      "keyheld": false
+    },
+    {
+      "wall": 483,
+      "tick": 33,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 3556.899999976158,
+      "keyheld": false
+    },
+    {
+      "wall": 545,
+      "tick": 33,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 3619.600000023842,
+      "keyheld": false
+    },
+    {
+      "wall": 608,
+      "tick": 33,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 3683.100000023842,
+      "keyheld": false
+    },
+    {
+      "wall": 670,
+      "tick": 33,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 3744.899999976158,
+      "keyheld": false
+    },
+    {
+      "wall": 732,
+      "tick": 33,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 3807,
+      "keyheld": false
+    },
+    {
+      "wall": 794,
+      "tick": 33,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 3867.7000000476837,
+      "keyheld": false
+    },
+    {
+      "wall": 855,
+      "tick": 33,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 3933.7000000476837,
+      "keyheld": false
+    },
+    {
+      "wall": 921,
+      "tick": 48,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 3996.7000000476837,
+      "keyheld": false
+    },
+    {
+      "wall": 981,
+      "tick": 48,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 4055.100000023842,
+      "keyheld": false
+    },
+    {
+      "wall": 1042,
+      "tick": 48,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 4116.100000023842,
+      "keyheld": false
+    },
+    {
+      "wall": 1104,
+      "tick": 48,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 4177.800000071526,
+      "keyheld": false
+    },
+    {
+      "wall": 1166,
+      "tick": 48,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 4240.700000047684,
+      "keyheld": false
+    },
+    {
+      "wall": 1228,
+      "tick": 48,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 4302,
+      "keyheld": false
+    },
+    {
+      "wall": 1290,
+      "tick": 48,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 4364.300000071526,
+      "keyheld": false
+    },
+    {
+      "wall": 1352,
+      "tick": 48,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 4426.800000071526,
+      "keyheld": false
+    },
+    {
+      "wall": 1415,
+      "tick": 62,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 4506.100000023842,
+      "keyheld": false
+    },
+    {
+      "wall": 1495,
+      "tick": 62,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 4570,
+      "keyheld": false
+    },
+    {
+      "wall": 1574,
+      "tick": 62,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 4647.800000071526,
+      "keyheld": false
+    },
+    {
+      "wall": 1633,
+      "tick": 62,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 4706.899999976158,
+      "keyheld": false
+    },
+    {
+      "wall": 1695,
+      "tick": 62,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 4769,
+      "keyheld": false
+    },
+    {
+      "wall": 1757,
+      "tick": 62,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 4830.700000047684,
+      "keyheld": false
+    },
+    {
+      "wall": 1819,
+      "tick": 62,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 4893.300000071526,
+      "keyheld": false
+    },
+    {
+      "wall": 1882,
+      "tick": 62,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 4962.300000071526,
+      "keyheld": false
+    },
+    {
+      "wall": 1944,
+      "tick": 62,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 5017.800000071526,
+      "keyheld": false
+    },
+    {
+      "wall": 2006,
+      "tick": 62,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 5079.700000047684,
+      "keyheld": false
+    },
+    {
+      "wall": 2069,
+      "tick": 76,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 5143.5,
+      "keyheld": false
+    },
+    {
+      "wall": 2131,
+      "tick": 76,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 5205,
+      "keyheld": false
+    },
+    {
+      "wall": 2192,
+      "tick": 76,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 5267,
+      "keyheld": false
+    },
+    {
+      "wall": 2255,
+      "tick": 76,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 5328.700000047684,
+      "keyheld": false
+    },
+    {
+      "wall": 2316,
+      "tick": 76,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 5391.5,
+      "keyheld": false
+    },
+    {
+      "wall": 2378,
+      "tick": 76,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 5452.700000047684,
+      "keyheld": false
+    },
+    {
+      "wall": 2440,
+      "tick": 76,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 5549.800000071526,
+      "keyheld": false
+    },
+    {
+      "wall": 2566,
+      "tick": 76,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 5640.800000071526,
+      "keyheld": false
+    },
+    {
+      "wall": 2627,
+      "tick": 76,
+      "z": -15.562711071968078,
+      "x": -9.400004624496685,
+      "running": true,
+      "locked": true,
+      "now": 5701.300000071526,
+      "keyheld": false
+    }
+  ]
+}

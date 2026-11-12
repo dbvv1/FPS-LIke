@@ -1,0 +1,156 @@
+{
+  "passed": false,
+  "sourceCommit": "658b2e592c612fa0801e2cc7fecdce32bb57eadb",
+  "sourceTree": "cd025ea03ba7d9a6dfb21e0aa3e90bb5b830b66f",
+  "build": [
+    {
+      "path": "web-dist/assets/cameras-ChKJAfpS.js",
+      "sha256": "230b26451487e2f1ae79fccccb98cbf14c0469c46fb0e07acd6bf46916e795e0"
+    },
+    {
+      "path": "web-dist/assets/candidate-route-SS3bEaxz.js",
+      "sha256": "11e74533448fc8903c42ec9d27f8d8e84ca894c8493e191522b0398e2c6aae09"
+    },
+    {
+      "path": "web-dist/assets/client-BFX7xFLw.js",
+      "sha256": "58ba3375776e8f3de47fb8b8bb90e2cd8fa5048dc3eb1b0228738b5e9b153ef0"
+    },
+    {
+      "path": "web-dist/assets/client-BV_2DDtN.js",
+      "sha256": "eb7e28dcc24438a35b2e90db51da3818ad2f990dba9b1b043b34e7be1bfa8203"
+    },
+    {
+      "path": "web-dist/assets/client-CvwXRiEZ.js",
+      "sha256": "9b9b391bfb86285ae3d3ce5b783f09536284810a3c9e6c24f4933a82667a63d8"
+    },
+    {
+      "path": "web-dist/assets/client-CzBtgPDQ.js",
+      "sha256": "1247d61cb57dc11f7d48d9a85248884cea517aa13d91fae517a4f1b8494dd2c1"
+    },
+    {
+      "path": "web-dist/assets/client-Oj8Ss1k6.js",
+      "sha256": "d20573400bcba28164aa3dccc6359e347991464805cce77c878a720594802caf"
+    },
+    {
+      "path": "web-dist/assets/default-route-CkZGZv8p.js",
+      "sha256": "74d3fe457e5fa427071eda62767450fb43fae27b1d0374fc89534fa63a61a85d"
+    },
+    {
+      "path": "web-dist/assets/dist-CVkarZtm.js",
+      "sha256": "63ddce5703dbf6872e812fbbcd85b598c20e454190b5493ca7b54c59e51157fc"
+    },
+    {
+      "path": "web-dist/assets/enemy-relay-guard-CS-HTAkv.glb",
+      "sha256": "5b316a139cf48b21a6d6b7328ac1c8b58a73c4f41ce1a0de24f2a8ca74afbd74"
+    },
+    {
+      "path": "web-dist/assets/entry-DP0JfkzJ.js",
+      "sha256": "306f0eceea53e5e479a85dbc5c89f84639a99068637b9b0df9eba5a2b4e7ad17"
+    },
+    {
+      "path": "web-dist/assets/entry-e2Z0vRps.css",
+      "sha256": "74eab6441abf668406b3e4eb93ca0588e7e6a0ca70254114afc7e44050777f00"
+    },
+    {
+      "path": "web-dist/assets/fp-arms-rx24-Csz61tNP.glb",
+      "sha256": "e672d06e30262f2575076f759645aa3d82d6734f0c26ef280a2a36870549b9e1"
+    },
+    {
+      "path": "web-dist/assets/frame-budget-Bp0rdbDd.js",
+      "sha256": "e40b32938b1e8af981dd6b6de2e4273f98e82f550c683df5d7fd0496cda79c63"
+    },
+    {
+      "path": "web-dist/assets/ground-Cegpr579.webp",
+      "sha256": "8a45374142b195748cede9cba56e79267f5aeaaebe66ee977efa6c5cc97b49a3"
+    },
+    {
+      "path": "web-dist/assets/index-CXhSxSPO.js",
+      "sha256": "08924efbd6b1b82750cced08e3ac228dbb8663c21e2d2f0b7a04ac99b113c7a9"
+    },
+    {
+      "path": "web-dist/assets/index-Lpyfeiio.css",
+      "sha256": "92c07a6a0976395fbf00aa36b0c9b7861c981b8cc7359128e68f222b65eeaed4"
+    },
+    {
+      "path": "web-dist/assets/lamp-existing-DVeGWscy.glb",
+      "sha256": "09265db770ba91c8f81442c87468ec68b95e689011e8e2d7e2a66de4015500be"
+    },
+    {
+      "path": "web-dist/assets/low-cover-site-DA3dcXAf.glb",
+      "sha256": "ca2f7dc220a403fc41905242b957f4110271bb085bcb5c61955d7ed3dc8d1930"
+    },
+    {
+      "path": "web-dist/assets/match-panel-BiNUyxYp.js",
+      "sha256": "954090d22a5abdd9e5d4ea1cc78339889841cc9b4a6c8e397a4f7ee9fa71a009"
+    },
+    {
+      "path": "web-dist/assets/navigation-DdDgzWcG.js",
+      "sha256": "c99f237cf1f077f4e4a2bfc72a955613bb724a5769a9276826357a2025c7a501"
+    },
+    {
+      "path": "web-dist/assets/navigation-DHtDdhlh.js",
+      "sha256": "622d650d59ef535bded1ee59050a1b5525b2221095eaf2b96201c6f356ea2fc6"
+    },
+    {
+      "path": "web-dist/assets/output-BoVdQSWt.js",
+      "sha256": "f2f45013a4db7c43a45f306897ec7f7bf167facac3e7c97887394d00fc9c2fba"
+    },
+    {
+      "path": "web-dist/assets/physics-D_zIYmY6.js",
+      "sha256": "0351145b1ffa1b0cc874f206c277fbb4026d2b4cd276bf1305ab2cc099e619ea"
+    },
+    {
+      "path": "web-dist/assets/preload-helper-BLdHbfdN.js",
+      "sha256": "8aec9ff75ffa86a03d51268b63126abadb3754aa5a6b6c5bb16e4e2446a63dee"
+    },
+    {
+      "path": "web-dist/assets/quality-client-CaIOJ2Zz.js",
+      "sha256": "03638f868b03a53ef8a1af594bf08fd0f310cedd5b0f1e9620731c9cbf35f8a3"
+    },
+    {
+      "path": "web-dist/assets/quality-route-foNotyz7.js",
+      "sha256": "d9f63ba6057e85ab89d637ceea463ded3e0e76d5b42ddc19abd5f936bb439bc5"
+    },
+    {
+      "path": "web-dist/assets/quality-route-qehs-H0T.js",
+      "sha256": "d67d3faad56349afccc50796bb61f0999905824150ab79a4820cc658918062d2"
+    },
+    {
+      "path": "web-dist/assets/rapier-BR_-CEU_.js",
+      "sha256": "a98b2b9d569daee4c17d3a51bbce1d55f41e6242395887291860dd10cc439c5e"
+    },
+    {
+      "path": "web-dist/assets/recast-navigation.wasm-compat-Qa-X0_Ub.js",
+      "sha256": "32c03f6185eb21c7428f58164d12336ae1596d9187370e11aa9edea965ce0896"
+    },
+    {
+      "path": "web-dist/assets/renderer-CPCC4Qy-.js",
+      "sha256": "7379311ddba4af6cb9be1aff0a4a28bd4f799c260ddec59646c2a4f78a1014ee"
+    },
+    {
+      "path": "web-dist/assets/wall-9_xNUgQT.webp",
+      "sha256": "a4dd17c6b12cb18ea7be0907cc93859abae43a7c8007cce04015633f252494ed"
+    },
+    {
+      "path": "web-dist/assets/wall-center-dogleg-DddcdcKC.glb",
+      "sha256": "2ca378155b3c5e7286167b56bbbed307e1f1eb80ac250d026e7a9bc094323a25"
+    },
+    {
+      "path": "web-dist/index.html",
+      "sha256": "616962c29d39fe8668bef905084686dd69f368109de5cda3920f06b300300de2"
+    }
+  ],
+  "runs": [
+    {
+      "label": "current-default",
+      "query": "",
+      "status": 1,
+      "signal": null,
+      "report": "current-default/report.json"
+    }
+  ],
+  "output": "<measurement-worktree-smoke>/outputs/offline-training-smoke/658b2e592c61-C7TIeA",
+  "qualityAcceptance": "not-performed",
+  "scope": "six natural rounds, halftime, final restart and frame intervals; no visual quality acceptance",
+  "failure": "AssertionError [ERR_ASSERTION]: current-default smoke\n\n1 !== 0\n\n    at file:///<measurement-worktree-smoke>/tools/smoke-backlog.mjs:34:12\n    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:681:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)"
+}

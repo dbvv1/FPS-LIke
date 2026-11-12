@@ -1,0 +1,619 @@
+{
+  "taskId": "B-FPS-DEFAULT-FULL-PAIR-20261112",
+  "status": "evidence-complete; blind human preference and the default decision remain with the owner",
+  "source": {
+    "commit": "658b2e592c612fa0801e2cc7fecdce32bb57eadb",
+    "tree": "cd025ea03ba7d9a6dfb21e0aa3e90bb5b830b66f",
+    "trackedCleanBeforeCommands": true,
+    "note": "Base ref is origin/main. Smoke ran in a dedicated detached worktree at this commit plus two tools-only patches (game source unchanged); capture ran in a second clean detached worktree exactly at this commit."
+  },
+  "time": {
+    "unitStartedUtc": "2026-11-12T21:13:02Z",
+    "attempt1SmokeStartUtc": "2026-11-12T21:19:34Z",
+    "attempt1SmokeReturnUtc": "2026-11-12T21:20:14Z",
+    "attempt2SmokeStartUtc": "2026-11-12T21:23:07Z",
+    "attempt2SmokeReturnUtc": "2026-11-12T21:28:51Z",
+    "attempt3SmokeStartUtc": "2026-11-12T21:33:21Z",
+    "attempt3SmokeReturnUtc": "2026-11-12T21:47:37Z",
+    "captureStartUtc": "2026-11-12T21:49:19Z",
+    "captureReturnUtc": "2026-11-12T21:50:27Z",
+    "collectedUtc": "2026-11-12T21:52:47Z"
+  },
+  "toolchain": {
+    "node": "v22.23.2",
+    "npm": "10.9.8",
+    "chromiumVersion": "156.0.8078.4",
+    "chromiumBinary": "Playwright chromium-headless-shell 1248 (Chrome for Testing 156.0.8078.4)",
+    "renderer": {
+      "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "renderer": "WebKit WebGL",
+      "vendor": "WebKit",
+      "unmaskedRenderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "unmaskedVendor": "Google Inc. (Google)"
+    },
+    "rendererClass": "software"
+  },
+  "smoke": {
+    "command": "DEBUG=pw:browser FPS_SMOKE_RENDERER=software FPS_SMOKE_CHROMIUM=<existing chromium-headless-shell> node tools/smoke-backlog.mjs --full-materials",
+    "exitCode": 0,
+    "signal": null,
+    "runs": [
+      {
+        "label": "current-default",
+        "query": "",
+        "status": 0,
+        "signal": null,
+        "browserExit": {
+          "pid": 79460,
+          "exitCode": "0",
+          "signal": "null"
+        },
+        "rendererClass": "software",
+        "rounds": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      {
+        "label": "full-materials",
+        "query": "?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&materials=ai-courtyard-full-v1",
+        "status": 0,
+        "signal": null,
+        "browserExit": {
+          "pid": 106672,
+          "exitCode": "0",
+          "signal": "null"
+        },
+        "rendererClass": "software",
+        "rounds": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      }
+    ],
+    "frameComparison": {
+      "metric": "requestAnimationFrame interval; observer overhead included; not GPU time",
+      "before": {
+        "count": 1072,
+        "totalMs": 310870.79999999993,
+        "meanMs": 289.9914179104477,
+        "medianMs": 283.3999999999651,
+        "p95Ms": 550,
+        "p99Ms": 666.6000000000058,
+        "maxMs": 750,
+        "over50Ms": 992
+      },
+      "after": {
+        "count": 1306,
+        "totalMs": 362402.19999999995,
+        "meanMs": 277.49019908116384,
+        "medianMs": 266.70000000001164,
+        "p95Ms": 516.7000000000116,
+        "p99Ms": 583.3999999999942,
+        "maxMs": 1033.4000000000015,
+        "over50Ms": 1210
+      },
+      "meanRatio": 0.9568910731242938,
+      "p95Ratio": 0.9394545454545666,
+      "interpretation": "natural UI matches, not identical input replays; inspect raw samples and round durations before judging regression"
+    },
+    "viewport": {
+      "width": 1365,
+      "height": 900
+    },
+    "deviceScaleFactor": 1,
+    "requestedLaunch": {
+      "headless": true,
+      "chromiumSandbox": true,
+      "ignoreDefaultArgs": [
+        "--enable-unsafe-swiftshader"
+      ],
+      "executablePath": "<playwright-browser>ss_shell-1248/chrome-headless-shell-win64/chrome-headless-shell.exe",
+      "args": [
+        "--use-angle=swiftshader"
+      ],
+      "browserVersion": "156.0.8078.4"
+    },
+    "actualArgvFlags": {
+      "headless": true,
+      "useAngleSwiftshader": true,
+      "noSandbox": false,
+      "unsafeSwiftshader": false,
+      "automation": false,
+      "argumentCount": 45
+    },
+    "actualArgv": [
+      "<playwright-browser>ss_shell-1248/chrome-headless-shell-win64/chrome-headless-shell.exe",
+      "--disable-field-trial-config",
+      "--disable-background-networking",
+      "--disable-background-timer-throttling",
+      "--disable-backgrounding-occluded-windows",
+      "--disable-back-forward-cache",
+      "--disable-breakpad",
+      "--disable-client-side-phishing-detection",
+      "--disable-component-extensions-with-background-pages",
+      "--disable-component-update",
+      "--no-default-browser-check",
+      "--disable-default-apps",
+      "--disable-dev-shm-usage",
+      "--disable-edgeupdater",
+      "--disable-extensions",
+      "--disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion",
+      "--enable-features=CDPScreenshotNewSurface",
+      "--allow-pre-commit-input",
+      "--disable-hang-monitor",
+      "--disable-ipc-flooding-protection",
+      "--disable-popup-blocking",
+      "--disable-prompt-on-repost",
+      "--disable-renderer-backgrounding",
+      "--disable-updater-scheduler",
+      "--force-color-profile=srgb",
+      "--metrics-recording-only",
+      "--no-first-run",
+      "--password-store=basic",
+      "--use-mock-keychain",
+      "--no-service-autorun",
+      "--export-tagged-pdf",
+      "--disable-search-engine-choice-screen",
+      "--unsafely-disable-devtools-self-xss-warnings",
+      "--edge-skip-compat-layer-relaunch",
+      "--disable-infobars",
+      "--disable-search-engine-choice-screen",
+      "--disable-sync",
+      "--headless",
+      "--hide-scrollbars",
+      "--mute-audio",
+      "--blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4",
+      "--use-angle=swiftshader",
+      "--user-data-dir=<playwright-profile>",
+      "--remote-debugging-pipe",
+      "--no-startup-window"
+    ],
+    "artifacts": {
+      "manifest": "smoke/manifest.json",
+      "buildLog": "smoke/build.log",
+      "currentDefaultReport": "smoke/current-default/report.json",
+      "currentDefaultFrames": "smoke/current-default/frames.json",
+      "currentDefaultEvents": "smoke/current-default/browser-events.log",
+      "fullMaterialsReport": "smoke/full-materials/report.json",
+      "fullMaterialsFrames": "smoke/full-materials/frames.json",
+      "fullMaterialsEvents": "smoke/full-materials/browser-events.log"
+    },
+    "coverage": {
+      "sixNaturalRoundsEachRun": true,
+      "halftimeAtRound3": true,
+      "sideSwitchAtRound4": true,
+      "finalResultAndNewMatchReset": true,
+      "newMatchAdvancesAndEscapePauses": true
+    },
+    "notMeasured": [
+      "GPU time",
+      "input latency",
+      "human visual/audio quality"
+    ]
+  },
+  "capture": {
+    "command": "DEBUG=pw:browser FPS_CAPTURE_CHROMIUM=<same chromium-headless-shell> node --import tsx tools/capture-quality-pair.mjs --commit 658b2e592c612fa0801e2cc7fecdce32bb57eadb --query <Q> --candidate-query <Q&materials=ai-courtyard-full-v1> --out <unique>",
+    "exitCode": 0,
+    "signal": null,
+    "commit": "658b2e592c612fa0801e2cc7fecdce32bb57eadb",
+    "tree": "cd025ea03ba7d9a6dfb21e0aa3e90bb5b830b66f",
+    "queries": {
+      "default": "?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1",
+      "materials": "?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&materials=ai-courtyard-full-v1"
+    },
+    "nodeVersion": "v22.23.2",
+    "imagesProduced": 12,
+    "dimensions": {
+      "width": 1280,
+      "height": 720,
+      "dpr": 1
+    },
+    "cameras": [
+      "gameplay",
+      "courtyard-gap",
+      "cross-lane"
+    ],
+    "variants": [
+      "default",
+      "materials"
+    ],
+    "repeatsPerCameraVariant": 2,
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "rendererClass": "software",
+    "chromiumVersion": "156.0.8078.4",
+    "requestedLaunch": {
+      "headless": true,
+      "chromiumSandbox": true,
+      "ignoreDefaultArgs": [
+        "--enable-unsafe-swiftshader"
+      ],
+      "args": [
+        "--use-angle=swiftshader"
+      ],
+      "executablePath": "<playwright-browser>ss_shell-1248/chrome-headless-shell-win64/chrome-headless-shell.exe"
+    },
+    "actualArgvFlags": {
+      "headless": true,
+      "useAngleSwiftshader": true,
+      "noSandbox": false,
+      "unsafeSwiftshader": false,
+      "automation": false,
+      "argumentCount": 45
+    },
+    "actualArgv": [
+      "<playwright-browser>ss_shell-1248/chrome-headless-shell-win64/chrome-headless-shell.exe",
+      "--disable-field-trial-config",
+      "--disable-background-networking",
+      "--disable-background-timer-throttling",
+      "--disable-backgrounding-occluded-windows",
+      "--disable-back-forward-cache",
+      "--disable-breakpad",
+      "--disable-client-side-phishing-detection",
+      "--disable-component-extensions-with-background-pages",
+      "--disable-component-update",
+      "--no-default-browser-check",
+      "--disable-default-apps",
+      "--disable-dev-shm-usage",
+      "--disable-edgeupdater",
+      "--disable-extensions",
+      "--disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,AvoidCorsURLLoaderRestartOnRedirect,Translate,AutoDeElevate,OptimizationHints,NetworkTimeServiceQuerying,AimEnabled,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion",
+      "--enable-features=CDPScreenshotNewSurface",
+      "--allow-pre-commit-input",
+      "--disable-hang-monitor",
+      "--disable-ipc-flooding-protection",
+      "--disable-popup-blocking",
+      "--disable-prompt-on-repost",
+      "--disable-renderer-backgrounding",
+      "--disable-updater-scheduler",
+      "--force-color-profile=srgb",
+      "--metrics-recording-only",
+      "--no-first-run",
+      "--password-store=basic",
+      "--use-mock-keychain",
+      "--no-service-autorun",
+      "--export-tagged-pdf",
+      "--disable-search-engine-choice-screen",
+      "--unsafely-disable-devtools-self-xss-warnings",
+      "--edge-skip-compat-layer-relaunch",
+      "--disable-infobars",
+      "--disable-search-engine-choice-screen",
+      "--disable-sync",
+      "--headless",
+      "--hide-scrollbars",
+      "--mute-audio",
+      "--blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4",
+      "--use-angle=swiftshader",
+      "--user-data-dir=<playwright-profile>",
+      "--remote-debugging-pipe",
+      "--no-startup-window"
+    ],
+    "cleanup": {
+      "browserDisconnected": true,
+      "previewPortClosed": true
+    },
+    "errors": [],
+    "warnings": [
+      "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+      "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+      "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+      "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+      "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+      "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+      "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+      "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+      "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+      "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+      "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+      "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content."
+    ],
+    "buildFiles": [
+      {
+        "file": "web-dist/assets/cameras-ChKJAfpS.js",
+        "sha256": "230b26451487e2f1ae79fccccb98cbf14c0469c46fb0e07acd6bf46916e795e0"
+      },
+      {
+        "file": "web-dist/assets/candidate-route-SS3bEaxz.js",
+        "sha256": "11e74533448fc8903c42ec9d27f8d8e84ca894c8493e191522b0398e2c6aae09"
+      },
+      {
+        "file": "web-dist/assets/client-BFX7xFLw.js",
+        "sha256": "58ba3375776e8f3de47fb8b8bb90e2cd8fa5048dc3eb1b0228738b5e9b153ef0"
+      },
+      {
+        "file": "web-dist/assets/client-BV_2DDtN.js",
+        "sha256": "eb7e28dcc24438a35b2e90db51da3818ad2f990dba9b1b043b34e7be1bfa8203"
+      },
+      {
+        "file": "web-dist/assets/client-CvwXRiEZ.js",
+        "sha256": "9b9b391bfb86285ae3d3ce5b783f09536284810a3c9e6c24f4933a82667a63d8"
+      },
+      {
+        "file": "web-dist/assets/client-CzBtgPDQ.js",
+        "sha256": "1247d61cb57dc11f7d48d9a85248884cea517aa13d91fae517a4f1b8494dd2c1"
+      },
+      {
+        "file": "web-dist/assets/client-Oj8Ss1k6.js",
+        "sha256": "d20573400bcba28164aa3dccc6359e347991464805cce77c878a720594802caf"
+      },
+      {
+        "file": "web-dist/assets/default-route-CkZGZv8p.js",
+        "sha256": "74d3fe457e5fa427071eda62767450fb43fae27b1d0374fc89534fa63a61a85d"
+      },
+      {
+        "file": "web-dist/assets/dist-CVkarZtm.js",
+        "sha256": "63ddce5703dbf6872e812fbbcd85b598c20e454190b5493ca7b54c59e51157fc"
+      },
+      {
+        "file": "web-dist/assets/enemy-relay-guard-CS-HTAkv.glb",
+        "sha256": "5b316a139cf48b21a6d6b7328ac1c8b58a73c4f41ce1a0de24f2a8ca74afbd74"
+      },
+      {
+        "file": "web-dist/assets/entry-DP0JfkzJ.js",
+        "sha256": "306f0eceea53e5e479a85dbc5c89f84639a99068637b9b0df9eba5a2b4e7ad17"
+      },
+      {
+        "file": "web-dist/assets/entry-e2Z0vRps.css",
+        "sha256": "74eab6441abf668406b3e4eb93ca0588e7e6a0ca70254114afc7e44050777f00"
+      },
+      {
+        "file": "web-dist/assets/fp-arms-rx24-Csz61tNP.glb",
+        "sha256": "e672d06e30262f2575076f759645aa3d82d6734f0c26ef280a2a36870549b9e1"
+      },
+      {
+        "file": "web-dist/assets/frame-budget-Bp0rdbDd.js",
+        "sha256": "e40b32938b1e8af981dd6b6de2e4273f98e82f550c683df5d7fd0496cda79c63"
+      },
+      {
+        "file": "web-dist/assets/ground-Cegpr579.webp",
+        "sha256": "8a45374142b195748cede9cba56e79267f5aeaaebe66ee977efa6c5cc97b49a3"
+      },
+      {
+        "file": "web-dist/assets/index-CXhSxSPO.js",
+        "sha256": "08924efbd6b1b82750cced08e3ac228dbb8663c21e2d2f0b7a04ac99b113c7a9"
+      },
+      {
+        "file": "web-dist/assets/index-Lpyfeiio.css",
+        "sha256": "92c07a6a0976395fbf00aa36b0c9b7861c981b8cc7359128e68f222b65eeaed4"
+      },
+      {
+        "file": "web-dist/assets/lamp-existing-DVeGWscy.glb",
+        "sha256": "09265db770ba91c8f81442c87468ec68b95e689011e8e2d7e2a66de4015500be"
+      },
+      {
+        "file": "web-dist/assets/low-cover-site-DA3dcXAf.glb",
+        "sha256": "ca2f7dc220a403fc41905242b957f4110271bb085bcb5c61955d7ed3dc8d1930"
+      },
+      {
+        "file": "web-dist/assets/match-panel-BiNUyxYp.js",
+        "sha256": "954090d22a5abdd9e5d4ea1cc78339889841cc9b4a6c8e397a4f7ee9fa71a009"
+      },
+      {
+        "file": "web-dist/assets/navigation-DdDgzWcG.js",
+        "sha256": "c99f237cf1f077f4e4a2bfc72a955613bb724a5769a9276826357a2025c7a501"
+      },
+      {
+        "file": "web-dist/assets/navigation-DHtDdhlh.js",
+        "sha256": "622d650d59ef535bded1ee59050a1b5525b2221095eaf2b96201c6f356ea2fc6"
+      },
+      {
+        "file": "web-dist/assets/output-BoVdQSWt.js",
+        "sha256": "f2f45013a4db7c43a45f306897ec7f7bf167facac3e7c97887394d00fc9c2fba"
+      },
+      {
+        "file": "web-dist/assets/physics-D_zIYmY6.js",
+        "sha256": "0351145b1ffa1b0cc874f206c277fbb4026d2b4cd276bf1305ab2cc099e619ea"
+      },
+      {
+        "file": "web-dist/assets/preload-helper-BLdHbfdN.js",
+        "sha256": "8aec9ff75ffa86a03d51268b63126abadb3754aa5a6b6c5bb16e4e2446a63dee"
+      },
+      {
+        "file": "web-dist/assets/quality-client-CaIOJ2Zz.js",
+        "sha256": "03638f868b03a53ef8a1af594bf08fd0f310cedd5b0f1e9620731c9cbf35f8a3"
+      },
+      {
+        "file": "web-dist/assets/quality-route-foNotyz7.js",
+        "sha256": "d9f63ba6057e85ab89d637ceea463ded3e0e76d5b42ddc19abd5f936bb439bc5"
+      },
+      {
+        "file": "web-dist/assets/quality-route-qehs-H0T.js",
+        "sha256": "d67d3faad56349afccc50796bb61f0999905824150ab79a4820cc658918062d2"
+      },
+      {
+        "file": "web-dist/assets/rapier-BR_-CEU_.js",
+        "sha256": "a98b2b9d569daee4c17d3a51bbce1d55f41e6242395887291860dd10cc439c5e"
+      },
+      {
+        "file": "web-dist/assets/recast-navigation.wasm-compat-Qa-X0_Ub.js",
+        "sha256": "32c03f6185eb21c7428f58164d12336ae1596d9187370e11aa9edea965ce0896"
+      },
+      {
+        "file": "web-dist/assets/renderer-CPCC4Qy-.js",
+        "sha256": "7379311ddba4af6cb9be1aff0a4a28bd4f799c260ddec59646c2a4f78a1014ee"
+      },
+      {
+        "file": "web-dist/assets/wall-9_xNUgQT.webp",
+        "sha256": "a4dd17c6b12cb18ea7be0907cc93859abae43a7c8007cce04015633f252494ed"
+      },
+      {
+        "file": "web-dist/assets/wall-center-dogleg-DddcdcKC.glb",
+        "sha256": "2ca378155b3c5e7286167b56bbbed307e1f1eb80ac250d026e7a9bc094323a25"
+      },
+      {
+        "file": "web-dist/index.html",
+        "sha256": "616962c29d39fe8668bef905084686dd69f368109de5cda3920f06b300300de2"
+      }
+    ],
+    "bundleHashAlgorithm": "sha256 per web-dist file",
+    "artifacts": {
+      "report": "capture/report.json",
+      "images": "capture/*.png",
+      "metadata": "capture/*.json",
+      "events": "capture/browser-events.log"
+    },
+    "checked": [
+      "ready true and error absent on every shot",
+      "frame 0 / t 2 / tick 120 / warmFrames 12 / 60Hz",
+      "viewport 1280x720 DPR1 buffer 1280x720",
+      "art active and lighting courtyard-light-v1",
+      "unmasked software WebGL2 renderer",
+      "materials id ai-courtyard-full-v1 and ready (no fallback)",
+      "repeat RGBA identical per camera/variant",
+      "default vs materials simulation/camera/commands/replay/renderer/stateHash equal",
+      "PNG 1280x720 and pngSha256 matches report"
+    ]
+  },
+  "dependencyInstall": {
+    "command": "npm ci (both detached worktrees)",
+    "exitCode": 0,
+    "installedPackages": 39,
+    "note": "package-lock.json unchanged; node_modules remained gitignored."
+  },
+  "attempts": {
+    "attempt1": {
+      "label": "attempt-1",
+      "note": "First failure after the fixed base: movement assertion snapshotted before any slow frame tick advanced. Browser/preview closed; real exit 1.",
+      "wrapperExitLine": "EXIT=1",
+      "manifestPassed": false,
+      "runStatus": 1,
+      "runSignal": null,
+      "reportPassed": false,
+      "reportFailure": "AssertionError [ERR_ASSERTION]: Actual keyboard input moves the shared simulation\n    at file:///<measurement-worktree-smoke>/tools/smoke.mjs:120:10",
+      "reportCleanup": {
+        "browserDisconnected": true,
+        "previewPortClosed": true
+      },
+      "reportStages": [
+        "nine bot controllers, ten actors, complete-match HUD, courtyard active",
+        "loaded real WebGL2 scene"
+      ],
+      "reportErrors": [],
+      "movementObservation": null,
+      "partialFrameTiming": {
+        "metric": "requestAnimationFrame interval; observer overhead included; not GPU time",
+        "clock": "performance timeline milliseconds since page time origin",
+        "startMs": 17276.8,
+        "endMs": 18376.7,
+        "observedSpanMs": 1099.9000000000015,
+        "scope": "partial observation only: first to last recorded rAF before failure; no six-round or restart completion claim",
+        "all": {
+          "count": 4,
+          "totalMs": 1099.9000000000015,
+          "meanMs": 274.97500000000036,
+          "medianMs": 266.6000000000022,
+          "p95Ms": 300,
+          "p99Ms": 300,
+          "maxMs": 300,
+          "over50Ms": 4
+        },
+        "active": {
+          "count": 2,
+          "totalMs": 549.9000000000015,
+          "meanMs": 274.9500000000007,
+          "medianMs": 249.90000000000146,
+          "p95Ms": 300,
+          "p99Ms": 300,
+          "maxMs": 300,
+          "over50Ms": 2
+        },
+        "rounds": [
+          {
+            "round": 1,
+            "count": 2,
+            "totalMs": 549.9000000000015,
+            "meanMs": 274.9500000000007,
+            "medianMs": 249.90000000000146,
+            "p95Ms": 300,
+            "p99Ms": 300,
+            "maxMs": 300,
+            "over50Ms": 2
+          },
+          {
+            "round": 2,
+            "count": 0
+          },
+          {
+            "round": 3,
+            "count": 0
+          },
+          {
+            "round": 4,
+            "count": 0
+          },
+          {
+            "round": 5,
+            "count": 0
+          },
+          {
+            "round": 6,
+            "count": 0
+          }
+        ]
+      },
+      "actualArgvFlags": {
+        "headless": true,
+        "useAngleSwiftshader": true,
+        "noSandbox": false,
+        "unsafeSwiftshader": false,
+        "automation": false,
+        "argumentCount": 45
+      }
+    },
+    "attempt2": {
+      "label": "attempt-2",
+      "note": "Passing six-round report was written and Chrome exited 0, but spawnSync default 1MiB maxBuffer killed the child with SIGTERM while printing the report. Wrapper exit 1.",
+      "wrapperExitLine": "EXIT=1",
+      "manifestPassed": false,
+      "runStatus": null,
+      "runSignal": "SIGTERM",
+      "reportPassed": true,
+      "reportFailure": null,
+      "reportCleanup": {
+        "browserDisconnected": true,
+        "previewPortClosed": true
+      },
+      "reportStages": [
+        "nine bot controllers, ten actors, complete-match HUD, courtyard active",
+        "loaded real WebGL2 scene",
+        "pointer lock, mouse aim, movement, pistol shot, reload interruption",
+        "six natural rounds, halftime UI and side switch, final result and UI new-match reset",
+        "whole-match restart clears completed-round record and score",
+        "new match starts advancing and Escape freezes its clock",
+        "pause freezes clock, resume and restart clear input/ammo state"
+      ],
+      "reportErrors": [],
+      "movementObservation": {
+        "fromTick": 13,
+        "toTick": 47,
+        "dz": -2.1791029213927686
+      },
+      "partialFrameTiming": null,
+      "actualArgvFlags": {
+        "headless": true,
+        "useAngleSwiftshader": true,
+        "noSandbox": false,
+        "unsafeSwiftshader": false,
+        "automation": false,
+        "argumentCount": 45
+      }
+    }
+  },
+  "rawArtifacts": {
+    "smokeOutputRoots": [
+      "outputs/offline-training-smoke/658b2e592c61-C7TIeA",
+      "outputs/offline-training-smoke/b45345f24969-eh70Y5",
+      "outputs/offline-training-smoke/c3546ecef837-2grIHO"
+    ],
+    "captureOutputRoot": "outputs/B-FPS-DEFAULT-FULL-PAIR-20261112-658b2e592c61-r2-attempt-1",
+    "note": "These exclusive mkdtemp/pre-created directories were produced by the scripts on the measurement machine; this delivery holds curated copies plus sanitized logs, while raw DEBUG logs stay local."
+  }
+}
