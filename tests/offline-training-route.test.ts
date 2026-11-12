@@ -35,8 +35,14 @@ const reviewedLockDisposal = {
   "src/candidates/movement-v2/input/controls.ts": "b18b0be72114f1a45074a6747d0e951b2d4868d943442bdf596f9212a76160fc"
 };
 
+// Owner-requested player-facing menu cleanup; historical fixtures and simulation stay pinned.
+const reviewedPlayerMenu = {
+  "src/ui/hud.ts": "7800b29ec5482ed4025d67efe6079ca3bdf25f19f144ee5cea16016fab02db9a",
+  "src/candidates/movement-v2/ui/hud.ts": "ba84d40108f69831a41cb740d469847e1c8426322b248dd760b5f00aa1d46fa5"
+};
+
 test('v13 frozen modules plus authorized scheduling/capture changes retain their exact bytes', () => {
-  for (const [file, hash] of Object.entries({...hashes, ...reviewedLegacyScheduling, ...fixedCaptureRevision, ...reviewedLockDisposal, ...reviewedTerminalLifetime})) assert.equal(createHash('sha256').update(readFileSync(new URL('../'+file, import.meta.url))).digest('hex'), hash, file);
+  for (const [file, hash] of Object.entries({...hashes, ...reviewedLegacyScheduling, ...fixedCaptureRevision, ...reviewedLockDisposal, ...reviewedTerminalLifetime, ...reviewedPlayerMenu})) assert.equal(createHash('sha256').update(readFileSync(new URL('../'+file, import.meta.url))).digest('hex'), hash, file);
 });
 test('offline client and stylesheet load only through the lazy candidate entry', () => {
   const boot = readFileSync(new URL('../src/boot.ts', import.meta.url), 'utf8');

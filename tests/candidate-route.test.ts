@@ -14,6 +14,12 @@ import { createHash } from 'node:crypto';
 // Only legacy client scheduling/input debt disposal changed by owner request on 2026-10-30.
 // Reviewed 2026-11-03 input teardown also pins its exact bytes below.
 // Capture sizing is opt-in; simulation, content, HUD and ordinary sizing remain covered.
+// Owner-requested player-facing menu cleanup; historical fixtures and simulation stay pinned.
+const reviewedPlayerMenu = {
+  "src/ui/hud.ts": "7800b29ec5482ed4025d67efe6079ca3bdf25f19f144ee5cea16016fab02db9a",
+  "src/candidates/movement-v2/ui/hud.ts": "ba84d40108f69831a41cb740d469847e1c8426322b248dd760b5f00aa1d46fa5"
+};
+
 test('legacy modules retain frozen bytes except authorized scheduling and fixed capture sizing', () => {
  const files = {
   "src/client.ts": "43229bc71256b05182892cf7405b3f51be2fdbbe920035470da55ca38b9f9416",
@@ -48,7 +54,7 @@ test('legacy modules retain frozen bytes except authorized scheduling and fixed 
   "src/ui/sensitivity-menu.ts": "30d9ecbf72853722fc00b26d9f48b1ada06dee64c9d3994c9cdb23f3013624f9",
   "src/ui/style.css": "58e861d051adacba252bb71b7154af19df4746e7f011774973667cd36784648b"
 };
- for (const [path, sha] of Object.entries({...files, ...reviewedTerminalLifetime})) assert.equal(createHash('sha256').update(readFileSync(new URL('../' + path, import.meta.url))).digest('hex'), sha, path);
+ for (const [path, sha] of Object.entries({...files, ...reviewedTerminalLifetime, ...reviewedPlayerMenu})) assert.equal(createHash('sha256').update(readFileSync(new URL('../' + path, import.meta.url))).digest('hex'), sha, path);
 });
 
 import { parseCaptureConfig as baseCapture } from '../src/capture/config.js';
