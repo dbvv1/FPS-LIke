@@ -1,0 +1,59 @@
+{
+  "purpose": "CPU DCC geometry study, not game rendering or acceptance",
+  "sourceCommit": "79f7ef4e11c02eab5ca0926727205edad61182b7",
+  "sourceHashes": {
+    "Knight": "60428e3abc09ba83e595d256e3af8c5c976b46cdae599f0802fc82b4a3445168",
+    "Med_CombatRanged": "08de5a5fd14dcc7c404b14f7c6ff962f8959503bf70bc00cbf258dbd0187c48d"
+  },
+  "pose": "native-aim-two-hand final",
+  "textureDecoded": false,
+  "software": "Blender 4.3.2 / Cycles CPU 24 samples, no denoising",
+  "units": "metres",
+  "axisConversion": "Three (x,y,z) to Blender (x,-z,y)",
+  "weaponRigidTransformInThreeSpace": {
+    "quaternion": [
+      0.16243807635877558,
+      -0.9471382546786467,
+      -0.24726887217219168,
+      0.12410117939745775
+    ],
+    "translation": [
+      -0.4408880657369848,
+      1.1475174042251237,
+      -0.060905390904347316
+    ],
+    "scale": 1
+  },
+  "supportGapMetres": 0.2915018996988975,
+  "meshVertices": {
+    "Knight": 4276,
+    "RX24": 5874
+  },
+  "artifacts": [
+    {
+      "file": "knight-rx24-study.blend",
+      "bytes": 1038232,
+      "sha256": "bc376d9bcac2758c833c7b31f27a8888df3578477b599dfc3b1e9838add60b2f"
+    },
+    {
+      "file": "rigid-side.jpg",
+      "bytes": 152499,
+      "sha256": "e5fe637cd6c2d76e5cb3dbdc4990fa7837b29d05b4fd2819af0964a9bdd5a51b"
+    },
+    {
+      "file": "rigid-threequarter.jpg",
+      "bytes": 164346,
+      "sha256": "717d723429f7abdc435acf6c36d12280e3884dfb7add7eb7cf6465864a111411"
+    },
+    {
+      "file": "palms-front.jpg",
+      "bytes": 204962,
+      "sha256": "683415a7bebc2991d868d3cbdfc38ccaf297361c14cddcad03df93e878ff4c4a"
+    },
+    {
+      "file": "rigid-top.jpg",
+      "bytes": 38141,
+      "sha256": "d2f8a29fc47260d9557481b7c56c286dbf4f1b6c616005c9efcb70e72afafdf1"
+    }
+  ]
+}
