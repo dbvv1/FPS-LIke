@@ -1,0 +1,82 @@
+{
+  "taskId": "B-FPS-DEFAULT-FULL-PAIR-20261112",
+  "source": {
+    "commit": "402dd688f6da351477036ab884614f9f38e4c46d",
+    "tree": "86416a9069072848626b3eb22981c701823a3fc6",
+    "trackedCleanBeforeCommands": true,
+    "note": "Dedicated worktree; only gitignored node_modules, web-dist and outputs were created."
+  },
+  "time": {
+    "unitStartedUtc": "2026-11-12T05:13:39.958Z",
+    "smokeStartedUtc": "2026-11-12T05:33:26.161Z",
+    "smokeReturnedUtc": "2026-11-12T05:34:30.451Z",
+    "collectedUtc": "2026-11-12T05:38:44.438Z"
+  },
+  "toolchain": {
+    "node": "v24.22.1",
+    "nodeSource": "existing portable Node 24 entry; system PATH node is v22.23.2 and was not used",
+    "npm": "10.9.8",
+    "chromium": "156.0.8078.4",
+    "chromiumBinary": "Playwright chromium-headless-shell 1248 (Chrome for Testing 156.0.8078.4)"
+  },
+  "smoke": {
+    "command": "DEBUG=pw:browser FPS_SMOKE_RENDERER=software node tools/smoke-backlog.mjs --full-materials",
+    "exitCode": 1,
+    "signal": null,
+    "viewport": {
+      "width": 1365,
+      "height": 900
+    },
+    "deviceScaleFactor": 1,
+    "requestedLaunch": {
+      "headless": true,
+      "chromiumSandbox": true,
+      "ignoreDefaultArgs": [
+        "--enable-unsafe-swiftshader"
+      ],
+      "args": [
+        "--use-angle=swiftshader"
+      ],
+      "browserVersion": "156.0.8078.4"
+    },
+    "actualArgvFlags": {
+      "headless": true,
+      "useAngleSwiftshader": true,
+      "noSandbox": false,
+      "unsafeSwiftshader": false,
+      "automation": false,
+      "argumentCount": 45
+    },
+    "webgl": {
+      "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "renderer": "WebKit WebGL",
+      "vendor": "WebKit",
+      "unmaskedRenderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "unmaskedVendor": "Google Inc. (Google)"
+    },
+    "rendererClass": "software",
+    "buildExitCode": 0,
+    "buildLog": "smoke/build.log",
+    "manifest": "smoke/manifest.json",
+    "report": "smoke/current-default/report.json",
+    "rawFrameSamples": "smoke/current-default/frames.json",
+    "browserEvents": "smoke/current-default/browser-events.log",
+    "buildCommand": "npm run build (spawned by tools/smoke-backlog.mjs)"
+  },
+  "capture": {
+    "status": "blocked-no-usable-existing-entry",
+    "dimensionsRequired": {
+      "width": 1280,
+      "height": 720,
+      "dpr": 1
+    },
+    "imagesProduced": 0,
+    "detail": "capture-tool-gap.json"
+  },
+  "dependencyInstall": {
+    "command": "node <npm-cli.js> ci",
+    "exitCode": 0,
+    "installedPackages": 39,
+    "note": "package-lock.json unchanged; installation was required because this dedicated worktree had no node_modules"
+  }
+}

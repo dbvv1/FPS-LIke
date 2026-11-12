@@ -1,0 +1,90 @@
+{
+  "taskId": "B-FPS-DEFAULT-FULL-PAIR-20261112",
+  "fixedSource": {
+    "commit": "402dd688f6da351477036ab884614f9f38e4c46d",
+    "tree": "86416a9069072848626b3eb22981c701823a3fc6"
+  },
+  "requirement": "Existing entry must support this fixed SHA, both query groups (default and materials=ai-courtyard-full-v1), a unique output root, and a normal browser close, configured only through parameters it already exposes. No script edit, no new capture/acceptance CLI, no modifying or ignoring a hardcoded old SHA.",
+  "entriesExamined": [
+    {
+      "label": "originally executed harness",
+      "location": "FPS-Like worktree B-FPS-FIXED-CAPTURE-20261104: outputs/B-FPS-FIXED-CAPTURE-20261104/fa8740d-swiftshader/harness.mjs",
+      "sha256Executed": "2035a2d10874797e09fa151ff7d7ea1d20e690ca0e02b688899db25ca8f18d3e",
+      "sha256ExecutedSource": "report.final.json cleanupDeviation.harnessExecutedSha256 (executed file is no longer present in that root)",
+      "actualCommand": "node24 harness.mjs",
+      "actualEnvironment": [
+        "DEBUG=pw:browser",
+        "FPS_CAPTURE_CHROMIUM=<existing Chrome for Testing>",
+        "NPM_CLI_JS=<npm-cli.js>",
+        "PACKAGE_LOCK_SHA256=<recorded in that run>",
+        "PW_DEBUG_LOG=<local log>"
+      ],
+      "observedExit": {
+        "exitCode": 1,
+        "signal": null
+      },
+      "observedFailure": "browser.close() was called on a connect()ed browser; the launched Chromium did not exit and was force-killed, so the clean-exit baseline is incomplete. Six images had already been captured in that old run.",
+      "usableForThisCard": false,
+      "reasons": [
+        "hardcodes COMMIT=fa8740de3bf2f4ffaaabec5c8df09d9f4c9088c8 and TREE=417652e69e45b06bb982cd5a0ca11265677f2fcd and asserts HEAD/tree equal them before building",
+        "one fixed query per camera; no materials variant and no query/commit parameter",
+        "exit 1 / unclean Chromium exit; not accepted as a passing tool"
+      ]
+    },
+    {
+      "label": "successor corrected harness in the same old output root",
+      "location": "FPS-Like worktree B-FPS-FIXED-CAPTURE-20261104: outputs/B-FPS-FIXED-CAPTURE-20261104/fa8740d-swiftshader/harness.mjs",
+      "sha256": "3486d7c7839f03a426486d682ea31ff17f4b911587882362557dc052dd516476",
+      "documentedAsDeliveredBy": "report.final.json cleanupDeviation.harnessDeliveredSha256",
+      "support": {
+        "uniqueOutputRoot": false,
+        "fixedCommitParameter": false,
+        "queryGroupParameter": false,
+        "materialsQuery": false
+      },
+      "usableForThisCard": false,
+      "reasons": [
+        "still hardcodes COMMIT=fa8740d and TREE=417652e6 and asserts HEAD/tree match",
+        "still one fixed query per camera; no query/commit/env parameter for a second materials group",
+        "OUT is fixed to outputs/B-FPS-FIXED-CAPTURE-20261104/fa8740d-swiftshader with no FPS_CAPTURE_OUT_ROOT override; startup only asserts that the old root already contains preflight.json, so it cannot claim this card's new unique output root"
+      ]
+    },
+    {
+      "label": "successor corrected harness copied into the public capture directory",
+      "location": "FPS-Like worktree B-FPS-FIXED-CAPTURE-20261104: docs/quality/capture/B-FPS-FIXED-CAPTURE-20261104/harness.mjs",
+      "sha256": "e838b270df1085170579129c5de38212b8838ad664ed4d91dcf059f87882e4d1",
+      "parametersFound": [
+        "FPS_CAPTURE_CHROMIUM",
+        "NPM_CLI_JS",
+        "FPS_CAPTURE_OUT_ROOT",
+        "PACKAGE_LOCK_SHA256",
+        "PW_DEBUG_LOG"
+      ],
+      "support": {
+        "uniqueOutputRoot": true,
+        "normalBrowserClose": true,
+        "fixedCommitParameter": false,
+        "queryGroupParameter": false,
+        "materialsQuery": false
+      },
+      "usableForThisCard": false,
+      "reasons": [
+        "accepts only the old hardcoded COMMIT/TREE; HEAD assertion rejects 402dd68 before build",
+        "CAMERAS is a fixed literal array with one query per camera and no materials=ai-courtyard-full-v1 variant",
+        "no environment variable or argument changes COMMIT, TREE, or the three query strings"
+      ]
+    }
+  ],
+  "otherCandidatesRejected": [
+    {
+      "location": "FPS-Like tools/capture.mjs",
+      "reason": "legacy 1v1 shot interface; the card explicitly forbids using it for the current training qualityCapture cameras"
+    },
+    {
+      "location": "a1dbv experiments/quality-capture-batch/fps-worker.mjs",
+      "reason": "hardcodes one qualityCapture query without lighting=courtyard-light-v1, has no materials query group, takes no query argument, and imports helpers from the MOBA repository; cannot produce the required two query groups"
+    }
+  ],
+  "notAttempted": "The old harness was not executed against 402dd68. It asserts the old HEAD/tree and would create/consume the capture output root; the card forbids modifying or ignoring the hardcoded SHA and forbids a new capture tool.",
+  "conclusion": "No existing entry supports this card's fixed SHA plus the two query groups. Capture is blocked; no 12 PNG set was produced, and outputs/B-FPS-DEFAULT-FULL-PAIR-20261112/402dd688f6da-swiftshader was not created."
+}

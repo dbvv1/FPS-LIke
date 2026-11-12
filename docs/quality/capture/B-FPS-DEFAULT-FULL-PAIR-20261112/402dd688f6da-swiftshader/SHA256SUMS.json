@@ -1,0 +1,44 @@
+{
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 4286,
+      "sha256": "0d69925c8bf166b415bcfbb555eca7beffa5e302e1d2c99f0c600e7e4566d5d6"
+    },
+    {
+      "path": "capture-tool-gap.json",
+      "bytes": 5137,
+      "sha256": "290bdfdef71a8aab3b4a6b3b399f3318990b44d6640d782f9d9b9063bfd54209"
+    },
+    {
+      "path": "environment.json",
+      "bytes": 2711,
+      "sha256": "40b7ee627ee147af5f5701f6f4c3401c6187bc85e84fa5b67ad73101e00b10ea"
+    },
+    {
+      "path": "smoke/build.log",
+      "bytes": 3589,
+      "sha256": "c7857d35d20989c66cf65f5c4ae2a13518d3864762661aec6d33c79b2f657501"
+    },
+    {
+      "path": "smoke/manifest.json",
+      "bytes": 6058,
+      "sha256": "e44cc7a96d206d231aa957abf4fa40ccd647c75b1cb30e044953a42e20e85a9c"
+    },
+    {
+      "path": "smoke/current-default/browser-events.log",
+      "bytes": 1014,
+      "sha256": "0d9f4377c23a9870a672ebf0b0c658fbacb68ad97e5626a5c7aebf974af5f9a8"
+    },
+    {
+      "path": "smoke/current-default/frames.json",
+      "bytes": 14571,
+      "sha256": "c24d22dfa9a984d1cb81fb8b75323043bb77c1a261de683c94407afdf87e4780"
+    },
+    {
+      "path": "smoke/current-default/report.json",
+      "bytes": 15358,
+      "sha256": "df0a5b310332ab0ce7cf9db6f38768e90961b42855757bac370ee6bc6e5529c8"
+    }
+  ]
+}
