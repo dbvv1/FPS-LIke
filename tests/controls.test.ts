@@ -193,7 +193,7 @@ test('pause drops historical trigger edges rather than replaying them after resu
   assert.deepEqual(state.shots.map(shot => shot.time), [600]);
 });
 
-test('discarded slow-frame interval drops one-shot bursts and carries released continuous states', async t => {
+test('discarded slow-frame interval retains one discrete intent and released continuous states', async t => {
  const env=environment(), canvas=new FakeCanvas(env.document), actor=actorFixture();
  let now=0; t.mock.method(performance,'now',()=>now);
  const controls=new Controls(canvas as unknown as HTMLCanvasElement,()=>{},()=>{});
@@ -209,7 +209,8 @@ test('discarded slow-frame interval drops one-shot bursts and carries released c
   now=30; env.document.dispatchEvent(event('mousemove',{movementX:25,movementY:0}));
   controls.discardBefore(233);
   const cmds=controls.commands(actor,233,250,0);
-  assert.equal(cmds.filter(c=>c.type==='shoot'||c.type==='reload').length,0);
+  assert.equal(cmds.filter(c=>c.type==='shoot').length,1);
+  assert.equal(cmds.filter(c=>c.type==='reload').length,1);
   assert.equal(cmds.filter(c=>c.type==='move').length,1);
   assert.ok(cmds.some(c=>c.type==='move'&&c.x===0&&c.z===0));
   assert.ok(cmds.some(c=>c.type==='interact'&&!c.held));
@@ -286,4 +287,44 @@ for(const completion of ['resolve','reject'] as const)test(`old disposed ${compl
   let current:Controls|undefined;
   try{const pending=old.lock();old.dispose();canvas.requestPointerLock=original;current=new Controls(canvas as unknown as HTMLCanvasElement,()=>{},()=>{});await current.lock();assert.equal(current.locked,true);finish();await pending;assert.equal(env.document.pointerLockElement,canvas);assert.equal(current.locked,true);old.dispose();assert.equal(env.document.pointerLockElement,canvas);}
   finally{current?.dispose();old.dispose();env.restore();}
+});
+
+test('slow frames preserve the last weapon choice and one shot without replaying a burst', async t => {
+ const env=environment(),canvas=new FakeCanvas(env.document),actor=actorFixture();
+ let now=0;t.mock.method(performance,'now',()=>now);
+ const controls=new Controls(canvas as unknown as HTMLCanvasElement,()=>{},()=>{});
+ try {
+  await controls.lock();
+  now=10;env.document.dispatchEvent(event('keydown',{code:'Digit1',repeat:false}));
+  now=20;env.document.dispatchEvent(event('keydown',{code:'Digit2',repeat:false}));
+  for (const time of [30,40,50]) {now=time;canvas.dispatchEvent(event('mousedown',{button:0}));env.document.dispatchEvent(event('mouseup',{button:0}));}
+  now=60;env.document.dispatchEvent(event('keydown',{code:'KeyR',repeat:false}));
+  controls.discardBefore(233);
+  controls.discardBefore(500);
+  const actions=controls.commands(actor,500,517,0).filter(c=>['switch','shoot','reload'].includes(c.type));
+  assert.deepEqual(actions.map(c=>c.type),['switch','shoot','reload']);
+  assert.equal(actions[0]!.type==='switch'&&actions[0]!.weapon,'pistol');
+  assert.ok(actions.every(c=>c.at===0));
+  assert.equal(controls.commands(actor,517,534,1000).length,0);
+  now=600;env.document.dispatchEvent(event('keydown',{code:'Digit1',repeat:false}));
+  controls.discardBefore(833);controls.pause();now=1000;await controls.lock();
+  assert.ok(controls.commands(actor,1000,1017,0).every(c=>!['switch','shoot','reload'].includes(c.type)));
+ } finally {controls.dispose();env.restore();}
+});
+
+test('a final weapon selection cancels earlier dropped-window shot and reload',async t=>{
+ const env=environment(),canvas=new FakeCanvas(env.document),actor=actorFixture();
+ let now=0;t.mock.method(performance,'now',()=>now);
+ const controls=new Controls(canvas as unknown as HTMLCanvasElement,()=>{},()=>{});
+ try {
+  await controls.lock();now=10;env.document.dispatchEvent(event('keydown',{code:'Digit2',repeat:false}));
+  now=20;canvas.dispatchEvent(event('mousedown',{button:0}));env.document.dispatchEvent(event('mouseup',{button:0}));
+  env.document.dispatchEvent(event('keydown',{code:'KeyR',repeat:false}));
+  now=30;env.document.dispatchEvent(event('keydown',{code:'Digit1',repeat:false}));
+  controls.discardBefore(233);
+  const cmds=controls.commands(actor,233,250,0);
+  assert.equal(cmds.filter(c=>c.type==='shoot'||c.type==='reload').length,0);
+  const selection=cmds.filter(c=>c.type==='switch');assert.equal(selection.length,1);
+  assert.equal(selection[0]!.type==='switch'&&selection[0]!.weapon,'rifle');
+ }finally{controls.dispose();env.restore();}
 });

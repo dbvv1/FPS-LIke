@@ -82,6 +82,23 @@ for(const ground of [false,true]) test(`actual offline squad client drives real 
  const fresh=created[1]!.state,freshPlayer=fresh.actors.find(a=>a.id==='player')!;
  assert.ok(fresh.tick>0);assert.deepEqual([freshPlayer.input.x,freshPlayer.input.z,freshPlayer.input.interact],[0,0,false]);
  assert.equal(fresh.shots.filter(s=>s.actorId==='player').length,0,'new match has no held trigger from the previous match');
+ const currentPlayer=()=>created[1]!.state.actors.find(a=>a.id==='player')!;
+ // Reproduce returned software frames (p95 533ms): a short key press lands
+ // before the retained 250ms catch-up window, but must still reach Game once.
+ clock+=10;document.dispatchEvent(event('keydown',{code:'Digit2',repeat:false}));
+ document.dispatchEvent(event('keyup',{code:'Digit2'}));
+ clock+=533;raf(clock);
+ assert.equal(currentPlayer().weapon,'pistol','slow foreground frame must not eat weapon choice');
+ document.dispatchEvent(event('mousemove',{movementX:0,movementY:-1000}));
+ clock+=10;canvas.dispatchEvent(event('mousedown',{button:0}));document.dispatchEvent(event('mouseup',{button:0}));
+ clock+=533;raf(clock);
+ assert.equal(currentPlayer().weapons.pistol.ammo,9,'one short click survives without a burst');
+ clock+=10;document.dispatchEvent(event('keydown',{code:'KeyR',repeat:false}));document.dispatchEvent(event('keyup',{code:'KeyR'}));
+ clock+=533;raf(clock);
+ assert.notEqual(currentPlayer().reload,null,'reload intent survives slow foreground frame');
+ clock+=10;document.dispatchEvent(event('keydown',{code:'Digit1',repeat:false}));document.dispatchEvent(event('keyup',{code:'Digit1'}));
+ clock+=533;raf(clock);
+ assert.equal(currentPlayer().weapon,'rifle');assert.equal(currentPlayer().reload,null,'switch still cancels reload');
  t.diagnostic(JSON.stringify({movement:ground?'ground-v1':'baseline',rounds:completed.rounds.length,localShots:completed.shots,bots:botCommands.size,newMatchTick:fresh.tick,errors:errors.length}));
  }finally{
    window.dispatchEvent(new Event('pagehide'));

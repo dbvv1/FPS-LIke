@@ -29,9 +29,9 @@ const fixedCaptureRevision = {
   "src/candidates/movement-v2/capture/client.ts": "4b852c784cc1e88dc8761cab17d93640794513459991e19b5b72d92bc5225bda"
 };
 
-// Reviewed teardown repair only; historical fixture and simulation hashes remain unchanged.
+// Reviewed lock teardown and foreground slow-frame intent repair; simulation hashes remain unchanged.
 const reviewedLockDisposal = {
-  "src/input/controls.ts": "cb1fc6fd6c0c06896a5235ae135e5c86c694129ba4f61e1feb5659b4ab5458fd",
+  "src/input/controls.ts": "554fa96989ebe86d1c25d87e677791e2f669f23425773808b6c373c250e35784",
   "src/candidates/movement-v2/input/controls.ts": "b18b0be72114f1a45074a6747d0e951b2d4868d943442bdf596f9212a76160fc"
 };
 

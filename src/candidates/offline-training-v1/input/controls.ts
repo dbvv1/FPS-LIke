@@ -110,8 +110,8 @@ export class Controls {
     this.queue.splice(0, consumed);
     return result;
   }
-  /** Drop obsolete one-shot actions while carrying the last continuous state
-   * across a discarded wall-time interval. Later timestamped edges stay intact. */
+  /** Keep the latest intent per action across bounded foreground catch-up.
+   * Collapse clicks to one shot, not a historical burst. Pause still clears all. */
   discardBefore(time: number) {
     const continuous = new Map<string, Queued>();
     let consumed = 0;
@@ -119,10 +119,16 @@ export class Controls {
       if (queued.time >= time) break;
       const action = queued.action;
       if (action.type === 'trigger') this.triggerHeld = action.held;
-      else if (action.type === 'move' || action.type === 'aim' || action.type === 'interact') continuous.set(action.type, { time, action });
+      else {
+        // A later weapon selection cancels prior weapon-specific intents.
+        // Never replay an old pistol click/reload against the final rifle.
+        if (action.type === 'switch') { continuous.delete('shoot'); continuous.delete('reload'); }
+        continuous.set(action.type, queued);
+      }
       consumed++;
     }
-    this.queue.splice(0, consumed, ...continuous.values());
+    const carried = [...continuous.values()].sort((a, b) => a.time - b.time).map(q => ({ time, action: q.action }));
+    this.queue.splice(0, consumed, ...carried);
   }
   clear() {
     this.held.clear(); this.shooting = false; this.triggerHeld = false; this.queue = [];
