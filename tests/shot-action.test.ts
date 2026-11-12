@@ -77,3 +77,49 @@ test('accepted fire then switch at the same sub-tick cancels only the switching 
     assert.ok(state.shots.every(shot => shot.impact), 'impact facts are retained');
   } finally { game.dispose(); }
 });
+
+// The first-person root drives both the procedural weapon and the loaded RX24.
+// It must consume the same accepted switch facts as the opponent's fire clip.
+test('first-person recoil and flash do not replay cancelled fire on switch-back', async () => {
+  const { weaponPose } = await import('../src/render/weapon.js');
+  const { game, actorId } = await pistol();
+  try {
+    const fired = game.state;
+    const before = weaponPose(fired, fired.actors[0]!);
+    assert.ok(before.kick > 0 && before.flash > 0);
+    game.step([
+      { actorId, type: 'switch', weapon: 'rifle' },
+      { actorId, type: 'switch', weapon: 'pistol' },
+    ]);
+    const switched = game.state, hashBefore = game.stateHash;
+    const cancelled = weaponPose(switched, switched.actors[0]!);
+    assert.equal(cancelled.kick, 0);
+    assert.equal(cancelled.flash, 0);
+    assert.equal(game.stateHash, hashBefore);
+    assert.deepEqual(weaponPose(fired, fired.actors[0]!), before, 'snapshot sampling remains independent');
+    assert.equal(switched.shots.length, 1, 'hit/audio history is not discarded');
+  } finally { game.dispose(); }
+});
+
+test('first-person automatic recoil retains every active shot but excludes cancelled history', async () => {
+  const { weaponPose } = await import('../src/render/weapon.js');
+  const game = await Game.create(17), actorId = game.state.actors[0]!.id;
+  try {
+    game.step([{ actorId, type: 'shoot', yaw: Math.PI / 2, pitch: 0 }]);
+    game.step([{ actorId, type: 'switch', weapon: 'pistol' }, { actorId, type: 'switch', weapon: 'rifle' }]);
+    for (let i = 0; i < 12; i++) game.step();
+    game.step([{ actorId, type: 'shoot', yaw: Math.PI / 2, pitch: 0 }]);
+    for (let i = 0; i < 6; i++) game.step();
+    game.step([{ actorId, type: 'shoot', yaw: Math.PI / 2, pitch: 0 }]);
+    const state = game.state, actor = state.actors[0]!;
+    const active = state.shots.filter(shot => shot.actorId === actorId && shot.weaponActionActive);
+    assert.equal(active.length, 2);
+    assert.ok(state.shots.some(shot => shot.weaponActionActive === false));
+    const expected = weaponPose({ ...state, shots: active }, actor);
+    assert.deepEqual(weaponPose(state, actor), expected);
+    assert.ok(expected.kick > weaponPose({ ...state, shots: active.slice(-1) }, actor).kick,
+      'automatic recoil sums active impulses, not just the latest shot');
+    game.step([{ actorId, type: 'switch', weapon: 'rifle' }]);
+    assert.ok(weaponPose(game.state, game.state.actors[0]!).kick > 0, 'same-weapon no-op keeps the action');
+  } finally { game.dispose(); }
+});

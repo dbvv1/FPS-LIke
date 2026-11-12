@@ -54,6 +54,9 @@ export function weaponPose(state: GameState, actor: Actor) {
     const age = (state.time - shot.time) / SECOND;
     if (age > .55) break;
     if (shot.actorId !== actor.id || shot.weapon !== actor.weapon || age < 0) continue;
+    // Keep all active recoil impulses, but never revive a switched-away action.
+    // Legacy snapshots without this presentation fact retain their old pose.
+    if (shot.weaponActionActive === false) continue;
     kick += (1 - Math.exp(-age / .006)) * Math.exp(-age / .075) * 1.4;
     flash = Math.max(flash, Math.max(0, 1 - age / .065));
   }

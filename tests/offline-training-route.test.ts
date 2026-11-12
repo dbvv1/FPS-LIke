@@ -34,7 +34,10 @@ const reviewedLockDisposal = {
 
 // Candidate opponent action repair plus read-only Game shot cancellation facts.
 // Historical fixtures and gameplay hashes stay unchanged; no other copy changes.
+// Shared legacy/characters first-person pose consumes the same cancellation fact;
+// the separate offline-training and movement pose consumers are unchanged.
 const reviewedOpponentShotRevision = {
+  "src/render/weapon.ts": "762fea941c09576a5a5e35c1de9460843ea414d24b2844f49780a71d4a9b8772",
   "src/render/content-set-assets.ts": "a15585ab9ed2ff2a67d0559ba6dfafda88a2d0a2f484a70afa90ab988467c1c5",
   "src/sim/game.ts": "9993b2600256dbfb5aa550d59a19b27af38c8f4be670d9a74f361b20b2c41210",
   "src/sim/types.ts": "23594d6adccedd4c539d33cbf826eaa17f376fb7dba44aad956250a91047842b"
