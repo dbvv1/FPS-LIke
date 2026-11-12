@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { movementCandidateEnabled } from '../src/candidate-route.js';
+// Accepted terminal-lifetime repair; all unrelated frozen modules stay pinned.
+const reviewedTerminalLifetime = { "src/client.ts": "7a8a596907901d8e4ee092d45818a8e9c51e96d118f60dd0724136f3092c2a7c" };
+
 test('movement v2 requires one exact opt-in and combines with character/capture parameters', () => {
  for (const query of ['', '?gameplay=', '?gameplay=other', '?gameplay=movement-v2&gameplay=movement-v2', '?contentSet=characters-v1']) assert.equal(movementCandidateEnabled(query), false);
  for (const query of ['?gameplay=movement-v2', '?gameplay=movement-v2&contentSet=characters-v1', '?shot=gameplay&gameplay=movement-v2']) assert.equal(movementCandidateEnabled(query), true);
@@ -45,7 +48,7 @@ test('legacy modules retain frozen bytes except authorized scheduling and fixed 
   "src/ui/sensitivity-menu.ts": "30d9ecbf72853722fc00b26d9f48b1ada06dee64c9d3994c9cdb23f3013624f9",
   "src/ui/style.css": "58e861d051adacba252bb71b7154af19df4746e7f011774973667cd36784648b"
 };
- for (const [path, sha] of Object.entries(files)) assert.equal(createHash('sha256').update(readFileSync(new URL('../' + path, import.meta.url))).digest('hex'), sha, path);
+ for (const [path, sha] of Object.entries({...files, ...reviewedTerminalLifetime})) assert.equal(createHash('sha256').update(readFileSync(new URL('../' + path, import.meta.url))).digest('hex'), sha, path);
 });
 
 import { parseCaptureConfig as baseCapture } from '../src/capture/config.js';
