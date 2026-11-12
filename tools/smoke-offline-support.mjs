@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { connect } from 'node:net';
-// Node >=24 (repository runtime): native type stripping shares the product route.
+// Node >=22.12 with --import tsx shares the product TypeScript route.
 import { resolveHomeSearch, reviewedTrainingSearch } from '../src/default-route.ts';
 export const OFFLINE_QUERY = '?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1';
 export const REVIEWED_QUERY = reviewedTrainingSearch;

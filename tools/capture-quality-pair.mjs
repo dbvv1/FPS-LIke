@@ -11,18 +11,21 @@ import { chromium } from 'playwright';
 import { preview } from 'vite';
 import { PNG } from 'pngjs';
 import { captureBuildInvocation } from './capture-support.ts';
-import { QUALITY_SHOTS, qualityPairQuery, validateQualityShot, comparableQualityShot } from './quality-pair-support.ts';
-const { values } = parseArgs({ options: { sha: { type: 'string' }, out: { type: 'string' } } });
-assert.match(values.sha ?? '', /^[a-f0-9]{40}$/, '--sha requires the exact full source SHA');
+import { QUALITY_SHOTS, qualityPairQuery, validatePairQuery, DEFAULT_PAIR_QUERY, validateQualityShot, comparableQualityShot } from './quality-pair-support.ts';
+const { values } = parseArgs({ options: { sha: { type: 'string' }, commit: { type: 'string' }, query: { type: 'string' }, 'candidate-query': { type: 'string' }, out: { type: 'string' } } });
+assert.ok(!values.sha || !values.commit || values.sha === values.commit, '--sha and --commit must agree');
+const commit = values.commit ?? values.sha;
+assert.match(commit ?? '', /^[a-f0-9]{40}$/, '--commit (or --sha) requires the exact full source SHA');
+const queries = { default: validatePairQuery(values.query ?? DEFAULT_PAIR_QUERY, 'default'), materials: validatePairQuery(values['candidate-query'] ?? DEFAULT_PAIR_QUERY + '&materials=ai-courtyard-full-v1', 'materials') };
 assert.ok(values.out, '--out requires a new output directory');
 assert.notEqual(process.env.FPS_CLOUD_NO_SANDBOX, '1', 'Local runner keeps Chromium sandbox');
 const root = fileURLToPath(new URL('..', import.meta.url)), output = resolve(values.out);
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
 const source = () => ({ commit: git('rev-parse', 'HEAD'), tree: git('rev-parse', 'HEAD^{tree}'), changes: git('status', '--porcelain', '--untracked-files=no') });
-const before = source(); assert.equal(before.commit, values.sha); assert.equal(before.changes, '', 'Tracked source must be clean');
+const before = source(); assert.equal(before.commit, commit); assert.equal(before.changes, '', 'Tracked source must be clean');
 await mkdir(output, { recursive: false }); // Refuse an old or concurrent output, never overwrite.
 const hash = data => createHash('sha256').update(data).digest('hex');
-const report = { passed: false, source: before, startedAt: new Date().toISOString(), shots: [], errors: [], warnings: [], cleanup: {}, buildFiles: [] };
+const report = { passed: false, source: before, nodeVersion: process.version, queries, startedAt: new Date().toISOString(), shots: [], errors: [], warnings: [], cleanup: {}, buildFiles: [] };
 let browser, server;
 try {
   const build = captureBuildInvocation(process.platform, process.env.ComSpec);
@@ -47,7 +50,7 @@ try {
         const page = await context.newPage(), errors = [];
         page.on('pageerror', e => errors.push(String(e)));
         page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); if (m.type() === 'warning') report.warnings.push(m.text()); });
-        const url = new URL(qualityPairQuery(shot, variant), base).href;
+        const url = new URL(qualityPairQuery(shot, variant, queries[variant]), base).href;
         await page.goto(url, { waitUntil: 'domcontentloaded' });
         await page.waitForFunction(() => window.__shot?.ready || window.__shot?.error, null, { timeout: 120000 });
         const meta = await page.evaluate(() => window.__shot);

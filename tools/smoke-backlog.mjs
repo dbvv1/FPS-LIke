@@ -28,7 +28,7 @@ try {
   walk(join(root, 'web-dist'));
   for (const [label, query] of (fullMaterials ? [['current-default', ''], ['full-materials', FULL_MATERIALS_QUERY]] : artStandards ? [['offline-base', OFFLINE_QUERY], ['art-standards', OFFLINE_QUERY + '&art=standards-v1']] : offline ? [['offline-training', OFFLINE_QUERY]] : [['default', ''], ['characters', '?contentSet=characters-v1'], ['movement', '?gameplay=movement-v2'], ['combined', '?gameplay=movement-v2&contentSet=characters-v1']])) {
     const dir = join(output, label); mkdirSync(dir);
-    const result = spawnSync(process.execPath, ['tools/smoke.mjs'], { cwd: root, encoding: 'utf8', windowsHide: true, env: { ...process.env, DEBUG: 'pw:browser', FPS_SMOKE_QUERY: query, FPS_SMOKE_OUTPUT: dir, FPS_ART_COMPARE: artStandards ? '1' : '0' } });
+    const result = spawnSync(process.execPath, ['--import', 'tsx', 'tools/smoke.mjs'], { cwd: root, encoding: 'utf8', windowsHide: true, env: { ...process.env, DEBUG: 'pw:browser', FPS_SMOKE_QUERY: query, FPS_SMOKE_OUTPUT: dir, FPS_ART_COMPARE: artStandards ? '1' : '0' } });
     writeFileSync(join(dir, 'browser.log'), (result.stdout ?? '') + (result.stderr ?? ''));
     manifest.runs.push({ label, query, status: result.status, signal: result.signal, report: `${label}/report.json` });
     assert.equal(result.status, 0, `${label} smoke`);

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { qualityPairQuery, validateQualityShot, comparableQualityShot, QUALITY_SHOTS } from '../tools/quality-pair-support.js';
+import { qualityPairQuery, validatePairQuery, DEFAULT_PAIR_QUERY, validateQualityShot, comparableQualityShot, QUALITY_SHOTS } from '../tools/quality-pair-support.js';
 import { qualityCaptureOptions } from '../src/candidates/offline-training-v1/capture/quality-route.js';
 import { REPLAY } from '../src/candidates/offline-training-v1/capture/replay.js';
 import { CAMERAS } from '../src/capture/cameras.js';
@@ -36,12 +36,12 @@ import { captureBuildInvocation } from '../tools/capture-support.js';
 const scriptUrl = new URL('../tools/capture-quality-pair.mjs',import.meta.url);
 const source=readFileSync(scriptUrl,'utf8').replace(/^#!.*\n/,'').replace(/^import .*;\n/gm,'').replaceAll('import.meta.url',JSON.stringify(scriptUrl.href));
 const AsyncFunction=Object.getPrototypeOf(async function(){}).constructor;
-async function runMock(out:string, failClose=false, sha='a'.repeat(40)) {
+async function runMock(out:string, failClose=false, sha='a'.repeat(40), cli: Record<string,string>={}) {
  let previewClosed=false, browserClosed=false, printed='';
  const png=PNG.sync.write(new PNG({width:1280,height:720}));
  const processStub={platform:'linux',env:{},exitCode:undefined as number|undefined};
  const browser={on(){},version:()=> 'mock-no-browser',isConnected:()=>!browserClosed,async close(){browserClosed=true;if(failClose)throw new Error('mock close failure');},async newContext(){return{async route(){},async close(){},async newPage(){let meta:any;return{on(){},async goto(url:string){const p=new URL(url).searchParams;meta=fixture(p.get('qualityCapture')!,p.has('materials')?'materials':'default');meta.pngDataUrl='data:image/png;base64,'+png.toString('base64');meta.camera=CAMERAS[p.get('qualityCapture')! as keyof typeof CAMERAS];if(p.get('qualityCapture')==='gameplay'){meta.camera={fov:80};meta.cameraKind='player';}},async waitForFunction(){},locator:()=>({async waitFor(){}}),async waitForTimeout(){},async evaluate(){return structuredClone(meta);},async close(){}};}};}};
- const deps={assert,parseArgs:()=>({values:{sha,out}}),mkdir,writeFile,readFile,readdir:async()=>[],resolve,join,relative,fileURLToPath,createHash,PNG,captureBuildInvocation,QUALITY_SHOTS,qualityPairQuery,validateQualityShot,comparableQualityShot,process:processStub,console:{log:(x:string)=>printed=x},execFileSync:(f:string,args:string[])=>f==='git'?(args[0]==='status'?'':args[1]==='HEAD'?'a'.repeat(40):'b'.repeat(40)):'',chromium:{launch:async()=>browser},preview:async()=>({httpServer:{address:()=>({port:4321}),get listening(){return !previewClosed;},closeAllConnections(){},close(fn:Function){previewClosed=true;fn();}}})};
+ const deps={assert,parseArgs:()=>({values:{sha,out,...cli}}),mkdir,writeFile,readFile,readdir:async()=>[],resolve,join,relative,fileURLToPath,createHash,PNG,captureBuildInvocation,QUALITY_SHOTS,qualityPairQuery,validatePairQuery,DEFAULT_PAIR_QUERY,validateQualityShot,comparableQualityShot,process:processStub,console:{log:(x:string)=>printed=x},execFileSync:(f:string,args:string[])=>f==='git'?(args[0]==='status'?'':args[1]==='HEAD'?'a'.repeat(40):'b'.repeat(40)):'',chromium:{launch:async()=>browser},preview:async()=>({httpServer:{address:()=>({port:4321}),get listening(){return !previewClosed;},closeAllConnections(){},close(fn:Function){previewClosed=true;fn();}}})};
  await new AsyncFunction(...Object.keys(deps),source)(...Object.values(deps));return{report:JSON.parse(printed),previewClosed,browserClosed,exit:processStub.exitCode};
 }
 test('real CLI orchestration writes twelve exclusive paired PNGs and cleans browser/preview',async()=>{
@@ -51,4 +51,17 @@ test('real CLI orchestration writes twelve exclusive paired PNGs and cleans brow
 test('cleanup failure still closes preview and writes failed receipt; wrong SHA never starts',async()=>{
  const dir=await mkdtemp(join(tmpdir(),'quality-runner-fail-'));
  try{const r=await runMock(join(dir,'pair'),true);assert.equal(r.report.passed,false);assert.equal(r.exit,1);assert.equal(r.previewClosed,true);await assert.rejects(runMock(join(dir,'wrong'),false,'c'.repeat(40)));}finally{await rm(dir,{recursive:true,force:true});}
+});
+
+test('explicit task queries preserve current pair and reject weakened or ambiguous input',()=>{
+ const q=DEFAULT_PAIR_QUERY;
+ assert.equal(qualityPairQuery('cross-lane','default',q),qualityPairQuery('cross-lane','default'));
+ assert.equal(qualityPairQuery('cross-lane','materials',q+'&materials=ai-courtyard-full-v1'),qualityPairQuery('cross-lane','materials'));
+ for(const bad of [q+'&smoke=ground-v1',q+'&qualityCapture=gameplay',q+'&art=standards-v1',q.replace('courtyard-v1','old'),q+'&unknown=x','https://example.test/'+q])assert.throws(()=>validatePairQuery(bad,'default'));
+ assert.throws(()=>validatePairQuery(q,'materials'));assert.throws(()=>validatePairQuery(q+'&materials=ai-courtyard-full-v1','default'));
+});
+
+test('CLI accepts explicit commit and pair queries, rejecting conflicting commit aliases',async()=>{
+ const dir=await mkdtemp(join(tmpdir(),'quality-runner-args-'));
+ try{const r=await runMock(join(dir,'pair'),false,'a'.repeat(40),{commit:'a'.repeat(40),query:DEFAULT_PAIR_QUERY,'candidate-query':DEFAULT_PAIR_QUERY+'&materials=ai-courtyard-full-v1'});assert.equal(r.report.passed,true);assert.equal(r.report.queries.default,DEFAULT_PAIR_QUERY);await assert.rejects(runMock(join(dir,'conflict'),false,'a'.repeat(40),{commit:'b'.repeat(40)}));}finally{await rm(dir,{recursive:true,force:true});}
 });

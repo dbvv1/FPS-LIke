@@ -35,9 +35,16 @@
 当前训练赛使用仓库内的入口，不复用硬编码旧 SHA 的本机临时脚本：
 
 ```sh
-node --import tsx tools/capture-quality-pair.mjs --sha <完整40位提交SHA> --out outputs/quality-pair-unique
+Q="?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1"
+node --import tsx tools/capture-quality-pair.mjs --commit <完整40位提交SHA> --query "$Q" --candidate-query "$Q&materials=ai-courtyard-full-v1" --out outputs/quality-pair-unique
 ```
 
 在该 SHA 的干净 worktree 内用已有依赖执行，输出父目录须已存在，最终目录必须不存在。脚本先核 HEAD／tree、重新构建并记录产物 SHA256，再顺序采集当前默认与全场 `ai-courtyard-full-v1`。三个机位各双拍，共12张1280×720 PNG；固定 `courtyard-light-v1`、DPR1、seed1、tick120、frame0，无 `__shotNext` 调用。逐图保留除图片数据URL之外的原metadata，并校验同组RGBA及前后状态／相机／命令／renderer。默认和后图共用同一现成 Chromium，保sandbox、仅headless SwiftShader；`FPS_CAPTURE_CHROMIUM` 可指定已装二进制，实际启动argv另保留 `DEBUG=pw:browser` 原始日志并脱敏。
 
 任一图失败即停止后续拍摄，仍尝试关闭本次browser与preview并写失败report；清理失败不能报passed。不改本机设置、不安装依赖、不覆盖旧产物。本入口只取固定画面；完整整局smoke、帧耗和非作者盲选分别接收，CPU编排测试不是实际出图证据。
+
+## Node 22 与失败分流（2026-11-12）
+
+本机 Node 22.23.2 可用；依赖最低要求为 Node 22.12，脚本经 `--import tsx` 加载 TypeScript，不要求 Node 24 的原生类型擦除。`--sha` 保留为 `--commit` 别名，同时传入必须一致。显式 query 受本成对协议校验，不能夹带 smoke、重复参数、旧路由或预设机位；实际 commit、query 和 Node 版本写入回执。完整 smoke 使用 `npm run smoke:backlog -- --full-materials`。
+
+原 1336856 回执停在按 2 后等待 pistol；这份回执只证明超时，不足以排除游戏输入问题。当前 f325748 已有慢帧离散输入保留修复及 CPU 回归测试，本轮不再改游戏代码。对照实验：将 1336856 的旧 Controls 放入隔离测试树，运行同一 `slow frames preserve the last weapon` 测试，旧版丢失 switch/shoot/reload（失败），当前版通过。这证明旧输入实现确有慢帧丢离散动作缺陷，但不能单凭 CPU 实验认定原浏览器超时仅有这一个原因。仍需在当前固定 SHA 上重跑真实浏览器完整六回合和连续帧耗，不能把 CPU 回归当整局通过。若仅测试脚本小问题，本机可现场修脚本、不改游戏代码并重跑一次，记录补丁与两次退出回执；游戏异常或第二次失败交回具体证据。

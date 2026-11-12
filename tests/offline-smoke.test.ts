@@ -40,7 +40,7 @@ test('natural round timeout fails without claiming completed rounds or advancing
 });
 test('standalone command is exact-entry only and bypasses old-entry capture',()=>{
   const pkg=JSON.parse(readFileSync(new URL('../package.json',import.meta.url),'utf8'));
-  assert.equal(pkg.scripts['smoke:offline-training'],'node tools/smoke-backlog.mjs --offline-training');
+  assert.equal(pkg.scripts['smoke:offline-training'],'node --import tsx tools/smoke-backlog.mjs --offline-training');
   assert.equal(OFFLINE_QUERY,'?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1');
   const runner=readFileSync(new URL('../tools/smoke-backlog.mjs',import.meta.url),'utf8');
   assert.match(runner,/offline \? \[\['offline-training', OFFLINE_QUERY\]\]/);assert.match(runner,/if \(!offline\) \{/);

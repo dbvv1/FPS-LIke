@@ -35,8 +35,11 @@ const reviewedLockDisposal = {
   "src/candidates/movement-v2/input/controls.ts": "b18b0be72114f1a45074a6747d0e951b2d4868d943442bdf596f9212a76160fc"
 };
 
+// Owner-requested Node22 engine floor only; dependency versions remain pinned.
+const reviewedNode22Runtime = { "package-lock.json": "34650c2eee5180b0e2134b8209c0c7688797a5d83a595db639358dca527e57c3" };
+
 test('v13 frozen modules plus authorized scheduling/capture changes retain their exact bytes', () => {
-  for (const [file, hash] of Object.entries({...hashes, ...reviewedLegacyScheduling, ...fixedCaptureRevision, ...reviewedLockDisposal, ...reviewedTerminalLifetime})) assert.equal(createHash('sha256').update(readFileSync(new URL('../'+file, import.meta.url))).digest('hex'), hash, file);
+  for (const [file, hash] of Object.entries({...hashes, ...reviewedLegacyScheduling, ...fixedCaptureRevision, ...reviewedLockDisposal, ...reviewedTerminalLifetime, ...reviewedNode22Runtime})) assert.equal(createHash('sha256').update(readFileSync(new URL('../'+file, import.meta.url))).digest('hex'), hash, file);
 });
 test('offline client and stylesheet load only through the lazy candidate entry', () => {
   const boot = readFileSync(new URL('../src/boot.ts', import.meta.url), 'utf8');

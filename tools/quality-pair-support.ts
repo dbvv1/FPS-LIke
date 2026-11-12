@@ -2,11 +2,23 @@ import assert from 'node:assert/strict';
 import { CAMERAS, CAPTURE_SIZE } from '../src/capture/cameras.js';
 import { REPLAY } from '../src/candidates/offline-training-v1/capture/replay.js';
 export const QUALITY_SHOTS = ['gameplay', 'courtyard-gap', 'cross-lane'] as const;
-export function qualityPairQuery(shot: string, variant: string) {
-  assert.ok(QUALITY_SHOTS.includes(shot as typeof QUALITY_SHOTS[number]), 'Unknown camera');
+export const DEFAULT_PAIR_QUERY = '?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1';
+/** Parameters are supplied by the task card, but may not weaken its fixed replay. */
+export function validatePairQuery(query: string, variant: string) {
   assert.ok(variant === 'default' || variant === 'materials', 'Unknown variant');
-  const p = new URLSearchParams({ gameplay: 'offline-training-v1', match: 'complete-v1', squads: 'offline-v1', environment: 'courtyard-v1', art: 'standards-v1', lighting: 'courtyard-light-v1', qualityCapture: shot });
-  if (variant === 'materials') p.set('materials', 'ai-courtyard-full-v1');
+  assert.ok(!query.includes('#') && !query.includes('://'), 'Pass a query, not a URL');
+  const p = new URLSearchParams(query);
+  const expected = new URLSearchParams(DEFAULT_PAIR_QUERY);
+  if (variant === 'materials') expected.set('materials', 'ai-courtyard-full-v1');
+  for (const [key, value] of expected) assert.ok(p.getAll(key).length === 1 && p.get(key) === value, `Unsupported ${variant} ${key}`);
+  for (const key of p.keys()) assert.ok(expected.has(key), `Unsupported paired query parameter ${key}`);
+  return `?${p}`;
+}
+export function qualityPairQuery(shot: string, variant: string, query?: string) {
+  assert.ok(QUALITY_SHOTS.includes(shot as typeof QUALITY_SHOTS[number]), 'Unknown camera');
+  const defaultQuery = DEFAULT_PAIR_QUERY + (variant === 'materials' ? '&materials=ai-courtyard-full-v1' : '');
+  const p = new URLSearchParams(validatePairQuery(query ?? defaultQuery, variant));
+  p.set('qualityCapture', shot);
   return `?${p}`;
 }
 // Metadata comes from the existing browser interface, and is validated before use.

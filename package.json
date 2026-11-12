@@ -13,11 +13,11 @@
     "dev": "vite",
     "build:sim": "vite build --config vite.sim.config.ts",
     "preview": "vite preview --host 127.0.0.1",
-    "smoke": "npm run build && node tools/smoke.mjs",
+    "smoke": "npm run build && node --import tsx tools/smoke.mjs",
     "build:sites": "node tools/build-sites.mjs",
-    "smoke:backlog": "node tools/smoke-backlog.mjs",
+    "smoke:backlog": "node --import tsx tools/smoke-backlog.mjs",
     "sim:offline-training": "node --import tsx tools/offline-training-v1/squads-sim.ts",
-    "smoke:offline-training": "node tools/smoke-backlog.mjs --offline-training"
+    "smoke:offline-training": "node --import tsx tools/smoke-backlog.mjs --offline-training"
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "0.21.0",
@@ -35,6 +35,6 @@
     "vite": "8.3.5"
   },
   "engines": {
-    "node": ">=24"
+    "node": ">=22.12.0"
   }
 }
