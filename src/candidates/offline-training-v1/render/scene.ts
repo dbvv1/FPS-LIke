@@ -1,12 +1,14 @@
 type ObserverCamera = { position: { x: number; y: number; z: number }; yaw: number; pitch: number; fov: number };
+type DressingFactory = (scene: THREE.Scene, track: { geometry(geometry: THREE.BufferGeometry): void; material(material: THREE.Material): void; texture(texture: THREE.Texture): void }) => void;
 import * as THREE from 'three';
 import { AiMaterials, FullAiMaterials, aiMaterialsEnabled } from './ai-materials.js';
 import { fullAiMaterialsEnabled, type KitSurface } from './ai-surface.js';
 import { createLightingPost } from './lighting-post.js';
+import { createCourtyardSky, type CourtyardSky } from './courtyard-sky.js';
 import { LIGHTING_ID, lightingEnabled, renderRole } from './lighting-style.js';
 import { ArtStandards, artEnabled, type ArtSlot } from './art-standards.js';
-import { KIT, environmentEnabled, makeKitWall, kitTexture, floorPixels, kitBudget } from './environment-kit.js';
-import { groundLevels, groundUV } from './ground.js';
+import { KIT, environmentEnabled, makeKitWall, kitTexture, floorPixels, kitBudget, createWallGrime, courtyardFaces, wallSeamGeometry } from './environment-kit.js';
+import { groundLevels, groundUV, createGroundSurface } from './ground.js';
 import { YARD, wallStrip } from './yard.js';
 import { Feedback } from './feedback.js';
 import { targetTriangles, targetVertices, targetColor } from './target.js';
@@ -19,6 +21,7 @@ export class View {
   readonly backend = 'three-webgl2';
   private lighting = lightingEnabled(globalThis.location?.search ?? '');
   private post: ReturnType<typeof createLightingPost> | undefined;
+  private sky: CourtyardSky | undefined;
   private environment = environmentEnabled(globalThis.location?.search ?? '');
   private environmentPresented = false;
   private artPresented = false;
@@ -40,25 +43,44 @@ export class View {
   private geometries = new Set<THREE.BufferGeometry>();
   private materials = new Set<THREE.Material>();
   private textures = new Set<THREE.Texture>();
+  private dressingTextures = new Set<THREE.Texture>();
   private readonly captureSize?: { width: number; height: number };
-  constructor(canvas: HTMLCanvasElement, captureSize?: { width: number; height: number }) {
-    this.captureSize = captureSize;
+  private readonly dressingFactory?: DressingFactory;
+  constructor(canvas: HTMLCanvasElement, captureSize?: { width: number; height: number }, dressingFactory?: DressingFactory) {
+    this.captureSize = captureSize; this.dressingFactory = dressingFactory;
     this.geometries.add(this.flash.geometry); this.materials.add(this.flash.material);
     try {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: !!captureSize });
     this.renderer.setPixelRatio(captureSize ? 1 : Math.min(devicePixelRatio, 1.5));
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-    this.scene.background = new THREE.Color(this.environment ? KIT.sky : YARD.sky);
-    this.scene.fog = new THREE.Fog(this.environment ? KIT.sky : YARD.sky, 32, 80);
-    this.scene.add(new THREE.HemisphereLight(this.lighting?0xc5dfff:0xb9e7ff, this.lighting?0x6c7165:0x32413b, this.lighting?1.8:2.1));
-    if(this.lighting)this.scene.add(new THREE.AmbientLight(0xdde7f2,.35));
-    const sun = new THREE.DirectionalLight(this.lighting?0xffe3bd:0xffdba8, this.lighting?3.0:2.6); sun.position.set(-8, 18, -4); this.scene.add(sun);
+    const sky = this.environment ? KIT.sky : YARD.sky;
+    const fog = this.lighting ? 0xafbdbd : sky;
+    this.scene.background = new THREE.Color(fog);
+    this.scene.fog = new THREE.Fog(fog, this.lighting ? 46 : 32, this.lighting ? 118 : 80);
+    // Sky and ground bounce only. The single sun still carries the modelling and
+    // the long shadows; no second directional or broad omni light is added.
+    this.scene.add(new THREE.HemisphereLight(this.lighting?0x9fbcd8:0xb9e7ff, this.lighting?0x6a6352:0x32413b, this.lighting?0.62:2.1));
+    const sun = new THREE.DirectionalLight(this.lighting?0xffe4b8:0xffdba8, this.lighting?3.55:2.6);
+    // Schooled from the rear-right: the west wall, north training wall and both
+    // equipment clusters keep a continuous lit face, while the canopy side falls
+    // into a readable cool shade instead of a single black wall.
+    if (this.lighting) sun.position.set(18, 21, 16); else sun.position.set(-26, 22, 10);
+    this.scene.add(sun); this.scene.add(sun.target);
     if(this.lighting){
-      this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.05;
-      this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=THREE.PCFShadowMap;
+      sun.target.position.set(0, 0, -1); sun.target.updateMatrixWorld();
+      this.renderer.toneMapping=THREE.ACESFilmicToneMapping;this.renderer.toneMappingExposure=1.02;
+      this.renderer.shadowMap.enabled=true;this.renderer.shadowMap.type=THREE.PCFSoftShadowMap;
       sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
-      Object.assign(sun.shadow.camera,{left:-25,right:25,top:25,bottom:-25,near:.1,far:70});
-      sun.shadow.camera.updateProjectionMatrix();sun.shadow.normalBias=.025;sun.shadow.bias=-.0001;
+      // The cascade covers the training floor and low props only; the far wall
+      // caps and the observation block stay outside it, keeping texels dense.
+      Object.assign(sun.shadow.camera,{left:-17,right:17,top:17,bottom:-17,near:1,far:70});
+      sun.shadow.camera.updateProjectionMatrix();sun.shadow.normalBias=.03;sun.shadow.bias=-.00016;
+      this.sky=createCourtyardSky(this.renderer,sun.position);
+      this.scene.add(this.sky.mesh);
+      this.geometries.add(this.sky.mesh.geometry);this.materials.add(this.sky.mesh.material);
+      if(this.sky.environment){
+        this.scene.environment=this.sky.environment.texture;this.scene.environmentIntensity=.45;
+      }
       this.post=createLightingPost(this.renderer,this.scene,this.camera);
     }
     const floor=this.box(this.scene, [0, -0.15, 0], [27, 0.3, 37], 0xffffff);
@@ -72,6 +94,35 @@ export class View {
     const positions=floor.geometry.getAttribute('position'),uv=floor.geometry.getAttribute('uv');
     for(let i=0;i<positions.count;i++)uv.setXY(i,...(this.environment ? [positions.getX(i)/4,-positions.getZ(i)/4] as const : groundUV(positions.getX(i),-positions.getZ(i))));uv.needsUpdate=true;
     const material=floor.material as THREE.MeshStandardMaterial;material.map=texture;material.roughness=.95;material.metalness=0;
+    // Presentation-only floor dressing shares one courtyard-space frame: broad
+    // wear and traffic in albedo, plus a shallow bump and a polished-path mask.
+    const groundSurface=createGroundSurface(Math.min(4,(this.renderer.capabilities?.getMaxAnisotropy?.() ?? 1)));
+    if(groundSurface){
+      const overlayUv=new Float32Array(positions.count*2);
+      for(let i=0;i<positions.count;i++){overlayUv[i*2]=(positions.getX(i)+13.5)/27;overlayUv[i*2+1]=(-positions.getZ(i)+18.5)/37;}
+      floor.geometry.setAttribute('uv1',new THREE.BufferAttribute(overlayUv,2));
+      groundSurface.roughness.channel=1;groundSurface.bump.channel=1;
+      material.roughnessMap=groundSurface.roughness;material.roughness=1;
+      material.bumpMap=groundSurface.bump;material.bumpScale=.014;
+      material.onBeforeCompile=shader=>{
+        shader.uniforms.groundWear={value:groundSurface.overlay};
+        shader.vertexShader='varying vec2 vGroundWearUv;\n'+shader.vertexShader;
+        shader.vertexShader=shader.vertexShader.replace('#include <uv_vertex>',`#include <uv_vertex>
+#ifdef USE_UV1
+vGroundWearUv=uv1;
+#else
+vGroundWearUv=vec2(.5);
+#endif`);
+        shader.fragmentShader='uniform sampler2D groundWear; varying vec2 vGroundWearUv;\n'+shader.fragmentShader;
+        shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>',`#include <map_fragment>
+#ifdef USE_MAP
+vec4 groundWearTexel=texture2D(groundWear,vGroundWearUv);
+diffuseColor.rgb*=mix(vec3(1.0),groundWearTexel.rgb,.8);
+#endif`);
+      };
+      material.customProgramCacheKey=()=>'courtyard-ground-wear-v1';
+      for(const surfaceTexture of [groundSurface.overlay,groundSurface.roughness,groundSurface.bump])this.textures.add(surfaceTexture);
+    }
     const aiWalls: KitSurface[] = [];
     let aiWall: THREE.Mesh<THREE.BufferGeometry,THREE.MeshStandardMaterial> | undefined;
     for (const wall of MAP.walls) {
@@ -90,6 +141,53 @@ export class View {
       const indices=Array.from(geometry.index!.array);geometry.setIndex([...indices.slice(0,12),...indices.slice(18),...indices.slice(12,18)]);geometry.clearGroups();geometry.addGroup(0,30,0);geometry.addGroup(30,6,1);
       const mesh=new THREE.Mesh(geometry,[side,top]);
       mesh.position.set(...toThree(wall.center));this.scene.add(mesh);this.geometries.add(geometry);this.materials.add(side);this.materials.add(top);
+    }
+    if (this.environment && this.dressingFactory) this.dressingFactory(this.scene, {
+      geometry: geometry => this.geometries.add(geometry),
+      material: material => this.materials.add(material),
+      // Dressing textures have their own ownership set: the kit's measured
+      // floor/wall texture budget stays unchanged.
+      texture: texture => this.dressingTextures.add(texture),
+    });
+    if (this.environment) {
+      // Two non-shadowing work lamps reveal the galvanised canopy underside and
+      // make the covered training bay legible without lifting the open yard.
+      // Their pools stop at the canopy edge so the sun stays the key light.
+      for (const z of [4, 11]) {
+        const workLight = new THREE.PointLight(0xffc982, 9, 7.5, 2);
+        workLight.position.set(-8.4, 2.7, -z); this.scene.add(workLight);
+      }
+      const faces = courtyardFaces(MAP.walls);
+      // Rain wash and a proud contact plinth separate wall foot from floor.
+      const grime = createWallGrime();
+      if (grime) {
+        this.materials.add(grime.material); this.textures.add(grime.texture);
+        for (const face of faces) {
+          // Half-metre dust and rain band at the foot, its uneven top crossing
+          // the painted plinth so it reads as weathering rather than a stripe.
+          const plane = new THREE.PlaneGeometry(face.width, 1.2);
+          const planeUv = plane.getAttribute('uv');
+          for (let i = 0; i < planeUv.count; i++) planeUv.setX(i, planeUv.getX(i) * Math.max(1, face.width / 4));
+          planeUv.needsUpdate = true;
+          const mesh = new THREE.Mesh(plane, grime.material);
+          mesh.position.set(face.center.x, .6, face.center.z);
+          mesh.rotation.y = face.rotationY;
+          this.scene.add(mesh); this.geometries.add(plane);
+        }
+      }
+      // Panel seams are actual thin geometry, so the sun rakes over them.
+      const seams = wallSeamGeometry(faces);
+      if (seams) {
+        const seamMaterial = new THREE.MeshStandardMaterial({ color: 0x6d746d, roughness: .82, metalness: .08 });
+        const mesh = new THREE.Mesh(seams, seamMaterial);
+        this.scene.add(mesh); this.geometries.add(seams); this.materials.add(seamMaterial);
+      }
+      // Maintenance bays get their own warm work light; the roller-door lamp is
+      // deliberately short-range so its bloom cannot rival the sun.
+      for (const [x, z] of [[3.15, 16.75], [-5.1, -2.6]] as const) {
+        const bayLight = new THREE.PointLight(0xffc17a, 3.2, 4.2, 2);
+        bayLight.position.set(x, 2.55, -z); this.scene.add(bayLight);
+      }
     }
     if (fullAiMaterialsEnabled(globalThis.location?.search ?? '')) { this.aiMaterials = new FullAiMaterials(); void this.aiMaterials.start(material, aiWalls); }
     else if(aiWall && aiMaterialsEnabled(globalThis.location?.search ?? '')) {this.aiMaterials=new AiMaterials();void this.aiMaterials.start(material,aiWall);}
@@ -195,12 +293,13 @@ export class View {
     this.bomb.visible = state.bomb.planted || !state.bomb.carrier;
     this.bomb.position.set(...toThree(state.bomb.position));
     if(this.post){
+      if(this.sky)this.sky.mesh.position.copy(this.camera.position);
       // Include late-loaded art and actors, without changing meshes or their materials.
-      this.scene.traverse(o=>{if(o instanceof THREE.Mesh){const world=renderRole(o)==='world';o.castShadow=world;o.receiveShadow=world;for(const m of Array.isArray(o.material)?o.material:[o.material])if(m instanceof THREE.MeshBasicMaterial)m.toneMapped=false;}});
+      this.scene.traverse(o=>{if(o instanceof THREE.Mesh){const world=renderRole(o)==='world';o.castShadow=world&&!o.userData.noShadow;o.receiveShadow=world;for(const m of Array.isArray(o.material)?o.material:[o.material])if(m instanceof THREE.MeshBasicMaterial)m.toneMapped=false;}});
       this.post.render();
     }else this.renderer.render(this.scene, this.camera);
     this.environmentPresented = this.environment; this.artPresented = this.art?.info.state === 'ready';
   }
   reset() {this.artPresented=false;this.environmentPresented=false;this.feedback.reset();for(const mesh of this.impacts)mesh.visible=false;}
-  dispose() { this.artPresented=false; this.art?.dispose(); this.aiMaterials?.dispose(); this.post?.dispose(); if(this.lighting)this.scene.traverse(o=>{if(o instanceof THREE.DirectionalLight)o.shadow.dispose();}); this.environmentPresented=false;for (const g of this.geometries) g.dispose(); for (const m of this.materials) m.dispose(); for(const t of this.textures)t.dispose(); this.renderer?.dispose(); }
+  dispose() { this.artPresented=false; this.art?.dispose(); this.aiMaterials?.dispose(); this.sky?.dispose(); this.post?.dispose(); if(this.lighting)this.scene.traverse(o=>{if(o instanceof THREE.DirectionalLight)o.shadow.dispose();}); this.environmentPresented=false;for (const g of this.geometries) g.dispose(); for (const m of this.materials) m.dispose(); for(const t of this.textures)t.dispose(); for(const t of this.dressingTextures)t.dispose(); this.renderer?.dispose(); }
 }

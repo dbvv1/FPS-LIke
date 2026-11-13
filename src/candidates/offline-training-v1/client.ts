@@ -8,6 +8,7 @@ import { initNavigation, Navigation } from './sim/navigation.js';
 import { Controls } from './input/controls.js';
 import { MouseSensitivity } from './input/sensitivity.js';
 import { View } from './render/scene.js';
+import { addCourtyardDressing } from './render/courtyard-dressing.js';
 import { CanvasView } from './render/canvas.js';
 import { Soundscape } from './render/audio.js';
 import { RESULT_HOLD_MS } from './render/feedback.js';
@@ -184,7 +185,7 @@ try {
   const webgl = probe.getContext('webgl2');
   if (webgl) {
     webgl.getExtension('WEBGL_lose_context')?.loseContext();
-    try { view = new View(canvas); }
+    try { view = new View(canvas, undefined, typeof addCourtyardDressing === 'function' ? addCourtyardDressing : undefined); }
     catch {
       // A WebGL-bound canvas cannot acquire a 2D context. Replace it before input ownership starts.
       const replacement = canvas.cloneNode(false) as HTMLCanvasElement;

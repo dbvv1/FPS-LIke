@@ -3,6 +3,7 @@ import { qualityCaptureOptions, CAPTURE_SIZE } from './quality-route.js';
 import { prepareReplay, REPLAY } from './replay.js';
 import { eye } from '../sim/physics.js';
 import { View } from '../render/scene.js';
+import { addCourtyardDressing } from '../render/courtyard-dressing.js';
 import { Hud } from '../ui/hud.js';
 import { MatchPanel } from '../ui/match-panel.js';
 import { TrainingMatch } from '../session/match.js';
@@ -34,7 +35,7 @@ try {
   document.getElementById('hud')!.hidden = !!options.camera;
   document.getElementById('menu')!.hidden = true;
   document.getElementById('render-mode')!.hidden = true;
-  const view = lifetime.own(new View(canvas, CAPTURE_SIZE));
+  const view = lifetime.own(new View(canvas, CAPTURE_SIZE, typeof addCourtyardDressing === 'function' ? addCourtyardDressing : undefined));
   view.resize();
   const replay = await prepareReplay(lifetime);
   const deadline = performance.now() + 15000;
