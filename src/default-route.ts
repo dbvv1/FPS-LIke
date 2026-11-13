@@ -2,7 +2,9 @@
  * Superseded movement-v2 links return here; other explicit options keep their meaning.
  * ground-v1 remains opt-in: visual blind review does not approve movement.
  */
-export const reviewedTrainingSearch = '?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1';
+export const previousTrainingSearch = '?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1';
+// Adopt the already smoke-tested and blind-selected full courtyard materials.
+export const reviewedTrainingSearch = `${previousTrainingSearch}&materials=ai-courtyard-full-v1`;
 export const legacySearch = '?gameplay=legacy-v1';
 export const groundCandidateSearch = `${reviewedTrainingSearch}&feel=ground-v1`;
 export function resolveHomeSearch(search: string): string {
