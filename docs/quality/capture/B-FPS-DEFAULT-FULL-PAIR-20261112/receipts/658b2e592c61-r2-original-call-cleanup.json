@@ -1,0 +1,899 @@
+{
+  "schemaVersion": 1,
+  "taskId": "B-FPS-DEFAULT-FULL-PAIR-20261112",
+  "unit": 3,
+  "kind": "receipt-only original-call exit and resource-cleanup supplement; no new smoke/capture/probe run",
+  "generatedAtUtc": "2026-11-12T23:51:52Z",
+  "status": "blocked",
+  "accepted": false,
+  "defaultChanged": false,
+  "ownerDecision": "Slot release and the default-material decision remain with the owner; this receipt neither releases the slot nor changes defaults.",
+  "baseRef": "658b2e592c612fa0801e2cc7fecdce32bb57eadb",
+  "baseTree": "cd025ea03ba7d9a6dfb21e0aa3e90bb5b830b66f",
+  "sourceCheck": {
+    "resultBranchHead": "c7936ff9231bd2755bedcd062f83cfe41e841d70",
+    "worktreeClean": false,
+    "changedFiles": [
+      "docs/quality/capture/B-FPS-DEFAULT-FULL-PAIR-20261112/receipts/658b2e592c61-r2-original-call-cleanup.json"
+    ],
+    "priorRevisionOutOfScope": "The earlier 402dd68 revision's single failed smoke and zero-image harness gap are preserved in commit 1336856 and the 402dd688f6da-swiftshader delivery; they are not re-enumerated in this 658b2e5 receipt.",
+    "note": "HEAD equals origin/relay and the tracked worktree is clean (git status --porcelain --untracked-files=no is empty); the only untracked file is this receipt itself, which is delivered uncommitted on the result branch. No game source, assets, defaults, dependencies or lockfile were changed.",
+    "trackedChanges": [],
+    "untrackedAdditions": [
+      "docs/quality/capture/B-FPS-DEFAULT-FULL-PAIR-20261112/receipts/658b2e592c61-r2-original-call-cleanup.json"
+    ],
+    "originResultBranch": "origin/relay/b-fps-default-full-pair-20261112",
+    "headEqualsOriginResultBranch": true
+  },
+  "scope": {
+    "readOnlyEvidence": [
+      "run workspaces under the receiver work/runs tree",
+      "delivered capture/smoke artifacts under docs/quality/capture/B-FPS-DEFAULT-FULL-PAIR-20261112/658b2e592c61-r2",
+      "execution.json result/control records and collection-processes.json",
+      "browser DEBUG logs, reports, manifests, frames and SHA-256 records"
+    ],
+    "newGameRuns": false,
+    "newSmokeRuns": false,
+    "newCaptureRuns": false,
+    "newProbeRuns": false,
+    "dependencyInstalls": false,
+    "scriptFixes": false
+  },
+  "outerCalls": [
+    {
+      "label": "unit-1 build (original measurement dispatch)",
+      "runDirectoryLabel": "u1-a0-2026-11-12T211302027Z",
+      "owner": "unit-1 implementation agent",
+      "startedAtUtc": "2026-11-12T21:13:02.849Z",
+      "endedAtUtc": "2026-11-12T22:31:23.333Z",
+      "durationMs": 4700199,
+      "finalStatus": "success",
+      "finalExitCode": 0,
+      "cliProcess": {
+        "pid": 44556,
+        "state": "closed",
+        "closeSeen": true,
+        "exitCode": 0,
+        "closedAtUtc": "2026-11-12T22:31:23.154Z"
+      },
+      "turn": {
+        "state": "ended",
+        "resultSeen": true,
+        "resultAtUtc": "2026-11-12T22:31:23.022Z"
+      },
+      "tools": {
+        "state": "settled",
+        "pending": 0
+      },
+      "registeredSubtree": {
+        "state": "settled",
+        "scope": "registered_subtree",
+        "containment": false,
+        "registeredCount": 740,
+        "allExited": true
+      },
+      "processObservation": {
+        "observedAtUtc": "2026-11-12T22:33:16.760Z",
+        "registeredCount": 741,
+        "live": []
+      }
+    },
+    {
+      "label": "unit-2 independent review",
+      "runDirectoryLabel": "u2-a0-2026-11-12T223418625Z",
+      "owner": "unit-2 independent reviewer",
+      "startedAtUtc": "2026-11-12T22:34:19.472Z",
+      "endedAtUtc": "2026-11-12T23:06:11.901Z",
+      "durationMs": 1912251,
+      "finalStatus": "success",
+      "finalExitCode": 0,
+      "cliProcess": {
+        "pid": 67312,
+        "state": "closed",
+        "closeSeen": true,
+        "exitCode": 0,
+        "closedAtUtc": "2026-11-12T23:06:11.730Z"
+      },
+      "turn": {
+        "state": "ended",
+        "resultSeen": true,
+        "resultAtUtc": "2026-11-12T23:06:11.646Z"
+      },
+      "tools": {
+        "state": "settled",
+        "pending": 0
+      },
+      "registeredSubtree": {
+        "state": "settled",
+        "scope": "registered_subtree",
+        "containment": false,
+        "registeredCount": 819,
+        "allExited": true
+      },
+      "processObservation": {
+        "observedAtUtc": "2026-11-12T23:10:10.350Z",
+        "registeredCount": 820,
+        "live": []
+      }
+    }
+  ],
+  "runs": [
+    {
+      "id": "smoke-attempt-1",
+      "owner": "unit-1 implementation agent",
+      "type": "full smoke, current-default entry only",
+      "startedAtUtc": "2026-11-12T21:19:34Z",
+      "returnedAtUtc": "2026-11-12T21:20:14Z",
+      "command": "DEBUG=pw:browser FPS_SMOKE_RENDERER=software FPS_SMOKE_CHROMIUM=<existing chromium-headless-shell> node tools/smoke-backlog.mjs --full-materials",
+      "source": {
+        "commit": "658b2e592c612fa0801e2cc7fecdce32bb57eadb",
+        "tree": "cd025ea03ba7d9a6dfb21e0aa3e90bb5b830b66f",
+        "note": "clean base_ref; no tools patch"
+      },
+      "wrapper": {
+        "exitCode": 1,
+        "signal": null
+      },
+      "entries": [
+        {
+          "label": "current-default",
+          "status": 1,
+          "signal": null
+        }
+      ],
+      "browserProcesses": [
+        {
+          "pid": 66372,
+          "launchedAtUtc": "2026-11-12T21:19:43.403Z",
+          "exitedAtUtc": "2026-11-12T21:20:14.299Z",
+          "exitCode": 0,
+          "signal": null,
+          "temporaryDirectoriesCleanupFinishedAtUtc": "2026-11-12T21:20:14.311Z"
+        }
+      ],
+      "report": {
+        "passed": false,
+        "failure": "AssertionError: Actual keyboard input moves the shared simulation; snapshot taken before a slow software frame advanced a tick",
+        "stages": 2,
+        "completedRounds": 0,
+        "pageErrors": 0
+      },
+      "cleanup": {
+        "browserDisconnected": true,
+        "previewPortClosed": true
+      },
+      "evidenceStatus": "verified-from-preserved-report-and-browser-log",
+      "launchTimestampBasis": "launchedAtUtc is read from the pw:browser <launched> pid= line"
+    },
+    {
+      "id": "smoke-attempt-2",
+      "owner": "unit-1 implementation agent",
+      "type": "full smoke, current-default entry only",
+      "startedAtUtc": "2026-11-12T21:23:07Z",
+      "returnedAtUtc": "2026-11-12T21:28:51Z",
+      "command": "DEBUG=pw:browser FPS_SMOKE_RENDERER=software FPS_SMOKE_CHROMIUM=<existing chromium-headless-shell> node tools/smoke-backlog.mjs --full-materials",
+      "source": {
+        "commit": "b45345f249697b27ad0716a7a01287b2ea767cf2",
+        "tree": "96f926f18228448cea53ee42eb77c1ba19b53971",
+        "note": "base_ref plus tools-only patch 1 (tools/smoke.mjs observation wait); game source unchanged"
+      },
+      "wrapper": {
+        "exitCode": 1,
+        "signal": null,
+        "note": "spawnSync default 1MiB maxBuffer terminated the wrapper child with SIGTERM while it printed the >1MiB passing report"
+      },
+      "entries": [
+        {
+          "label": "current-default",
+          "status": null,
+          "signal": "SIGTERM"
+        }
+      ],
+      "browserProcesses": [
+        {
+          "pid": 64884,
+          "launchedAtUtc": "2026-11-12T21:23:18.162Z",
+          "exitedAtUtc": "2026-11-12T21:28:50.597Z",
+          "exitCode": 0,
+          "signal": null,
+          "temporaryDirectoriesCleanupFinishedAtUtc": "2026-11-12T21:28:50.631Z"
+        }
+      ],
+      "report": {
+        "passed": true,
+        "stages": 7,
+        "completedRounds": 6,
+        "pageErrors": 0,
+        "note": "inner six-round report passed; wrapper exit 1 is the maxBuffer SIGTERM, not a report failure"
+      },
+      "cleanup": {
+        "browserDisconnected": true,
+        "previewPortClosed": true
+      },
+      "evidenceStatus": "verified-from-preserved-report-and-browser-log",
+      "launchTimestampBasis": "launchedAtUtc is read from the pw:browser <launched> pid= line"
+    },
+    {
+      "id": "smoke-attempt-3",
+      "owner": "unit-1 implementation agent",
+      "type": "full smoke, both entries",
+      "startedAtUtc": "2026-11-12T21:33:21Z",
+      "returnedAtUtc": "2026-11-12T21:47:37Z",
+      "command": "DEBUG=pw:browser FPS_SMOKE_RENDERER=software FPS_SMOKE_CHROMIUM=<existing chromium-headless-shell> node tools/smoke-backlog.mjs --full-materials",
+      "source": {
+        "commit": "c3546ecef83704a747dfe56838d40346e114e2d0",
+        "tree": "f12bcf92bc403859acffb3aa9f4b80b94bf16076",
+        "note": "base_ref plus tools-only patches 1 and 2; game source unchanged"
+      },
+      "wrapper": {
+        "exitCode": 0,
+        "signal": null
+      },
+      "entries": [
+        {
+          "label": "current-default",
+          "status": 0,
+          "signal": null
+        },
+        {
+          "label": "full-materials",
+          "status": 0,
+          "signal": null
+        }
+      ],
+      "browserProcesses": [
+        {
+          "label": "current-default",
+          "pid": 79460,
+          "launchedAtUtc": "2026-11-12T21:33:59.687Z",
+          "exitedAtUtc": "2026-11-12T21:40:47.704Z",
+          "exitCode": 0,
+          "signal": null,
+          "temporaryDirectoriesCleanupFinishedAtUtc": "2026-11-12T21:40:47.767Z"
+        },
+        {
+          "label": "full-materials",
+          "pid": 106672,
+          "launchedAtUtc": "2026-11-12T21:40:51.199Z",
+          "exitedAtUtc": "2026-11-12T21:47:36.937Z",
+          "exitCode": 0,
+          "signal": null,
+          "temporaryDirectoriesCleanupFinishedAtUtc": "2026-11-12T21:47:36.948Z"
+        }
+      ],
+      "report": {
+        "passed": true,
+        "stages": 7,
+        "completedRoundsPerEntry": 6,
+        "pageErrors": 0
+      },
+      "frameComparison": {
+        "metric": "requestAnimationFrame interval; observer overhead included; not GPU time",
+        "before": {
+          "count": 1072,
+          "meanMs": 289.9914179104477,
+          "p95Ms": 550
+        },
+        "after": {
+          "count": 1306,
+          "meanMs": 277.49019908116384,
+          "p95Ms": 516.7000000000116
+        },
+        "meanRatio": 0.9568910731242938,
+        "p95Ratio": 0.9394545454545666
+      },
+      "cleanup": {
+        "browserDisconnected": true,
+        "previewPortClosed": true
+      },
+      "rerunBudget": {
+        "allowedRerunsAfterFirstFailure": 1,
+        "observedReruns": 4,
+        "overBudget": true,
+        "note": "Reruns after the first failed smoke (attempt-1): attempt-2, attempt-3, smoke-review and smoke-review-rerun. The budget was already exceeded at attempt-3; the later review-phase runs are preserved under the task instruction and are counted here."
+      },
+      "evidenceStatus": "verified-from-preserved-report-and-browser-log",
+      "launchTimestampBasis": "launchedAtUtc is read from the pw:browser <launched> pid= line"
+    },
+    {
+      "id": "capture-attempt-1",
+      "owner": "unit-1 implementation agent",
+      "type": "paired capture, 3 cameras x 2 variants x 2 loads",
+      "startedAtUtc": "2026-11-12T21:49:21.584Z",
+      "returnedAtUtc": "2026-11-12T21:50:27Z",
+      "command": "DEBUG=pw:browser FPS_CAPTURE_CHROMIUM=<same chromium-headless-shell> node --import tsx tools/capture-quality-pair.mjs --commit 658b2e592c612fa0801e2cc7fecdce32bb57eadb --query <Q> --candidate-query <Q&materials=ai-courtyard-full-v1> --out <unique>",
+      "source": {
+        "commit": "658b2e592c612fa0801e2cc7fecdce32bb57eadb",
+        "tree": "cd025ea03ba7d9a6dfb21e0aa3e90bb5b830b66f",
+        "changes": ""
+      },
+      "wrapper": {
+        "exitCode": 0,
+        "signal": null
+      },
+      "browserProcesses": [
+        {
+          "pid": 52864,
+          "launchedAtUtc": "2026-11-12T21:49:25.739Z",
+          "exitedAtUtc": "2026-11-12T21:50:27.139Z",
+          "exitCode": 0,
+          "signal": null,
+          "temporaryDirectoriesCleanupFinishedAtUtc": "2026-11-12T21:50:27.168Z"
+        }
+      ],
+      "report": {
+        "passed": true,
+        "shots": 12,
+        "pageErrors": 0
+      },
+      "cleanup": {
+        "browserDisconnected": true,
+        "previewPortClosed": true
+      },
+      "evidenceStatus": "verified-from-preserved-report-and-browser-log",
+      "launchTimestampBasis": "launchedAtUtc is read from the pw:browser <launched> pid= line"
+    },
+    {
+      "id": "smoke-review",
+      "owner": "unit-1 review phase",
+      "type": "full smoke, both entries",
+      "firstEvidenceAtUtc": "2026-11-12T21:56:38.140Z",
+      "lastEvidenceAtUtc": "2026-11-12T22:09:28.078Z",
+      "timeBasis": "window from the log file creation time to its last write; exact invocation start/end were not separately logged",
+      "command": "node tools/smoke-backlog.mjs --full-materials",
+      "commandStatus": "reconstructed from the aggregate manifest shape; the wrapper command line and environment variables were not logged",
+      "source": {
+        "commit": "c3546ecef83704a747dfe56838d40346e114e2d0",
+        "tree": "f12bcf92bc403859acffb3aa9f4b80b94bf16076",
+        "note": "base_ref plus the two delivered tools-only patches; same source as attempt-3"
+      },
+      "wrapper": {
+        "exitCode": 1,
+        "signal": null,
+        "marker": "SMOKE_EXIT=1"
+      },
+      "entries": [
+        {
+          "label": "current-default",
+          "status": 0,
+          "signal": null,
+          "browserExit": {
+            "pid": 50820,
+            "exitCode": 0,
+            "signal": null
+          },
+          "completedRounds": 6
+        },
+        {
+          "label": "full-materials",
+          "status": 1,
+          "signal": null,
+          "browserExit": null,
+          "completedRounds": null
+        }
+      ],
+      "report": {
+        "passed": false,
+        "failure": "AssertionError [ERR_ASSERTION]: full-materials smoke (1 !== 0) raised by tools/smoke-backlog.mjs; the inner full-materials report was not preserved"
+      },
+      "cleanup": {
+        "recorded": false,
+        "note": "no cleanup record was preserved for either entry; the smoke-wt output root was deleted"
+      },
+      "evidenceStatus": "partial: aggregate manifest and SMOKE_EXIT marker only"
+    },
+    {
+      "id": "probe-move",
+      "owner": "unit-1 implementation agent",
+      "type": "read-only real-key movement probe",
+      "firstEvidenceAtUtc": "2026-11-12T21:21:42.637Z",
+      "lastEvidenceAtUtc": "2026-11-12T21:21:52.348Z",
+      "command": null,
+      "commandStatus": "unrecoverable; invocation was not retained in the kept logs",
+      "source": {
+        "commit": null,
+        "tree": null,
+        "note": "not recorded in the probe output; ran between attempt-1 and patch commit b45345f"
+      },
+      "process": {
+        "pid": null,
+        "exitCode": null,
+        "signal": null,
+        "note": "no process record or browser log kept for this probe"
+      },
+      "stderr": {
+        "sizeBytes": 0
+      },
+      "findings": {
+        "keyDownWallMs": 127,
+        "keyUpWallMs": 391,
+        "tickStart": 18,
+        "tickEnd": 90,
+        "zStart": -15.2,
+        "zEnd": -15.562711071968078
+      },
+      "cleanup": {
+        "recorded": false
+      },
+      "evidenceStatus": "partial-output-only"
+    },
+    {
+      "id": "probe-input",
+      "owner": "unit-1 implementation agent",
+      "type": "read-only real-key weapon-input probe",
+      "firstEvidenceAtUtc": "2026-11-12T21:22:38.622Z",
+      "lastEvidenceAtUtc": "2026-11-12T21:22:47.585Z",
+      "command": null,
+      "commandStatus": "unrecoverable; invocation was not retained in the kept logs",
+      "source": {
+        "commit": null,
+        "tree": null,
+        "note": "not recorded in the probe output; ran between attempt-1 and patch commit b45345f"
+      },
+      "process": {
+        "pid": null,
+        "exitCode": null,
+        "signal": null,
+        "note": "no process record or browser log kept for this probe"
+      },
+      "stderr": {
+        "sizeBytes": 0
+      },
+      "findings": {
+        "finalWeapon": "rifle",
+        "press2ToPistolWithinMs": 100,
+        "clickPistolAmmo": "10->9",
+        "reloadKey": "reload=pistol",
+        "press1": "rifle, reload null"
+      },
+      "cleanup": {
+        "recorded": false
+      },
+      "evidenceStatus": "partial-output-only"
+    },
+    {
+      "id": "capture-review",
+      "owner": "unit-1 review phase",
+      "type": "paired capture rerun",
+      "startedAtUtc": "2026-11-12T22:12:59.433Z",
+      "finishedAtUtc": "2026-11-12T22:14:05.217Z",
+      "command": "DEBUG=pw:browser FPS_CAPTURE_CHROMIUM=<same chromium-headless-shell> node --import tsx tools/capture-quality-pair.mjs --commit 658b2e592c612fa0801e2cc7fecdce32bb57eadb --query <Q> --candidate-query <Q&materials=ai-courtyard-full-v1> --out <unique>",
+      "commandStatus": "reconstructed from the report and output layout; wrapper command line not separately logged",
+      "source": {
+        "commit": "658b2e592c612fa0801e2cc7fecdce32bb57eadb",
+        "tree": "cd025ea03ba7d9a6dfb21e0aa3e90bb5b830b66f",
+        "changes": ""
+      },
+      "wrapper": {
+        "exitCode": null,
+        "signal": null,
+        "note": "wrapper exit line not printed; inner report exitCode 0"
+      },
+      "browserProcesses": [
+        {
+          "pid": 25440,
+          "launchedAtUtc": "2026-11-12T22:13:04.192Z",
+          "exitedAtUtc": "2026-11-12T22:14:05.202Z",
+          "exitCode": 0,
+          "signal": null,
+          "temporaryDirectoriesCleanupFinishedAtUtc": "2026-11-12T22:14:05.216Z"
+        }
+      ],
+      "report": {
+        "passed": true,
+        "exitCode": 0,
+        "shots": 12,
+        "pageErrors": 0
+      },
+      "cleanup": {
+        "browserDisconnected": true,
+        "previewPortClosed": true
+      },
+      "evidenceStatus": "verified-except-wrapper-exit",
+      "launchTimestampBasis": "launchedAtUtc is read from the pw:browser <launched> pid= line",
+      "derivedComparison": {
+        "derivedBy": "unit-3 (this receipt); not a field of the rerun report.json",
+        "comparedAgainst": "the delivered 658b2e592c61-r2/capture directory (12 PNG + 12 metadata JSON)",
+        "rerunFiles": "the 12 PNG and 12 metadata JSON under runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u1-a0-2026-11-12T211302027Z/scratch/cap-out/review-1",
+        "pngSha256": "12/12 identical one by one",
+        "metadata": "12/12 identical after normalizing the public preview-origin sanitization; the raw rerun copy carries the loopback preview origin and the delivered copy carries the <preview-origin> placeholder, so only the build and url keys differ; all measurement fields are equal",
+        "rawReportFields": "the raw rerun report.json contains no derived comparison field; its top-level fields are passed, source, nodeVersion, queries, startedAt, shots, errors, warnings, cleanup, buildFiles, buildExitCode, launch, chromiumVersion, finishedAt and exitCode (the error field is errors, not pageErrors; the pageErrors value in the report block above is a derived summary of the raw errors array)"
+      }
+    },
+    {
+      "id": "smoke-review-rerun",
+      "owner": "unit-1 review phase",
+      "type": "full smoke, both entries",
+      "firstEvidenceAtUtc": "2026-11-12T22:14:20.258Z",
+      "lastEvidenceAtUtc": "2026-11-12T22:26:03.903Z",
+      "timeBasis": "window from the log file creation time to its last write; exact invocation start/end were not separately logged",
+      "command": "node tools/smoke-backlog.mjs --full-materials",
+      "commandStatus": "reconstructed from the aggregate manifest shape; the wrapper command line and environment variables were not logged",
+      "source": {
+        "commit": "c3546ecef83704a747dfe56838d40346e114e2d0",
+        "tree": "f12bcf92bc403859acffb3aa9f4b80b94bf16076",
+        "note": "base_ref plus the two delivered tools-only patches; same source as attempt-3"
+      },
+      "wrapper": {
+        "exitCode": 0,
+        "signal": null,
+        "marker": "SMOKE_EXIT=0"
+      },
+      "entries": [
+        {
+          "label": "current-default",
+          "status": 0,
+          "signal": null,
+          "browserExit": {
+            "pid": 52948,
+            "exitCode": 0,
+            "signal": null
+          },
+          "completedRounds": 6
+        },
+        {
+          "label": "full-materials",
+          "status": 0,
+          "signal": null,
+          "browserExit": {
+            "pid": 7812,
+            "exitCode": 0,
+            "signal": null
+          },
+          "completedRounds": 6
+        }
+      ],
+      "report": {
+        "passed": true,
+        "stagesPerEntry": 7,
+        "completedRoundsPerEntry": 6,
+        "pageErrors": 0
+      },
+      "frameComparison": {
+        "metric": "requestAnimationFrame interval; observer overhead included; not GPU time",
+        "before": {
+          "count": 1065,
+          "meanMs": 283.5724882629108,
+          "p95Ms": 516.7000000000116
+        },
+        "after": {
+          "count": 1083,
+          "meanMs": 295.43287165281623,
+          "p95Ms": 566.6000000000058
+        },
+        "meanRatio": 1.0418248732892212,
+        "p95Ratio": 1.0965744145538863
+      },
+      "cleanup": {
+        "browserDisconnected": true,
+        "previewPortClosed": true,
+        "note": "from the two rerun entry reports in review-evidence/rerun-*.json"
+      },
+      "evidenceStatus": "verified-from-manifest-and-entry-reports-except-command-line"
+    },
+    {
+      "id": "reviewer-capture",
+      "owner": "unit-2 independent reviewer",
+      "type": "independent paired capture rerun",
+      "startedAtUtc": "2026-11-12T22:46:34.879Z",
+      "finishedAtUtc": "2026-11-12T22:47:48.224Z",
+      "command": "DEBUG=pw:browser FPS_CAPTURE_CHROMIUM=<same chromium-headless-shell> node --import tsx tools/capture-quality-pair.mjs --commit 658b2e592c612fa0801e2cc7fecdce32bb57eadb --query <Q> --candidate-query <Q&materials=ai-courtyard-full-v1> --out <unique>",
+      "commandStatus": "reconstructed from the report and output layout; wrapper command line not separately logged",
+      "source": {
+        "commit": "658b2e592c612fa0801e2cc7fecdce32bb57eadb",
+        "tree": "cd025ea03ba7d9a6dfb21e0aa3e90bb5b830b66f",
+        "changes": ""
+      },
+      "wrapper": {
+        "exitCode": null,
+        "signal": null,
+        "note": "wrapper exit line not printed; inner report exitCode 0"
+      },
+      "browserProcesses": [
+        {
+          "pid": 126984,
+          "launchedAtUtc": "2026-11-12T22:46:40.806Z",
+          "exitedAtUtc": "2026-11-12T22:47:48.204Z",
+          "exitCode": 0,
+          "signal": null,
+          "temporaryDirectoriesCleanupFinishedAtUtc": "2026-11-12T22:47:48.223Z"
+        }
+      ],
+      "report": {
+        "passed": true,
+        "exitCode": 0,
+        "shots": 12,
+        "pageErrors": 0
+      },
+      "cleanup": {
+        "browserDisconnected": true,
+        "previewPortClosed": true
+      },
+      "evidenceStatus": "verified-except-wrapper-exit",
+      "launchTimestampBasis": "launchedAtUtc is read from the pw:browser <launched> pid= line",
+      "derivedComparison": {
+        "derivedBy": "unit-3 (this receipt); not a field of the reviewer's original report.json",
+        "comparedAgainst": "the delivered 658b2e592c61-r2/capture directory (12 PNG + 12 metadata JSON)",
+        "rerunFiles": "the 12 PNG and 12 metadata JSON listed under evidenceIndex.reviewer-capture (attempt-1)",
+        "pngSha256": "12/12 identical one by one",
+        "metadata": "12/12 measurement-identical after normalizing the public preview-origin sanitization; the raw reviewer copy carries the loopback preview origin and the delivered copy carries the <preview-origin> placeholder, so only the build and url keys differ; all measurement fields are equal",
+        "rawReportFields": "the reviewer's raw report.json contains no 'identical to delivered' comparison field; its top-level fields are passed, source, nodeVersion, queries, startedAt, shots, errors, warnings, cleanup, buildFiles, buildExitCode, launch, chromiumVersion, finishedAt and exitCode (the error field is errors, not pageErrors; the pageErrors value in the report block above is a derived summary of the raw errors array)"
+      }
+    },
+    {
+      "id": "reviewer-smoke",
+      "owner": "unit-2 independent reviewer",
+      "type": "independent full smoke, both entries",
+      "firstEvidenceAtUtc": "2026-11-12T22:48:06Z",
+      "lastEvidenceAtUtc": "2026-11-12T23:02:10.341Z",
+      "command": "DEBUG=pw:browser FPS_SMOKE_RENDERER=software node tools/smoke-backlog.mjs --full-materials",
+      "commandStatus": "reconstructed from the manifest format and DEBUG browser logs; wrapper command line not separately logged",
+      "source": {
+        "commit": "c3546ecef83704a747dfe56838d40346e114e2d0",
+        "tree": "f12bcf92bc403859acffb3aa9f4b80b94bf16076",
+        "note": "base_ref plus the two delivered tools-only patches"
+      },
+      "wrapper": {
+        "exitCode": 0,
+        "signal": null
+      },
+      "entries": [
+        {
+          "label": "current-default",
+          "status": 0,
+          "signal": null
+        },
+        {
+          "label": "full-materials",
+          "status": 0,
+          "signal": null
+        }
+      ],
+      "browserProcesses": [
+        {
+          "label": "current-default",
+          "pid": 134812,
+          "launchedAtUtc": "2026-11-12T22:48:14.007Z",
+          "exitedAtUtc": "2026-11-12T22:55:27.450Z",
+          "exitCode": 0,
+          "signal": null,
+          "temporaryDirectoriesCleanupFinishedAtUtc": "2026-11-12T22:55:27.469Z"
+        },
+        {
+          "label": "full-materials",
+          "pid": 76964,
+          "launchedAtUtc": "2026-11-12T22:55:30.243Z",
+          "exitedAtUtc": "2026-11-12T23:02:09.683Z",
+          "exitCode": 0,
+          "signal": null,
+          "temporaryDirectoriesCleanupFinishedAtUtc": "2026-11-12T23:02:09.713Z"
+        }
+      ],
+      "report": {
+        "passed": true,
+        "completedRoundsPerEntry": 6,
+        "pageErrors": 0
+      },
+      "frameComparison": {
+        "metric": "requestAnimationFrame interval; observer overhead included; not GPU time",
+        "before": {
+          "count": 1347,
+          "meanMs": 291.6116555308092,
+          "p95Ms": 566.6000000000349
+        },
+        "after": {
+          "count": 1132,
+          "meanMs": 318.0378975265018,
+          "p95Ms": 600.0999999999767
+        },
+        "meanRatio": 1.0906213503283673,
+        "p95Ratio": 1.0591246028943517
+      },
+      "cleanup": {
+        "browserDisconnected": true,
+        "previewPortClosed": true
+      },
+      "evidenceStatus": "verified-except-command-line",
+      "launchTimestampBasis": "launchedAtUtc is read from the pw:browser <launched> pid= line"
+    }
+  ],
+  "currentUnit": {
+    "label": "unit-3 receipt-only supplement",
+    "outerCallStateAtGeneration": "running; its execution.json is written when this unit closes and is not part of this receipt",
+    "note": "This unit only compiled existing evidence; it did not start a replacement model, smoke, capture or probe for the original calls."
+  },
+  "evidenceIndexBase": "Delivered entries are relative to docs/quality/capture/B-FPS-DEFAULT-FULL-PAIR-20261112/; run entries are relative to the receiver work root.",
+  "evidenceIndex": {
+    "outerCalls": [
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u1-a0-2026-11-12T211302027Z/execution.json",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u1-a0-2026-11-12T211302027Z/collection-processes.json",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/execution.json",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/collection-processes.json"
+    ],
+    "smoke-attempt-1": [
+      "658b2e592c61-r2/attempts/attempt-1-movement-observation/manifest.json",
+      "658b2e592c61-r2/attempts/attempt-1-movement-observation/summary.json",
+      "658b2e592c61-r2/attempts/attempt-1-movement-observation/current-default/report.json",
+      "658b2e592c61-r2/attempts/attempt-1-movement-observation/current-default/browser-events.log"
+    ],
+    "smoke-attempt-2": [
+      "658b2e592c61-r2/attempts/attempt-2-report-passes-wrapper-sigterm/manifest.json",
+      "658b2e592c61-r2/attempts/attempt-2-report-passes-wrapper-sigterm/summary.json",
+      "658b2e592c61-r2/attempts/attempt-2-report-passes-wrapper-sigterm/current-default/report.json",
+      "658b2e592c61-r2/attempts/attempt-2-report-passes-wrapper-sigterm/current-default/browser-events.log"
+    ],
+    "smoke-attempt-3": [
+      "658b2e592c61-r2/smoke/manifest.json",
+      "658b2e592c61-r2/smoke/current-default/report.json",
+      "658b2e592c61-r2/smoke/current-default/frames.json",
+      "658b2e592c61-r2/smoke/current-default/browser-events.log",
+      "658b2e592c61-r2/smoke/full-materials/report.json",
+      "658b2e592c61-r2/smoke/full-materials/frames.json",
+      "658b2e592c61-r2/smoke/full-materials/browser-events.log"
+    ],
+    "capture-attempt-1": [
+      "658b2e592c61-r2/capture/report.json",
+      "658b2e592c61-r2/capture/browser-events.log",
+      "658b2e592c61-r2/environment.json"
+    ],
+    "smoke-review": [
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u1-a0-2026-11-12T211302027Z/scratch/smoke-review.log"
+    ],
+    "probes": [
+      "658b2e592c61-r2/repair/probe-move.json",
+      "658b2e592c61-r2/repair/probe-move.err",
+      "658b2e592c61-r2/repair/probe-input.json",
+      "658b2e592c61-r2/repair/probe-input.err",
+      "658b2e592c61-r2/repair/repair.json"
+    ],
+    "capture-review": [
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u1-a0-2026-11-12T211302027Z/scratch/capture-review.log",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u1-a0-2026-11-12T211302027Z/scratch/cap-out/review-1/report.json",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u1-a0-2026-11-12T211302027Z/scratch/review-evidence/capture-report.json"
+    ],
+    "smoke-review-rerun": [
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u1-a0-2026-11-12T211302027Z/scratch/smoke-review-rerun.log",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u1-a0-2026-11-12T211302027Z/scratch/review-evidence/rerun-manifest.json",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u1-a0-2026-11-12T211302027Z/scratch/review-evidence/rerun-current-default-report.json",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u1-a0-2026-11-12T211302027Z/scratch/review-evidence/rerun-full-materials-report.json"
+    ],
+    "reviewer-capture": [
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture.log",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/report.json",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/gameplay-default-1.json",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/gameplay-default-1.png",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/gameplay-default-2.json",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/gameplay-default-2.png",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/gameplay-materials-1.json",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/gameplay-materials-1.png",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/gameplay-materials-2.json",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/gameplay-materials-2.png",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/courtyard-gap-default-1.json",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/courtyard-gap-default-1.png",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/courtyard-gap-default-2.json",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/courtyard-gap-default-2.png",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/courtyard-gap-materials-1.json",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/courtyard-gap-materials-1.png",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/courtyard-gap-materials-2.json",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/courtyard-gap-materials-2.png",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/cross-lane-default-1.json",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/cross-lane-default-1.png",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/cross-lane-default-2.json",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/cross-lane-default-2.png",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/cross-lane-materials-1.json",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/cross-lane-materials-1.png",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/cross-lane-materials-2.json",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-capture-out/attempt-1/cross-lane-materials-2.png"
+    ],
+    "reviewer-smoke": [
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-smoke.log",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-src-smoke/outputs/offline-training-smoke/c3546ecef837-cAii3j/manifest.json",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-src-smoke/outputs/offline-training-smoke/c3546ecef837-cAii3j/current-default/browser.log",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-src-smoke/outputs/offline-training-smoke/c3546ecef837-cAii3j/current-default/report.json",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-src-smoke/outputs/offline-training-smoke/c3546ecef837-cAii3j/full-materials/browser.log",
+      "runs/B-FPS-DEFAULT-FULL-PAIR-20261112/u2-a0-2026-11-12T223418625Z/scratch/reviewer-src-smoke/outputs/offline-training-smoke/c3546ecef837-cAii3j/full-materials/report.json"
+    ]
+  },
+  "reviewerClaimCheck": {
+    "claimed": "The independent reviewer reran npm test (468/468), full smoke, and paired capture; the 12 capture hashes matched one by one.",
+    "captureClaim": "supported: the reviewer capture ran at 658b2e5; all 12 PNG SHA-256 values and all 12 metadata JSON match the delivered ones one by one. The metadata match is measurement-identical after public preview-origin sanitization: the raw reviewer copy records the loopback preview origin and the delivered public copy records <preview-origin>, so only build and url differ. This comparison is a unit-3 derivation; the reviewer's original report.json does not contain it.",
+    "smokeClaim": "partially supported: the reviewer smoke exists and both entries exited 0 with six rounds each, but its frame comparison reports full-materials mean/p95 ratios 1.0906/1.0591 (slower). The delivered attempt-3 figures meanRatio=0.9568910731242938 and p95Ratio=0.9394545454545666 are read from the delivered smoke/manifest.json (also environment.json frameComparison); the unit-2 summary only wrote the rounded 0.957/0.939.",
+    "unitTestClaim": "not re-executed here (receipt-only scope); reviewer-unit-test.log records 468 pass, 0 fail.",
+    "derivedFieldNote": "Both 'identical to delivered' comparisons were unit-3 derivations and have been moved out of the run report objects into each run's derivedComparison. The reviewer's raw report.json never contained them."
+  },
+  "currentResourceCheck": {
+    "checkedAtUtc": "2026-11-12T23:39:04Z",
+    "method": "Targeted read-only lookup: tasklist for every recorded PID and netstat -ano filtered to every recorded loopback preview port on both the local and remote endpoint; existing full process observations at unit end are cited above. No process was started, stopped or killed.",
+    "recordedPidsChecked": [
+      66372,
+      64884,
+      79460,
+      106672,
+      52864,
+      25440,
+      134812,
+      76964,
+      126984,
+      44556,
+      67312,
+      50820,
+      52948,
+      7812
+    ],
+    "recordedPidsStillLive": [],
+    "previewPorts": {
+      "checkedPorts": {
+        "13639": "no listener (smoke-attempt-1, current-default)",
+        "10101": "no listener (smoke-attempt-2, current-default)",
+        "10546": "no listener (smoke-attempt-3, current-default)",
+        "6791": "no listener (smoke-attempt-3, full-materials)",
+        "10844": "no listener (capture-attempt-1)",
+        "10711": "no listener (capture-review)",
+        "4493": "no listener (reviewer-capture)",
+        "7536": "no listener (reviewer-smoke, current-default)",
+        "7251": "no listener (reviewer-smoke, full-materials)"
+      },
+      "listeningPorts": [],
+      "timeWaitObserved": {
+        "7251": "an earlier check in this unit saw one TIME_WAIT socket from the closed connection; it has since expired. No listener was present at any check.",
+        "10711": "a transient TIME_WAIT socket from a closed connection was observed in a later check; no listener. TIME_WAIT is a residual closed-connection state, not a process."
+      },
+      "nonLoopbackObservation": "A transient outbound connection from a non-loopback local address used an ephemeral local port that numerically equals 10101; it is not a loopback preview endpoint and is unrelated to this card.",
+      "notRecoverable": "smoke-review and smoke-review-rerun preview ports could not be enumerated: the smoke-wt output roots were deleted and the retained logs are aggregate manifests without URLs. The rerun entry reports record browserDisconnected=true and previewPortClosed=true; the failed run's cleanup is unrecorded."
+    },
+    "cleanupActionsTaken": [],
+    "note": "Nothing attributable to this card is live: all 14 recorded PIDs are gone and no recorded loopback preview port has a listener or a loopback connection. No process was started, stopped or killed by this receipt unit."
+  },
+  "missingOrUnrecoverable": [
+    "probe-move and probe-input: exact command line, PID, wrapper exit/signal, source commit binding and browser/preview cleanup records were not preserved; only result JSON, empty stderr and file mtimes remain.",
+    "capture-review and reviewer-capture: wrapper exit line was not printed; only inner report exitCode 0 and browser exit 0 are preserved.",
+    "reviewer-smoke and reviewer-capture: exact invocation and environment are reconstructed from artifact format and DEBUG logs, not from a logged command line.",
+    "The third full-smoke run (attempt-3) exceeded the allowed one-rerun budget after two failures.",
+    "The successful full smokes beyond attempt-3 report full-materials mean/p95 ratios above 1.0 (smoke-review-rerun 1.0418/1.0966, reviewer-smoke 1.0906/1.0591), so the 'no obvious degradation' gate is not consistently evidenced by all runs; only attempt-3 reports 0.9569/0.9395.",
+    "Two non-author blind same-camera comparisons, hardware GPU, audio and any default change remain outside this receipt; no default was changed.",
+    "smoke-review and smoke-review-rerun: exact command lines, environment variables and per-browser DEBUG logs were not retained; the time window comes from the log file creation and last-write times.",
+    "smoke-review: the failing full-materials entry's internal report, failure detail, browser process/exit and cleanup record were not preserved; its smoke-wt output root was deleted. Only the aggregate manifest (entry statuses, current-default pid 50820 exit 0 with six rounds) and the SMOKE_EXIT=1 marker remain.",
+    "smoke-review and smoke-review-rerun: preview ports are not enumerable because their smoke-wt output roots were deleted and the retained logs carry no preview URL; the rerun's per-entry cleanup flags are browserDisconnected=true and previewPortClosed=true, while the failed run's cleanup is unrecorded."
+  ],
+  "blockedReasons": [
+    "Run-budget breach: after attempt-1 failed, attempt-2, attempt-3, smoke-review and smoke-review-rerun were run against an allowance of one rerun; they are preserved under instruction.",
+    "Incomplete command/process receipts for the two probes and the two review-phase smokes, and missing wrapper-exit lines for two capture reruns.",
+    "The successful smokes beyond attempt-3 do not reproduce the delivered no-degradation frame ratios (1.0418/1.0966 and 1.0906/1.0591 vs 0.9569/0.9395).",
+    "The default-swap gate still lacks the two non-author blind selections and remains undecided."
+  ],
+  "publicScan": {
+    "scannedAtUtc": "2026-11-12T23:51:52Z",
+    "scope": "all text artifacts under docs/quality/capture/B-FPS-DEFAULT-FULL-PAIR-20261112, including this receipt",
+    "scannedTextFiles": 55,
+    "patterns": [
+      "absolute Windows user paths",
+      "AppData paths",
+      "receiver work paths",
+      "user or account names",
+      "Unix home paths",
+      "private IPv4 addresses",
+      "loopback addresses",
+      "credential markers",
+      "email addresses",
+      "file URLs with a drive letter"
+    ],
+    "substantiveFindings": [],
+    "informationalLoopback": {
+      "count": 2,
+      "location": "658b2e592c61-r2/repair/patched/smoke.mjs",
+      "note": "Loopback bind literals in reproducible tool source; not a private address, path or credential."
+    },
+    "clean": true,
+    "scanBasis": "the delivered bytes: a first pass scanned the zero-hash draft, then the receipt hash field was inserted and a second pass scanned the delivered file; both passes report the same 55 text files and no substantive findings. After the unit-3 correction of the two rawReportFields descriptions and the reviewer-capture evidence index, the final bytes were scanned again with the same 55 text files and still no substantive findings; the only pattern hits are the pattern-name string 'AppData paths' and the already-noted loopback bind literals in repair/patched/smoke.mjs",
+    "receiptSha256ExcludingOwnValue": "059f1c855369e84969d92d5cc22615fab26adb76b2c350cc9f4e6a34b4f46481",
+    "receiptSha256Method": "SHA-256 of this file's bytes with the receiptSha256ExcludingOwnValue string replaced by 64 ASCII '0' characters; the receipt cannot contain its own absolute hash"
+  },
+  "runsSummary": {
+    "totalRuns": 11,
+    "fullSmokeRuns": 6,
+    "pairedCaptureRuns": 3,
+    "probeRuns": 2,
+    "note": "fullSmokeRuns counts attempt-1/2/3, smoke-review, smoke-review-rerun and reviewer-smoke; pairedCaptureRuns counts capture-attempt-1, capture-review and reviewer-capture."
+  },
+  "finalizedAtUtcNote": "generatedAtUtc is the final write time of this receipt. currentResourceCheck.checkedAtUtc is at or before it. The public scan ran in two passes (zero-hash draft, then the delivered bytes after hash insertion) with identical counts and no substantive findings, and was re-run on the final bytes after the unit-3 correction with the same result."
+}
