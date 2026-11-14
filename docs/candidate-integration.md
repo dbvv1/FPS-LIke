@@ -41,3 +41,11 @@ smoke 保留 sandbox、仅 headless，不允许可见窗口或操作桌面。页
 每次独占 `outputs/offline-training-smoke/<commit>-<unique>/`，保留 source commit/tree、构建文件 SHA-256、页面报告与 `DEBUG=pw:browser` 日志；报告区分原始 renderer 与 gpu/software/unknown，并核对自有浏览器 PID 的零码退出、断连及预览端口关闭。Windows 构建复用现有 npm 调用。默认保留 sandbox、精确移除 unsafe SwiftShader 默认参数；可沿现有 `FPS_SMOKE_CHROMIUM` 与 `FPS_SMOKE_RENDERER=native` 配置选择执行器，不启动可见窗口。原始输出含执行环境信息，公开前需脱敏扫描。
 
 当前运行门槛已调整为 Node 22.12+，本机 22.23.2；前文历史 Node24 记录不再构成当前重跑门槛。
+
+## 庭院布景开关 `dressing=courtyard-dressing-v1`
+
+只在 `environment=courtyard-v1` 上生效，改表现层：雨棚（墙侧悬挑，无立柱）、北墙观察楼与墙顶平台、两处卷帘门维修位、北墙爬藤、天空与环境光、地面磨损和墙脚污渍、重新布置的太阳与软阴影。模拟、碰撞、导航和回放不变；开关关闭时三机位画面与现行默认逐像素一致。
+
+布景没有碰撞，所以头部以下任何实体网格离现有墙体不得超过 35 cm（爬藤 70 cm），由 `tests/offline-training-v1/courtyard-dressing.test.ts` 检查；试跑中出现过的独立掩体、器材箱、储物柜和楼梯都因此去掉，否则玩家会把它们当成能挡子弹的掩体。
+
+换默认前用 `node --import tsx tools/smoke-backlog.mjs --dressing` 串行跑首页与 `reviewedTrainingSearch&dressing=courtyard-dressing-v1` 两路完整六回合，比较帧耗；口径同上节。

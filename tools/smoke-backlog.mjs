@@ -5,12 +5,13 @@ import { resolve, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { OFFLINE_QUERY, FULL_MATERIALS_QUERY, browserExitReceipt } from './smoke-offline-support.mjs';
+import { OFFLINE_QUERY, FULL_MATERIALS_QUERY, DRESSING_QUERY, browserExitReceipt } from './smoke-offline-support.mjs';
 const artStandards = process.argv.slice(2).includes('--art-standards');
 const fullMaterials = process.argv.slice(2).includes('--full-materials');
-const offline = fullMaterials || artStandards || process.argv.slice(2).includes('--offline-training');
-assert.ok(process.argv.slice(2).every(arg => arg === '--offline-training' || arg === '--art-standards' || arg === '--full-materials'), 'Unknown smoke option');
-assert.ok(!(fullMaterials && artStandards), 'Choose either full-materials or art-standards comparison');
+const dressing = process.argv.slice(2).includes('--dressing');
+const offline = fullMaterials || dressing || artStandards || process.argv.slice(2).includes('--offline-training');
+assert.ok(process.argv.slice(2).every(arg => arg === '--offline-training' || arg === '--art-standards' || arg === '--full-materials' || arg === '--dressing'), 'Unknown smoke option');
+assert.ok([fullMaterials, dressing, artStandards].filter(Boolean).length <= 1, 'Choose one comparison: full-materials, dressing or art-standards');
 const root = fileURLToPath(new URL('..', import.meta.url));
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
 const sourceCommit = git('rev-parse', 'HEAD'), sourceTree = git('rev-parse', 'HEAD^{tree}');
@@ -26,7 +27,7 @@ try {
   assert.equal(build.status, 0, 'production build');
   function walk(dir) { for (const name of readdirSync(dir, { withFileTypes: true })) { const p = join(dir, name.name); if (name.isDirectory()) walk(p); else manifest.build.push({ path: relative(root, p).replaceAll('\\', '/'), sha256: createHash('sha256').update(readFileSync(p)).digest('hex') }); } }
   walk(join(root, 'web-dist'));
-  for (const [label, query] of (fullMaterials ? [['current-default', ''], ['full-materials', FULL_MATERIALS_QUERY]] : artStandards ? [['offline-base', OFFLINE_QUERY], ['art-standards', OFFLINE_QUERY + '&art=standards-v1']] : offline ? [['offline-training', OFFLINE_QUERY]] : [['default', ''], ['characters', '?contentSet=characters-v1'], ['movement', '?gameplay=movement-v2'], ['combined', '?gameplay=movement-v2&contentSet=characters-v1']])) {
+  for (const [label, query] of (fullMaterials ? [['current-default', ''], ['full-materials', FULL_MATERIALS_QUERY]] : dressing ? [['current-default', ''], ['dressing', DRESSING_QUERY]] : artStandards ? [['offline-base', OFFLINE_QUERY], ['art-standards', OFFLINE_QUERY + '&art=standards-v1']] : offline ? [['offline-training', OFFLINE_QUERY]] : [['default', ''], ['characters', '?contentSet=characters-v1'], ['movement', '?gameplay=movement-v2'], ['combined', '?gameplay=movement-v2&contentSet=characters-v1']])) {
     const dir = join(output, label); mkdirSync(dir);
     const result = spawnSync(process.execPath, ['--import', 'tsx', 'tools/smoke.mjs'], { cwd: root, encoding: 'utf8', windowsHide: true, env: { ...process.env, DEBUG: 'pw:browser', FPS_SMOKE_QUERY: query, FPS_SMOKE_OUTPUT: dir, FPS_ART_COMPARE: artStandards ? '1' : '0' } });
     writeFileSync(join(dir, 'browser.log'), (result.stdout ?? '') + (result.stderr ?? ''));
@@ -46,9 +47,9 @@ try {
       manifest.runs.at(-1).frameTiming = report.frameTiming;
     }
   }
-  if (fullMaterials) {
+  if (fullMaterials || dressing) {
     const before = JSON.parse(readFileSync(join(output, 'current-default/report.json'), 'utf8'));
-    const after = JSON.parse(readFileSync(join(output, 'full-materials/report.json'), 'utf8'));
+    const after = JSON.parse(readFileSync(join(output, `${dressing ? 'dressing' : 'full-materials'}/report.json`), 'utf8'));
     assert.deepEqual(before.webgl, after.webgl, 'full-match comparison requires the same renderer');
     manifest.frameComparison = { metric: before.frameTiming.metric,
       before: before.frameTiming.active, after: after.frameTiming.active,

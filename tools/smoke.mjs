@@ -12,7 +12,7 @@ const query = process.env.FPS_SMOKE_QUERY ?? '';
 if (query && !query.startsWith('?')) throw new Error('Smoke query must start with ?');
 await mkdir(output, { recursive: true });
 const report = { passed: false, errors: [], warnings: [], stages: [] };
-const { effective, offline, artStandards, fullMaterials, lit } = smokeEntry(query);
+const { effective, offline, artStandards, fullMaterials, lit, dressing } = smokeEntry(query);
 if (offline) report.offlineCoverage = { fullMatchPlaythrough: false, completedRounds: [], restartScope: 'whole match via final next UI (再打一场); no separate round-restart control', unverified: ['six-round completion UI', 'halftime transition', 'end-of-match replay', 'human visual/audio quality'] };
 let server, browser, page, previewPort;
 try {
@@ -58,7 +58,11 @@ try {
   }
   if (lit) {
     report.lighting = await page.evaluate(() => window.fpsClient.state().lighting);
-    assert.deepEqual(report.lighting, { id: 'courtyard-light-v1', environment: 'hemisphere-and-ambient', ao: 'deterministic-ssao-half-resolution', grade: 'cool-shadows-warm-highlights' });
+    assert.deepEqual(report.lighting, { id: 'courtyard-light-v1', environment: dressing ? 'hemisphere-and-sky' : 'hemisphere-and-ambient', ao: 'deterministic-ssao-half-resolution', grade: 'cool-shadows-warm-highlights' });
+  }
+  if (dressing) {
+    await page.waitForFunction(() => window.fpsClient.state().dressing?.active === true);
+    report.dressing = await page.evaluate(() => window.fpsClient.state().dressing);
   }
   if (fullMaterials) {
     await page.waitForFunction(() => ['ready', 'fallback'].includes(window.fpsClient.state().materials?.state));

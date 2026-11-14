@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import type { Box } from '../content/map.js';
 
 // Original, editable surface recipe. Marks are paint, never openings or normal maps.
@@ -95,4 +96,113 @@ export function makeKitWall(wall: Box) {
 export function kitBudget(wallCount: number) {
   return { wallTriangles: wallCount * 12, wallDraws: wallCount,
     rgbaBytes: wallCount * KIT.atlasWidth * KIT.atlasHeight * 4 + 256 * 256 * 4, extraPasses: 0 };
+}
+
+/** Courtyard-facing wall planes, in render space. Kept off the simulation boxes. */
+export type CourtyardFace = {
+  id: string; center: THREE.Vector3; normal: THREE.Vector3;
+  width: number; height: number; rotationY: number;
+};
+export function courtyardFaces(walls: readonly Box[]): CourtyardFace[] {
+  const byId = new Map(walls.map(wall => [wall.id, wall]));
+  const faces: CourtyardFace[] = [];
+  const add = (id: string, wall: Box, normal: readonly [number, number, number], center: readonly [number, number, number], width: number) => {
+    const n = new THREE.Vector3(...normal);
+    faces.push({ id, center: new THREE.Vector3(...center).addScaledVector(n, .014), normal: n, width, height: wall.half.y * 2,
+      rotationY: Math.atan2(n.x, n.z) });
+  };
+  const west = byId.get('west'), east = byId.get('east'), north = byId.get('north'), south = byId.get('south');
+  // Boundary faces sit on the courtyard side of the collision box: +X for the
+  // west wall and -X for the east wall, not their outer faces.
+  if (west) add('west', west, [1, 0, 0], [west.center.x + west.half.x, west.center.y, -west.center.z], west.half.z * 2);
+  if (east) add('east', east, [-1, 0, 0], [east.center.x - east.half.x, east.center.y, -east.center.z], east.half.z * 2);
+  if (north) add('north', north, [0, 0, 1], [north.center.x, north.center.y, -north.center.z + north.half.z], north.half.x * 2);
+  if (south) add('south', south, [0, 0, -1], [south.center.x, south.center.y, -south.center.z - south.half.z], south.half.x * 2);
+  for (const wall of walls) {
+    if (!wall.id.endsWith('divider')) continue;
+    add(`${wall.id}-east`, wall, [1, 0, 0], [wall.center.x + wall.half.x, wall.center.y, -wall.center.z], wall.half.z * 2);
+    add(`${wall.id}-west`, wall, [-1, 0, 0], [wall.center.x - wall.half.x, wall.center.y, -wall.center.z], wall.half.z * 2);
+  }
+  return faces;
+}
+
+/** One canvas band: dark rain wash with an uneven, streaked top edge.
+ *  Authored for a ~0.6 m wall-foot plane, so the soil line sits low and the
+ *  upper edge breaks into individual runs instead of a painted straight stripe. */
+export function createWallGrime() {
+  if (typeof document === 'undefined') return null;
+  const size = 256, canvas = document.createElement('canvas');
+  canvas.width = canvas.height = size;
+  const context = canvas.getContext('2d');
+  if (!context) return null;
+  const top = new Array<number>(size + 1);
+  for (let x = 0; x <= size; x++) {
+    const wave = Math.sin(x * .047) * 14 + Math.sin(x * .013 + 1.7) * 24 + Math.sin(x * .19) * 5;
+    top[x] = 96 + wave;
+  }
+  context.beginPath(); context.moveTo(0, size);
+  for (let x = 0; x <= size; x++) context.lineTo(x, top[x]!);
+  context.lineTo(size, size); context.closePath();
+  const wash = context.createLinearGradient(0, 76, 0, size);
+  wash.addColorStop(0, 'rgba(74,84,72,.07)');
+  wash.addColorStop(.30, 'rgba(66,76,66,.36)');
+  wash.addColorStop(.68, 'rgba(47,58,51,.62)');
+  wash.addColorStop(1, 'rgba(32,43,38,.82)');
+  context.fillStyle = wash; context.fill();
+  context.save(); context.clip();
+  // Rain runs: varying widths and lengths pull the top edge down unevenly.
+  for (let i = 0; i < 128; i++) {
+    const x = (i * 61.7) % size, length = 20 + ((i * 37) % 118), alpha = .03 + ((i * 13) % 9) * .009;
+    context.fillStyle = `rgba(34,44,39,${alpha})`;
+    context.fillRect(x, top[Math.floor(x)]! + 2, 1 + (i % 3), length);
+  }
+  // Warm dust and splash-back along the very foot, cool wash above it.
+  const dust = context.createLinearGradient(0, size, 0, size - 68);
+  dust.addColorStop(0, 'rgba(178,160,126,.46)');
+  dust.addColorStop(.55, 'rgba(148,134,108,.22)');
+  dust.addColorStop(1, 'rgba(148,134,108,0)');
+  context.fillStyle = dust; context.fillRect(0, size - 58, size, 58);
+  for (let i = 0; i < 9; i++) {
+    const x = 10 + i * 29, width = 10 + (i * 11) % 22;
+    const splash = context.createLinearGradient(0, size, 0, size - 34);
+    splash.addColorStop(0, 'rgba(66,76,62,.18)'); splash.addColorStop(1, 'rgba(66,76,62,0)');
+    context.fillStyle = splash; context.fillRect(x, size - 34, width, 34);
+  }
+  context.restore();
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.wrapS = THREE.RepeatWrapping; texture.wrapT = THREE.ClampToEdgeWrapping;
+  texture.magFilter = THREE.LinearFilter; texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.generateMipmaps = true; texture.anisotropy = 2; texture.needsUpdate = true;
+  const material = new THREE.MeshStandardMaterial({
+    map: texture, transparent: true, alphaTest: .015, depthWrite: false, roughness: .96, metalness: 0,
+    polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1,
+  });
+  return { texture, material };
+}
+
+/**
+ * Thin proud seams and a contact plinth. Merged into a single draw so the wall
+ * relief costs one call while still catching the directional shadow.
+ */
+export function wallSeamGeometry(faces: readonly CourtyardFace[]): THREE.BufferGeometry | null {
+  const pieces: THREE.BufferGeometry[] = [];
+  for (const face of faces) {
+    const alongX = Math.abs(face.normal.x) > .5;
+    const tangent = alongX ? new THREE.Vector3(0, 0, -1) : new THREE.Vector3(1, 0, 0);
+    const half = face.width / 2 - .35;
+    for (let offset = -half + 1; offset <= half; offset += 2) {
+      const center = face.center.clone().addScaledVector(tangent, offset);
+      const geometry = new THREE.BoxGeometry(alongX ? .05 : .075, face.height, alongX ? .075 : .05);
+      geometry.translate(center.x, face.center.y, center.z);
+      pieces.push(geometry);
+    }
+    const plinth = new THREE.BoxGeometry(alongX ? .055 : face.width, .14, alongX ? face.width : .055);
+    plinth.translate(face.center.x, .07, face.center.z);
+    pieces.push(plinth);
+  }
+  if (!pieces.length) return null;
+  const merged = mergeGeometries(pieces, false);
+  for (const piece of pieces) piece.dispose();
+  return merged;
 }

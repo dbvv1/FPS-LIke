@@ -5,6 +5,8 @@ import { resolveHomeSearch, reviewedTrainingSearch } from '../src/default-route.
 export const OFFLINE_QUERY = '?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1';
 export const REVIEWED_QUERY = reviewedTrainingSearch;
 export const FULL_MATERIALS_QUERY = REVIEWED_QUERY + '&materials=ai-courtyard-full-v1';
+// Presentation-only dressing over the reviewed home build; compared against the unparameterized home.
+export const DRESSING_QUERY = REVIEWED_QUERY + '&dressing=courtyard-dressing-v1';
 export function smokeEntry(query = '') {
   assert.equal(typeof query, 'string');
   assert.ok(query === '' || query.startsWith('?'), 'Smoke query must start with ?');
@@ -12,17 +14,18 @@ export function smokeEntry(query = '') {
   const allowed = ['', '?', '?gameplay=legacy-v1', '?contentSet=characters-v1',
     '?gameplay=movement-v2', '?gameplay=movement-v2&contentSet=characters-v1', OFFLINE_QUERY,
     OFFLINE_QUERY + '&art=standards-v1', OFFLINE_QUERY + '&art=standards-v1&materials=ai-courtyard-full-v1',
-    REVIEWED_QUERY, FULL_MATERIALS_QUERY];
+    REVIEWED_QUERY, FULL_MATERIALS_QUERY, DRESSING_QUERY];
   assert.ok(allowed.includes(query), 'Unsupported smoke entry; use an exact supported route');
   const effective = resolveHomeSearch(query);
   const litFullMaterials = effective === FULL_MATERIALS_QUERY;
   const fullMaterials = litFullMaterials || effective === OFFLINE_QUERY + '&art=standards-v1&materials=ai-courtyard-full-v1';
-  const lit = litFullMaterials || effective === REVIEWED_QUERY;
+  const dressing = effective === DRESSING_QUERY;
+  const lit = litFullMaterials || effective === REVIEWED_QUERY || dressing;
   const artStandards = lit || fullMaterials || effective === OFFLINE_QUERY + '&art=standards-v1';
   const offline = effective === OFFLINE_QUERY || artStandards;
   // Do not silently certify unsupported/duplicate options as a complete-match run.
   assert.ok(offline || effective === '?gameplay=legacy-v1' || effective === '?contentSet=characters-v1', 'Unsupported resolved smoke entry');
-  return { effective, offline, artStandards, fullMaterials, lit };
+  return { effective, offline, artStandards, fullMaterials, lit, dressing };
 }
 
 // Read-only rAF observer. This measures frame intervals, not GPU time or input latency.

@@ -64,7 +64,8 @@ test('offline budget is bounded and floor is a reproducible two-metre slab famil
   assert.deepEqual(floorPixels(),floorPixels());assert.equal(floorPixels().length,256*256*4);
 });
 
-test('actual View construction owns kit resources; active requires a completed render and clears on failure/reset/dispose', async()=>{
+for (const [label,search] of [['kit','?environment=courtyard-v1'],['kit with dressing','?environment=courtyard-v1&dressing=courtyard-dressing-v1']] as const)
+test(`actual View construction owns ${label} resources; active requires a completed render and clears on failure/reset/dispose`, async()=>{
   const THREE=await import('three');
   const {readFileSync}=await import('node:fs');
   const {stripTypeScriptTypes}=await import('node:module');
@@ -80,6 +81,8 @@ test('actual View construction owns kit resources; active requires a completed r
   const physics=await import('../../src/candidates/offline-training-v1/sim/physics.js');
   const weapon=await import('../../src/candidates/offline-training-v1/render/weapon.js');
   const coordinates=await import('../../src/candidates/offline-training-v1/render/coordinates.js');
+  const dressing=await import('../../src/candidates/offline-training-v1/render/courtyard-dressing.js');
+  const sky=await import('../../src/candidates/offline-training-v1/render/courtyard-sky.js');
   const {Game}=await import('../../src/candidates/offline-training-v1/sim/game.js');
   let throwRender=false,disposed=0;
   class Renderer {
@@ -87,21 +90,22 @@ test('actual View construction owns kit resources; active requires a completed r
     setPixelRatio(){}setSize(){}render(){if(throwRender)throw new Error('render fixture');}dispose(){disposed++;}
   }
   const source=stripTypeScriptTypes(readFileSync(new URL('../../src/candidates/offline-training-v1/render/scene.ts',import.meta.url),'utf8').replace(/^import .*;\n/gm,'').replace('export class View','class View'));
-  const deps={THREE:{...THREE,WebGLRenderer:Renderer},...ai,...aiSurface,...lighting,...art,...kit,...ground,...yard,...feedback,...target,...physics,...weapon,...coordinates,MAP,devicePixelRatio:1,globalThis:{location:{search:'?environment=courtyard-v1'}}};
+  const deps={THREE:{...THREE,WebGLRenderer:Renderer},...ai,...aiSurface,...lighting,...art,...kit,...ground,...yard,...feedback,...target,...physics,...weapon,...coordinates,...dressing,...sky,MAP,devicePixelRatio:1,globalThis:{location:{search}}};
   const View=new Function(...Object.keys(deps),`${source};return View;`)(...Object.values(deps));
   const view=new View({}),events={geometry:0,material:0,texture:0};
   const watched=new Set();
-  const watch=()=>{for(const [key,set] of [['geometry',view.geometries],['material',view.materials],['texture',view.textures]] as const)
+  const dressed=search.includes('dressing=');
+  const watch=()=>{for(const [key,set] of [['geometry',view.geometries],['material',view.materials],['texture',view.textures],['texture',view.dressingTextures]] as const)
     for(const item of set)if(!watched.has(item)){watched.add(item);item.addEventListener('dispose',()=>events[key]++);}};
   watch();
-  assert.equal(view.info.environment.active,false);assert.equal(view.textures.size,11);
+  assert.equal(view.info.environment.active,false);assert.equal(view.textures.size,11);assert.equal(view.dressingTextures.size>0,dressed);assert.equal(!!view.info.dressing,dressed);
   assert.equal(view.scene.children.filter((o:{geometry?:{type:string}})=>o.geometry?.type==='BoxGeometry').length>10,true);
   const game=await Game.create(1);
   try {
-    view.render(game.state,game.state.actors[0],0,0,0,0);assert.equal(view.info.environment.active,true);
+    view.render(game.state,game.state.actors[0],0,0,0,0);assert.equal(view.info.environment.active,true);if(dressed)assert.equal(view.info.dressing.active,true);
     throwRender=true;assert.throws(()=>view.render(game.state,game.state.actors[0],0,0,0,0),/render fixture/);assert.equal(view.info.environment.active,false);
     throwRender=false;view.render(game.state,game.state.actors[0],0,0,0,0);view.reset();assert.equal(view.info.environment.active,false);
   }finally{watch();game.dispose();view.dispose();}
-  assert.equal(disposed,1);assert.equal(events.texture,11);assert.equal(events.geometry,view.geometries.size);assert.equal(events.material,view.materials.size);
+  assert.equal(disposed,1);assert.equal(events.texture,view.textures.size+view.dressingTextures.size);assert.equal(view.textures.size,11);assert.equal(events.geometry,view.geometries.size);assert.equal(events.material,view.materials.size);
   assert.equal(view.info.environment.active,false);
 });

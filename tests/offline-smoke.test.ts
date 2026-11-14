@@ -96,11 +96,12 @@ test('new-match UI start must advance, then Escape must freeze before full cover
 
 test('home and current full-materials promotion route require complete-match coverage', async () => {
   // @ts-expect-error Browser-independent orchestration helpers.
-  const { smokeEntry, REVIEWED_QUERY, FULL_MATERIALS_QUERY } = await import('../tools/smoke-offline-support.mjs');
-  for (const query of [undefined, '', '?', REVIEWED_QUERY, FULL_MATERIALS_QUERY]) {
+  const { smokeEntry, REVIEWED_QUERY, FULL_MATERIALS_QUERY, DRESSING_QUERY } = await import('../tools/smoke-offline-support.mjs');
+  for (const query of [undefined, '', '?', REVIEWED_QUERY, FULL_MATERIALS_QUERY, DRESSING_QUERY]) {
     const entry = smokeEntry(query);
     assert.equal(entry.offline, true); assert.equal(entry.lit, true); assert.equal(entry.artStandards, true);
     assert.equal(entry.fullMaterials, query === FULL_MATERIALS_QUERY);
+    assert.equal(entry.dressing, query === DRESSING_QUERY);
   }
   const { reviewedTrainingSearch, resolveHomeSearch } = await import('../src/default-route.js');
   assert.equal(REVIEWED_QUERY, reviewedTrainingSearch);
