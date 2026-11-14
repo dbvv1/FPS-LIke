@@ -48,4 +48,4 @@ smoke 保留 sandbox、仅 headless，不允许可见窗口或操作桌面。页
 
 布景没有碰撞，所以头部以下任何实体网格离现有墙体不得超过 35 cm（爬藤 70 cm），由 `tests/offline-training-v1/courtyard-dressing.test.ts` 检查；试跑中出现过的独立掩体、器材箱、储物柜和楼梯都因此去掉，否则玩家会把它们当成能挡子弹的掩体。
 
-换默认前用 `node --import tsx tools/smoke-backlog.mjs --dressing` 串行跑首页与 `reviewedTrainingSearch&dressing=courtyard-dressing-v1` 两路完整六回合，比较帧耗；口径同上节。
+换默认前用 `node --import tsx tools/smoke-backlog.mjs --dressing` 串行跑首页与 `reviewedTrainingSearch&dressing=courtyard-dressing-v1` 两路完整六回合，比较帧耗；口径同上节。`FPS_SMOKE_RENDERER=gpu` 请求硬件适配器（Windows 走 D3D11），实际是否 GPU 仍以报告里的 renderer 原文为准；`native` 在 headless shell 下通常仍回退到软件渲染。

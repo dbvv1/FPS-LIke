@@ -22,10 +22,13 @@ try {
   previewPort = address.port;
   const origin = `http://127.0.0.1:${address.port}`;
   const executablePath = process.env.FPS_SMOKE_CHROMIUM;
+  // native: browser default (headless shell usually still falls back to software).
+  // gpu: request the hardware adapter; the reported renderer string remains the evidence.
+  const rendererArgs = mode => mode === 'native' ? [] : mode === 'gpu' ? ['--enable-gpu', '--ignore-gpu-blocklist', ...(process.platform === 'win32' ? ['--use-angle=d3d11'] : [])] : ['--use-angle=swiftshader'];
   // Playwright 1.64 also inserts this switch in its defaults. Omitting it from
   // args alone is insufficient; preserve every other default. The cloud exception is explicit.
   const ignoreDefaultArgs = ['--enable-unsafe-swiftshader'];
-  const launch = { headless: true, chromiumSandbox: process.env.FPS_CLOUD_NO_SANDBOX !== '1', ignoreDefaultArgs, ...(executablePath ? { executablePath } : {}), args: process.env.FPS_SMOKE_RENDERER === 'native' ? [] : ['--use-angle=swiftshader'] };
+  const launch = { headless: true, chromiumSandbox: process.env.FPS_CLOUD_NO_SANDBOX !== '1', ignoreDefaultArgs, ...(executablePath ? { executablePath } : {}), args: rendererArgs(process.env.FPS_SMOKE_RENDERER) };
   report.requestedLaunch = { ...launch };
   report.launchEvidence = 'Requested options only; verify final argv in DEBUG=pw:browser output.';
   browser = await chromium.launch(launch);
