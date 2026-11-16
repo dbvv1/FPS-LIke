@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 /**
  * Set dressing shared by the playable courtyard and every qualityCapture observer.
@@ -620,8 +621,63 @@ class DressingBuilder {
   }
 }
 
-export function addCourtyardDressing(scene: THREE.Scene, track: Tracked) {
+type MergeGroup = {
+  material: THREE.Material;
+  depthMaterial: THREE.Material | undefined;
+  foliage: boolean;
+  pieces: THREE.BufferGeometry[];
+  meshes: THREE.Mesh[];
+};
+
+function mergeStaticMeshes(root: THREE.Group, track: Tracked) {
+  root.updateMatrixWorld(true);
+  const toRoot = new THREE.Matrix4().copy(root.matrixWorld).invert();
+  const meshes: THREE.Mesh[] = [];
+  root.traverse(object => { if ((object as THREE.Mesh).isMesh) meshes.push(object as THREE.Mesh); });
+
+  // One draw per material/depth pair. Every piece is baked into root space and
+  // normalised to non-indexed so geometry built by different primitives merges.
+  const groups: MergeGroup[] = [];
+  for (const mesh of meshes) {
+    if (Array.isArray(mesh.material)) continue;
+    const foliage = mesh.userData.foliage === true;
+    let group = groups.find(candidate => candidate.material === mesh.material
+      && candidate.depthMaterial === mesh.customDepthMaterial && candidate.foliage === foliage);
+    if (!group) {
+      group = { material: mesh.material, depthMaterial: mesh.customDepthMaterial, foliage, pieces: [], meshes: [] };
+      groups.push(group);
+    }
+    const piece = mesh.geometry.index ? mesh.geometry.toNonIndexed() : mesh.geometry.clone();
+    piece.applyMatrix4(new THREE.Matrix4().multiplyMatrices(toRoot, mesh.matrixWorld));
+    group.pieces.push(piece);
+    group.meshes.push(mesh);
+  }
+
+  const replaced = new Set<THREE.BufferGeometry>();
+  for (const group of groups) {
+    const merged = mergeGeometries(group.pieces, false);
+    for (const piece of group.pieces) piece.dispose();
+    if (!merged) continue;
+    const mesh = new THREE.Mesh(merged, group.material);
+    if (group.depthMaterial) mesh.customDepthMaterial = group.depthMaterial;
+    if (group.foliage) mesh.userData.foliage = true;
+    const source = group.meshes[0]!;
+    mesh.castShadow = source.castShadow; mesh.receiveShadow = source.receiveShadow;
+    mesh.renderOrder = source.renderOrder; mesh.visible = source.visible;
+    track.geometry(merged); root.add(mesh);
+    for (const original of group.meshes) { replaced.add(original.geometry); original.parent?.remove(original); }
+  }
+  for (const geometry of replaced) geometry.dispose();
+}
+
+/** Builds the unmerged set dressing; tests inspect individual placements on it. */
+export function buildCourtyardDressing(scene: THREE.Scene, track: Tracked) {
   const root = new THREE.Group(); root.name = 'courtyard-training-build';
   scene.add(root);
   new DressingBuilder(root, track).build();
+  return root;
+}
+
+export function addCourtyardDressing(scene: THREE.Scene, track: Tracked) {
+  mergeStaticMeshes(buildCourtyardDressing(scene, track), track);
 }
