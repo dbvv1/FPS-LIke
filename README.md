@@ -35,7 +35,7 @@ Esc 释放鼠标并暂停，点击「继续回合」返回当前对局；「重�
 
 ## 可选体验
 
-- [加速度与摩擦手感](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&feel=ground-v1)：在当前训练赛中体验起步、滑停与反向变化。
+- [加速度与摩擦手感](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&materials=ai-courtyard-full-v1&feel=ground-v1)：保留首页训练赛的场景配置，只对比起步、滑停与反向。
 - [全场 AI 材质](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&materials=ai-courtyard-full-v1)：WebGL2 下显示地面、庭院墙面、中心折墙与低掩体的新材质，可另加 `&feel=ground-v1` 组合手感。
 - [旧版 1v1](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=legacy-v1)：返回单个机器人对抗。
 - [旧版 1v1 角色与武器展示](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?contentSet=characters-v1)：使用成套角色与第一人称武器资源，需要 WebGL2。它属于旧版 1v1，不与六回合训练赛参数组合。
