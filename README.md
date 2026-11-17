@@ -4,7 +4,7 @@
 
 ## 开始试玩
 
-[在线进入训练赛](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/)。使用桌面键盘与鼠标，等待场景加载完成后点击「进入靶场」锁定鼠标。首页已包含庭院标准件与新灯光，移动使用原训练赛模型。
+[在线进入训练赛](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/)。使用桌面键盘与鼠标，等待场景加载完成后点击「进入靶场」锁定鼠标。首页已包含庭院布景、标准件与新灯光，移动使用原训练赛模型。
 
 想先降低难度，在菜单选择「入门」，点击「重新开始」，再点击「进入靶场」。**只改难度选项不会改变当前比赛的机器人**，点击「下一回合」也不会应用新难度。
 
@@ -35,12 +35,12 @@ Esc 释放鼠标并暂停，点击「继续回合」返回当前对局；「重�
 
 ## 可选体验
 
-- [加速度与摩擦手感](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&materials=ai-courtyard-full-v1&feel=ground-v1)：保留首页训练赛的场景配置，只对比起步、滑停与反向。
-- [旧材质对照](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1)：与[无参数首页](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/)比较。首页在 WebGL2 下默认使用全场 AI 材质；对照保留同一训练赛、灯光和移动设置，只切回旧材质。
+- [加速度与摩擦手感](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&materials=ai-courtyard-full-v1&dressing=courtyard-dressing-v1&feel=ground-v1)：保留首页训练赛的场景配置，只对比起步、滑停与反向。
+- [上一版默认对照（无庭院布景）](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&materials=ai-courtyard-full-v1)：与[无参数首页](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/)比较。首页在 WebGL2 下默认使用全场 AI 材质和庭院布景；该链接是加入庭院布景前的上一版默认入口，保留同一训练赛、灯光、材质和移动设置，只关闭庭院布景。
 - [旧版 1v1](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=legacy-v1)：返回单个机器人对抗。
 - [旧版 1v1 角色与武器展示](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?contentSet=characters-v1)：使用成套角色与第一人称武器资源，需要 WebGL2。它属于旧版 1v1，不与六回合训练赛参数组合。
 
-返回[无参数首页](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/)恢复当前默认训练赛。若只比较一项，保留链接中的其他参数，删除 `feel`、`materials`、`art` 或 `lighting` 可分别关闭手感候选、AI 材质、三件标准件或新灯光；不要只保留 `?feel=ground-v1`，它不能单独选择训练赛。旧 movement-v2 链接会返回当前默认训练赛。
+返回[无参数首页](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/)恢复当前默认训练赛；需要回退到加入庭院布景前的上一版默认时，使用上面的[上一版默认对照](https://dbvv1-fps-like.pretty-llama-9945.chatgpt.site/?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1&art=standards-v1&lighting=courtyard-light-v1&materials=ai-courtyard-full-v1)链接。若只比较一项，保留链接中的其他参数，删除 `feel`、`dressing`、`materials`、`art` 或 `lighting` 可分别关闭手感候选、庭院布景、AI 材质、三件标准件或新灯光；不要只保留 `?feel=ground-v1`，它不能单独选择训练赛。旧 movement-v2 链接会返回当前默认训练赛。
 
 画面差距与验证范围见[品质页](docs/quality.md)。
 

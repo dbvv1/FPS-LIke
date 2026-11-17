@@ -1,12 +1,15 @@
 import assert from 'node:assert/strict';
 import { connect } from 'node:net';
 // Node >=22.12 with --import tsx shares the product TypeScript route.
-import { resolveHomeSearch, reviewedTrainingSearch } from '../src/default-route.ts';
+import { resolveHomeSearch, reviewedTrainingSearch, previousReviewedSearch } from '../src/default-route.ts';
 export const OFFLINE_QUERY = '?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1&environment=courtyard-v1';
+// Current home: reviewed build with the promoted courtyard dressing.
 export const REVIEWED_QUERY = reviewedTrainingSearch;
-export const FULL_MATERIALS_QUERY = REVIEWED_QUERY + '&materials=ai-courtyard-full-v1';
-// Presentation-only dressing over the reviewed home build; compared against the unparameterized home.
-export const DRESSING_QUERY = REVIEWED_QUERY + '&dressing=courtyard-dressing-v1';
+// Previous default, still reachable by its exact explicit query.
+export const PREVIOUS_REVIEWED_QUERY = previousReviewedSearch;
+export const FULL_MATERIALS_QUERY = previousReviewedSearch;
+// The dressed route is now the home; keep the explicit query for smoke selection.
+export const DRESSING_QUERY = reviewedTrainingSearch;
 export function smokeEntry(query = '') {
   assert.equal(typeof query, 'string');
   assert.ok(query === '' || query.startsWith('?'), 'Smoke query must start with ?');

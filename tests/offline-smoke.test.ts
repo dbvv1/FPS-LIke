@@ -96,15 +96,17 @@ test('new-match UI start must advance, then Escape must freeze before full cover
 
 test('home and current full-materials promotion route require complete-match coverage', async () => {
   // @ts-expect-error Browser-independent orchestration helpers.
-  const { smokeEntry, REVIEWED_QUERY, FULL_MATERIALS_QUERY, DRESSING_QUERY } = await import('../tools/smoke-offline-support.mjs');
-  for (const query of [undefined, '', '?', REVIEWED_QUERY, FULL_MATERIALS_QUERY, DRESSING_QUERY]) {
+  const { smokeEntry, REVIEWED_QUERY, PREVIOUS_REVIEWED_QUERY, FULL_MATERIALS_QUERY, DRESSING_QUERY } = await import('../tools/smoke-offline-support.mjs');
+  for (const query of [undefined, '', '?', REVIEWED_QUERY, PREVIOUS_REVIEWED_QUERY, FULL_MATERIALS_QUERY, DRESSING_QUERY]) {
     const entry = smokeEntry(query);
     assert.equal(entry.offline, true); assert.equal(entry.lit, true); assert.equal(entry.artStandards, true);
     assert.equal(entry.fullMaterials, query === FULL_MATERIALS_QUERY);
-    assert.equal(entry.dressing, query === DRESSING_QUERY);
   }
-  const { reviewedTrainingSearch, resolveHomeSearch } = await import('../src/default-route.js');
+  assert.equal(smokeEntry().dressing, true);
+  assert.equal(smokeEntry(PREVIOUS_REVIEWED_QUERY).dressing, false);
+  const { previousReviewedSearch, reviewedTrainingSearch, resolveHomeSearch } = await import('../src/default-route.js');
   assert.equal(REVIEWED_QUERY, reviewedTrainingSearch);
+  assert.equal(PREVIOUS_REVIEWED_QUERY, previousReviewedSearch);
   assert.equal(smokeEntry().effective, resolveHomeSearch(''));
   for (const query of ['?gameplay=movement-v2', '?gameplay=movement-v2&contentSet=characters-v1']) {
     assert.equal(smokeEntry(query).effective, resolveHomeSearch(query));
