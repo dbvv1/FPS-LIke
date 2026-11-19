@@ -65,7 +65,10 @@ export class Hud {
     element('shot-result').dataset.kind = result?.kind ?? '';
     const moving = Math.hypot(player.input.x, player.input.z) > .01;
     element('crosshair').style.setProperty('--spread', `${5 + pose.kick * 9 + (moving ? 10 : 0)}px`);
-    element('crosshair').classList.toggle('reloading', !!player.reload);
+    // A settled round keeps its last snapshot; it must not promise a reload can finish.
+    const canReload = state.phase === 'live' && player.hp > 0;
+    const reloading = canReload && !!player.reload;
+    element('crosshair').classList.toggle('reloading', reloading);
     if (player.hp < this.lastHp) { element('hurt').classList.remove('flash'); void element('hurt').offsetWidth; element('hurt').classList.add('flash'); }
     this.lastHp = player.hp;
     element('score-a').textContent = String(state.score.amber); element('score-d').textContent = String(state.score.blue);
@@ -88,10 +91,10 @@ export class Hud {
     element('weapon').textContent = player.weapon === 'rifle' ? 'RX-24 / 步枪' : 'PX-10 / 手枪';
     element('ammo').innerHTML = `${mag.ammo} <small>/ ${mag.reserve}</small>`;
     const remainingReload = player.reload ? Math.max(0, (player.reload.end - state.time) / SECOND) : 0;
-    element('reload').textContent = player.reload ? `${pose.progress < .3 ? '退出弹匣' : pose.progress < .76 ? '装入弹匣' : '闭锁复位'} · ${remainingReload.toFixed(1)}s` : mag.ammo === 0 ? '弹匣已空 · R 换弹' : mag.ammo <= WEAPONS[player.weapon].magazine * .2 ? '弹药偏低 · R 换弹' : '';
+    element('reload').textContent = !canReload ? '' : reloading ? `${pose.progress < .3 ? '退出弹匣' : pose.progress < .76 ? '装入弹匣' : '闭锁复位'} · ${remainingReload.toFixed(1)}s` : mag.ammo === 0 ? '弹匣已空 · R 换弹' : mag.ammo <= WEAPONS[player.weapon].magazine * .2 ? '弹药偏低 · R 换弹' : '';
     element('ammo').classList.toggle('low', mag.ammo <= WEAPONS[player.weapon].magazine * .2);
-    element('reload-progress').hidden = !player.reload;
-    element<HTMLProgressElement>('reload-progress').value = pose.progress;
+    element('reload-progress').hidden = !reloading;
+    element<HTMLProgressElement>('reload-progress').value = reloading ? pose.progress : 0;
     const interaction = state.interaction?.actorId === player.id ? state.interaction : null;
     element('interaction').hidden = !interaction;
     if (interaction) {
