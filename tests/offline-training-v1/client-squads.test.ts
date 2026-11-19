@@ -18,7 +18,8 @@ const AsyncFunction=Object.getPrototypeOf(async function(){}).constructor;
 for(const ground of [false,true]) test(`actual offline squad client drives real held input, pause/resume, nine bots, six rounds and clean restart (ground=${ground})`,async t=>{
  let start!:()=>void,next!:()=>void,clock=0,raf!:(now:number)=>void,locks=0;
  const botCommands=new Set<string>();
- let interpolated=0,renderedInterpolated=0,lastVisual:any=null;
+ let interpolated=0,renderedInterpolated=0,lastVisual:any=null,simulationSteps=0;
+ let renderedAim: { yaw:number; pitch:number } | undefined;
  const interpolationSpy: typeof interpolateState = (previous,current,alpha) => {const result=interpolateState(previous,current,alpha); if(result!==current && alpha>0 && alpha<1){interpolated++;lastVisual=result;} return result;};
  const created:Game[]=[],summaries:unknown[]=[],errors:unknown[]=[];
  const window=Object.assign(new EventTarget(),{performance,location:{search:'?gameplay=offline-training-v1&match=complete-v1&squads=offline-v1'+(ground?'&feel=ground-v1':'')}}) as any;
@@ -29,15 +30,34 @@ for(const ground of [false,true]) test(`actual offline squad client drives real 
  const originals=new Map(['window','document'].map(key=>[key,Object.getOwnPropertyDescriptor(globalThis,key)]));
  Object.defineProperty(globalThis,'window',{value:window,configurable:true});Object.defineProperty(globalThis,'document',{value:document,configurable:true});
  t.mock.method(performance,'now',()=>clock);
- class View{backend='canvas2d-cpu';info={};render(state:any,_actor:any,yaw:number,pitch:number){if(state===lastVisual)renderedInterpolated++;assert.ok(Number.isFinite(yaw));assert.ok(Number.isFinite(pitch));}reset(){}resize(){}dispose(){}}
+ class View{backend='canvas2d-cpu';info={};render(state:any,_actor:any,yaw:number,pitch:number){renderedAim={yaw,pitch};if(state===lastVisual)renderedInterpolated++;assert.ok(Number.isFinite(yaw));assert.ok(Number.isFinite(pitch));}reset(){}resize(){}dispose(){}}
  class Hud{difficulty='normal';constructor(a:()=>void,b:()=>void){start=a;next=b;}setBusy(){}menu(){}reset(){}update(){}message(){}}
  class Soundscape{enabled=true;async unlock(){}update(){}reset(){}dispose(){}}
  class MatchPanel{update(_state:unknown,_player:unknown,summary:unknown){summaries.push(summary);}}
- const deps={frameBudget,resumeFrameBudget,TICK_MS,MAX_CATCHUP_STEPS,trainingFeelEnabled,interpolateState:interpolationSpy,squadsRequested,squadSpecs,squadBots,Game:{async create(seed:number,specs:any,rules:any,options:any){const g=await Game.create(seed,specs,rules,options);const step=g.step.bind(g);g.step=(commands=[])=>{for(const c of commands)if(c.actorId!=='player')botCommands.add(c.actorId);step(commands);};created.push(g);return g;}},Bot,initNavigation,Navigation,Controls,MouseSensitivity:class{dirty=false;value=1;},View,CanvasView:View,Soundscape,RESULT_HOLD_MS:700,Hud,TrainingMatch,completeMatchRequested,MatchPanel,document,window,performance:{now:()=>clock},requestAnimationFrame:(fn:(now:number)=>void)=>{raf=fn;return 1;},cancelAnimationFrame:()=>{},console:{error:(e:unknown)=>errors.push(e)}};
+ const deps={frameBudget,resumeFrameBudget,TICK_MS,MAX_CATCHUP_STEPS,trainingFeelEnabled,interpolateState:interpolationSpy,squadsRequested,squadSpecs,squadBots,Game:{async create(seed:number,specs:any,rules:any,options:any){const g=await Game.create(seed,specs,rules,options);const step=g.step.bind(g);g.step=(commands=[])=>{simulationSteps++;for(const c of commands)if(c.actorId!=='player')botCommands.add(c.actorId);step(commands);};created.push(g);return g;}},Bot,initNavigation,Navigation,Controls,MouseSensitivity:class{dirty=false;value=1;},View,CanvasView:View,Soundscape,RESULT_HOLD_MS:700,Hud,TrainingMatch,completeMatchRequested,MatchPanel,document,window,performance:{now:()=>clock},requestAnimationFrame:(fn:(now:number)=>void)=>{raf=fn;return 1;},cancelAnimationFrame:()=>{},console:{error:(e:unknown)=>errors.push(e)}};
  try{
  await new AsyncFunction(...Object.keys(deps),source)(...Object.values(deps));
  assert.deepEqual(errors,[]);
  start();await new Promise(r=>setImmediate(r));
+ if(!ground){
+   // Normal rendering must consume current mouse aim before the next simulation tick.
+   // Exercise the actual client frame and Controls handler, not a copied frame helper.
+   clock=1;raf(clock); // establish the resumed frame's clock without advancing simulation
+   const actor=created[0]!.state.actors.find(a=>a.id==='player')!;
+   assert.deepEqual([actor.yaw,actor.pitch],[0,0]);
+   const stepsBefore=simulationSteps,tickBefore=created[0]!.state.tick;
+   clock=2;document.dispatchEvent(event('mousemove',{movementX:50,movementY:-25}));
+   clock=3;raf(clock);
+   assert.equal(window.fpsClient.state().locked,true);
+   assert.equal(window.fpsClient.state().running,true);
+   assert.equal(simulationSteps,stepsBefore,'sub-tick frame must not call Game.step');
+   assert.equal(created[0]!.state.tick,tickBefore);
+   assert.deepEqual([actor.yaw,actor.pitch],[0,0],'authoritative angles remain stale until tick');
+   assert.deepEqual(renderedAim,{yaw:.1,pitch:.05},'frame must render live Controls aim, not stale actor aim');
+   t.diagnostic(JSON.stringify({zeroStepFrame:{tick:tickBefore,steps:simulationSteps-stepsBefore,actor:[actor.yaw,actor.pitch],view:renderedAim}}));
+   // Return by the same handler so the existing six-round tape starts at its original aim.
+   clock=4;document.dispatchEvent(event('mousemove',{movementX:-50,movementY:25}));
+ }
  for(let round=1;round<=6;round++){
    // Feed real input through the assembled client, then pause while actions are held.
    // Aim skyward so this acceptance tape does not deliberately hit a teammate.
