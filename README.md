@@ -55,12 +55,21 @@ npm run dev
 
 打开终端显示的本地地址，按上面的试玩步骤进入。生产预览：`npm run build` 后运行 `npm run preview`。客户端当前范围见[客户端接入](docs/client.md)。
 
-## 运行机器人对局
+## 无画面模拟
 
-需要 Node.js 22.12+（本机接收端为 22.23.2）。
+需要 Node.js 22.12+（本机接收端为 22.23.2）；先运行 `npm ci`。
+
+### 六回合离线训练赛
 
 ```sh
-npm ci
+npm run sim:offline-training -- --seed 1 --seeds 1 --replay
+```
+
+使用首页训练赛的对局规则：1 名不输入指令的玩家与 9 个机器人，第三回合后换边。输出逐回合胜方、结算原因与状态哈希；`--replay` 会用同一种子再跑一遍，检查两次输出是否一致。
+
+### 旧版 1v1 机器人数值对照
+
+```sh
 npm run sim -- --games 200 --seed 1
 ```
 
